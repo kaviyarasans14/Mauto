@@ -272,7 +272,7 @@ class ListModel extends FormModel
                 'label'      => $this->translator->trans('mautic.lead.list.filter.owner'),
                 'properties' => [
                     'type'     => 'lookup_id',
-                    'callback' => 'activateSegmentFilterTypeahead',
+                    'callback' => 'activateSegmentFilterTypeahead1',
                 ],
                 'operators' => $this->getOperatorsForFieldType('lookup_id'),
                 'object'    => 'lead',
@@ -735,7 +735,9 @@ class ListModel extends FormModel
     {
         $user = (!$this->security->isGranted('lead:lists:viewother')) ?
             $this->userHelper->getUser() : false;
-        $lists = $this->em->getRepository('MauticLeadBundle:LeadList')->getLists($user, $alias);
+        $leadlistrepo=$this->em->getRepository('MauticLeadBundle:LeadList');
+        $leadlistrepo->setCurrentUser($this->userHelper->getUser());
+        $lists = $leadlistrepo->getLists($user, $alias);
 
         return $lists;
     }
@@ -747,7 +749,9 @@ class ListModel extends FormModel
      */
     public function getGlobalLists()
     {
-        $lists = $this->em->getRepository('MauticLeadBundle:LeadList')->getGlobalLists();
+        $leadlistrepo=$this->em->getRepository('MauticLeadBundle:LeadList');
+        $leadlistrepo->setCurrentUser($this->userHelper->getUser());
+        $lists = $leadlistrepo->getGlobalLists();
 
         return $lists;
     }

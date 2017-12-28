@@ -46,6 +46,10 @@ class ConfigBuilderEvent extends Event
      * @var array
      */
     protected $encodedFields = [];
+    private $allowedformsalias = [
+        'emailconfig','trackingconfig'
+    ];
+    private $Is_Admin=false;
 
     /**
      * ConfigBuilderEvent constructor.
@@ -53,10 +57,11 @@ class ConfigBuilderEvent extends Event
      * @param PathsHelper  $pathsHelper
      * @param BundleHelper $bundleHelper
      */
-    public function __construct(PathsHelper $pathsHelper, BundleHelper $bundleHelper)
+    public function __construct(PathsHelper $pathsHelper, BundleHelper $bundleHelper,$IsAdmin)
     {
         $this->pathsHelper  = $pathsHelper;
         $this->bundleHelper = $bundleHelper;
+        $this->Is_Admin=$IsAdmin;
     }
 
     /**
@@ -68,6 +73,11 @@ class ConfigBuilderEvent extends Event
      */
     public function addForm(array $form)
     {
+        if (!$this->Is_Admin) {
+            if (!in_array($form['formAlias'],  $this->allowedformsalias)) {
+                return $this;
+            }
+        }
         if (isset($form['formTheme'])) {
             $this->formThemes[] = $form['formTheme'];
         }

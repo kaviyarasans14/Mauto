@@ -54,7 +54,8 @@ class TriggerCampaignCommand extends ModeratedCommand
                 InputOption::VALUE_OPTIONAL,
                 'Set max number of events to process per campaign for this script execution. Defaults to all.',
                 0
-            );
+            )
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
 
         parent::configure();
     }

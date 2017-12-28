@@ -42,9 +42,10 @@ class BuilderTokenHelper
      */
     public function __construct(MauticFactory $factory, $modelName, $viewPermissionBase = null, $bundleName = null, $langVar = null)
     {
+        $permissionname=strtolower($modelName);
         $this->factory            = $factory;
         $this->modelName          = $modelName;
-        $this->viewPermissionBase = (!empty($viewPermissionBase)) ? $viewPermissionBase : "$modelName:{$modelName}s";
+        $this->viewPermissionBase = (!empty($viewPermissionBase)) ? $viewPermissionBase : "$permissionname:{$permissionname}s";
         $this->bundleName         = (!empty($bundleName)) ? $bundleName : 'Mautic'.ucfirst($modelName).'Bundle';
         $this->langVar            = (!empty($langVar)) ? $langVar : $modelName;
 

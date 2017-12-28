@@ -119,6 +119,10 @@ class LeadListRepository extends CommonRepository
             $q->andWhere($q->expr()->eq('l.isGlobal', ':true'));
             $q->orWhere('l.createdBy = :user');
             $q->setParameter('user', $user);
+        }else{
+            if($this->currentUser != null && !$this->currentUser->isAdmin()){
+                $q->andWhere('l.createdBy != 1');
+            }
         }
 
         if (!empty($alias)) {
@@ -261,7 +265,9 @@ class LeadListRepository extends CommonRepository
             ->setParameter(':true', true, 'boolean')
             ->andWhere($q->expr()->eq('l.isGlobal', ':true'))
             ->orderBy('l.name');
-
+        if($this->currentUser != null && !$this->currentUser->isAdmin()){
+            $q->andWhere('l.createdBy != 1');
+        }
         $results = $q->getQuery()->getArrayResult();
 
         return $results;

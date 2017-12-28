@@ -1,6 +1,6 @@
 {
     "name": "Default - Alternative",
-    "description": "An alternate layout to Mautic's default.",
+    "description": "An alternate layout to LeadsEngage's default.",
     "widgets": [
         {
             "name": "Contacts created",

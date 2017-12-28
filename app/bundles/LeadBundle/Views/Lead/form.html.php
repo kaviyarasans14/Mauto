@@ -15,6 +15,7 @@ $header = ($lead->getId()) ?
     $view['translator']->trans('mautic.lead.lead.header.new');
 $view['slots']->set('headerTitle', $header);
 $view['slots']->set('mauticContent', 'lead');
+$stagehideattr= $view['security']->isGranted('stage:stages:view') ? "" : "style='display: none;'";;
 
 $groups = array_keys($fields);
 sort($groups);
@@ -39,13 +40,13 @@ $img = $view['lead_avatar']->getAvatar($lead);
                     <?php echo $view['form']->widget($form['preferred_profile_image']); ?>
                 </div>
                 <div
-                    class="col-sm-12<?php if ($view['form']->containsErrors($form['custom_avatar'])) {
-    echo ' has-error';
-} ?>"
-                    id="customAvatarContainer"
-                    style="<?php if ($form['preferred_profile_image']->vars['data'] != 'custom') {
-    echo 'display: none;';
-} ?>">
+                        class="col-sm-12<?php if ($view['form']->containsErrors($form['custom_avatar'])) {
+                            echo ' has-error';
+                        } ?>"
+                        id="customAvatarContainer"
+                        style="<?php if ($form['preferred_profile_image']->vars['data'] != 'custom') {
+                            echo 'display: none;';
+                        } ?>">
                     <?php echo $view['form']->widget($form['custom_avatar']); ?>
                     <?php echo $view['form']->errors($form['custom_avatar']); ?>
                 </div>
@@ -58,8 +59,8 @@ $img = $view['lead_avatar']->getAvatar($lead);
                 <?php foreach ($groups as $g): ?>
                     <?php if (!empty($fields[$g])): ?>
                         <li class="list-group-item <?php if ($step === 1) {
-    echo 'active';
-} ?>">
+                            echo 'active';
+                        } ?>">
                             <a href="#<?php echo $g; ?>" class="steps" data-toggle="tab">
                                 <?php echo $view['translator']->trans('mautic.lead.field.group.'.$g); ?>
                             </a>
@@ -88,42 +89,57 @@ $img = $view['lead_avatar']->getAvatar($lead);
                             </div>
                             <div class="pa-md">
                                 <?php if ($group == 'core'): ?>
-                                <?php if (isset($form['title']) || isset($form['firstname']) || isset($form['lastname'])): ?>
+                                    <?php if (isset($form['title']) || isset($form['firstname']) || isset($form['lastname'])): ?>
+                                        <div class="form-group mb-0">
+                                            <label
+                                                    class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.core.name'); ?></label>
+                                            <div class="row">
+                                                <?php if (isset($form['title'])): ?>
+                                                    <div class="col-sm-2">
+                                                        <?php echo $view['form']->widget($form['title'], ['attr' => ['placeholder' => $form['title']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (isset($form['firstname'])): ?>
+                                                    <div class="col-sm-3">
+                                                        <?php echo $view['form']->widget($form['firstname'], ['attr' => ['placeholder' => $form['firstname']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (isset($form['lastname'])): ?>
+                                                    <div class="col-sm-3">
+                                                        <?php echo $view['form']->widget($form['lastname'], ['attr' => ['placeholder' => $form['lastname']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                            <hr class="mnr-md mnl-md">
+                                        </div>
+                                    <?php endif; ?>
+
                                     <div class="form-group mb-0">
                                         <label
-                                            class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.core.name'); ?></label>
+                                                class="control-label mb-xs"><?php echo $form['email']->vars['label']; ?></label>
                                         <div class="row">
-                                            <?php if (isset($form['title'])): ?>
-                                                <div class="col-sm-2">
-                                                    <?php echo $view['form']->widget($form['title'], ['attr' => ['placeholder' => $form['title']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (isset($form['firstname'])): ?>
-                                                <div class="col-sm-3">
-                                                    <?php echo $view['form']->widget($form['firstname'], ['attr' => ['placeholder' => $form['firstname']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (isset($form['lastname'])): ?>
-                                                <div class="col-sm-3">
-                                                    <?php echo $view['form']->widget($form['lastname'], ['attr' => ['placeholder' => $form['lastname']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <hr class="mnr-md mnl-md">
-                                    </div>
-                                <?php endif; ?>
+                                            <div class="form-group col-sm-8">
+                                                <?php echo $view['form']->widget($form['email'], ['attr' => ['placeholder' => $form['email']->vars['label']]]); ?>
+                                            </div>
 
-                                <div class="form-group mb-0">
-                                    <label
-                                        class="control-label mb-xs"><?php echo $form['email']->vars['label']; ?></label>
-                                    <div class="row">
-                                        <div class="col-sm-8">
-                                            <?php echo $view['form']->widget($form['email'], ['attr' => ['placeholder' => $form['email']->vars['label']]]); ?>
                                         </div>
+                                        <?php if (isset($form['mobile'])): ?>
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <?php echo $view['form']->row($form['mobile']); ?>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (isset($form['points'])): ?>
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <?php echo $view['form']->row($form['points']); ?>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                </div>
-                                <hr class="mnr-md mnl-md">
-                                    <div class="form-group mb-0">
+                                    <hr class="mnr-md mnl-md" >
+                                    <div class="form-group mb-0" <?php echo $stagehideattr ?>>
                                         <label><?php echo $view['translator']->trans('mautic.company.company'); ?></label>
                                         <div class="row">
                                             <?php if (isset($form['companies'])): ?>
@@ -138,68 +154,68 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    <hr class="mnr-md mnl-md">
+                                    <hr class="mnr-md mnl-md" <?php echo $stagehideattr ?>>
 
-                                <?php if (isset($form['address1']) || isset($form['address2']) || isset($form['city']) || isset($form['state']) || isset($form['zipcode']) || isset($form['country'])): ?>
-                                    <div class="form-group mb-0">
-                                        <label
-                                            class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.lead.field.address'); ?></label>
-                                        <?php if (isset($form['address1'])): ?>
+                                    <?php if (isset($form['address1']) || isset($form['address2']) || isset($form['city']) || isset($form['state']) || isset($form['zipcode']) || isset($form['country'])): ?>
+                                        <div class="form-group mb-0">
+                                            <label
+                                                    class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.lead.field.address'); ?></label>
+                                            <?php if (isset($form['address1'])): ?>
+                                                <div class="row mb-xs">
+                                                    <div class="col-sm-8">
+                                                        <?php echo $view['form']->widget($form['address1'], ['attr' => ['placeholder' => $form['address1']->vars['label']]]); ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if (isset($form['address2'])): ?>
+                                                <div class="row mb-xs">
+                                                    <div class="col-sm-8">
+                                                        <?php echo $view['form']->widget($form['address2'], ['attr' => ['placeholder' => $form['address2']->vars['label']]]); ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
                                             <div class="row mb-xs">
-                                                <div class="col-sm-8">
-                                                    <?php echo $view['form']->widget($form['address1'], ['attr' => ['placeholder' => $form['address1']->vars['label']]]); ?>
-                                                </div>
+                                                <?php if (isset($form['city'])): ?>
+                                                    <div class="col-sm-4">
+                                                        <?php echo $view['form']->widget($form['city'], ['attr' => ['placeholder' => $form['city']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (isset($form['state'])): ?>
+                                                    <div class="col-sm-4">
+                                                        <?php echo $view['form']->widget($form['state'], ['attr' => ['placeholder' => $form['state']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
-                                        <?php endif; ?>
-                                        <?php if (isset($form['address2'])): ?>
-                                            <div class="row mb-xs">
-                                                <div class="col-sm-8">
-                                                    <?php echo $view['form']->widget($form['address2'], ['attr' => ['placeholder' => $form['address2']->vars['label']]]); ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div class="row mb-xs">
-                                            <?php if (isset($form['city'])): ?>
-                                                <div class="col-sm-4">
-                                                    <?php echo $view['form']->widget($form['city'], ['attr' => ['placeholder' => $form['city']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (isset($form['state'])): ?>
-                                                <div class="col-sm-4">
-                                                    <?php echo $view['form']->widget($form['state'], ['attr' => ['placeholder' => $form['state']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="row">
-                                            <?php if (isset($form['zipcode'])): ?>
-                                                <div class="col-sm-4">
-                                                    <?php echo $view['form']->widget($form['zipcode'], ['attr' => ['placeholder' => $form['zipcode']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (isset($form['country'])): ?>
-                                                <div class="col-sm-4">
-                                                    <?php echo $view['form']->widget($form['country'], ['attr' => ['placeholder' => $form['country']->vars['label']]]); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                    <hr class="mnr-md mnl-md">
-                                <?php endif; ?>
-                                <?php if (isset($form['attribution']) && isset($form['attribution_date'])): ?>
-                                    <div class="form-group mb-0">
-                                        <label
-                                            class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.lead.attribution'); ?></label>
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <?php echo $view['form']->widget($form['attribution'], ['attr' => ['placeholder' => $form['attribution']->vars['label'], 'preaddon' => 'fa fa-money']]); ?>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <?php echo $view['form']->widget($form['attribution_date'], ['attr' => ['placeholder' => $form['attribution_date']->vars['label']]]); ?>
+                                            <div class="row">
+                                                <?php if (isset($form['zipcode'])): ?>
+                                                    <div class="col-sm-4">
+                                                        <?php echo $view['form']->widget($form['zipcode'], ['attr' => ['placeholder' => $form['zipcode']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (isset($form['country'])): ?>
+                                                    <div class="col-sm-4">
+                                                        <?php echo $view['form']->widget($form['country'], ['attr' => ['placeholder' => $form['country']->vars['label']]]); ?>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr class="mnr-md mnl-md">
-                                <?php endif; ?>
+                                        <hr class="mnr-md mnl-md">
+                                    <?php endif; ?>
+                                    <?php if (isset($form['attribution']) && isset($form['attribution_date'])): ?>
+                                        <div class="form-group mb-0">
+                                            <label
+                                                    class="control-label mb-xs"><?php echo $view['translator']->trans('mautic.lead.attribution'); ?></label>
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <?php echo $view['form']->widget($form['attribution'], ['attr' => ['placeholder' => $form['attribution']->vars['label'], 'preaddon' => 'fa fa-money']]); ?>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <?php echo $view['form']->widget($form['attribution_date'], ['attr' => ['placeholder' => $form['attribution_date']->vars['label']]]); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr class="mnr-md mnl-md">
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <div class="form-group mb-0">
                                     <div class="row">
@@ -220,14 +236,16 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                     </div>
                                 </div>
                                 <?php if ($group == 'core'): ?>
-                                    <hr class="mnr-md mnl-md">
-                                    <div class="row">
-                                        <div class="col-sm-8">
-                                            <?php echo $view['form']->label($form['stage']); ?>
-                                            <?php echo $view['form']->widget($form['stage']); ?>
-                                        </div>
+                                    <hr class="mnr-md mnl-md" <?php echo $stagehideattr ?>>
+                                    <div class="row" <?php echo $stagehideattr ?>>
+                                        <?php if (isset($form['stage'])): ?>
+                                            <div class="col-sm-8">
+                                                <?php echo $view['form']->label($form['stage']); ?>
+                                                <?php echo $view['form']->widget($form['stage']); ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
-                                    <hr class="mnr-md mnl-md">
+                                    <hr class="mnr-md mnl-md" <?php echo $stagehideattr ?>>
                                     <div class="form-group mb-0">
                                         <div class="row">
                                             <div class="col-sm-4">
@@ -243,7 +261,7 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <?php
+                    <?php
                     endif;
                 endif;
             endforeach;

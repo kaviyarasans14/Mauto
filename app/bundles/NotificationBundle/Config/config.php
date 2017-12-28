@@ -234,7 +234,7 @@ return [
                             ],
                         ],
                     ],
-                    'parent'   => 'mautic.core.channels',
+                    'parent'   => 'mautic.core.components',
                     'priority' => 80,
                 ],
                 'mautic.notification.mobile_notifications' => [
@@ -250,7 +250,7 @@ return [
                             ],
                         ],
                     ],
-                    'parent'   => 'mautic.core.channels',
+                    'parent'   => 'mautic.core.components',
                     'priority' => 65,
                 ],
             ],

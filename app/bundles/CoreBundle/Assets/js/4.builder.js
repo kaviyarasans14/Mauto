@@ -40,7 +40,6 @@ Mautic.launchBuilder = function (formName, actionName) {
 
     // Load the theme from the custom HTML textarea
     var themeHtml = mQuery('textarea.builder-html').val();
-
     if (Mautic.codeMode) {
         var rawTokens = mQuery.map(Mautic.builderTokens, function (element, index) {
             return index
@@ -866,9 +865,9 @@ Mautic.sectionBackgroundChanged = function(element, color) {
 Mautic.rgb2hex = function(orig) {
     var rgb = orig.replace(/\s/g,'').match(/^rgba?\((\d+),(\d+),(\d+)/i);
     return (rgb && rgb.length === 4) ? "#" +
-    ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
-    ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
-    ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig;
+        ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+        ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+        ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig;
 };
 
 Mautic.initSlots = function(slotContainers) {
@@ -1405,10 +1404,8 @@ Mautic.initSlotListeners = function() {
         if (type !== "dynamicContent") {
             Mautic.removeAddVariantButton();
         }
-
         Mautic.clearSlotFormError(fieldParam);
-
-        if (fieldParam === 'padding-top' || fieldParam === 'padding-bottom') {
+        if (fieldParam === 'width' || fieldParam === 'padding-left' || fieldParam === 'padding-right' || fieldParam === 'padding-top' || fieldParam === 'padding-bottom') {
             params.slot.css(fieldParam, params.field.val() + 'px');
         } else if ('label-text' === fieldParam) {
             params.slot.find('label.control-label').text(params.field.val());
@@ -1530,7 +1527,7 @@ Mautic.initSlotListeners = function() {
         }
 
         if (params.type == 'text') {
-            Mautic.setTextSlotEditorStyle(parent.mQuery('#slot_text_content'), params.slot);
+            // Mautic.setTextSlotEditorStyle(parent.mQuery('#slot_text_content'), params.slot);
         }
     });
 

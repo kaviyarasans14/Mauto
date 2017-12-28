@@ -8,12 +8,14 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
+
 if (!$isEmbedded) {
     $view->extend('MauticCoreBundle:Default:content.html.php');
 
     $view['slots']->set('mauticContent', 'email');
     $view['slots']->set('headerTitle', $email->getName());
 }
+//dump($actionRoute);
 $variantContent = $view->render(
     'MauticCoreBundle:Variant:index.html.php',
     [
@@ -21,7 +23,7 @@ $variantContent = $view->render(
         'variants'      => $variants,
         'abTestResults' => $abTestResults,
         'model'         => 'email',
-        'actionRoute'   => 'mautic_email_action',
+        'actionRoute'   => $actionRoute,
     ]
 );
 
@@ -33,7 +35,7 @@ $translationContent = $view->render(
         'activeEntity' => $email,
         'translations' => $translations,
         'model'        => 'email',
-        'actionRoute'  => 'mautic_email_action',
+        'actionRoute'  => $actionRoute,
     ]
 );
 $showTranslations = !empty(trim($translationContent));
@@ -50,7 +52,7 @@ if (!$isEmbedded) {
             'attr' => [
                 'data-toggle' => 'ajax',
                 'href'        => $view['router']->path(
-                    'mautic_email_action',
+                    $actionRoute,
                     ['objectAction' => 'send', 'objectId' => $email->getId()]
                 ),
             ],
@@ -65,7 +67,7 @@ if (!$isEmbedded) {
             'class'       => 'btn btn-default btn-nospin',
             'data-toggle' => 'ajaxmodal',
             'data-target' => '#MauticSharedModal',
-            'href'        => $view['router']->path('mautic_email_action', ['objectAction' => 'sendExample', 'objectId' => $email->getId()]),
+            'href'        => $view['router']->path($actionRoute, ['objectAction' => 'sendExample', 'objectId' => $email->getId()]),
             'data-header' => $view['translator']->trans('mautic.email.send.example'),
         ],
         'iconClass' => 'fa fa-send',
@@ -101,7 +103,8 @@ if (!$isEmbedded) {
                         $email->getCreatedBy()
                     ),
                 ],
-                'routeBase'     => 'email',
+                'actionRoute' => $actionRoute,
+                'indexRoute' => $indexRoute,
                 'customButtons' => $customButtons,
             ]
         )
@@ -127,18 +130,18 @@ if (!$isEmbedded) {
                             <?php echo \Mautic\CoreBundle\Helper\EmojiHelper::toHtml($email->getSubject(), 'short'); ?>
                         </div>
                         <?php if ($email->isVariant(true)): ?>
-                        <div class="small">
-                            <a href="<?php echo $view['router']->path('mautic_email_action', ['objectAction' => 'view', 'objectId' => $variants['parent']->getId()]); ?>" data-toggle="ajax">
-                                <?php echo $view['translator']->trans('mautic.core.variant_of', ['%parent%' => $variants['parent']->getName()]); ?>
-                            </a>
-                        </div>
+                            <div class="small">
+                                <a href="<?php echo $view['router']->path($actionRoute, ['objectAction' => 'view', 'objectId' => $variants['parent']->getId()]); ?>" data-toggle="ajax">
+                                    <?php echo $view['translator']->trans('mautic.core.variant_of', ['%parent%' => $variants['parent']->getName()]); ?>
+                                </a>
+                            </div>
                         <?php endif; ?>
                         <?php if ($email->isTranslation(true)): ?>
-                        <div class="small">
-                            <a href="<?php echo $view['router']->path('mautic_email_action', ['objectAction' => 'view', 'objectId' => $translations['parent']->getId()]); ?>" data-toggle="ajax">
-                                <?php echo $view['translator']->trans('mautic.core.translation_of', ['%parent%' => $translations['parent']->getName()]); ?>
-                            </a>
-                        </div>
+                            <div class="small">
+                                <a href="<?php echo $view['router']->path($actionRoute, ['objectAction' => 'view', 'objectId' => $translations['parent']->getId()]); ?>" data-toggle="ajax">
+                                    <?php echo $view['translator']->trans('mautic.core.translation_of', ['%parent%' => $translations['parent']->getName()]); ?>
+                                </a>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>

@@ -254,6 +254,7 @@ trait LeadDetailsTrait
         $auditlogModel = $this->getModel('core.auditLog');
         /** @var AuditLogRepository $repo */
         $repo     = $auditlogModel->getRepository();
+        $repo->setCurrentUser($auditlogModel->getCurrentUser());
         $logCount = $repo->getAuditLogsCount($lead, $filters);
         $logs     = $repo->getAuditLogs($lead, $filters, $orderBy, $page, $limit);
 

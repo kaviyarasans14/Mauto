@@ -95,7 +95,6 @@ class LeadController extends FormController
         if (!$permissions['lead:leads:viewother']) {
             $filter['force'] .= " $mine";
         }
-
         $results = $model->getEntities([
             'start'          => $start,
             'limit'          => $limit,
@@ -240,7 +239,6 @@ class LeadController extends FormController
         //set the default owner to the currently logged in user
         $currentUser = $this->get('security.context')->getToken()->getUser();
         $quickForm->get('owner')->setData($currentUser);
-
         return $this->delegateView(
             [
                 'viewParameters' => [
@@ -1914,7 +1912,10 @@ class LeadController extends FormController
                 ]
             );
         } else {
-            $users = $this->getModel('user.user')->getRepository()->getUserList('', 0);
+            $usermodel=$this->getModel('user.user');
+            $currentuser= $usermodel->getCurrentUserEntity();
+            $usermodel->getRepository()->setCurrentUser($currentuser);
+            $users = $usermodel->getRepository()->getUserList('', 0,0,[]);
             $items = [];
             foreach ($users as $user) {
                 $items[$user['id']] = $user['firstName'].' '.$user['lastName'];

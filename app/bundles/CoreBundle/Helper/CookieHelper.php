@@ -59,11 +59,14 @@ class CookieHelper
         if ($this->request == null || (defined('MAUTIC_TEST_ENV') && MAUTIC_TEST_ENV)) {
             return true;
         }
-
+        $expire=($expire) ? time() + $expire : 1800;
+        if($expire > 2147483646){
+            $expire=2147483646;
+        }
         setcookie(
             $name,
             $value,
-            ($expire) ? time() + $expire : null,
+            $expire,
             ($path == null) ? $this->path : $path,
             ($domain == null) ? $this->domain : $domain,
             ($secure == null) ? $this->secure : $secure,

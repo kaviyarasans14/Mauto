@@ -55,7 +55,8 @@ class MauticSocialMonitoringCommand extends ContainerAwareCommand
                 InputOption::VALUE_REQUIRED,
                 'The maximum number of iterations the cron runs per cycle. This value gets distributed by the number of monitor records published'
             )
-            ->addOption('query-count', null, InputOption::VALUE_OPTIONAL, 'The number of records to search for per iteration. Default is 100.', 100);
+            ->addOption('query-count', null, InputOption::VALUE_OPTIONAL, 'The number of records to search for per iteration. Default is 100.', 100)
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
     }
 
     /**

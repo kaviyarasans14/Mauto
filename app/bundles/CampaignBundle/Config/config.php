@@ -106,10 +106,10 @@ return [
     'menu' => [
         'main' => [
             'mautic.campaign.menu.index' => [
-                'iconClass' => 'fa-clock-o',
                 'route'     => 'mautic_campaign_index',
                 'access'    => 'campaign:campaigns:view',
-                'priority'  => 50,
+                'priority'  => 80,
+                'parent'   => 'mautic.campaigns.root',
             ],
         ],
     ],

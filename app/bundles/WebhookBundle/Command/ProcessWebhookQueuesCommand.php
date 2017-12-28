@@ -34,7 +34,8 @@ class ProcessWebhookQueuesCommand extends ContainerAwareCommand
                 InputOption::VALUE_OPTIONAL,
                 'Process payload for a specific webhook.  If not specified, all webhooks will be processed.',
                 null
-            );
+            )
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
     }
 
     /**

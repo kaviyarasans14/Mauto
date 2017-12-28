@@ -50,6 +50,7 @@ EOT
                         'id', 'i', InputOption::VALUE_OPTIONAL,
                         'The ID for a specifc channel to process broadcasts for pending contacts.'
                     ),
+                    new InputOption('domain', 'd', InputOption::VALUE_REQUIRED, 'To load domain specific configuration'),
                 ]
             );
 

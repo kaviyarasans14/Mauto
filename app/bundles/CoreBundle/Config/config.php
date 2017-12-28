@@ -117,12 +117,22 @@ return [
             'mautic.core.components' => [
                 'id'        => 'mautic_components_root',
                 'iconClass' => 'fa-puzzle-piece',
-                'priority'  => 60,
-            ],
-            'mautic.core.channels' => [
-                'id'        => 'mautic_channels_root',
-                'iconClass' => 'fa-rss',
                 'priority'  => 40,
+            ],
+            /* 'mautic.core.channels' => [
+                 'id'        => 'mautic_channels_root',
+                 'iconClass' => 'fa-rss',
+                 'priority'  => 40,
+             ],*/
+            'mautic.segments.root' => [
+                'id'        => 'mautic_segments_root',
+                'iconClass' => 'fa-pie-chart',
+                'priority'  => 50,
+            ],
+            'mautic.campaigns.root' => [
+                'id'        => 'mautic_campaigns_root',
+                'iconClass' => 'fa-clock-o',
+                'priority'  => 70,
             ],
         ],
         'admin' => [
@@ -130,7 +140,8 @@ return [
                 'route'     => 'mautic_themes_index',
                 'iconClass' => 'fa-newspaper-o',
                 'id'        => 'mautic_themes_index',
-                'access'    => 'core:themes:view',
+                //'access'    => 'core:themes:view',
+                'access'    => 'admin',
             ],
         ],
         'extra' => [

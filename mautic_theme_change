@@ -1,0 +1,117 @@
+app-sidebar.sidebar-left{
+background-color:#375695
+}
+
+.app-sidebar.sidebar-left .sidebar-header, .app-sidebar.sidebar-left .sidebar-footer{
+background-color:#304c82
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li.active > a, .app-sidebar.sidebar-left .nav-sidebar > .nav > li.open > a {
+    background-color: #fff;
+    color: #375695;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > a {
+    color: #fff;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li.nav-group:after {
+    border-bottom: 1px solid #375695;//remove
+}
+
+.app-sidebar.sidebar-left .nav.sidebar-left-dark, .app-sidebar.sidebar-left .nav.sidebar-left-dark > li > a:hover {
+    background: #304c82;
+    color: #fff;
+}
+
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > a:hover, .app-sidebar.sidebar-left .nav-sidebar > .nav > li > a:focus {
+    background-color: #375695;
+    color: #fff;
+}
+
+@media (min-width: 768px)
+.sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar > .nav > li > a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #375695;
+    color: #fff;
+}
+
+.app-sidebar .nav-sidebar > .nav > li.open > a .icon, .app-sidebar .nav-sidebar > .nav > li.active > a .icon {
+    color: #375695;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li.open > .nav-submenu {
+    background-color: #456cba;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu {
+    background-color: #456cba;
+}
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li.active > a, .app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li.open > a {
+    color: #fff;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li > a {
+    color: #fff;
+}
+
+.app-sidebar .nav-sidebar > .nav > li > .nav-submenu > li.active:after {
+    background-color: #375695 !important;
+    box-shadow: 0 0 0 2px #fff;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li:after {
+    background-color: #fff;
+    box-shadow: 0 0 0 3px #375695;
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li > a:hover, .app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu > li > a:focus {
+    color: #fff;
+    font-weight: 700;
+    /* background-color: #375695; */
+}
+
+.app-sidebar.sidebar-left .nav-sidebar > .nav > li > .nav-submenu:after {
+    background-color: #375695;
+}
+
+.app-sidebar.sidebar-right {
+    background-color: #375695;
+    color: #fff;
+   }
+
+.app-sidebar.sidebar-right .nav-sidebar > .nav > li > a:hover, .app-sidebar.sidebar-right .nav-sidebar > .nav > li > a:focus {
+    background-color: #304c82;
+    color: #fff;
+}
+.app-sidebar.sidebar-right .nav-sidebar > .nav > li > a {
+    color: #fff;
+}
+
+.app-sidebar.sidebar-right .nav-sidebar > .nav > li.nav-group:after {
+     /* border-bottom: 1px solid #202830; */
+}
+
+.app-sidebar.sidebar-right .nav-sidebar > .nav > li.active > a, .app-sidebar.sidebar-right .nav-sidebar > .nav > li.open > a {
+    background-color: #fff;
+    color: #304c82;
+}
+.app-sidebar.sidebar-right .sidebar-header, .app-sidebar.sidebar-right .sidebar-footer {
+    width: 230px;
+    background-color: #304c82;
+}
+
+.nav-tabs > li.active > a:after {
+      background-color: #304c82;
+}
+.loading-bar, .canvas-loading-bar, .modal-loading-bar
+{
+background-color: #456cba;
+}
+Changes in app.css and libraries.css
+4e5d9d->375695
+47558f->304c82
+
+

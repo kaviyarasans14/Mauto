@@ -11,6 +11,7 @@
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'leadlist');
 $fields = $form->vars['fields'];
+//dump($fields);
 $id     = $form->vars['data']->getId();
 $index  = count($form['filters']->vars['value']) ? max(array_keys($form['filters']->vars['value'])) : 0;
 
@@ -92,27 +93,27 @@ $filterErrors = ($view['form']->containsErrors($form['filters'])) ? 'class="text
                                     foreach ($fields as $object => $field):
                                         $header = $object;
                                         $icon   = ($object == 'company') ? 'building' : 'user';
-                                    ?>
-                                    <optgroup label="<?php echo $view['translator']->trans('mautic.lead.'.$header); ?>">
-                                        <?php foreach ($field as $value => $params):
-                                            $list      = (!empty($params['properties']['list'])) ? $params['properties']['list'] : [];
-                                            $choices   = \Mautic\LeadBundle\Helper\FormFieldHelper::parseList($list, true, ('boolean' === $params['properties']['type']));
-                                            $list      = json_encode($choices);
-                                            $callback  = (!empty($params['properties']['callback'])) ? $params['properties']['callback'] : '';
-                                            $operators = (!empty($params['operators'])) ? $view->escape(json_encode($params['operators'])) : '{}';
-                                            ?>
-                                            <option value="<?php echo $value; ?>"
-                                                    id="available_<?php echo $value; ?>"
-                                                    data-field-object="<?php echo $object; ?>"
-                                                    data-field-type="<?php echo $params['properties']['type']; ?>"
-                                                    data-field-list="<?php echo $view->escape($list); ?>"
-                                                    data-field-callback="<?php echo $callback; ?>"
-                                                    data-field-operators="<?php echo $operators; ?>"
-                                                    class="segment-filter <?php echo $icon; ?>">
+                                        ?>
+                                        <optgroup label="<?php echo $view['translator']->trans('mautic.lead.'.$header); ?>">
+                                            <?php foreach ($field as $value => $params):
+                                                $list      = (!empty($params['properties']['list'])) ? $params['properties']['list'] : [];
+                                                $choices   = \Mautic\LeadBundle\Helper\FormFieldHelper::parseList($list, true, ('boolean' === $params['properties']['type']));
+                                                $list      = json_encode($choices);
+                                                $callback  = (!empty($params['properties']['callback'])) ? $params['properties']['callback'] : '';
+                                                $operators = (!empty($params['operators'])) ? $view->escape(json_encode($params['operators'])) : '{}';
+                                                ?>
+                                                <option value="<?php echo $value; ?>"
+                                                        id="available_<?php echo $value; ?>"
+                                                        data-field-object="<?php echo $object; ?>"
+                                                        data-field-type="<?php echo $params['properties']['type']; ?>"
+                                                        data-field-list="<?php echo $view->escape($list); ?>"
+                                                        data-field-callback="<?php echo $callback; ?>"
+                                                        data-field-operators="<?php echo $operators; ?>"
+                                                        class="segment-filter <?php echo $icon; ?>">
                                                     <?php echo $view['translator']->trans($params['label']); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </optgroup>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </optgroup>
                                     <?php endforeach; ?>
                                 </select>
                             </div>

@@ -188,9 +188,10 @@ $container->loadFromExtension('framework', [
     'trusted_hosts'   => '%mautic.trusted_hosts%',
     'trusted_proxies' => '%mautic.trusted_proxies%',
     'session'         => [ //handler_id set to null will use default session handler from php.ini
-        'handler_id'    => null,
+        'handler_id'    => 'session.handler.native_file',
         'name'          => $sessionName,
         'cookie_secure' => $secureCookie,
+        'save_path' => '%kernel.root_dir%/sessions'
     ],
     'fragments'            => null,
     'http_method_override' => true,

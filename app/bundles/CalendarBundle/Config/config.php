@@ -31,13 +31,13 @@ return [
     ],
     'menu' => [
         'main' => [
-            'priority' => 90,
+            /*'priority' => 90,
             'items'    => [
                 'mautic.calendar.menu.index' => [
                     'route'     => 'mautic_calendar_index',
                     'iconClass' => 'fa-calendar',
                 ],
-            ],
+            ],*/
         ],
     ],
 ];

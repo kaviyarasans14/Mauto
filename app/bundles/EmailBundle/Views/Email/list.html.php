@@ -23,7 +23,7 @@ if ($tmpl == 'index') {
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
                         'checkall'        => 'true',
-                        'routeBase'       => 'email',
+                        'actionRoute'       => $actionRoute,
                         'templateButtons' => [
                             'delete' => $permissions['email:emails:deleteown'] || $permissions['email:emails:deleteother'],
                         ],
@@ -88,7 +88,7 @@ if ($tmpl == 'index') {
                                 'attr' => [
                                     'data-toggle' => 'ajax',
                                     'href'        => $view['router']->path(
-                                        'mautic_email_action',
+                                        $actionRoute,
                                         ['objectAction' => 'send', 'objectId' => $item->getId()]
                                     ),
                                 ],
@@ -110,7 +110,7 @@ if ($tmpl == 'index') {
                                     ),
                                     'abtest' => (!$hasVariants && $edit && $permissions['email:emails:create']),
                                 ],
-                                'routeBase'     => 'email',
+                                'actionRoute'       => $actionRoute,
                                 'customButtons' => $customButtons,
                             ]
                         );
@@ -120,24 +120,24 @@ if ($tmpl == 'index') {
                         <div>
                             <?php echo $view->render('MauticCoreBundle:Helper:publishstatus_icon.html.php', ['item' => $item, 'model' => 'email']); ?>
                             <a href="<?php echo $view['router']->path(
-                                'mautic_email_action',
+                                $actionRoute,
                                 ['objectAction' => 'view', 'objectId' => $item->getId()]
                             ); ?>" data-toggle="ajax">
                                 <?php echo $item->getName(); ?>
                                 <?php if ($hasVariants): ?>
-                                <span data-toggle="tooltip" title="<?php echo $view['translator']->trans('mautic.core.icon_tooltip.ab_test'); ?>">
+                                    <span data-toggle="tooltip" title="<?php echo $view['translator']->trans('mautic.core.icon_tooltip.ab_test'); ?>">
                                     <i class="fa fa-fw fa-sitemap"></i>
                                 </span>
                                 <?php endif; ?>
                                 <?php if ($hasTranslations): ?>
-                                <span data-toggle="tooltip" title="<?php echo $view['translator']->trans(
+                                    <span data-toggle="tooltip" title="<?php echo $view['translator']->trans(
                                         'mautic.core.icon_tooltip.translation'
                                     ); ?>">
                                     <i class="fa fa-fw fa-language"></i>
                                 </span>
                                 <?php endif; ?>
                                 <?php if ($type == 'list'): ?>
-                                <span data-toggle="tooltip" title="<?php echo $view['translator']->trans(
+                                    <span data-toggle="tooltip" title="<?php echo $view['translator']->trans(
                                         'mautic.email.icon_tooltip.list_email'
                                     ); ?>">
                                     <i class="fa fa-fw fa-pie-chart"></i>
@@ -232,7 +232,7 @@ if ($tmpl == 'index') {
                 'totalItems' => $totalItems,
                 'page'       => $page,
                 'limit'      => $limit,
-                'baseUrl'    => $view['router']->path('mautic_email_index'),
+                'baseUrl'    => $view['router']->path($indexRoute),
                 'sessionVar' => 'email',
             ]
         ); ?>

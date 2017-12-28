@@ -70,8 +70,8 @@ class CommonRepository extends EntityRepository
     public function checkUniqueAlias($alias, $entity = null)
     {
         $q = $this->createQueryBuilder('e')
-                  ->select('count(e.id) as aliascount')
-                  ->where('e.alias = :alias');
+            ->select('count(e.id) as aliascount')
+            ->where('e.alias = :alias');
         $q->setParameter('alias', $alias);
 
         if (!empty($entity) && $entity->getId()) {
@@ -214,7 +214,7 @@ class CommonRepository extends EntityRepository
     {
         try {
             $q = $this->createQueryBuilder($this->getTableAlias())
-                      ->setParameter(':alias', $alias);
+                ->setParameter(':alias', $alias);
 
             $expr = $q->expr()->andX(
                 $q->expr()->eq($this->getTableAlias().'.alias', ':alias')
@@ -225,7 +225,7 @@ class CommonRepository extends EntityRepository
             if (null !== $catAlias) {
                 if (isset($metadata->associationMappings['category'])) {
                     $q->leftJoin($this->getTableAlias().'.category', 'category')
-                      ->setParameter('catAlias', $catAlias);
+                        ->setParameter('catAlias', $catAlias);
 
                     $expr->add(
                         $q->expr()->eq('category.alias', ':catAlias')
@@ -329,7 +329,6 @@ class CommonRepository extends EntityRepository
 
         $this->buildClauses($q, $args);
         $query = $q->getQuery();
-
         if (isset($args['hydration_mode'])) {
             $hydrationMode = constant('\\Doctrine\\ORM\\Query::'.strtoupper($args['hydration_mode']));
             $query->setHydrationMode($hydrationMode);
@@ -395,6 +394,7 @@ class CommonRepository extends EntityRepository
      */
     public function getFilterExpr(&$q, $filter, $parameterName = null)
     {
+
         $unique    = ($parameterName) ? $parameterName : $this->generateRandomParameterName();
         $parameter = [];
 
@@ -580,9 +580,9 @@ class CommonRepository extends EntityRepository
         }
 
         $q->resetQueryPart('select')
-          ->select($selectString)
-          ->setFirstResult($start)
-          ->setMaxResults($limit);
+            ->select($selectString)
+            ->setFirstResult($start)
+            ->setMaxResults($limit);
 
         $this->buildOrderByClauseFromArray($q, $order);
 
@@ -665,8 +665,8 @@ class CommonRepository extends EntityRepository
         }
 
         $q->select($prefix.$valueColumn.' as value, '.$prefix.$labelColumn.' as label'.($extraColumns ? ", $extraColumns" : ''))
-          ->from($tableName, $alias)
-          ->orderBy($prefix.$labelColumn);
+            ->from($tableName, $alias)
+            ->orderBy($prefix.$labelColumn);
 
         if ($expr !== null && $expr->count()) {
             $q->where($expr);
@@ -681,7 +681,7 @@ class CommonRepository extends EntityRepository
             $q->andWhere(
                 $q->expr()->eq($prefix.'is_published', ':true')
             )
-              ->setParameter('true', true, 'boolean');
+                ->setParameter('true', true, 'boolean');
         }
 
         if ($limit) {
@@ -866,7 +866,7 @@ class CommonRepository extends EntityRepository
         }
 
         $clause['dir'] = $this->sanitize(strtoupper($clause['dir']));
-        $clause['col'] = $this->sanitize($clause['col'], ['_.']);
+        $clause['col'] = $this->sanitize($clause['col'], ['_']);
 
         return $clause;
     }
@@ -979,6 +979,7 @@ class CommonRepository extends EntityRepository
      */
     protected function addDbalCatchAllWhereClause(&$q, $filter, array $columns)
     {
+
         $unique = $this->generateRandomParameterName(); //ensure that the string has a unique parameter identifier
         $string = ($filter->strict) ? $filter->string : "{$filter->string}";
         if ($filter->not) {
@@ -1112,8 +1113,8 @@ class CommonRepository extends EntityRepository
                 break;
             case $this->translator->trans('mautic.core.searchcommand.ismine'):
             case $this->translator->trans('mautic.core.searchcommand.ismine', [], null, 'en_US'):
-                $expr            = $q->expr()->eq("$prefix.createdBy", ":$unique");
-                $forceParameters = [$unique => $this->currentUser->getId()];
+                $expr            = $q->expr()->eq("IDENTITY($prefix.createdBy)", $this->currentUser->getId());
+                $returnParameter = false;
                 break;
             case $this->translator->trans('mautic.core.searchcommand.category'):
             case $this->translator->trans('mautic.core.searchcommand.category', [], null, 'en_US'):
@@ -1188,7 +1189,7 @@ class CommonRepository extends EntityRepository
      *
      * @return bool
      */
-    protected function buildClauses($q, array $args)
+    protected function buildClauses(&$q, array $args)
     {
         $this->buildSelectClause($q, $args);
         $this->buildIndexByClause($q, $args);
@@ -1303,7 +1304,7 @@ class CommonRepository extends EntityRepository
 
         if (!empty($limit)) {
             $q->setFirstResult($start)
-              ->setMaxResults($limit);
+                ->setMaxResults($limit);
         }
     }
 
@@ -1311,22 +1312,20 @@ class CommonRepository extends EntityRepository
      * @param \Doctrine\ORM\QueryBuilder $q
      * @param array                      $args
      */
-    protected function buildOrderByClause($q, array $args)
+    protected function buildOrderByClause(&$q, array $args)
     {
-        $orderBy = array_key_exists('orderBy', $args) ? $args['orderBy'] : '';
+        $orderBy    = array_key_exists('orderBy', $args) ? $args['orderBy'] : '';
+        $orderByDir = $this->sanitize(
+            array_key_exists('orderByDir', $args) ? $args['orderByDir'] : ''
+        );
 
-        if (!empty($args['filter']['order'])) {
-            $this->buildOrderByClauseFromArray($q, $args['filter']['order']);
-        } elseif (empty($orderBy)) {
+        if (empty($orderBy)) {
             $defaultOrder = $this->getDefaultOrder();
 
             foreach ($defaultOrder as $order) {
                 $q->addOrderBy($order[0], $order[1]);
             }
         } else {
-            $orderByDir = $this->sanitize(
-                array_key_exists('orderByDir', $args) ? $args['orderByDir'] : ''
-            );
             //add direction after each column
             $parts = explode(',', $orderBy);
             foreach ($parts as $order) {
@@ -1435,7 +1434,7 @@ class CommonRepository extends EntityRepository
      * @param \Doctrine\ORM\QueryBuilder $q
      * @param array                      $args
      */
-    protected function buildWhereClause($q, array $args)
+    protected function buildWhereClause(&$q, array $args)
     {
         $filter                    = array_key_exists('filter', $args) ? $args['filter'] : '';
         $filterHelper              = new SearchStringHelper();
@@ -1510,15 +1509,16 @@ class CommonRepository extends EntityRepository
 
             if (!empty($advancedFilterStrings)) {
                 foreach ($advancedFilterStrings as $parseString) {
-                    $parsed = $filterHelper->parseString($parseString);
 
+                    $parsed = $filterHelper->parseString($parseString);
                     $advancedFilters->root = array_merge($advancedFilters->root, $parsed->root);
                     $filterHelper->mergeCommands($advancedFilters, $parsed->commands);
                 }
                 $this->advancedFilterCommands = $advancedFilters->commands;
-
                 list($expr, $parameters) = $this->addAdvancedSearchWhereClause($q, $advancedFilters);
+
                 $this->appendExpression($queryExpression, $expr);
+
 
                 if (is_array($parameters)) {
                     $queryParameters = array_merge($queryParameters, $parameters);
@@ -1540,6 +1540,22 @@ class CommonRepository extends EntityRepository
                 $q->setParameter($k, $v);
             }
         }
+        if(isset($this->currentUser)){
+            $alias = $this->getTableAlias();
+            $entityname=$this->getEntityName();
+            $isAdmin=$this->currentUser->isAdmin();
+            if(!$isAdmin){
+                $createdbycol=$this->_class->getFieldName('created_by');
+                if($createdbycol == 'createdBy' && $entityname != 'Mautic\UserBundle\Entity\User'){
+                    if($q instanceof QueryBuilder){
+                        $q->andWhere( $alias.'.'.$createdbycol.' != 1');
+                    }else{
+                        $q->andWhere( $alias.'.created_by != 1');
+                    }
+
+                }
+            }
+        }
     }
 
     /**
@@ -1549,6 +1565,7 @@ class CommonRepository extends EntityRepository
      */
     protected function buildWhereClauseFromArray($query, array $clauses, $expr = null)
     {
+
         $isOrm       = $query instanceof QueryBuilder;
         $columnValue = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'like', 'notLike', 'in', 'notIn', 'between', 'notBetween'];
         $justColumn  = ['isNull', 'isNotNull', 'isEmpty', 'isNotEmpty'];
@@ -1730,20 +1747,26 @@ class CommonRepository extends EntityRepository
     {
         foreach ($parseFilters as $f) {
             if (isset($f->children)) {
+
                 list($expr, $params) = $this->addAdvancedSearchWhereClause($qb, $f);
+
             } else {
                 if (!empty($f->command)) {
                     if ($this->isSupportedSearchCommand($f->command, $f->string)) {
                         list($expr, $params) = $this->addSearchCommandWhereClause($qb, $f);
+
                     } else {
                         //treat the command:string as if its a single word
+
                         $f->string           = $f->command.':'.$f->string;
                         $f->not              = false;
                         $f->strict           = true;
                         list($expr, $params) = $this->addCatchAllWhereClause($qb, $f);
+
                     }
                 } else {
                     list($expr, $params) = $this->addCatchAllWhereClause($qb, $f);
+
                 }
             }
             if (!empty($params)) {

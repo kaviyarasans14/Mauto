@@ -230,6 +230,7 @@ class Configurator
                     $value = 'null';
                 } elseif (is_array($value)) {
                     $value = $this->renderArray($value);
+                }else{
                 }
 
                 $string .= "\t'$key' => $value,\n";

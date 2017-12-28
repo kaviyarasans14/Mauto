@@ -32,7 +32,8 @@ class UpdateLeadCampaignsCommand extends ModeratedCommand
                 'Set max number of contacts to process per campaign for this script execution. Defaults to all.',
                 false
             )
-            ->addOption('--campaign-id', '-i', InputOption::VALUE_OPTIONAL, 'Specific ID to rebuild. Defaults to all.', false);
+            ->addOption('--campaign-id', '-i', InputOption::VALUE_OPTIONAL, 'Specific ID to rebuild. Defaults to all.', false)
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
 
         parent::configure();
     }

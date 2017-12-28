@@ -38,12 +38,13 @@ class ProcessEmailQueueCommand extends ModeratedCommand
             ->addOption('--do-not-clear', null, InputOption::VALUE_NONE, 'By default, failed messages older than the --recover-timeout setting will be attempted one more time then deleted if it fails again.  If this is set, sending of failed messages will continue to be attempted.')
             ->addOption('--recover-timeout', null, InputOption::VALUE_OPTIONAL, 'Sets the amount of time in seconds before attempting to resend failed messages.  Defaults to value set in config.')
             ->addOption('--clear-timeout', null, InputOption::VALUE_OPTIONAL, 'Sets the amount of time in seconds before deleting failed messages.  Defaults to value set in config.')
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(<<<'EOT'
 The <info>%command.name%</info> command is used to process the application's e-mail queue
 
 <info>php %command.full_name%</info>
 EOT
-        );
+            );
 
         parent::configure();
     }

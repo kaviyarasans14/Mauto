@@ -261,8 +261,12 @@ class UserType extends AbstractType
                         'class'         => 'MauticUserBundle:Role',
                         'property'      => 'name',
                         'query_builder' => function (EntityRepository $er) {
+                            $rolefilter='r.isPublished = true and r.id != 1';
+                            if ($this->model->getCurrentUserEntity()->isAdmin()) {
+                                $rolefilter='r.isPublished = true';
+                            }
                             return $er->createQueryBuilder('r')
-                                ->where('r.isPublished = true')
+                                ->where($rolefilter)
                                 ->orderBy('r.name', 'ASC');
                         },
                     ]

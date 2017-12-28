@@ -75,7 +75,7 @@ class ConfigSubscriber extends CommonSubscriber
         // Check if the selected locale has been downloaded already, fetch it if not
         $installedLanguages = $this->coreParametersHelper->getParameter('supported_languages');
 
-        if (!array_key_exists($values['coreconfig']['locale'], $installedLanguages)) {
+        if (isset($values['coreconfig']['locale']) && !array_key_exists($values['coreconfig']['locale'], $installedLanguages)) {
             $fetchLanguage = $this->languageHelper->extractLanguagePackage($values['coreconfig']['locale']);
 
             // If there is an error, fall back to 'en_US' as it is our system default

@@ -169,7 +169,7 @@ class UserRepository extends CommonRepository
                     )
                 )
             )
-            ->setParameter('search', "{$search}%");
+                ->setParameter('search', "{$search}%");
         }
 
         if (!empty($permissionLimiter)) {
@@ -189,7 +189,9 @@ class UserRepository extends CommonRepository
             );
             $q->andWhere($expr);
         }
-
+        if($this->currentUser != null && !$this->currentUser->isAdmin()){
+            $q->andWhere('u.id != 1');
+        }
         $q->andWhere('u.isPublished = :true')
             ->setParameter('true', true, 'boolean')
             ->orderBy('u.firstName, u.lastName');
@@ -198,7 +200,6 @@ class UserRepository extends CommonRepository
             $q->setFirstResult($start)
                 ->setMaxResults($limit);
         }
-
         return $q->getQuery()->getArrayResult();
     }
 
@@ -207,13 +208,18 @@ class UserRepository extends CommonRepository
      *
      * @return array
      */
-    public function getOwnerListChoices()
+    public function getOwnerListChoices($usermodel)
     {
+        $isadmin=$usermodel->getCurrentUserEntity()->isAdmin();
+        $filtercondition='u.isPublished = true and u.id != 1';
+        if($isadmin){
+            $filtercondition='u.isPublished = true';
+        }
         $q = $this->createQueryBuilder('u');
 
         $q->select('partial u.{id, firstName, lastName}');
 
-        $q->andWhere('u.isPublished = true')
+        $q->andWhere($filtercondition)
             ->orderBy('u.firstName, u.lastName');
 
         $users = $q->getQuery()->getResult();
@@ -282,6 +288,7 @@ class UserRepository extends CommonRepository
     protected function addSearchCommandWhereClause($q, $filter)
     {
         $command                 = $filter->command;
+        $isnot=$filter->not;
         $unique                  = $this->generateRandomParameterName();
         $returnParameter         = false; //returning a parameter that is not used will lead to a Doctrine error
         list($expr, $parameters) = parent::addSearchCommandWhereClause($q, $filter);
@@ -294,38 +301,46 @@ class UserRepository extends CommonRepository
 
                 break;
             case $this->translator->trans('mautic.core.searchcommand.isunpublished'):
-                case $this->translator->trans('mautic.core.searchcommand.isunpublished', [], null, 'en_US'):
+            case $this->translator->trans('mautic.core.searchcommand.isunpublished', [], null, 'en_US'):
                 $expr            = $q->expr()->eq('u.isPublished', ":$unique");
                 $forceParameters = [$unique => false];
 
                 break;
             case $this->translator->trans('mautic.user.user.searchcommand.isadmin'):
-                case $this->translator->trans('mautic.user.user.searchcommand.isadmin', [], null, 'en_US'):
+            case $this->translator->trans('mautic.user.user.searchcommand.isadmin', [], null, 'en_US'):
                 $expr            = $q->expr()->eq('r.isAdmin', ":$unique");
                 $forceParameters = [$unique => true];
                 break;
             case $this->translator->trans('mautic.core.searchcommand.email'):
-                case $this->translator->trans('mautic.core.searchcommand.email', [], null, 'en_US'):
-                $expr            = $q->expr()->like('u.email', ':'.$unique);
+            case $this->translator->trans('mautic.core.searchcommand.email', [], null, 'en_US'):
+                if($isnot){
+                    $expr            = $q->expr()->notlike('u.email', ':'.$unique);
+                }else{
+                    $expr            = $q->expr()->like('u.email', ':'.$unique);
+                }
                 $returnParameter = true;
                 break;
             case $this->translator->trans('mautic.user.user.searchcommand.position'):
-                case $this->translator->trans('mautic.user.user.searchcommand.position', [], null, 'en_US'):
+            case $this->translator->trans('mautic.user.user.searchcommand.position', [], null, 'en_US'):
                 $expr            = $q->expr()->like('u.position', ':'.$unique);
                 $returnParameter = true;
                 break;
             case $this->translator->trans('mautic.user.user.searchcommand.username'):
-                case $this->translator->trans('mautic.user.user.searchcommand.username', [], null, 'en_US'):
-                $expr            = $q->expr()->like('u.username', ':'.$unique);
+            case $this->translator->trans('mautic.user.user.searchcommand.username', [], null, 'en_US'):
+                if($isnot){
+                    $expr            = $q->expr()->notlike('u.username', ':'.$unique);
+                }else{
+                    $expr            = $q->expr()->like('u.username', ':'.$unique);
+                }
                 $returnParameter = true;
                 break;
             case $this->translator->trans('mautic.user.user.searchcommand.role'):
-                case $this->translator->trans('mautic.user.user.searchcommand.role', [], null, 'en_US'):
+            case $this->translator->trans('mautic.user.user.searchcommand.role', [], null, 'en_US'):
                 $expr            = $q->expr()->like('r.name', ':'.$unique);
                 $returnParameter = true;
                 break;
             case $this->translator->trans('mautic.core.searchcommand.name'):
-                case $this->translator->trans('mautic.core.searchcommand.name', [], null, 'en_US'):
+            case $this->translator->trans('mautic.core.searchcommand.name', [], null, 'en_US'):
                 $expr = $q->expr()->orX(
                     $q->expr()->like('u.firstName', ':'.$unique),
                     $q->expr()->like('u.lastName', ':'.$unique)

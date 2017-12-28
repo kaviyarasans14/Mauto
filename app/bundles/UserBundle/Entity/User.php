@@ -795,6 +795,20 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
     }
 
     /**
+     * Determines if user is custom admin.
+     *
+     * @return bool
+     */
+    public function isCustomAdmin()
+    {
+        if ($this->role !== null) {
+            return $this->role->getName() == "Administrator";
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getLastLogin()

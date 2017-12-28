@@ -29,17 +29,35 @@ class UserListType extends AbstractType
      */
     public function __construct(UserModel $model)
     {
-        $choices = $model->getRepository()->getEntities(
-            [
-                'filter' => [
-                    'force' => [
-                        [
-                            'column' => 'u.isPublished',
-                            'expr'   => 'eq',
-                            'value'  => true,
-                        ],
+        $isadmin=$model->getCurrentUserEntity()->isAdmin();
+        $filterarray= [
+            'force' => [
+                [
+                    'column' => 'u.isPublished',
+                    'expr'   => 'eq',
+                    'value'  => true,
+                ],
+                [
+                    'column' => 'u.id',
+                    'expr'   => 'neq',
+                    'value'  => '1',
+                ],
+            ],
+        ];
+        if($isadmin){
+            $filterarray= [
+                'force' => [
+                    [
+                        'column' => 'u.isPublished',
+                        'expr'   => 'eq',
+                        'value'  => true,
                     ],
                 ],
+            ];
+        }
+        $choices = $model->getRepository()->getEntities(
+            [
+                'filter' => $filterarray,
             ]
         );
 

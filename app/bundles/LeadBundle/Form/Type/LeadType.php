@@ -121,27 +121,27 @@ class LeadType extends AbstractType
                 ],
             ]
         );
+        if ($this->factory->getSecurity()->isGranted('stage:stages:view')) {
+            $companyLeadRepo = $this->companyModel->getCompanyLeadRepository();
+            $companies       = $companyLeadRepo->getCompaniesByLeadId($options['data']->getId());
+            $leadCompanies   = [];
+            foreach ($companies as $company) {
+                $leadCompanies[(string) $company['company_id']] = (string) $company['company_id'];
+            }
 
-        $companyLeadRepo = $this->companyModel->getCompanyLeadRepository();
-        $companies       = $companyLeadRepo->getCompaniesByLeadId($options['data']->getId());
-        $leadCompanies   = [];
-        foreach ($companies as $company) {
-            $leadCompanies[(string) $company['company_id']] = (string) $company['company_id'];
+            $builder->add(
+                'companies',
+                'company_list',
+                [
+                    'label'      => 'mautic.company.selectcompany',
+                    'label_attr' => ['class' => 'control-label'],
+                    'multiple'   => true,
+                    'required'   => false,
+                    'mapped'     => false,
+                    'data'       => $leadCompanies,
+                ]
+            );
         }
-
-        $builder->add(
-        'companies',
-            'company_list',
-            [
-                'label'      => 'mautic.company.selectcompany',
-                'label_attr' => ['class' => 'control-label'],
-                'multiple'   => true,
-                'required'   => false,
-                'mapped'     => false,
-                'data'       => $leadCompanies,
-            ]
-        );
-
         $transformer = new IdToEntityModelTransformer(
             $this->factory->getEntityManager(),
             'MauticUserBundle:User'
@@ -161,31 +161,31 @@ class LeadType extends AbstractType
                     'multiple' => false,
                 ]
             )
-            ->addModelTransformer($transformer)
-        );
-
-        $transformer = new IdToEntityModelTransformer(
-            $this->factory->getEntityManager(),
-            'MauticStageBundle:Stage'
-        );
-
-        $builder->add(
-            $builder->create(
-                'stage',
-                'stage_list',
-                [
-                    'label'      => 'mautic.lead.lead.field.stage',
-                    'label_attr' => ['class' => 'control-label'],
-                    'attr'       => [
-                        'class' => 'form-control',
-                    ],
-                    'required' => false,
-                    'multiple' => false,
-                ]
-            )
                 ->addModelTransformer($transformer)
         );
+        if ($this->factory->getSecurity()->isGranted('stage:stages:view')) {
+            $transformer = new IdToEntityModelTransformer(
+                $this->factory->getEntityManager(),
+                'MauticStageBundle:Stage'
+            );
 
+            $builder->add(
+                $builder->create(
+                    'stage',
+                    'stage_list',
+                    [
+                        'label'      => 'mautic.lead.lead.field.stage',
+                        'label_attr' => ['class' => 'control-label'],
+                        'attr'       => [
+                            'class' => 'form-control',
+                        ],
+                        'required' => false,
+                        'multiple' => false,
+                    ]
+                )
+                    ->addModelTransformer($transformer)
+            );
+        }
         if (!$options['isShortForm']) {
             $builder->add('buttons', 'form_buttons');
         } else {

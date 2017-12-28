@@ -18,7 +18,8 @@ return [
                 'iconClass' => 'fa-users',
             ],
             'mautic.user.roles' => [
-                'access'    => 'user:roles:view',
+                //    'access'    => 'user:roles:view',
+                'access'    => 'admin',
                 'route'     => 'mautic_role_index',
                 'iconClass' => 'fa-lock',
             ],

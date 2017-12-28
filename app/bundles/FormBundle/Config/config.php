@@ -157,7 +157,7 @@ return [
                     'route'    => 'mautic_form_index',
                     'access'   => ['form:forms:viewown', 'form:forms:viewother'],
                     'parent'   => 'mautic.core.components',
-                    'priority' => 200,
+                    'priority' => 100,
                 ],
             ],
         ],

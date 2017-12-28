@@ -214,9 +214,9 @@ abstract class AbstractPermissions
         if (!isset($userPermissions[$name])) {
             //the user doesn't have implicit access
             return false;
-        } elseif ($this->permissions[$name]['full'] & $userPermissions[$name]) {
+        }elseif (isset($this->permissions[$name]['full']) && $this->permissions[$name]['full'] & $userPermissions[$name]) {
             return true;
-        } else {
+        }  else {
             //otherwise test for specific level
             $result = ($this->permissions[$name][$level] & $userPermissions[$name]);
 

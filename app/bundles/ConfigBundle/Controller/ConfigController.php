@@ -33,11 +33,10 @@ class ConfigController extends FormController
     public function editAction()
     {
         //admin only allowed
-        if (!$this->user->isAdmin()) {
+        if (!$this->user->isAdmin() && !$this->user->isCustomAdmin()) {
             return $this->accessDenied();
         }
-
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'));
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
         $fileFields  = $event->getFileFields();
@@ -175,11 +174,12 @@ class ConfigController extends FormController
     public function downloadAction($objectId)
     {
         //admin only allowed
-        if (!$this->user->isAdmin()) {
+        if (!$this->user->isAdmin() && !$this->user->isCustomAdmin()) {
             return $this->accessDenied();
         }
 
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'));
+
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
 
@@ -216,12 +216,13 @@ class ConfigController extends FormController
     public function removeAction($objectId)
     {
         //admin only allowed
-        if (!$this->user->isAdmin()) {
+        if (!$this->user->isAdmin() && !$this->user->isCustomAdmin()) {
             return $this->accessDenied();
         }
 
+
         $success    = 0;
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'));
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
 

@@ -92,6 +92,8 @@ class UserModel extends FormModel
      */
     public function getUserList($search = '', $limit = 10, $start = 0, $permissionLimiter = [])
     {
+        $currentuser=$this->userHelper->getUser();
+        $this->getRepository()->setCurrentUser($currentuser);
         return $this->getRepository()->getUserList($search, $limit, $start, $permissionLimiter);
     }
 
@@ -217,7 +219,9 @@ class UserModel extends FormModel
                 $results = $this->em->getRepository('MauticUserBundle:Role')->getRoleList($filter, $limit);
                 break;
             case 'user':
-                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit);
+                $currentuser=$this->userHelper->getUser();
+                $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
+                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit,0,[]);
                 break;
             case 'position':
                 $results = $this->em->getRepository('MauticUserBundle:User')->getPositionList($filter, $limit);
@@ -360,6 +364,10 @@ class UserModel extends FormModel
      */
     public function getOwnerListChoices()
     {
-        return $this->getRepository()->getOwnerListChoices();
+        return $this->getRepository()->getOwnerListChoices($this);
+    }
+
+    public function getCurrentUserEntity(){
+        return $this->userHelper->getUser();
     }
 }

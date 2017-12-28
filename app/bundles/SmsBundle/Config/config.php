@@ -145,7 +145,7 @@ return [
                 'mautic.sms.smses' => [
                     'route'  => 'mautic_sms_index',
                     'access' => ['sms:smses:viewown', 'sms:smses:viewother'],
-                    'parent' => 'mautic.core.channels',
+                    'parent' => 'mautic.core.components',
                     'checks' => [
                         'integration' => [
                             'Twilio' => [

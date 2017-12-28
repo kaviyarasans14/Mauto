@@ -94,20 +94,21 @@ class CampaignSubscriber extends CommonSubscriber
                 'channelIdField' => 'dwc_slot_name',
             ]
         );
-
-        $event->addDecision(
-            'dwc.decision',
-            [
-                'label'           => 'mautic.dynamicContent.campaign.decision_dwc',
-                'description'     => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
-                'eventName'       => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
-                'formType'        => 'dwcdecision_list',
-                'formTypeOptions' => ['update_select' => 'campaignevent_properties_dynamicContent'],
-                'formTheme'       => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
-                'channel'         => 'dynamicContent',
-                'channelIdField'  => 'dynamicContent',
-            ]
-        );
+        if ($this->security->isGranted(['dynamiccontent:dynamiccontents:viewown', 'dynamiccontent:dynamiccontents:viewother'], 'MATCH_ONE')) {
+            $event->addDecision(
+                'dwc.decision',
+                [
+                    'label' => 'mautic.dynamicContent.campaign.decision_dwc',
+                    'description' => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
+                    'eventName' => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
+                    'formType' => 'dwcdecision_list',
+                    'formTypeOptions' => ['update_select' => 'campaignevent_properties_dynamicContent'],
+                    'formTheme' => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
+                    'channel' => 'dynamicContent',
+                    'channelIdField' => 'dynamicContent',
+                ]
+            );
+        }
     }
 
     /**

@@ -13,11 +13,19 @@ return [
     'routes' => [
         'main' => [
             'mautic_email_index' => [
-                'path'       => '/emails/{page}',
+                'path'       => '/emailtemplates/{page}',
                 'controller' => 'MauticEmailBundle:Email:index',
             ],
+            'mautic_email_campaign_index' => [
+                'path'       => '/emailcampaigns/{page}',
+                'controller' => 'MauticEmailBundle:EmailCampaign:index',
+            ],
+            'mautic_email_campaign_action' => [
+                'path'       => '/emailcampaigns/{objectAction}/{objectId}',
+                'controller' => 'MauticEmailBundle:EmailCampaign:execute',
+            ],
             'mautic_email_action' => [
-                'path'       => '/emails/{objectAction}/{objectId}',
+                'path'       => '/emailtemplates/{objectAction}/{objectId}',
                 'controller' => 'MauticEmailBundle:Email:execute',
             ],
             'mautic_email_contacts' => [
@@ -79,7 +87,7 @@ return [
                 'controller' => 'MauticEmailBundle:Public:mailerCallback',
             ],
             'mautic_email_preview' => [
-                'path'       => '/email/preview/{objectId}',
+                'path'       => '/emailtemplate/preview/{objectId}',
                 'controller' => 'MauticEmailBundle:Public:preview',
             ],
         ],
@@ -90,7 +98,13 @@ return [
                 'mautic.email.emails' => [
                     'route'    => 'mautic_email_index',
                     'access'   => ['email:emails:viewown', 'email:emails:viewother'],
-                    'parent'   => 'mautic.core.channels',
+                    'parent'   => 'mautic.core.components',
+                    'priority' => 300,
+                ],
+                'mautic.emailcampaign.emails' => [
+                    'route'    => 'mautic_email_campaign_index',
+                    'access'   => ['email:emails:viewown', 'email:emails:viewother'],
+                    'parent'   => 'mautic.campaigns.root',
                     'priority' => 100,
                 ],
             ],

@@ -77,6 +77,11 @@ class CategorySubscriber extends CommonSubscriber
         foreach ($bundles as $bundle) {
             if (!empty($bundle['config']['categories'])) {
                 foreach ($bundle['config']['categories'] as $type => $label) {
+                    if ($type == "stage" && !$this->security->isGranted('stage:stages:view')) {
+                        continue;
+                    }else if ($type == "plugin:mauticSocial" && !$this->security->isGranted('plugin:mauticSocial:monitoring:view')) {
+                        continue;
+                    }
                     $event->addCategoryType($type, $label);
                 }
             }

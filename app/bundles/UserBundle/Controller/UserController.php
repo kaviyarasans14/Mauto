@@ -49,11 +49,22 @@ class UserController extends FormController
 
         $search = $this->request->get('search', $this->get('session')->get('mautic.user.filter', ''));
         $this->get('session')->set('mautic.user.filter', $search);
-
+        $issadmin=$this->get('mautic.helper.user')->getUser()->isAdmin();
+        $useremail=$this->get('mautic.helper.user')->getUser()->getEmail();
+        $defaultfilter="";
+        if($useremail != "sadmin@leadsengage.com"){
+            if(empty($search)){
+                $defaultfilter="email:!sadmin@leadsengage.com";
+            }else{
+                $defaultfilter=$search." and email:!sadmin@leadsengage.com";
+            }
+        }
         //do some default filtering
-        $filter = ['string' => $search, 'force' => ''];
-
+        $filter = ['string' => $defaultfilter, 'force' => ''];
         $tmpl  = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+
+
+        // dump($useremail);
         $users = $this->getModel('user.user')->getEntities(
             [
                 'start'      => $start,

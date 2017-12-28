@@ -68,7 +68,8 @@ class FetchLeadsCommand extends ContainerAwareCommand
                 'Number of records to process when syncing objects',
                 100
             )
-            ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force execution even if another process is assumed running.');
+            ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force execution even if another process is assumed running.')
+            ->addOption('--domain', 'dm', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
 
         parent::configure();
     }

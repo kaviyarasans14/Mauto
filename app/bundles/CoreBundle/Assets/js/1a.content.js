@@ -115,10 +115,10 @@ Mautic.generatePageTitle = function(route){
         // Encoded entites are decoded by this process and can cause a XSS
         currentModuleItem = mQuery('<div>'+currentModuleItem+'</div>').text();
 
-        mQuery('title').html( currentModule[0].toUpperCase() + currentModule.slice(1) + ' | ' + currentModuleItem + ' | Mautic' );
+        mQuery('title').html( currentModule[0].toUpperCase() + currentModule.slice(1) + ' | ' + currentModuleItem + ' | LeadsEngage' );
     } else {
         //loading basic title
-        mQuery('title').html( mQuery('.page-header h3').html() + ' | Mautic' );
+        mQuery('title').html( mQuery('.page-header h3').html() + ' | LeadsEngage' );
     }
 };
 
@@ -818,6 +818,7 @@ Mautic.onPageUnload = function (container, response) {
     }
 
     if (contentSpecific) {
+        //  alert(contentSpecific);
         if (typeof Mautic[contentSpecific + "OnUnload"] == 'function') {
             Mautic[contentSpecific + "OnUnload"](container, response);
         }

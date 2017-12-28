@@ -11,6 +11,9 @@
 $fields    = $form->children;
 $fieldKeys = array_keys($fields);
 $template  = '<div class="col-md-6">{content}</div>';
+$hidepanel=$view['security']->isAdmin() ? "" : "style='display: none;'";
+$isadmin=$view['security']->isAdmin();
+$hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
 ?>
 
 <?php if (count(array_intersect($fieldKeys, ['mailer_from_name', 'mailer_from_email', 'mailer_transport', 'mailer_spool_type']))): ?>
@@ -23,13 +26,13 @@ $template  = '<div class="col-md-6">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_from_name', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_from_email', $template); ?>
             </div>
-            <div class="row">
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_return_path', $template); ?>
+            <div class="row" >
+                <?php echo $view['form']->rowIfExists($fields, 'mailer_return_path',$isadmin ? $template:$hidefield); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_is_owner', $template); ?>
             </div>
 
             <?php if (isset($fields['mailer_from_name']) || isset($fields['mailer_from_email'])): ?>
-                <hr class="text-muted" />
+                <hr class="text-muted" <?php echo $hidepanel ?> />
             <?php endif; ?>
 
             <?php if (isset($fields['mailer_transport'])): ?>
@@ -61,7 +64,7 @@ $template  = '<div class="col-md-6">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_auth_mode', $template); ?>
             </div>
 
-            <div class="row">
+            <div class="row" >
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_user', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_password', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_api_key', $template); ?>
@@ -75,20 +78,20 @@ $template  = '<div class="col-md-6">{content}</div>';
             <?php endif; ?>
 
             <?php if (isset($fields['mailer_transport'])): ?>
-                <hr class="text-muted" />
+                <hr class="text-muted" <?php echo $hidepanel ?> />
             <?php endif; ?>
 
-            <div class="row">
+            <div class="row" <?php echo $hidepanel ?>>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_type', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_path', $template); ?>
             </div>
 
-            <div class="row">
+            <div class="row" <?php echo $hidepanel ?>>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_msg_limit', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_time_limit', $template); ?>
             </div>
 
-            <div class="row">
+            <div class="row" <?php echo $hidepanel ?>>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_recover_timeout', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_clear_timeout', $template); ?>
             </div>
@@ -113,7 +116,7 @@ $template  = '<div class="col-md-6">{content}</div>';
 </div>
 
 <?php if (isset($fields['monitored_email'])): ?>
-    <div class="panel panel-primary">
+    <div class="panel panel-primary" <?php echo $hidepanel ?>>
         <div class="panel-heading">
             <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.header.monitored_email'); ?></h3>
         </div>

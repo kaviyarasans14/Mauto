@@ -190,6 +190,7 @@ class CommonController extends Controller implements MauticController
      */
     public function delegateView($args)
     {
+        //dump($args);
         // Used for error handling
         defined('MAUTIC_DELEGATE_VIEW') || define('MAUTIC_DELEGATE_VIEW', 1);
 
@@ -283,9 +284,9 @@ class CommonController extends Controller implements MauticController
      */
     public function postActionRedirect($args = [])
     {
+
         $returnUrl = array_key_exists('returnUrl', $args) ? $args['returnUrl'] : $this->generateUrl('mautic_dashboard_index');
         $flashes   = array_key_exists('flashes', $args) ? $args['flashes'] : [];
-
         //forward the controller by default
         $args['forwardController'] = (array_key_exists('forwardController', $args)) ? $args['forwardController'] : true;
 
@@ -307,10 +308,8 @@ class CommonController extends Controller implements MauticController
 
         if (!$this->request->isXmlHttpRequest() || !empty($args['ignoreAjax'])) {
             $code = (isset($args['responseCode'])) ? $args['responseCode'] : 302;
-
             return $this->redirect($returnUrl, $code);
         }
-
         //load by ajax
         return $this->ajaxAction($args);
     }
@@ -732,7 +731,7 @@ class CommonController extends Controller implements MauticController
         if ($title !== null) {
             $title = $translator->trans($title);
         } else {
-            $title = 'Mautic';
+            $title = 'LeadsEngage';
         }
 
         if ($icon == null) {

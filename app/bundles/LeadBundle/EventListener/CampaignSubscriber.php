@@ -127,15 +127,15 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
         ];
         $event->addAction('lead.changetags', $action);
-
-        $action = [
-            'label'       => 'mautic.lead.lead.events.addtocompany',
-            'description' => 'mautic.lead.lead.events.addtocompany_descr',
-            'formType'    => 'addtocompany_action',
-            'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
-        ];
-        $event->addAction('lead.addtocompany', $action);
-
+        if ($this->security->isGranted('stage:stages:view')) {
+            $action = [
+                'label'       => 'mautic.lead.lead.events.addtocompany',
+                'description' => 'mautic.lead.lead.events.addtocompany_descr',
+                'formType'    => 'addtocompany_action',
+                'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            ];
+            $event->addAction('lead.addtocompany', $action);
+        }
         $action = [
             'label'       => 'mautic.lead.lead.events.changeowner',
             'description' => 'mautic.lead.lead.events.changeowner_descr',
@@ -143,15 +143,15 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
         ];
         $event->addAction(self::ACTION_LEAD_CHANGE_OWNER, $action);
-
-        $action = [
-            'label'       => 'mautic.lead.lead.events.changecompanyscore',
-            'description' => 'mautic.lead.lead.events.changecompanyscore_descr',
-            'formType'    => 'scorecontactscompanies_action',
-            'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
-        ];
-        $event->addAction('lead.scorecontactscompanies', $action);
-
+        if ($this->security->isGranted('stage:stages:view')) {
+            $action = [
+                'label'       => 'mautic.lead.lead.events.changecompanyscore',
+                'description' => 'mautic.lead.lead.events.changecompanyscore_descr',
+                'formType'    => 'scorecontactscompanies_action',
+                'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            ];
+            $event->addAction('lead.scorecontactscompanies', $action);
+        }
         $trigger = [
             'label'                  => 'mautic.lead.lead.events.delete',
             'description'            => 'mautic.lead.lead.events.delete_descr',
@@ -444,16 +444,16 @@ class CampaignSubscriber extends CommonSubscriber
                      * ( to integrate with: recursive campaign (future)).
                      */
                     $result = $this->leadFieldModel->getRepository()->compareDateMonthValue(
-                            $lead->getId(), $event->getConfig()['field'], $triggerDate);
+                        $lead->getId(), $event->getConfig()['field'], $triggerDate);
                 }
             } else {
                 $operators = $this->leadModel->getFilterExpressionFunctions();
 
                 $result = $this->leadFieldModel->getRepository()->compareValue(
-                        $lead->getId(),
-                        $event->getConfig()['field'],
-                        $event->getConfig()['value'],
-                        $operators[$event->getConfig()['operator']]['expr']
+                    $lead->getId(),
+                    $event->getConfig()['field'],
+                    $event->getConfig()['value'],
+                    $operators[$event->getConfig()['operator']]['expr']
                 );
             }
         }
@@ -473,9 +473,9 @@ class CampaignSubscriber extends CommonSubscriber
     private function compareDateValue(Lead $lead, CampaignExecutionEvent $event, \DateTime $triggerDate)
     {
         $result = $this->leadFieldModel->getRepository()->compareDateValue(
-                $lead->getId(),
-                $event->getConfig()['field'],
-                $triggerDate->format('Y-m-d')
+            $lead->getId(),
+            $event->getConfig()['field'],
+            $triggerDate->format('Y-m-d')
         );
 
         return $result;

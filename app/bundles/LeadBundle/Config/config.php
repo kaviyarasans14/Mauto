@@ -308,22 +308,34 @@ return [
         'main' => [
             'items' => [
                 'mautic.lead.leads' => [
-                    'iconClass' => 'fa-user',
+                    //  'iconClass' => 'fa-user',
                     'access'    => ['lead:leads:viewown', 'lead:leads:viewother'],
                     'route'     => 'mautic_contact_index',
-                    'priority'  => 80,
+                    'priority'  => 70,
+                    'parent'   => 'mautic.segments.root',
                 ],
-                'mautic.companies.menu.index' => [
-                    'route'     => 'mautic_company_index',
-                    'iconClass' => 'fa-building-o',
-                    'access'    => ['lead:leads:viewother'],
-                    'priority'  => 75,
-                ],
+                /*   'mautic.companies.menu.index' => [
+                      'route'     => 'mautic_company_index',
+                      'iconClass' => 'fa-building-o',
+                      'access'    => ['lead:leads:viewother'],
+                      'priority'  => 75,
+                  ],*/
                 'mautic.lead.list.menu.index' => [
-                    'iconClass' => 'fa-pie-chart',
+                    // 'iconClass' => 'fa-pie-chart',
                     'access'    => ['lead:leads:viewown', 'lead:leads:viewother'],
                     'route'     => 'mautic_segment_index',
-                    'priority'  => 70,
+                    'priority'  => 60,
+                    'parent'   => 'mautic.segments.root',
+                ],
+                'mautic.point.menu.index' => [
+                    'route'  => 'mautic_point_index',
+                    'access' => 'point:points:view',
+                    'parent'   => 'mautic.segments.root',
+                ],
+                'mautic.point.trigger.menu.index' => [
+                    'route'  => 'mautic_pointtrigger_index',
+                    'access' => 'point:triggers:view',
+                    'parent'   => 'mautic.segments.root',
                 ],
             ],
         ],
@@ -334,7 +346,8 @@ return [
                     'id'        => 'mautic_lead_field',
                     'iconClass' => 'fa-list',
                     'route'     => 'mautic_contactfield_index',
-                    'access'    => 'lead:fields:full',
+                    // 'access'    => 'lead:fields:full',
+                    'access'    => 'admin',
                 ],
             ],
         ],

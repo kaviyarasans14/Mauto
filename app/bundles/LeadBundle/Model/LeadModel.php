@@ -231,19 +231,14 @@ class LeadModel extends FormModel
     public function getRepository()
     {
         static $repoSetup;
-
         $repo = $this->em->getRepository('MauticLeadBundle:Lead');
         $repo->setDispatcher($this->dispatcher);
-
         if (!$repoSetup) {
             $repoSetup = true;
-
             //set the point trigger model in order to get the color code for the lead
             $fields = $this->leadFieldModel->getFieldList(true, false);
-
             $socialFields = (!empty($fields['social'])) ? array_keys($fields['social']) : [];
             $repo->setAvailableSocialFields($socialFields);
-
             $searchFields = [];
             foreach ($fields as $group => $groupFields) {
                 $searchFields = array_merge($searchFields, array_keys($groupFields));
@@ -715,6 +710,8 @@ class LeadModel extends FormModel
         $results = [];
         switch ($type) {
             case 'user':
+                $currentuser=$this->userHelper->getUser();
+                $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
                 $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit, $start, ['lead' => 'leads']);
                 break;
         }
@@ -729,7 +726,9 @@ class LeadModel extends FormModel
      */
     public function getOwnerList()
     {
-        $results = $this->em->getRepository('MauticUserBundle:User')->getUserList('', 0);
+        $currentuser=$this->userHelper->getUser();
+        $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
+        $results = $this->em->getRepository('MauticUserBundle:User')->getUserList('', 0,0,[]);
 
         return $results;
     }
@@ -1999,7 +1998,7 @@ class LeadModel extends FormModel
     {
         // known "synonym" fields expected
         $synonyms = ['useragent' => 'user_agent',
-                    'remotehost' => 'remote_host', ];
+            'remotehost' => 'remote_host', ];
 
         // convert 'query' option to an array if necessary
         if (isset($params['query']) && !is_array($params['query'])) {
@@ -2397,7 +2396,9 @@ class LeadModel extends FormModel
             ->orderBy('leads', 'DESC')
             ->groupBy('t.owner_id, u.first_name, u.last_name')
             ->setMaxResults($limit);
-
+        if (!$this->security->isAdmin()) {
+            $q->andWhere('t.owner_id != 1');
+        }
         $chartQuery = new ChartQuery($this->em->getConnection(), $dateFrom, $dateTo);
         $chartQuery->applyFilters($q, $filters);
         $chartQuery->applyDateFilters($q, 'date_added');
@@ -2419,6 +2420,7 @@ class LeadModel extends FormModel
      */
     public function getTopCreators($limit = 10, $dateFrom = null, $dateTo = null, $filters = [])
     {
+
         $q = $this->em->getConnection()->createQueryBuilder();
         $q->select('COUNT(t.id) AS leads, t.created_by, t.created_by_user')
             ->from(MAUTIC_TABLE_PREFIX.'leads', 't')
@@ -2427,7 +2429,9 @@ class LeadModel extends FormModel
             ->orderBy('leads', 'DESC')
             ->groupBy('t.created_by, t.created_by_user')
             ->setMaxResults($limit);
-
+        if (!$this->security->isAdmin()) {
+            $q->andWhere('t.created_by != 1');
+        }
         $chartQuery = new ChartQuery($this->em->getConnection(), $dateFrom, $dateTo);
         $chartQuery->applyFilters($q, $filters);
         $chartQuery->applyDateFilters($q, 'date_added');

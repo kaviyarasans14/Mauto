@@ -61,6 +61,7 @@ class ProcessFetchEmailCommand extends Command
             )
             ->setDescription('Fetch and process monitored email.')
             ->addOption('--message-limit', '-m', InputOption::VALUE_OPTIONAL, 'Limit number of messages to process at a time.')
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(
                 <<<'EOT'
                 The <info>%command.name%</info> command is used to fetch and process messages such as bounces and unsubscribe requests. Configure the Monitored Email settings in Mautic's Configuration.

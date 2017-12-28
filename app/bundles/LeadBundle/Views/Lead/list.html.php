@@ -11,7 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticLeadBundle:Lead:index.html.php');
 }
-
+$stageaccess=$security->isGranted('stage:stages:view');
 $customButtons = [];
 if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) {
     $customButtons = [
@@ -75,9 +75,10 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
 ?>
 
 <?php if (count($items)): ?>
-<div class="table-responsive">
-    <table class="table table-hover table-striped table-bordered" id="leadTable">
-        <thead>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-bordered" id="leadTable">
+            <thead>
             <tr>
                 <?php
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
@@ -105,19 +106,27 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                     'text'       => 'mautic.core.type.email',
                     'class'      => 'col-lead-email visible-md visible-lg',
                 ]);
-
+                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
+                    'orderBy'    => 'l.mobile',
+                    'text'       => 'mautic.core.type.mobile',
+                    'class'      => 'col-lead-email visible-md visible-lg',
+                ]);
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.city, l.state',
                     'text'       => 'mautic.lead.lead.thead.location',
                     'class'      => 'col-lead-location visible-md visible-lg',
                 ]);
-                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
-                    'sessionVar' => 'lead',
-                    'orderBy'    => 'l.stage_id',
-                    'text'       => 'mautic.lead.stage.label',
-                    'class'      => 'col-lead-stage',
-                ]);
+                if($stageaccess){
+                    echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                        'sessionVar' => 'lead',
+                        'orderBy'    => 'l.stage_id',
+                        'text'       => 'mautic.lead.stage.label',
+                        'class'      => 'col-lead-stage',
+                    ]);
+                }
+
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.points',
@@ -141,29 +150,29 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                 ]);
                 ?>
             </tr>
-        </thead>
-        <tbody>
-        <?php echo $view->render('MauticLeadBundle:Lead:list_rows.html.php', [
-            'items'         => $items,
-            'security'      => $security,
-            'currentList'   => $currentList,
-            'permissions'   => $permissions,
-            'noContactList' => $noContactList,
+            </thead>
+            <tbody>
+            <?php echo $view->render('MauticLeadBundle:Lead:list_rows.html.php', [
+                'items'         => $items,
+                'security'      => $security,
+                'currentList'   => $currentList,
+                'permissions'   => $permissions,
+                'noContactList' => $noContactList,
+            ]); ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">
+        <?php echo $view->render('MauticCoreBundle:Helper:pagination.html.php', [
+            'totalItems' => $totalItems,
+            'page'       => $page,
+            'limit'      => $limit,
+            'menuLinkId' => 'mautic_contact_index',
+            'baseUrl'    => $view['router']->path('mautic_contact_index'),
+            'tmpl'       => $indexMode,
+            'sessionVar' => 'lead',
         ]); ?>
-        </tbody>
-    </table>
-</div>
-<div class="panel-footer">
-    <?php echo $view->render('MauticCoreBundle:Helper:pagination.html.php', [
-        'totalItems' => $totalItems,
-        'page'       => $page,
-        'limit'      => $limit,
-        'menuLinkId' => 'mautic_contact_index',
-        'baseUrl'    => $view['router']->path('mautic_contact_index'),
-        'tmpl'       => $indexMode,
-        'sessionVar' => 'lead',
-    ]); ?>
-</div>
+    </div>
 <?php else: ?>
-<?php echo $view->render('MauticCoreBundle:Helper:noresults.html.php'); ?>
+    <?php echo $view->render('MauticCoreBundle:Helper:noresults.html.php'); ?>
 <?php endif; ?>

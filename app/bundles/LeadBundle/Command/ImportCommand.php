@@ -31,6 +31,7 @@ class ImportCommand extends ContainerAwareCommand
             ->setDescription('Imports data to Mautic')
             ->addOption('--id', '-i', InputOption::VALUE_OPTIONAL, 'Specific ID to import. Defaults to next in the queue.', false)
             ->addOption('--limit', '-l', InputOption::VALUE_OPTIONAL, 'Maximum number of records to import for this script execution.', 0)
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(
                 <<<'EOT'
 The <info>%command.name%</info> command starts to import CSV files when some are created.
@@ -76,48 +77,48 @@ EOT
         }
 
         $output->writeln('<info>'.$translator->trans(
-            'mautic.lead.import.is.starting',
-            [
-                '%id%'    => $import->getId(),
-                '%lines%' => $import->getLineCount(),
-            ]
-        ).'</info>');
+                'mautic.lead.import.is.starting',
+                [
+                    '%id%'    => $import->getId(),
+                    '%lines%' => $import->getLineCount(),
+                ]
+            ).'</info>');
 
         $success = $model->startImport($import, $progress, $limit);
 
         // Import was delayed
         if ($import->getStatus() === $import::DELAYED) {
             $output->writeln('<info>'.$translator->trans(
-                'mautic.lead.import.delayed',
-                [
-                    '%reason%' => $import->getStatusInfo(),
-                ]
-            ).'</info>');
+                    'mautic.lead.import.delayed',
+                    [
+                        '%reason%' => $import->getStatusInfo(),
+                    ]
+                ).'</info>');
         }
 
         // Import failed
         if (!$success) {
             $output->writeln('<error>'.$translator->trans(
-                'mautic.lead.import.failed',
-                [
-                    '%reason%' => $import->getStatusInfo(),
-                ]
-            ).'</error>');
+                    'mautic.lead.import.failed',
+                    [
+                        '%reason%' => $import->getStatusInfo(),
+                    ]
+                ).'</error>');
 
             return 1;
         }
 
         // Success
         $output->writeln('<info>'.$translator->trans(
-            'mautic.lead.import.result',
-            [
-                '%lines%'   => $import->getProcessedRows(),
-                '%created%' => $import->getInsertedCount(),
-                '%updated%' => $import->getUpdatedCount(),
-                '%ignored%' => $import->getIgnoredCount(),
-                '%time%'    => round(microtime(true) - $start, 2),
-            ]
-        ).'</info>');
+                'mautic.lead.import.result',
+                [
+                    '%lines%'   => $import->getProcessedRows(),
+                    '%created%' => $import->getInsertedCount(),
+                    '%updated%' => $import->getUpdatedCount(),
+                    '%ignored%' => $import->getIgnoredCount(),
+                    '%time%'    => round(microtime(true) - $start, 2),
+                ]
+            ).'</info>');
 
         return 0;
     }
