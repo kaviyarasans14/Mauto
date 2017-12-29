@@ -51,6 +51,7 @@ class CampaignListType extends AbstractType
         $resolver->setDefaults([
             'choices' => function (Options $options) use ($model, $msg) {
                 $choices = [];
+                $model->getRepository()->setCurrentUser($model->getCurrentUserEntity());
                 $campaigns = $model->getRepository()->getPublishedCampaigns(null, null, true);
                 foreach ($campaigns as $campaign) {
                     $choices[$campaign['id']] = $campaign['name'];

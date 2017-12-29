@@ -728,11 +728,16 @@ body > #app-wrapper {
   .sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar {
     margin-top: 10px;
   }
+  .sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar > .nav > li.active > a{
+    background-color: #fff;
+    color: #375695;
+  }
+
   .sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar > .nav > li > a {
     padding-top: 12px;
     padding-bottom: 12px;
-    background-color: #375695;
-    color: #fff;
+    /*background-color: #375695;
+    color: #fff;*/
   }
   .sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar > .nav > li.nav-heading,
   .sidebar-minimized .app-sidebar.sidebar-left .nav-sidebar > .nav > li > a .arrow,

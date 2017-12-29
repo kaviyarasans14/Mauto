@@ -62,7 +62,10 @@ class FormRepository extends CommonRepository
             $q->andWhere($q->expr()->eq('f.createdBy', ':id'))
                 ->setParameter('id', $this->currentUser->getId());
         }
-
+if($this->currentUser->getId() != 1){
+    $q->andWhere($q->expr()->neq('f.createdBy', ':id'))
+        ->setParameter('id', '1');
+}
         if (!empty($formType)) {
             $q->andWhere(
                 $q->expr()->eq('f.formType', ':type')

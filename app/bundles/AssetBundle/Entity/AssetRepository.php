@@ -60,7 +60,10 @@ class AssetRepository extends CommonRepository
             $q->andWhere($q->expr()->eq('a.createdBy', ':id'))
                 ->setParameter('id', $this->currentUser->getId());
         }
-
+        if ($this->currentUser->getId() != 1) {
+            $q->andWhere($q->expr()->neq('a.createdBy', ':id'))
+                ->setParameter('id', '1');
+        }
         $q->orderBy('a.title');
 
         if (!empty($limit)) {

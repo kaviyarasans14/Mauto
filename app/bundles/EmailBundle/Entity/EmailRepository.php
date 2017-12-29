@@ -360,7 +360,10 @@ class EmailRepository extends CommonRepository
             $q->andWhere($q->expr()->eq('e.createdBy', ':id'))
                 ->setParameter('id', $this->currentUser->getId());
         }
-
+        if ( $this->currentUser->getId() != 1) {
+            $q->andWhere($q->expr()->neq('e.createdBy', ':id'))
+                ->setParameter('id', '1');
+        }
         if ($topLevel) {
             if (true === $topLevel || $topLevel == 'variant') {
                 $q->andWhere($q->expr()->isNull('e.variantParent'));

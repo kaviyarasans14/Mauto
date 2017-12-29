@@ -733,6 +733,7 @@ class CampaignModel extends CommonFormModel
         static $campaigns = [];
 
         if (empty($campaigns)) {
+            $this->getRepository()->setCurrentUser($this->userHelper->getUser());
             $campaigns = $this->getRepository()->getPublishedCampaigns(null, null, $forList);
         }
 
@@ -1350,5 +1351,8 @@ class CampaignModel extends CommonFormModel
                 }
             }
         }
+    }
+    public function getCurrentUserEntity(){
+        return $this->userHelper->getUser();
     }
 }

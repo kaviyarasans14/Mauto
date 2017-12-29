@@ -195,6 +195,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                         <?php echo $view['form']->row($form['lists']); ?>
                     </div>
                     <?php echo $view['form']->row($form['category']); ?>
+                <div class="hide">
                     <?php echo $view['form']->row($form['language']); ?>
                     <div id="segmentTranslationParent"<?php echo ($emailType == 'template') ? ' class="hide"' : ''; ?>>
                         <?php echo $view['form']->row($form['segmentTranslationParent']); ?>
@@ -202,6 +203,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                     <div id="templateTranslationParent"<?php echo ($emailType == 'list') ? ' class="hide"' : ''; ?>>
                         <?php echo $view['form']->row($form['templateTranslationParent']); ?>
                     </div>
+                </div>
                 <?php endif; ?>
 
                 <?php if (!$isVariant): ?>

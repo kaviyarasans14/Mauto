@@ -112,7 +112,10 @@ class CampaignRepository extends CommonRepository
                 $q->expr()->eq('l.manuallyRemoved', ':manuallyRemoved')
             )->setParameter('manuallyRemoved', false);
         }
-
+       if ( $this->currentUser != null && $this->currentUser->getId() != 1) {
+            $q->andWhere($q->expr()->neq('c.createdBy', ':id'))
+                ->setParameter('id', '1');
+       }
         $results = $q->getQuery()->getArrayResult();
 
         return $results;

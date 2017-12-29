@@ -265,9 +265,9 @@ class MenuHelper
     {
         $integration = $this->integrationHelper->getIntegrationObject($integrationName);
 
-        if (!$integration) {
+       if (!$integration) {
             return false;
-        }
+       }
 
         $settings = $integration->getIntegrationSettings();
 
