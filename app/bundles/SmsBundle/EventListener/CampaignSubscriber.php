@@ -64,7 +64,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
-        $integration = $this->integrationHelper->getIntegrationObject('Twilio');
+        $integration = $this->integrationHelper->getIntegrationObject('SolutionInfinity');
 
         if ($integration && $integration->getIntegrationSettings()->getIsPublished()) {
             $event->addAction(
