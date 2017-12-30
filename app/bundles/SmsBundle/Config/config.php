@@ -82,7 +82,7 @@ return [
         ],
         'other' => [
             'mautic.sms.api' => [
-                'class'     => 'Mautic\SmsBundle\Api\TwilioApi',
+                'class'     => 'Mautic\SmsBundle\Api\SolutionInfinityApi',
                 'arguments' => [
                     'mautic.page.model.trackable',
                     'mautic.helper.phone_number',
@@ -106,6 +106,9 @@ return [
         'integrations' => [
             'mautic.integration.twilio' => [
                 'class' => \Mautic\SmsBundle\Integration\TwilioIntegration::class,
+            ],
+            'mautic.integration.solutioninfinity' => [
+                'class' => \Mautic\SmsBundle\Integration\SolutionInfinityIntegration::class,
             ],
         ],
     ],
@@ -149,6 +152,9 @@ return [
                     'checks' => [
                         'integration' => [
                             'Twilio' => [
+                                'enabled' => true,
+                            ],
+                            'SolutionInfinity' => [
                                 'enabled' => true,
                             ],
                         ],

@@ -72,6 +72,9 @@ class PluginController extends FormController
         foreach ($integrationObjects as $name => $object) {
             $settings = $object->getIntegrationSettings();
             $plugin   = $settings->getPlugin();
+            if ($name == 'Twilio') {
+                continue;
+            }
             $pluginId = $plugin ? $plugin->getId() : $name;
             if (isset($plugins[$pluginId]) || $pluginId === $name) {
                 $integrations[$name] = [
