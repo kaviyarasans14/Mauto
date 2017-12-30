@@ -56,36 +56,37 @@ if(!$domainattrfound){
 	} else {
 		throw new Exception ( "Not able to connect to DB" );
     }
+    $operation=$argv[1];
+    $sql = "select skiplimit from cronmonitorinfo where command='$operation'";
+    displayCronlog("general","SQL QUERY:".$sql);
+    $monitorinfo = getResultArray($con, $sql);
+    if (sizeof($monitorinfo) > 0) {
+        /* $skiplimit=$monitorinfo[0][0];
+         if($skiplimit >= $SKIP_MAX_LIMIT){
+         cleanCronStatus($con,$operation,$domain);
+         }else{
+         $sql="update cronmonitorinfo set skiplimit=skiplimit+1 where domain='$domain' and command='$operation'";
+         displayCronlog($domain,"SQL QUERY:".$sql);
+         $result = execSQL($con, $sql);
+         }	*/
+        displayCronlog("general","This operation ($operation) already in process.");
+        exit(0);
+    } else {
+        $sql = "insert into cronmonitorinfo values('','$operation','0')";
+        displayCronlog("general","SQL QUERY:".$sql);
+        $result = execSQL($con, $sql);
+    }
     $sql="select domain from applicationlist";
     $domainlist = getResultArray ( $con, $sql );
-    $operation=$argv[1];
-    $SKIP_MAX_LIMIT=5;
+    //$SKIP_MAX_LIMIT=5;
     for($di=0;$di<sizeof($domainlist);$di++){
         $domain=$domainlist[$di][0];
-        $sql = "select skiplimit from cronmonitorinfo where domain='$domain' and command='$operation'";
-        displayCronlog($domain,"SQL QUERY:".$sql);
-        $monitorinfo = getResultArray($con, $sql);					
-        if (sizeof($monitorinfo) > 0) {
-           /* $skiplimit=$monitorinfo[0][0];
-            if($skiplimit >= $SKIP_MAX_LIMIT){
-            cleanCronStatus($con,$operation,$domain);	
-            }else{
-            $sql="update cronmonitorinfo set skiplimit=skiplimit+1 where domain='$domain' and command='$operation'"; 	
-            displayCronlog($domain,"SQL QUERY:".$sql);
-            $result = execSQL($con, $sql);				
-            }	*/
-            continue;			
-        } else {
-            $sql = "insert into cronmonitorinfo values('$domain','$operation','0')";			
-            displayCronlog($domain,"SQL QUERY:".$sql);
-            $result = execSQL($con, $sql);
-        }
         $command="php app/console $arguments --domain=$domain";
         displayCronlog($domain,"Command Invoked:".$command);
         $output = shell_exec($command);        
         displayCronlog($domain,"Command Results:".$output);
-        cleanCronStatus($con,$operation,$domain);
-    } 
+    }
+    cleanCronStatus($con,$operation,"");
 }else{
 $command="php app/console $arguments ";
 displayCronlog("general","Command Invoked:".$command);
@@ -98,8 +99,8 @@ displayCronlog("general","Command Results:".$output);
 }
 
 function cleanCronStatus($con,$command,$domain){
-    $sql = "delete from cronmonitorinfo where domain='$domain' and command='$command'";
-    displayCronlog($domain,"SQL QUERY:".$sql);
+    $sql = "delete from cronmonitorinfo where  command='$command'";
+    displayCronlog("general","SQL QUERY:".$sql);
     $result = execSQL($con, $sql);
     }
 ?>
