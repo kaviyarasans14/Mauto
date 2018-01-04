@@ -71,7 +71,7 @@ class SolutionInfinityApi extends AbstractSmsApi
         $integration = $integrationHelper->getIntegrationObject('SolutionInfinity');
 
         if ($integration && $integration->getIntegrationSettings()->getIsPublished()) {
-            $this->sendingPhoneNumber = $integration->getIntegrationSettings()->getFeatureSettings()['sending_phone_number'];
+            //$this->sendingPhoneNumber = $integration->getIntegrationSettings()->getFeatureSettings()['sending_phone_number'];
 
             $keys           = $integration->getDecryptedApiKeys();
             $this->username = $keys['username'];
