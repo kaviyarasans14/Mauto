@@ -2,8 +2,8 @@
 
 
 /*
- * @copyright   2014 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2017 Mauto Contributors. All rights reserved
+ * @author      Mauto
  *
  * @link        http://mautic.org
  *
