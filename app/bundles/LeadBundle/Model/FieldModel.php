@@ -336,15 +336,24 @@ class FieldModel extends FormModel
      */
     public function getLeadFields()
     {
+        $force=[
+            [
+                'column' => 'f.object',
+                'expr'   => 'like',
+                'value'  => 'lead',
+            ],
+        ];
+        if (!$this->security->isAdmin()) {
+            $force[]= [
+                'column' => 'f.order',
+                'expr'   => 'neq',
+                'value'  => '4',
+            ];
+        }
+
         $leadFields = $this->getEntities([
             'filter' => [
-                'force' => [
-                    [
-                        'column' => 'f.object',
-                        'expr'   => 'like',
-                        'value'  => 'lead',
-                    ],
-                ],
+                'force' => $force,
             ],
         ]);
 

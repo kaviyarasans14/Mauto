@@ -432,7 +432,6 @@ class StatRepository extends CommonRepository
         $query
             ->setMaxResults($limit)
             ->setFirstResult($offset);
-
         $results = $query->execute()->fetchAll();
 
         return $results;
