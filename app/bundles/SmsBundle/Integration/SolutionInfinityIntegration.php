@@ -53,8 +53,7 @@ class SolutionInfinityIntegration extends AbstractIntegration
     {
         return [
             'url'      => 'mautic.sms.config.form.sms.solution.url',
-            'username' => 'mautic.sms.config.form.sms.solution.username',
-            'password' => 'mautic.sms.config.form.sms.solution.password',
+            'apikey'   => 'mautic.sms.config.form.sms.solution.apikey',
             'senderid' => 'mautic.sms.config.form.sms.solution.senderid',
         ];
     }
