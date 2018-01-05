@@ -818,6 +818,13 @@ class FieldModel extends FormModel
             'expr'   => 'eq',
             'value'  => $object,
         ];
+        if (!$this->security->isAdmin() && $object == 'lead') {
+            $forceFilters[]= [
+                'column' => 'f.order',
+                'expr'   => 'neq',
+                'value'  => '4',
+            ];
+        }
         $contactFields = $this->getEntities(
             [
                 'filter' => [

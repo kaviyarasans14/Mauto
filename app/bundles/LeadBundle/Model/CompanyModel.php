@@ -724,7 +724,7 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
      *
      * @throws \Exception
      */
-    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null)
+    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null, $importcreatedby=null, $importcreatedbyuser=null)
     {
         $fields = array_flip($fields);
 
@@ -767,6 +767,9 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             if ($createdByUser !== null) {
                 $company->setCreatedBy($createdByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setCreatedBy($importcreatedby);
+            $lead->setCreatedByUser($importcreatedbyuser);
         }
         unset($fields['createdByUser']);
 
@@ -776,6 +779,9 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             if ($modifiedByUser !== null) {
                 $company->setModifiedBy($modifiedByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setModifiedBy($importcreatedby);
+            $lead->setModifiedByUser($importcreatedbyuser);
         }
         unset($fields['modifiedByUser']);
 
