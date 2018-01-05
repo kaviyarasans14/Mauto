@@ -1,4 +1,4 @@
-Mautic Introduction
+Mauto Introduction
 ===========
 ![Mautic](https://www.mautic.org/media/images/github_readme.png "Mautic Open Source Marketing Automation")
 
@@ -91,17 +91,17 @@ Before running these commands, please make a backup of your database.
 
 If updating from <a href="https://github.com/mautic/mautic/releases">a tagged release</a> to <a href="https://github.com/mautic/mautic/releases">a tagged release</a>, schema changes will be included in a migrations file. To apply the changes, run
 
-    $ php app/console doctrine:migrations:migrate
+    $ php app/console doctrine:migrations:migrate --domain=<your_domain_name>
 
 If you are updating to the latest source (remember this is alpha), first run
 
-    $ php app/console doctrine:schema:update --dump-sql
+    $ php app/console doctrine:schema:update --dump-sql --domain=<your_domain_name>
 
 This will list out the queries Doctrine wants to execute in order to get the schema up-to-date (no queries are actually executed). Review the queries to ensure there is nothing detrimental to your data. If you have doubts about a query, submit an issue here and we'll verify it.
 
 If you're satisfied with the queries, execute them with
 
-    $ php app/console doctrine:schema:update --force
+    $ php app/console doctrine:schema:update --force --domain=<your_domain_name>
 
 Your schema should now be up-to-date with the source.
 
