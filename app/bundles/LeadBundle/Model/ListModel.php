@@ -643,7 +643,18 @@ class ListModel extends FormModel
                 'operators' => $this->getOperatorsForFieldType('bool'),
                 'object'    => 'lead',
             ],
-            'stage' => [
+
+            'globalcategory' => [
+                'label'      => $this->translator->trans('mautic.lead.list.filter.categories'),
+                'properties' => [
+                    'type' => 'globalcategory',
+                ],
+                'operators' => $this->getOperatorsForFieldType('multiselect'),
+                'object'    => 'lead',
+            ],
+        ];
+        if ($this->security->isAdmin()) {
+            $choices['lead']['stage'] = [
                 'label'      => $this->translator->trans('mautic.lead.lead.field.stage'),
                 'properties' => [
                     'type' => 'stage',
@@ -659,31 +670,29 @@ class ListModel extends FormModel
                     ]
                 ),
                 'object' => 'lead',
-            ],
-            'globalcategory' => [
-                'label'      => $this->translator->trans('mautic.lead.list.filter.categories'),
-                'properties' => [
-                    'type' => 'globalcategory',
-                ],
-                'operators' => $this->getOperatorsForFieldType('multiselect'),
-                'object'    => 'lead',
-            ],
-        ];
-
+            ];
+        }
         // Add custom choices
         if ($this->dispatcher->hasListeners(LeadEvents::LIST_FILTERS_CHOICES_ON_GENERATE)) {
             $event = new LeadListFiltersChoicesEvent($choices, $this->getOperatorsForFieldType(), $this->translator);
             $this->dispatcher->dispatch(LeadEvents::LIST_FILTERS_CHOICES_ON_GENERATE, $event);
             $choices = $event->getChoices();
         }
-
+        $filter=[
+    'isListable'  => true,
+    'isPublished' => true,
+];
+        if (!$this->security->isAdmin()) {
+            $filter['force']=[
+                ['column' => 'f.object', 'expr' => 'neq', 'value' => 'company'],
+                ['column' => 'f.alias', 'expr' => 'notIn', 'value' => ['company']],
+            ];
+        }
         //get list of custom fields
         $fields = $this->em->getRepository('MauticLeadBundle:LeadField')->getEntities(
             [
-                'filter' => [
-                    'isListable'  => true,
-                    'isPublished' => true,
-                ],
+                'filter' => $filter,
+
                 'orderBy' => 'f.object',
             ]
         );

@@ -277,7 +277,7 @@ $view['slots']->set(
                         <?php echo $view['translator']->trans('mautic.lead.lead.tab.notes'); ?>
                     </a>
                 </li>
-                <?php if (!$isAnonymous): ?>
+                <?php if (!$isAnonymous && $security->isAdmin()): ?>
                     <li class="">
                         <a href="#social-container" role="tab" data-toggle="tab">
                         <span class="label label-primary mr-sm" id="SocialCount">
@@ -473,6 +473,11 @@ $view['slots']->set(
                 </div>
             </div>
             <div class="panel-body pt-sm">
+                <?php if (isset($fields['core']['company_new'])): ?>
+                    <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.core.company'); ?></h6>
+                    <p class="text-muted"><?php echo $fields['core']['company_new']['value']; ?></p>
+                <?php endif; ?>
+
             <?php if ($lead->getOwner()) : ?>
                 <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.lead.lead.field.owner'); ?></h6>
                 <p class="text-muted"><?php echo $lead->getOwner()->getName(); ?></p>
@@ -557,10 +562,10 @@ $view['slots']->set(
             <?php endforeach; ?>
             <div class="clearfix"></div>
         </div>
-        <div class="pa-sm panel-companies">
+        <!-- <div class="pa-sm panel-companies">
             <div class="panel-title">  <?php echo $view['translator']->trans(
                     'mautic.lead.lead.companies'); ?></div>
-            <?php foreach ($companies as $key => $company): ?>
+           <?php foreach ($companies as $key => $company): ?>
                 <h5 class="pull-left mt-xs mr-xs"><span class="label label-success" >
                        <i id="company-<?php echo $company['id']; ?>" class="fa fa-check <?php if ($company['is_primary'] == 1): ?>primary<?php endif?>" onclick="Mautic.setAsPrimaryCompany(<?php echo $company['id']?>, <?php echo $lead->getId()?>);" title="<?php echo $view['translator']->trans('mautic.lead.company.set.primary'); ?>"></i> <a href="<?php echo $view['router']->path('mautic_company_action', ['objectAction' => 'edit', 'objectId' => $company['id']]); ?>" style="color: white;"><?php echo $company['companyname']; ?></a>
                     </span>
@@ -568,7 +573,7 @@ $view['slots']->set(
             <?php endforeach; ?>
             <div class="clearfix"></div>
         </div>
-    </div>
+    </div>-->
     <!--/ right section -->
 </div>
 <!--/ end: box layout -->
