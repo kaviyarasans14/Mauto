@@ -76,9 +76,10 @@ class FieldModel extends CommonFormModel
 
         $options['leadFields']['lead']          = $choices;
         $options['leadFieldProperties']['lead'] = $fields;
-
-        $options['leadFields']['company']          = $companyChoices;
-        $options['leadFieldProperties']['company'] = $companyFields;
+        if ($this->userHelper->getUser()->isAdmin()) {
+            $options['leadFields']['company']          = $companyChoices;
+            $options['leadFieldProperties']['company'] = $companyFields;
+        }
 
         if ($action) {
             $options['action'] = $action;

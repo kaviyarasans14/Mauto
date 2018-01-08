@@ -54,6 +54,9 @@ class ReportSubscriber extends CommonSubscriber
      */
     public function onReportBuilder(ReportBuilderEvent $event)
     {
+        if (!$this->security->isAdmin()) {
+            return;
+        }
         if (!$event->checkContext([self::CONTEXT_MESSAGE_CHANNEL])) {
             return;
         }

@@ -330,15 +330,14 @@ class ReportSubscriber extends CommonSubscriber
                         ->groupBy('cut2.channel_id');
                     $qb->leftJoin('e', sprintf('(%s)', $qbcut->getSQL()), 'cut', 'e.id = cut.channel_id');
                 }
-
-                if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
-                    $qb->leftJoin(
+               if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
+                   $qb->leftJoin(
                         'e',
                         MAUTIC_TABLE_PREFIX.'lead_donotcontact',
                         'dnc',
                         'e.id = dnc.channel_id AND dnc.channel=\'email\''
                     );
-                }
+               }
 
                 break;
             case self::CONTEXT_EMAIL_STATS:
@@ -537,7 +536,7 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.unsubscribed':
-                    $this->addDNCTable($queryBuilder);
+                   // $this->addDNCTable($queryBuilder);
                     $queryBuilder->select(
                         'e.id, e.subject as title, count(CASE WHEN dnc.id  and dnc.reason = '.DoNotContact::UNSUBSCRIBED.' THEN 1 ELSE null END) as unsubscribed'
                     )
@@ -559,7 +558,7 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.bounced':
-                    $this->addDNCTable($queryBuilder);
+                  //  $this->addDNCTable($queryBuilder);
                     $queryBuilder->select(
                         'e.id, e.subject as title, count(CASE WHEN dnc.id  and dnc.reason = '.DoNotContact::BOUNCED.' THEN 1 ELSE null END) as bounced'
                     )

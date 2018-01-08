@@ -142,7 +142,7 @@ class ReportSubscriber extends CommonSubscriber
         }
 
         if ($event->checkContext($this->leadContexts)) {
-            $companyColumns = $this->companyReportData->getCompanyData();
+            $companyColumns=$this->companyReportData->getCompanyData();
 
             $columns = array_merge(
                 $this->fieldsBuilder->getLeadFieldsColumns('l.'),
@@ -188,12 +188,12 @@ class ReportSubscriber extends CommonSubscriber
                 }
             }
 
-            if ($event->checkContext([self::CONTEXT_CONTACT_FREQUENCYRULES])) {
+            if ($event->checkContext([self::CONTEXT_CONTACT_FREQUENCYRULES]) && $this->security->isAdmin()) {
                 $this->injectFrequencyReportData($event, $columns, $filters);
             }
         }
 
-        if ($event->checkContext($this->companyContexts)) {
+        if ($event->checkContext($this->companyContexts) && $this->security->isAdmin()) {
             $companyColumns = $this->fieldsBuilder->getCompanyFieldsColumns('comp.');
 
             $companyFilters = $companyColumns;

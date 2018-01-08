@@ -15,7 +15,7 @@ $header = ($lead->getId()) ?
     $view['translator']->trans('mautic.lead.lead.header.new');
 $view['slots']->set('headerTitle', $header);
 $view['slots']->set('mauticContent', 'lead');
-$stagehideattr= $view['security']->isGranted('stage:stages:view') ? "" : "style='display: none;'";;
+$stagehideattr= $view['security']->isGranted('stage:stages:view') ? '' : "style='display: none;'";
 
 $groups = array_keys($fields);
 sort($groups);
@@ -41,12 +41,12 @@ $img = $view['lead_avatar']->getAvatar($lead);
                 </div>
                 <div
                         class="col-sm-12<?php if ($view['form']->containsErrors($form['custom_avatar'])) {
-                            echo ' has-error';
-                        } ?>"
+    echo ' has-error';
+} ?>"
                         id="customAvatarContainer"
                         style="<?php if ($form['preferred_profile_image']->vars['data'] != 'custom') {
-                            echo 'display: none;';
-                        } ?>">
+    echo 'display: none;';
+} ?>">
                     <?php echo $view['form']->widget($form['custom_avatar']); ?>
                     <?php echo $view['form']->errors($form['custom_avatar']); ?>
                 </div>
@@ -59,8 +59,8 @@ $img = $view['lead_avatar']->getAvatar($lead);
                 <?php foreach ($groups as $g): ?>
                     <?php if (!empty($fields[$g])): ?>
                         <li class="list-group-item <?php if ($step === 1) {
-                            echo 'active';
-                        } ?>">
+    echo 'active';
+} ?>">
                             <a href="#<?php echo $g; ?>" class="steps" data-toggle="tab">
                                 <?php echo $view['translator']->trans('mautic.lead.field.group.'.$g); ?>
                             </a>
@@ -115,6 +115,13 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                     <?php endif; ?>
 
                                     <div class="form-group mb-0">
+                                        <?php if (isset($form['company_new'])): ?>
+                                            <div class="row">
+                                                <div class="col-sm-8">
+                                                    <?php echo $view['form']->row($form['company_new']); ?>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                         <label
                                                 class="control-label mb-xs"><?php echo $form['email']->vars['label']; ?></label>
                                         <div class="row">

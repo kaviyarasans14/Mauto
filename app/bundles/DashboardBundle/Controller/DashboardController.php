@@ -35,7 +35,7 @@ class DashboardController extends FormController
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
-            return $this->applyDashboardFileAction('global.default');
+            return $this->applyDashboardFileAction('global.leadsengagecustom');
         }
 
         $humanFormat     = 'M j, Y';

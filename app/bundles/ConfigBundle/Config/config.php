@@ -30,7 +30,7 @@ return [
                 'routeParameters' => ['objectAction' => 'edit'],
                 'iconClass'       => 'fa-cogs',
                 'id'              => 'mautic_config_index',
-                'access'    => 'lead:fields:full',
+                'access'          => ['lead:leads:viewown', 'lead:leads:viewother'],
                 //'access'          => 'admin',
             ],
             'mautic.sysinfo.menu.index' => [

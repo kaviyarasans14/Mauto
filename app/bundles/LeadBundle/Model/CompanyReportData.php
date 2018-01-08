@@ -11,6 +11,7 @@
 
 namespace Mautic\LeadBundle\Model;
 
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\FormBundle\Entity\Field;
 use Mautic\ReportBundle\Event\ReportGeneratorEvent;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -26,6 +27,10 @@ class CompanyReportData
      * @var TranslatorInterface
      */
     private $translator;
+    /**
+     * @var Security Interface
+     */
+    private $security;
 
     /**
      * CompanyReportData constructor.
@@ -33,10 +38,11 @@ class CompanyReportData
      * @param FieldModel          $fieldModel
      * @param TranslatorInterface $translator
      */
-    public function __construct(FieldModel $fieldModel, TranslatorInterface $translator)
+    public function __construct(FieldModel $fieldModel, TranslatorInterface $translator, CorePermissions $security)
     {
         $this->fieldModel = $fieldModel;
         $this->translator = $translator;
+        $this->security   = $security;
     }
 
     /**
@@ -44,6 +50,9 @@ class CompanyReportData
      */
     public function getCompanyData()
     {
+        if (!$this->security->isAdmin()) {
+            return [];
+        }
         $companyColumns = $this->getCompanyColumns();
         $companyFields  = $this->fieldModel->getEntities([
             'filter' => [

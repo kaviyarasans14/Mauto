@@ -151,7 +151,7 @@ class ReportSubscriber extends CommonSubscriber
             ],
         ];
 
-        $companyColumns = $this->companyReportData->getCompanyData();
+        $companyColumns=$this->companyReportData->getCompanyData();
 
         $columns = array_merge(
             $columns,
