@@ -13,9 +13,8 @@ $containerType     = 'div-wrapper';
 
 include __DIR__.'/../../../../app/bundles/FormBundle/Views/Field/field_helper.php';
 
-$action   = $app->getRequest()->get('objectAction');
-$settings = $field['properties'];
-
+$action       = $app->getRequest()->get('objectAction');
+$settings     = $field['properties'];
 $integrations = (isset($settings['integrations']) and !empty($settings['integrations'])) ? explode(',', substr($settings['integrations'], 0, -1))
     : [];
 

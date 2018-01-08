@@ -126,9 +126,7 @@ class ReportSubscriber extends CommonSubscriber
                     'type'  => 'int',
                 ],
             ];
-
-            $companyColumns = $this->companyReportData->getCompanyData();
-
+            $companyColumns=$this->companyReportData->getCompanyData();
             $event->addTable(
                 self::CONTEXT_ASSET_DOWNLOAD,
                 [

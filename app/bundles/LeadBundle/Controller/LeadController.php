@@ -239,6 +239,7 @@ class LeadController extends FormController
         //set the default owner to the currently logged in user
         $currentUser = $this->get('security.context')->getToken()->getUser();
         $quickForm->get('owner')->setData($currentUser);
+
         return $this->delegateView(
             [
                 'viewParameters' => [
@@ -375,6 +376,7 @@ class LeadController extends FormController
                             'ignoreAjax' => 1,
                         ]
                     )->getContent(),
+                    'security'         => $this->get('mautic.security'),
                 ],
                 'contentTemplate' => 'MauticLeadBundle:Lead:lead.html.php',
                 'passthroughVars' => [
@@ -1912,10 +1914,10 @@ class LeadController extends FormController
                 ]
             );
         } else {
-            $usermodel=$this->getModel('user.user');
+            $usermodel  =$this->getModel('user.user');
             $currentuser= $usermodel->getCurrentUserEntity();
             $usermodel->getRepository()->setCurrentUser($currentuser);
-            $users = $usermodel->getRepository()->getUserList('', 0,0,[]);
+            $users = $usermodel->getRepository()->getUserList('', 0, 0, []);
             $items = [];
             foreach ($users as $user) {
                 $items[$user['id']] = $user['firstName'].' '.$user['lastName'];

@@ -22,7 +22,6 @@ use Symfony\Component\HttpKernel\Kernel;
  */
 class AppKernel extends Kernel
 {
-
     /**
      * Domain Name.
      *
@@ -74,7 +73,7 @@ class AppKernel extends Kernel
      *
      * @api
      */
-    public function __construct($environment, $debug,$domain = '')
+    public function __construct($environment, $debug, $domain = '')
     {
         defined('MAUTIC_ENV') or define('MAUTIC_ENV', $environment);
         defined('LEADSENGAGE_DOMAIN') or define('LEADSENGAGE_DOMAIN', $domain);
@@ -262,7 +261,6 @@ class AppKernel extends Kernel
             $prefix      = isset($localParams['db_table_prefix']) ? $localParams['db_table_prefix'] : '';
             define('MAUTIC_TABLE_PREFIX', $prefix);
         }
-
         if ($this->loadClassCache) {
             $this->doLoadClassCache($this->loadClassCache[0], $this->loadClassCache[1]);
         }
@@ -456,7 +454,7 @@ class AppKernel extends Kernel
         /** @var $paths */
         $root = $this->getRootDir();
         include $root.'/config/paths.php';
-        if($this->getDomainName() != ""){
+        if ($this->getDomainName() != '') {
             if (isset($paths['local_config'])) {
                 $paths['local_config']='%kernel.root_dir%/config/'.$this->getDomainName().'/local.php';
             }
@@ -572,7 +570,9 @@ class AppKernel extends Kernel
 
         return $container;
     }
-    protected function getDomainName(){
+
+    protected function getDomainName()
+    {
         return $this->DOMAIN_NAME;
     }
 }

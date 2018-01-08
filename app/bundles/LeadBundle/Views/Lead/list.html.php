@@ -11,7 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticLeadBundle:Lead:index.html.php');
 }
-$stageaccess=$security->isGranted('stage:stages:view');
+$stageaccess   =$security->isGranted('stage:stages:view');
 $customButtons = [];
 if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) {
     $customButtons = [
@@ -99,7 +99,12 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                     'text'       => 'mautic.core.name',
                     'class'      => 'col-lead-name',
                 ]);
-
+                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
+                    'orderBy'    => 'l.company_new',
+                    'text'       => 'mautic.core.company',
+                    'class'      => 'col-lead-company',
+                ]);
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.email',
@@ -118,7 +123,7 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                     'text'       => 'mautic.lead.lead.thead.location',
                     'class'      => 'col-lead-location visible-md visible-lg',
                 ]);
-                if($stageaccess){
+                if ($stageaccess) {
                     echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                         'sessionVar' => 'lead',
                         'orderBy'    => 'l.stage_id',

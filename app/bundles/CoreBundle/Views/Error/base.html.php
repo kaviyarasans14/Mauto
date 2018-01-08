@@ -44,7 +44,7 @@ $message = $view['slots']->get('message', 'mautic.core.error.generic');
                 </blockquote>
                 <div class="pull-right">
                     <!--http://mau.tc/report-issue-->
-                    <a class="text-muted" href="http://support.leadsengage.com/support/login" target="_new"><?php echo $view['translator']->trans('mautic.core.report_issue'); ?></a>
+                    <a class="text-muted" href="https://leadsengage.freshdesk.com/support/login" target="_new"><?php echo $view['translator']->trans('mautic.core.report_issue'); ?></a>
                 </div>
             </div>
         <?php endif; ?>

@@ -312,7 +312,7 @@ return [
                     'access'    => ['lead:leads:viewown', 'lead:leads:viewother'],
                     'route'     => 'mautic_contact_index',
                     'priority'  => 70,
-                    'parent'   => 'mautic.segments.root',
+                    'parent'    => 'mautic.segments.root',
                 ],
                 /*   'mautic.companies.menu.index' => [
                       'route'     => 'mautic_company_index',
@@ -325,16 +325,16 @@ return [
                     'access'    => ['lead:leads:viewown', 'lead:leads:viewother'],
                     'route'     => 'mautic_segment_index',
                     'priority'  => 60,
-                    'parent'   => 'mautic.segments.root',
+                    'parent'    => 'mautic.segments.root',
                 ],
                 'mautic.point.menu.index' => [
-                    'route'  => 'mautic_point_index',
-                    'access' => 'point:points:view',
+                    'route'    => 'mautic_point_index',
+                    'access'   => 'point:points:view',
                     'parent'   => 'mautic.segments.root',
                 ],
                 'mautic.point.trigger.menu.index' => [
-                    'route'  => 'mautic_pointtrigger_index',
-                    'access' => 'point:triggers:view',
+                    'route'    => 'mautic_pointtrigger_index',
+                    'access'   => 'point:triggers:view',
                     'parent'   => 'mautic.segments.root',
                 ],
             ],
@@ -795,6 +795,7 @@ return [
                 'arguments' => [
                     'mautic.lead.model.field',
                     'translator',
+                    'mautic.security',
                 ],
             ],
             'mautic.lead.reportbundle.fields_builder' => [

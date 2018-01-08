@@ -236,7 +236,7 @@ class LeadModel extends FormModel
         if (!$repoSetup) {
             $repoSetup = true;
             //set the point trigger model in order to get the color code for the lead
-            $fields = $this->leadFieldModel->getFieldList(true, false);
+            $fields       = $this->leadFieldModel->getFieldList(true, false);
             $socialFields = (!empty($fields['social'])) ? array_keys($fields['social']) : [];
             $repo->setAvailableSocialFields($socialFields);
             $searchFields = [];
@@ -728,7 +728,7 @@ class LeadModel extends FormModel
     {
         $currentuser=$this->userHelper->getUser();
         $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
-        $results = $this->em->getRepository('MauticUserBundle:User')->getUserList('', 0,0,[]);
+        $results = $this->em->getRepository('MauticUserBundle:User')->getUserList('', 0, 0, []);
 
         return $results;
     }
@@ -1662,11 +1662,10 @@ class LeadModel extends FormModel
      *
      * @throws \Exception
      */
-    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null)
+    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null, $importcreatedby=null, $importcreatedbyuser=null)
     {
         $fields    = array_flip($fields);
         $fieldData = [];
-
         // Extract company data and import separately
         // Modifies the data array
         $company                           = null;
@@ -1725,6 +1724,9 @@ class LeadModel extends FormModel
             if ($createdByUser !== null) {
                 $lead->setCreatedBy($createdByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setCreatedBy($importcreatedby);
+            $lead->setCreatedByUser($importcreatedbyuser);
         }
         unset($fieldData['createdByUser']);
 
@@ -1734,6 +1736,9 @@ class LeadModel extends FormModel
             if ($modifiedByUser !== null) {
                 $lead->setModifiedBy($modifiedByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setModifiedBy($importcreatedby);
+            $lead->setModifiedByUser($importcreatedbyuser);
         }
         unset($fieldData['modifiedByUser']);
 
@@ -1998,7 +2003,7 @@ class LeadModel extends FormModel
     {
         // known "synonym" fields expected
         $synonyms = ['useragent' => 'user_agent',
-            'remotehost' => 'remote_host', ];
+            'remotehost'         => 'remote_host', ];
 
         // convert 'query' option to an array if necessary
         if (isset($params['query']) && !is_array($params['query'])) {
@@ -2420,7 +2425,6 @@ class LeadModel extends FormModel
      */
     public function getTopCreators($limit = 10, $dateFrom = null, $dateTo = null, $filters = [])
     {
-
         $q = $this->em->getConnection()->createQueryBuilder();
         $q->select('COUNT(t.id) AS leads, t.created_by, t.created_by_user')
             ->from(MAUTIC_TABLE_PREFIX.'leads', 't')
