@@ -74,6 +74,7 @@ $view['slots']->set(
 );
 
 $showActions = count($activeFormActions);
+$isadmin     =$view['security']->isAdmin();
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -277,10 +278,12 @@ $showActions = count($activeFormActions);
                        data-target="#modal-automatic-copy"><?php echo $view['translator']->trans(
                             'mautic.form.form.header.automaticcopy'
                         ); ?></a>
-                    <a href="#" class="btn btn-info" data-toggle="modal"
-                       data-target="#modal-manual-copy"><?php echo $view['translator']->trans(
-                            'mautic.form.form.header.manualcopy'
-                        ); ?></a>
+                    <?php if ($isadmin): ?>
+                        <a href="#" class="btn btn-info" data-toggle="modal"
+                        data-target="#modal-manual-copy"><?php echo $view['translator']->trans(
+                                'mautic.form.form.header.manualcopy'
+                            ); ?></a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -315,16 +318,14 @@ $showActions = count($activeFormActions);
                     <h3><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.js'); ?></h3>
                     <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;script type="text/javascript" src="<?php echo $view['router']->url(
                             'mautic_form_generateform',
-                            ['id' => $activeForm->getId()],
-                            true
+                            ['id' => $activeForm->getId()]
                         ); ?>"&gt;&lt;/script&gt;</textarea>
                     <h3 class="pt-lg"><?php echo $view['translator']->trans(
                             'mautic.form.form.help.automaticcopy.iframe'
                         ); ?></h3>
                     <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;iframe src="<?php echo $view['router']->url(
                             'mautic_form_preview',
-                            ['id' => $activeForm->getId()],
-                            true
+                            ['id' => $activeForm->getId()]
                         ); ?>" width="300" height="300"&gt;&lt;p&gt;Your browser does not support iframes.&lt;/p&gt;&lt;/iframe&gt;</textarea>
                     <i><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.iframe.note'); ?></i>
                 </div>
