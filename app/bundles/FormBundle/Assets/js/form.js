@@ -294,8 +294,14 @@ Mautic.initHideItemButton = function(container) {
 Mautic.onPostSubmitActionChange = function(value) {
     if (value == 'return') {
         //remove required class
+        mQuery('#mauticform_postActionProperty').attr('type','text');
         mQuery('#mauticform_postActionProperty').prev().removeClass('required');
     } else {
+        if(value == 'redirect'){
+            mQuery('#mauticform_postActionProperty').attr('type','url');
+        } else {
+            mQuery('#mauticform_postActionProperty').attr('type','text');
+        }
         mQuery('#mauticform_postActionProperty').prev().addClass('required');
     }
 
