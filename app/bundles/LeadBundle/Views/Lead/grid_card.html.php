@@ -18,8 +18,8 @@ $img = $view['lead_avatar']->getAvatar($contact);
 ?>
 <div class="shuffle shuffle-item grid col-sm-6 col-lg-4 contact-cards">
     <div data-color="#<?php echo $color; ?>" class="panel<?php if (!empty($highlight)) {
-        echo ' highlight';
-    } ?> card ovf-h" style="border-top: 3px solid #<?php echo $color; ?>;">
+    echo ' highlight';
+} ?> card ovf-h" style="border-top: 3px solid #<?php echo $color; ?>;">
         <div class="box-layout">
             <div class="col-xs-4 va-m">
                 <div class="panel-body">
@@ -37,11 +37,11 @@ $img = $view['lead_avatar']->getAvatar($contact);
                         <a href="<?php echo $view['router']->path('mautic_contact_action',
                             ['objectAction' => 'view', 'objectId' => $contact->getId()]); ?>"
                            data-toggle="ajax">
-                            <span><?php echo $contact->getPrimaryIdentifier(); ?></span>
+                            <span><?php echo $view['translator']->trans($contact->getPrimaryIdentifier()); ?></span>
                         </a>
                     </h4>
                     <div class="text-muted mb-1 ellipsis">
-                        <i class="fa fa-fw fa-building mr-xs"></i><?php echo !empty($fields['core']['company']['value'])?$fields['core']['company']['value']:""; ?>
+                        <i class="fa fa-fw fa-building mr-xs"></i><?php echo !empty($fields['core']['company']['value']) ? $fields['core']['company']['value'] : ''; ?>
                     </div>
                     <div class="text-muted mb-1 ellipsis">
                         <i class="fa fa-fw fa-map-marker mr-xs"></i><?php
