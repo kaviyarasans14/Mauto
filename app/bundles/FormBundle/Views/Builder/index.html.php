@@ -10,7 +10,7 @@
  */
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'form');
-
+$isadmin=$view['security']->isAdmin();
 $header = ($activeForm->getId())
     ?
     $view['translator']->trans(
@@ -71,7 +71,7 @@ if (!isset($inBuilder)) {
                                     <select class="chosen form-builder-new-component" data-placeholder="<?php echo $view['translator']->trans('mautic.form.form.component.fields'); ?>">
                                         <option value=""></option>
                                         <?php foreach ($fields as $fieldType => $field): ?>
-
+                                            <?php if (!$isadmin && ($fieldType == 'captcha' || $fieldType == 'plugin.loginSocial')): continue; endif; ?>
                                             <option data-toggle="ajaxmodal"
                                                     data-target="#formComponentModal"
                                                     data-href="<?php echo $view['router']->path(
