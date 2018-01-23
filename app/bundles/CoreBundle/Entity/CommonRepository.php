@@ -394,7 +394,6 @@ class CommonRepository extends EntityRepository
      */
     public function getFilterExpr(&$q, $filter, $parameterName = null)
     {
-
         $unique    = ($parameterName) ? $parameterName : $this->generateRandomParameterName();
         $parameter = [];
 
@@ -979,7 +978,6 @@ class CommonRepository extends EntityRepository
      */
     protected function addDbalCatchAllWhereClause(&$q, $filter, array $columns)
     {
-
         $unique = $this->generateRandomParameterName(); //ensure that the string has a unique parameter identifier
         $string = ($filter->strict) ? $filter->string : "{$filter->string}";
         if ($filter->not) {
@@ -1113,7 +1111,7 @@ class CommonRepository extends EntityRepository
                 break;
             case $this->translator->trans('mautic.core.searchcommand.ismine'):
             case $this->translator->trans('mautic.core.searchcommand.ismine', [], null, 'en_US'):
-                $expr            = $q->expr()->eq("IDENTITY($prefix.createdBy)", $this->currentUser->getId());
+                $expr            = $q->expr()->eq("$prefix.createdBy", $this->currentUser->getId());
                 $returnParameter = false;
                 break;
             case $this->translator->trans('mautic.core.searchcommand.category'):
@@ -1509,16 +1507,14 @@ class CommonRepository extends EntityRepository
 
             if (!empty($advancedFilterStrings)) {
                 foreach ($advancedFilterStrings as $parseString) {
-
-                    $parsed = $filterHelper->parseString($parseString);
+                    $parsed                = $filterHelper->parseString($parseString);
                     $advancedFilters->root = array_merge($advancedFilters->root, $parsed->root);
                     $filterHelper->mergeCommands($advancedFilters, $parsed->commands);
                 }
                 $this->advancedFilterCommands = $advancedFilters->commands;
-                list($expr, $parameters) = $this->addAdvancedSearchWhereClause($q, $advancedFilters);
+                list($expr, $parameters)      = $this->addAdvancedSearchWhereClause($q, $advancedFilters);
 
                 $this->appendExpression($queryExpression, $expr);
-
 
                 if (is_array($parameters)) {
                     $queryParameters = array_merge($queryParameters, $parameters);
@@ -1540,19 +1536,18 @@ class CommonRepository extends EntityRepository
                 $q->setParameter($k, $v);
             }
         }
-        if(isset($this->currentUser)){
-            $alias = $this->getTableAlias();
+        if (isset($this->currentUser)) {
+            $alias     = $this->getTableAlias();
             $entityname=$this->getEntityName();
-            $isAdmin=$this->currentUser->isAdmin();
-            if(!$isAdmin){
+            $isAdmin   =$this->currentUser->isAdmin();
+            if (!$isAdmin) {
                 $createdbycol=$this->_class->getFieldName('created_by');
-                if($createdbycol == 'createdBy' && $entityname != 'Mautic\UserBundle\Entity\User'){
-                    if($q instanceof QueryBuilder){
-                        $q->andWhere( $alias.'.'.$createdbycol.' != 1');
-                    }else{
-                        $q->andWhere( $alias.'.created_by != 1');
+                if ($createdbycol == 'createdBy' && $entityname != 'Mautic\UserBundle\Entity\User') {
+                    if ($q instanceof QueryBuilder) {
+                        $q->andWhere($alias.'.'.$createdbycol.' != 1 or '.$alias.'.'.$createdbycol.' is NULL');
+                    } else {
+                        $q->andWhere($alias.'.created_by != 1 or '.$alias.'.created_by is NULL');
                     }
-
                 }
             }
         }
@@ -1565,7 +1560,6 @@ class CommonRepository extends EntityRepository
      */
     protected function buildWhereClauseFromArray($query, array $clauses, $expr = null)
     {
-
         $isOrm       = $query instanceof QueryBuilder;
         $columnValue = ['eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'like', 'notLike', 'in', 'notIn', 'between', 'notBetween'];
         $justColumn  = ['isNull', 'isNotNull', 'isEmpty', 'isNotEmpty'];
@@ -1747,14 +1741,11 @@ class CommonRepository extends EntityRepository
     {
         foreach ($parseFilters as $f) {
             if (isset($f->children)) {
-
                 list($expr, $params) = $this->addAdvancedSearchWhereClause($qb, $f);
-
             } else {
                 if (!empty($f->command)) {
                     if ($this->isSupportedSearchCommand($f->command, $f->string)) {
                         list($expr, $params) = $this->addSearchCommandWhereClause($qb, $f);
-
                     } else {
                         //treat the command:string as if its a single word
 
@@ -1762,11 +1753,9 @@ class CommonRepository extends EntityRepository
                         $f->not              = false;
                         $f->strict           = true;
                         list($expr, $params) = $this->addCatchAllWhereClause($qb, $f);
-
                     }
                 } else {
                     list($expr, $params) = $this->addCatchAllWhereClause($qb, $f);
-
                 }
             }
             if (!empty($params)) {

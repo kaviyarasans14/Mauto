@@ -49,7 +49,6 @@ class PublicController extends CommonFormController
             //try to get it from the HTTP_REFERER
             $return = (isset($server['HTTP_REFERER'])) ? $server['HTTP_REFERER'] : false;
         }
-
         if (!empty($return)) {
             //remove mauticError and mauticMessage from the referer so it doesn't get sent back
             $return = InputHelper::url($return, null, null, null, ['mauticError', 'mauticMessage'], true);
@@ -63,7 +62,6 @@ class PublicController extends CommonFormController
         } elseif (isset($post['formId']) && !isset($post['formid'])) {
             $post['formid'] = $post['formId'];
         }
-
         //check to ensure there is a formId
         if (!isset($post['formId'])) {
             $error = $translator->trans('mautic.form.submit.error.unavailable', [], 'flashes');
@@ -78,7 +76,6 @@ class PublicController extends CommonFormController
                 //get what to do immediately after successful post
                 $postAction         = $form->getPostAction();
                 $postActionProperty = $form->getPostActionProperty();
-
                 //check to ensure the form is published
                 $status             = $form->getPublishStatus();
                 $dateTemplateHelper = $this->get('mautic.helper.template.date');
@@ -102,6 +99,7 @@ class PublicController extends CommonFormController
                     $error = $translator->trans('mautic.form.submit.error.unavailable', [], 'flashes');
                 } else {
                     $result = $this->getModel('form.submission')->saveSubmission($post, $server, $form, $this->request, true);
+
                     if (!empty($result['errors'])) {
                         if ($messengerMode || $isAjax) {
                             $error = $result['errors'];
@@ -131,7 +129,6 @@ class PublicController extends CommonFormController
                         foreach ($callbacksRequested as $key => $callbackRequested) {
                             $callbackRequested['messengerMode'] = $messengerMode;
                             $callbackRequested['ajaxMode']      = $isAjax;
-
                             if (isset($callbackRequested['eventName'])) {
                                 $submissionEvent->setPostSubmitCallback($key, $callbackRequested);
 

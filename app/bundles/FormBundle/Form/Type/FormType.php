@@ -162,10 +162,17 @@ class FormType extends AbstractType
 
         $postAction = (isset($options['data'])) ? $options['data']->getPostAction() : '';
         $required   = (in_array($postAction, ['redirect', 'message'])) ? true : false;
-        $builder->add('postActionProperty', 'text', [
+        $fieldtype  = 'text';
+        if ($postAction == 'redirect') {
+            $fieldtype = 'url';
+        }
+        $builder->add('postActionProperty', $fieldtype, [
             'label'      => 'mautic.form.form.postactionproperty',
             'label_attr' => ['class' => 'control-label'],
-            'attr'       => ['class' => 'form-control'],
+            'attr'       => [
+                'class'    => 'form-control',
+                'onkeyup'  => 'Mautic.onKeyupMaxLength(this.value);',
+            ],
             'required'   => $required,
         ]);
 

@@ -374,9 +374,9 @@ class ReportSubscriber extends CommonSubscriber
                     );
                 }
 
-                if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
-                    $this->addDNCTable($qb);
-                }
+               if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
+                   $this->addDNCTable($qb);
+               }
 
                 $event->addCampaignByChannelJoin($qb, 'e', 'email');
 
@@ -397,13 +397,17 @@ class ReportSubscriber extends CommonSubscriber
      */
     public function onReportGraphGenerate(ReportGraphEvent $event)
     {
-        $graphs = $event->getRequestedGraphs();
+        $dncColumns   = ['unsubscribed', 'unsubscribed_ratio', 'bounced', 'bounced_ratio'];
+        $graphs       = $event->getRequestedGraphs();
 
         if (!$event->checkContext(self::CONTEXT_EMAIL_STATS) || ($event->checkContext(self::CONTEXT_EMAILS) && !in_array('mautic.email.graph.pie.read.ingored.unsubscribed.bounced', $graphs))) {
             return;
         }
 
         $qb       = $event->getQueryBuilder();
+        if (!$event->hasColumn($dncColumns) && !$event->hasFilter($dncColumns)) {
+            $this->addDNCTable($qb);
+        }
         $statRepo = $this->em->getRepository('MauticEmailBundle:Stat');
         foreach ($graphs as $g) {
             $options      = $event->getOptions($g);
