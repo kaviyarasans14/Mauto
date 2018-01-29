@@ -18,6 +18,7 @@ Mautic.getUrlParameter = function (name) {
  */
 Mautic.launchBuilder = function (formName, actionName) {
     var builder = mQuery('.builder');
+   // alert(builder);
     Mautic.codeMode = builder.hasClass('code-mode');
     Mautic.showChangeThemeWarning = true;
 
@@ -104,6 +105,7 @@ Mautic.launchBuilder = function (formName, actionName) {
     var form = mQuery('form[name='+formName+']');
 
     applyBtn.off('click').on('click', function(e) {
+     //   alert("apply button clicked");
         Mautic.activateButtonLoadingIndicator(applyBtn);
         Mautic.sendBuilderContentToTextarea(function() {
             // Trigger slot:destroy event
@@ -301,6 +303,7 @@ Mautic.htmlspecialchars_decode = function(encodedHtml) {
  * @param themeField
  */
 Mautic.initSelectTheme = function(themeField) {
+    //alert("initSelectTheme");
     var customHtml = mQuery('textarea.builder-html');
     var isNew = Mautic.isNewEntity('#page_sessionId, #emailform_sessionId');
     Mautic.showChangeThemeWarning = true;
@@ -317,9 +320,12 @@ Mautic.initSelectTheme = function(themeField) {
 
     if (customHtml.length) {
         mQuery('[data-theme]').click(function(e) {
+
+          //  alert("data-theme");
             e.preventDefault();
             var currentLink = mQuery(this);
             var theme = currentLink.attr('data-theme');
+           // alert(theme);
             var isCodeMode = (theme === 'mautic_code_mode');
             Mautic.builderTheme = theme;
 

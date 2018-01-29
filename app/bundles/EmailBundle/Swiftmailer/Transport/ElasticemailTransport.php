@@ -96,6 +96,9 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
         $email    = rawurldecode($request->get('to'));
         $status   = rawurldecode($request->get('status'));
         $category = rawurldecode($request->get('category'));
+        $this->logger->debug('To:'.$email);
+        $this->logger->debug('Status:'.$status);
+        $this->logger->debug('Bounce:'.$category);
         // https://elasticemail.com/support/delivery/http-web-notification
         if (in_array($status, ['AbuseReport', 'Unsubscribed']) || 'Spam' === $category) {
             $this->transportCallback->addFailureByAddress($email, $status, DoNotContact::UNSUBSCRIBED);

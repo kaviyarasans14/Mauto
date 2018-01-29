@@ -1079,7 +1079,6 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
     {
         $primaryTable = $tables[0];
         unset($tables[0]);
-
         $joinType = ($innerJoinTables) ? 'join' : 'leftJoin';
 
         $this->useDistinctCount = true;

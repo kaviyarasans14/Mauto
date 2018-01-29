@@ -239,8 +239,7 @@ class PublicController extends CommonFormController
             }
 
             if ($isAjax) {
-                // Post via ajax so return a json response
-
+                // Post via ajax so return a json responses
                 return new JsonResponse($data);
             } else {
                 $response = json_encode($data);

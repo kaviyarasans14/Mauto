@@ -91,6 +91,11 @@ return [
                 'path'       => '/emailtemplate/preview/{objectId}',
                 'controller' => 'MauticEmailBundle:Public:preview',
             ],
+            'le_beefree_credentials' => [
+                'path'       => '/beefree/getcredentials',
+                'controller' => 'MauticEmailBundle:Public:getBeeFreeCredentials',
+                'method'     => ['GET', 'POST'],
+            ],
         ],
     ],
     'menu' => [
