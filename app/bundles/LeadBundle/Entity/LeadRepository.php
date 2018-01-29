@@ -742,7 +742,9 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                         $q->expr()->$xExpr(
                             $q->expr()->$eqExpr('list_lead.manually_removed', 0)
                         )
-                    )
+                    ),
+                    null,
+                    $filter
                 );
                 $filter->strict  = true;
                 $returnParameter = true;
@@ -1074,8 +1076,9 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
      * @param bool         $innerJoinTables
      * @param null         $whereExpression
      * @param null         $having
+     * @param              $filter
      */
-    public function applySearchQueryRelationship(QueryBuilder $q, array $tables, $innerJoinTables, $whereExpression = null, $having = null)
+    public function applySearchQueryRelationship(QueryBuilder $q, array $tables, $innerJoinTables, $whereExpression = null, $having = null, $filter = null)
     {
         $primaryTable = $tables[0];
         unset($tables[0]);
@@ -1103,6 +1106,12 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                 $q->andHaving($having);
             }
             $q->groupBy('l.id');
+        } elseif (array_key_exists($primaryTable['alias'], $joins) && $filter != null) {
+            if ($whereExpression && strtolower($filter->type) == 'or') {
+                $q->orWhere($whereExpression);
+            } elseif ($whereExpression) {
+                $q->andWhere($whereExpression);
+            }
         }
     }
 
