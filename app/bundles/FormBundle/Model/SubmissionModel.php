@@ -1028,6 +1028,9 @@ class SubmissionModel extends CommonFormModel
             }
             $this->em->clear(CompanyChangeLog::class);
         }
+        if ($leadId = $lead->getId()) {
+            $this->leadModel->setLeadCookie($leadId);
+        }
 
         return $lead;
     }

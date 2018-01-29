@@ -632,7 +632,7 @@
         };
 
         Form.registerFormMessenger = function() {
-            window.addEventListener('message', function(event) {
+	        window.addEventListener('message', function(event) {
                 if (Core.debug()) console.log(event);
               if (event.origin !== MauticDomain && MauticDomain.indexOf(event.origin) < 0) return;
 
@@ -642,6 +642,7 @@
                     if (response && response.formName) {
                         Core.getValidator(response.formName).parseFormResponse(response);
                     }
+                    document.cookie = "IsTrackingEnabled=true;";
                 } catch (err) {
                     if (Core.debug()) console.log(err);
                 }

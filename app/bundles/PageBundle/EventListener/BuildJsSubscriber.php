@@ -137,16 +137,21 @@ class BuildJsSubscriber extends CommonSubscriber
 
             m.beforeFirstDeliveryMade = true;
         }
-
-        MauticJS.makeCORSRequest('POST', m.pageTrackingCORSUrl, params, 
-        function(response) {
-            MauticJS.dispatchEvent('mauticPageEventDelivered', {'event': event, 'params': params, 'response': response});
-        },
-        function() {
-            // CORS failed so load an image
-            m.buildTrackingImage(event, params);
-            m.firstDeliveryMade = true;
-        });
+    if(document.cookie.indexOf("IsTrackingEnabled") > -1){
+        MauticJS.makeCORSRequest('POST', m.pageTrackingCORSUrl, params,
+            function(response) {
+                MauticJS.dispatchEvent('mauticPageEventDelivered', {
+                    'event': event,
+                    'params': params,
+                    'response': response
+                });
+            },
+            function() {
+                // CORS failed so load an image
+                m.buildTrackingImage(event, params);
+                m.firstDeliveryMade = true;
+            });
+        }
     }
     
     m.buildTrackingImage = function(pageview, params) {
