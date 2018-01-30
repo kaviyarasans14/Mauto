@@ -149,11 +149,13 @@ class CampaignController extends AbstractStandardFormController
     /**
      * Generates new form and processes post data.
      *
+     * @param $objectId
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function newAction()
+    public function newAction($objectId = null)
     {
-        return $this->newStandard();
+        return $this->newStandard($objectId);
     }
 
     /**
@@ -511,6 +513,20 @@ class CampaignController extends AbstractStandardFormController
 
         // Store for customizeViewArguments
         $this->listFilters = $listFilters;
+        if (!empty($args)) {
+            $args = array_merge(
+                [
+                    'joinLists' => $joinLists,
+                    'joinForms' => $joinForms,
+                ],
+                $args
+            );
+        } else {
+            $args = [
+                'joinLists' => $joinLists,
+                'joinForms' => $joinForms,
+            ];
+        }
 
         return parent::getIndexItems(
             $start,
@@ -518,10 +534,7 @@ class CampaignController extends AbstractStandardFormController
             $filter,
             $orderBy,
             $orderByDir,
-            [
-                'joinLists' => $joinLists,
-                'joinForms' => $joinForms,
-            ]
+            $args
         );
     }
 
