@@ -497,6 +497,7 @@ abstract class AbstractStandardFormController extends AbstractFormController
                 'modelName'       => $this->getModelName(),
                 'translationBase' => $this->getTranslationBase(),
                 'tmpl'            => $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index',
+                'items'           => '',
                 'entity'          => $entity,
                 'form'            => $this->getFormView($form, 'edit'),
             ],
@@ -969,11 +970,13 @@ abstract class AbstractStandardFormController extends AbstractFormController
     }
 
     /**
+     * @param $objectId
+     *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      *
      * @throws \Exception
      */
-    protected function newStandard()
+    protected function newStandard($objectId = null)
     {
         $entity = $this->getFormEntity('new');
 
@@ -1058,6 +1061,42 @@ abstract class AbstractStandardFormController extends AbstractFormController
             }
         }
 
+        $session = $this->get('session');
+        if (empty($page)) {
+            $page = $session->get('mautic.'.$this->getSessionBase().'.page', 1);
+        }
+
+        //set limits
+        $limit = $session->get('mautic.'.$this->getSessionBase().'.limit', $this->coreParametersHelper->getParameter('default_pagelimit'));
+        $start = ($page === 1) ? 0 : (($page - 1) * $limit);
+        if ($start < 0) {
+            $start = 0;
+        }
+
+        $search = $this->request->get('search', $session->get('mautic.'.$this->getSessionBase().'.filter', ''));
+        $session->set('mautic.'.$this->getSessionBase().'.filter', $search);
+
+        $filter = ['string' => $search, 'force' => []];
+
+        $model = $this->getModel($this->getModelName());
+        $repo  = $model->getRepository();
+
+        $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
+        $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
+
+        $orderBy    = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultOrderColumn());
+        $orderByDir = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
+        if ($objectId == null) {
+            $campaignargs                        = [];
+            $campaignargs['isAdminRecordNeeded'] = true;
+            list($count, $items)                 = $this->getIndexItems($start, $limit, $filter, $orderBy, $orderByDir, $campaignargs);
+            if ($count == 0) {
+                $items = '';
+            }
+        } else {
+            $items = '';
+        }
+
         $delegateArgs = [
             'viewParameters' => [
                 'permissionBase'  => $this->getPermissionBase(),
@@ -1068,6 +1107,7 @@ abstract class AbstractStandardFormController extends AbstractFormController
                 'modelName'       => $this->getModelName(),
                 'translationBase' => $this->getTranslationBase(),
                 'tmpl'            => $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index',
+                'items'           => $items,
                 'entity'          => $entity,
                 'form'            => $this->getFormView($form, 'new'),
             ],
