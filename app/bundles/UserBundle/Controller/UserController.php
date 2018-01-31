@@ -49,20 +49,19 @@ class UserController extends FormController
 
         $search = $this->request->get('search', $this->get('session')->get('mautic.user.filter', ''));
         $this->get('session')->set('mautic.user.filter', $search);
-        $issadmin=$this->get('mautic.helper.user')->getUser()->isAdmin();
-        $useremail=$this->get('mautic.helper.user')->getUser()->getEmail();
-        $defaultfilter="";
-        if($useremail != "sadmin@leadsengage.com"){
-            if(empty($search)){
-                $defaultfilter="email:!sadmin@leadsengage.com";
-            }else{
-                $defaultfilter=$search." and email:!sadmin@leadsengage.com";
+        $issadmin     =$this->get('mautic.helper.user')->getUser()->isAdmin();
+        $useremail    =$this->get('mautic.helper.user')->getUser()->getEmail();
+        $defaultfilter='';
+        if ($useremail != 'sadmin@leadsengage.com') {
+            if (empty($search)) {
+                $defaultfilter='email:!sadmin@leadsengage.com';
+            } else {
+                $defaultfilter=$search.' and email:!sadmin@leadsengage.com';
             }
         }
         //do some default filtering
         $filter = ['string' => $defaultfilter, 'force' => ''];
-        $tmpl  = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
-
+        $tmpl   = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
 
         // dump($useremail);
         $users = $this->getModel('user.user')->getEntities(
@@ -164,6 +163,12 @@ class UserController extends FormController
                 if ($valid = $this->isFormValid($form)) {
                     //form is valid so process the data
                     $user->setPassword($password);
+                    if ($user->getTimezone() == '') {//replace default time zone
+                        $user->setTimezone('Asia/Kolkata');
+                    }
+                    if ($user->getLocale() == '') {//replace default locale
+                        $user->setLocale('en_US');
+                    }
                     $model->saveEntity($user);
 
                     //check if the user's locale has been downloaded already, fetch it if not

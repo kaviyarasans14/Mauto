@@ -81,6 +81,14 @@ class LeadController extends FormController
         $listCommand = $translator->trans('mautic.lead.lead.searchcommand.list');
         $mine        = $translator->trans('mautic.core.searchcommand.ismine');
         $indexMode   = $this->request->get('view', $session->get('mautic.lead.indexmode', 'list'));
+        $listFilters = [
+            'filters' => [
+                'placeholder' => $this->get('translator')->trans('mautic.lead.lead.filter.placeholder'),
+                'multiple'    => true,
+            ],
+        ];
+
+        $listFilters['filters']['groups'] = [];
 
         $session->set('mautic.lead.indexmode', $indexMode);
 
@@ -91,8 +99,69 @@ class LeadController extends FormController
         } elseif (strpos($search, $anonymous) !== false && strpos($search, '!'.$anonymous) === false) {
             $anonymousShowing = true;
         }
+        $values         = [];
+        $currentFilters = $session->get('mautic.email.list_filters', []);
+        $updatedFilters = $this->request->get('filters', false);
+        $ignoreListJoin = true;
 
-        if (!$permissions['lead:leads:viewother']) {
+        if ($updatedFilters) {
+            // Filters have been updated
+
+            // Parse the selected values
+            $newFilters     = [];
+            $updatedFilters = json_decode($updatedFilters, true);
+
+            if ($updatedFilters) {
+                foreach ($updatedFilters as $updatedFilter) {
+                    list($clmn, $fltr) = explode(':', $updatedFilter);
+
+                    $newFilters[$clmn][] = $fltr;
+                }
+
+                $currentFilters = $newFilters;
+            } else {
+                $currentFilters = [];
+            }
+        }
+        $session->set('mautic.email.list_filters', $currentFilters);
+
+        if (!empty($currentFilters)) {
+            $listIds = [];
+            foreach ($currentFilters as $type => $typeFilters) {
+                if ($type == 'list') {
+                    $key = 'lists';
+                }
+
+                $listFilters['filters']['groups']['mautic.core.filter.'.$key]['values'] = $typeFilters;
+
+                foreach ($typeFilters as $fltr) {
+                    if ($type == 'list') {
+                        $listIds[] = (int) $fltr;
+                    }
+                }
+            }
+
+            if (!empty($listIds)) {
+                $listmodel       = $this->getModel('lead.list');
+                $leadlist_search = '';
+                for ($lid = 0; $lid < sizeof($listIds); ++$lid) {
+                    $leadlist = $listmodel->getEntity($listIds[$lid]);
+                    $values[] = $listIds[$lid];
+                    if ($li = 0) {
+                        $leadlist_search = 'segment:';
+                    } else {
+                        $leadlist_search .= ' or segment:';
+                    }
+                    if ($leadlist != null) {
+                        $leadlist_search .= $leadlist->getAlias();
+                    }
+                }
+                $filter['string'] .= $leadlist_search;
+                // $filter['string'] = "segment:sadmin-segment OR segment:test-segement1";
+            }
+        }
+
+        if (!$permissions['lead:leads:viewother'] && $ignoreListJoin) {
             $filter['force'] .= " $mine";
         }
         $results = $model->getEntities([
@@ -102,6 +171,7 @@ class LeadController extends FormController
             'orderBy'        => $orderBy,
             'orderByDir'     => $orderByDir,
             'withTotalCount' => true,
+            'ignoreListJoin' => $ignoreListJoin,
         ]);
 
         $count = $results['count'];
@@ -145,6 +215,11 @@ class LeadController extends FormController
 
         $lists = $this->getModel('lead.list')->getUserLists();
 
+        $listFilters['filters']['groups']['mautic.core.filter.lists'] = [
+            'options' => $lists,
+            'prefix'  => 'list',
+            'values'  => $values,
+        ];
         //check to see if in a single list
         $inSingleList = (substr_count($search, "$listCommand:") === 1) ? true : false;
         $list         = [];
@@ -173,6 +248,7 @@ class LeadController extends FormController
             [
                 'viewParameters' => [
                     'searchValue'      => $search,
+                    'filters'          => $listFilters,
                     'items'            => $leads,
                     'page'             => $page,
                     'totalItems'       => $count,
@@ -201,58 +277,62 @@ class LeadController extends FormController
     /**
      * @return JsonResponse|Response
      */
-    public function quickAddAction()
+//    public function quickAddAction()
+//    {
+//        /** @var \Mautic\LeadBundle\Model\LeadModel $model */
+//        $model = $this->getModel('lead.lead');
+//
+//        // Get the quick add form
+//        $action = $this->generateUrl('mautic_contact_action', ['objectAction' => 'new', 'qf' => 1]);
+//
+//        $fields =$this->getQuickAddFields();
+//
+//        $quickForm = $model->createForm($model->getEntity(), $this->get('form.factory'), $action, ['fields' => $fields, 'isShortForm' => true]);
+//
+//        //set the default owner to the currently logged in user
+//        $currentUser = $this->get('security.context')->getToken()->getUser();
+//        $quickForm->get('owner')->setData($currentUser);
+//
+//        return $this->delegateView(
+//            [
+//                'viewParameters' => [
+//                    'form' => $quickForm->createView(),
+//                ],
+//                'contentTemplate' => 'MauticLeadBundle:Lead:quickadd.html.php',
+//                'passthroughVars' => [
+//                    'activeLink'    => '#mautic_contact_index',
+//                    'mauticContent' => 'lead',
+//                    'route'         => false,
+//                ],
+//            ]
+//        );
+//    }
+    public function getQuickAddFields()
     {
-        /** @var \Mautic\LeadBundle\Model\LeadModel $model */
-        $model = $this->getModel('lead.lead');
-
-        // Get the quick add form
-        $action = $this->generateUrl('mautic_contact_action', ['objectAction' => 'new', 'qf' => 1]);
-
-        $fields = $this->getModel('lead.field')->getEntities(
-            [
-                'filter' => [
-                    'force' => [
-                        [
-                            'column' => 'f.isPublished',
-                            'expr'   => 'eq',
-                            'value'  => true,
-                        ],
-                        [
-                            'column' => 'f.isShortVisible',
-                            'expr'   => 'eq',
-                            'value'  => true,
-                        ],
-                        [
-                            'column' => 'f.object',
-                            'expr'   => 'like',
-                            'value'  => 'lead',
-                        ],
+        return  $this->getModel('lead.field')->getEntities(
+        [
+            'filter' => [
+                'force' => [
+                    [
+                        'column' => 'f.isPublished',
+                        'expr'   => 'eq',
+                        'value'  => true,
+                    ],
+                    [
+                        'column' => 'f.isShortVisible',
+                        'expr'   => 'eq',
+                        'value'  => true,
+                    ],
+                    [
+                        'column' => 'f.object',
+                        'expr'   => 'like',
+                        'value'  => 'lead',
                     ],
                 ],
-                'hydration_mode' => 'HYDRATE_ARRAY',
-            ]
-        );
-
-        $quickForm = $model->createForm($model->getEntity(), $this->get('form.factory'), $action, ['fields' => $fields, 'isShortForm' => true]);
-
-        //set the default owner to the currently logged in user
-        $currentUser = $this->get('security.context')->getToken()->getUser();
-        $quickForm->get('owner')->setData($currentUser);
-
-        return $this->delegateView(
-            [
-                'viewParameters' => [
-                    'quickForm' => $quickForm->createView(),
-                ],
-                'contentTemplate' => 'MauticLeadBundle:Lead:quickadd.html.php',
-                'passthroughVars' => [
-                    'activeLink'    => '#mautic_contact_index',
-                    'mauticContent' => 'lead',
-                    'route'         => false,
-                ],
-            ]
-        );
+            ],
+            'hydration_mode' => 'HYDRATE_ARRAY',
+        ]
+    );
     }
 
     /**
@@ -412,10 +492,20 @@ class LeadController extends FormController
         //set the page we came from
         $page = $this->get('session')->get('mautic.lead.page', 1);
 
-        $action = $this->generateUrl('mautic_contact_action', ['objectAction' => 'new']);
-        $fields = $this->getModel('lead.field')->getPublishedFieldArrays('lead');
+        $fields      =[];
+        $action      =[];
+        $formtemplate='form';
+        $inQuickForm = $this->request->get('qf', false);
+        if ($inQuickForm) {
+            $action      = $this->generateUrl('mautic_contact_action', ['objectAction' => 'new', 'qf' => 1]);
+            $fields      =$this->getQuickAddFields();
+            $formtemplate='quickadd';
+        } else {
+            $action = $this->generateUrl('mautic_contact_action', ['objectAction' => 'new']);
+            $fields = $this->getModel('lead.field')->getPublishedFieldArrays('lead');
+        }
 
-        $form = $model->createForm($lead, $this->get('form.factory'), $action, ['fields' => $fields]);
+        $form = $model->createForm($lead, $this->get('form.factory'), $action, ['fields' => $fields, 'isShortForm' => $inQuickForm]);
 
         ///Check for a submitted form and process it
         if ($this->request->getMethod() == 'POST') {
@@ -448,7 +538,10 @@ class LeadController extends FormController
                     }
 
                     // Upload avatar if applicable
-                    $image = $form['preferred_profile_image']->getData();
+                    $image =  'gravatar';
+                    if (!$inQuickForm) {
+                        $image = $form['preferred_profile_image']->getData();
+                    }
                     if ($image == 'custom') {
                         // Check for a file
                         /** @var UploadedFile $file */
@@ -473,8 +566,6 @@ class LeadController extends FormController
                             ),
                         ]
                     );
-
-                    $inQuickForm = $this->request->get('qf', false);
 
                     if ($inQuickForm) {
                         $viewParameters = ['page' => $page];
@@ -524,7 +615,7 @@ class LeadController extends FormController
                     'lead'   => $lead,
                     'fields' => $model->organizeFieldsByGroup($fields),
                 ],
-                'contentTemplate' => 'MauticLeadBundle:Lead:form.html.php',
+                'contentTemplate' => 'MauticLeadBundle:Lead:'.$formtemplate.'.html.php',
                 'passthroughVars' => [
                     'activeLink'    => '#mautic_contact_index',
                     'mauticContent' => 'lead',

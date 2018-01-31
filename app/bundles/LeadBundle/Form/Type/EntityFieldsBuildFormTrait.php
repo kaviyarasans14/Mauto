@@ -37,9 +37,6 @@ trait EntityFieldsBuildFormTrait
                 continue;
             }
             $attr       = ['class' => 'form-control'];
-            if ($object == 'lead' && $field['alias'] == 'points') {
-                $attr['disabled']=true;
-            }
             $properties = $field['properties'];
             $type       = $field['type'];
             $required   = ($isObject) ? $field['isRequired'] : false;

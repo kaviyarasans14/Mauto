@@ -855,7 +855,8 @@ class LeadModel extends FormModel
      */
     public function getCurrentLead($returnTracking = false)
     {
-        $isUser = (!$this->security->isAnonymous());
+        $isanonymousContactNeeded = false;
+        $isUser                   = (!$this->security->isAnonymous());
         if ($isUser || $this->systemCurrentLead || defined('IN_MAUTIC_CONSOLE')) {
             $this->logger->addDebug('LEAD: System lead is being used');
             if (!$isUser && null === $this->systemCurrentLead) {
@@ -886,6 +887,9 @@ class LeadModel extends FormModel
 
             // if no trackingId cookie set the lead is not tracked yet so create a new one
             if (empty($leadId)) {
+                if (!$isanonymousContactNeeded) {
+                    return ($returnTracking) ? [$this->currentLead, $trackingId, $generated] : $this->currentLead;
+                }
                 if (!$ip->isTrackable()) {
                     // Don't save leads that are from a non-trackable IP by default
                     $lead = $this->createNewContact($ip, false);

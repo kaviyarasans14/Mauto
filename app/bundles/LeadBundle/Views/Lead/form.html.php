@@ -125,8 +125,11 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                         <label
                                                 class="control-label mb-xs"><?php echo $form['email']->vars['label']; ?></label>
                                         <div class="row">
-                                            <div class="form-group col-sm-8">
+                                            <div class="form-group col-sm-8 <?php if ($view['form']->containsErrors($form['email'])) {
+                        echo ' has-error';
+                    } ?>">
                                                 <?php echo $view['form']->widget($form['email'], ['attr' => ['placeholder' => $form['email']->vars['label']]]); ?>
+                                                <?php echo $view['form']->errors($form['email']); ?>
                                             </div>
 
                                         </div>

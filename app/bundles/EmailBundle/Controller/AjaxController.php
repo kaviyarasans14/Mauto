@@ -202,7 +202,7 @@ class AjaxController extends CommonAjaxController
         $dataArray = ['success' => 0, 'message' => ''];
         $user      = $this->get('mautic.helper.user')->getUser();
 
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isCustomAdmin()) {
             $settings = $request->request->all();
 
             $transport = $settings['transport'];

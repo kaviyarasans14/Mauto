@@ -8,11 +8,11 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-$fields    = $form->children;
-$fieldKeys = array_keys($fields);
-$template  = '<div class="col-md-6">{content}</div>';
-$hidepanel=$view['security']->isAdmin() ? "" : "style='display: none;'";
-$isadmin=$view['security']->isAdmin();
+$fields     = $form->children;
+$fieldKeys  = array_keys($fields);
+$template   = '<div class="col-md-6">{content}</div>';
+$hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
+$isadmin    =$view['security']->isAdmin();
 $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
 ?>
 
@@ -27,7 +27,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_from_email', $template); ?>
             </div>
             <div class="row" >
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_return_path',$isadmin ? $template:$hidefield); ?>
+                <?php echo $view['form']->rowIfExists($fields, 'mailer_return_path', $isadmin ? $template : $hidefield); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_is_owner', $template); ?>
             </div>
 
@@ -36,7 +36,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
             <?php endif; ?>
 
             <?php if (isset($fields['mailer_transport'])): ?>
-                <div class="row">
+                <div class="row" <?php echo $hidepanel ?>>
                     <div class="col-sm-6">
                         <?php echo $view['form']->row($fields['mailer_transport']); ?>
                     </div>
@@ -64,7 +64,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_auth_mode', $template); ?>
             </div>
 
-            <div class="row" >
+            <div class="row" <?php echo $hidepanel ?>>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_user', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_password', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_api_key', $template); ?>

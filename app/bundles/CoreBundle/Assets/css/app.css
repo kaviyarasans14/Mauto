@@ -2532,6 +2532,13 @@ ul.line-legend li {
   vertical-align: middle;
   font-weight: 600;
 }
+.panel-heading .panel-title-workflow{
+  padding-top: 25px;
+}
+.panel-heading .panel-title-workflow-blank{
+  padding-top: 17px;
+  padding-left: 10px;
+}
 .panel-heading .panel-toolbar {
   display: table-cell;
   width: 1%;

@@ -159,7 +159,7 @@ return [
                             ],
                         ],
                     ],
-                    'priority' => 70,
+                    'priority' => 250,
                 ],
             ],
         ],

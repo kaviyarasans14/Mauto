@@ -355,12 +355,14 @@ class EmailRepository extends CommonRepository
                     ->setParameter('search', "%{$search}%");
             }
         }
+        $q->andWhere($q->expr()->eq('e.isPublished', ':val'))
+            ->setParameter('val', '1');
 
         if (!$viewOther) {
             $q->andWhere($q->expr()->eq('e.createdBy', ':id'))
                 ->setParameter('id', $this->currentUser->getId());
         }
-        if ( $this->currentUser->getId() != 1) {
+        if ($this->currentUser->getId() != 1) {
             $q->andWhere($q->expr()->neq('e.createdBy', ':id'))
                 ->setParameter('id', '1');
         }

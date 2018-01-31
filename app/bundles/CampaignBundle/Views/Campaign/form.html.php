@@ -52,6 +52,24 @@ $view['slots']->set('headerTitle', $header);
 </div>
 
 <?php echo $view['form']->end($form); ?>
+
+<?php
+if ($items != null && !empty($items)):
+echo $view->render(
+    'MauticCoreBundle:Helper:workflow_selecttype.html.php',
+        [
+            'item'               => $entity,
+            'Campaigns'          => $items,
+            'actionRoute'        => $actionRoute,
+            'typePrefix'         => 'form',
+            'cancelUrl'          => 'mautic_campaign_index',
+            'header'             => 'mautic.campaign.type.choose.header',
+            'template'           => 'mautic.campaign.type.template.header',
+            'blanktemplate'      => 'mautic.campaign.type.blanktemplate.header',
+        ]
+    );
+endif;
+?>
 <?php echo $view->render('MauticCampaignBundle:Campaign:builder.html.php', [
     'campaignId'      => $form['sessionId']->vars['data'],
     'campaignEvents'  => $campaignEvents,
