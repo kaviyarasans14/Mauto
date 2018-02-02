@@ -143,7 +143,7 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                         <?php if (isset($form['points'])): ?>
                                             <div class="row">
                                                 <div class="col-sm-8">
-                                                    <?php echo $view['form']->row($form['points']); ?>
+                                                    <?php echo $view['form']->row($form['points'], ['attr' => ['tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']]); ?>
                                                 </div>
                                             </div>
                                         <?php endif; ?>
