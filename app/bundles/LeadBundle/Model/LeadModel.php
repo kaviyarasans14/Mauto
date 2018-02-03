@@ -915,7 +915,7 @@ class LeadModel extends FormModel
 
                 if ($lead === null) {
                     // Check if this contact was merged into another
-
+                    return ($returnTracking) ? [$this->systemCurrentLead, null, false] : $this->systemCurrentLead;
                     $lead = $this->createNewContact($ip);
                 } else {
                     $this->logger->addDebug("LEAD: Existing lead found with ID# $leadId.");

@@ -18800,8 +18800,3 @@ html body .fr-gatedvideo-overlay {
   z-index: 9999;
   display: none;
 }
-#lead_points{
- pointer-events: none;
-  background-color: #ebedf0;
-  opacity: 1;
-}
