@@ -185,6 +185,11 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
      */
     private $sessionId;
 
+    /**
+     * @var string
+     */
+    private $beeJSON;
+
     public function __clone()
     {
         $this->id               = null;
@@ -341,6 +346,11 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
             ->addJoinColumn('email_id', 'id', false, false, 'CASCADE')
             ->fetchExtraLazy()
             ->build();
+
+        $builder->createField('beeJSON', 'text')
+            ->columnName('bee_json')
+            ->nullable()
+            ->build();
     }
 
     /**
@@ -476,6 +486,7 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
                     'unsubscribeForm',
                     'dynamicContent',
                     'lists',
+                    'beeJSON',
                 ]
             )
             ->build();
@@ -989,6 +1000,26 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     public function setCustomHtml($customHtml)
     {
         $this->customHtml = $customHtml;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBeeJSON()
+    {
+        return $this->beeJSON;
+    }
+
+    /**
+     * @param $beeJSON
+     *
+     * @return $this
+     */
+    public function setBeeJSON($beeJSON)
+    {
+        $this->beeJSON = $beeJSON;
 
         return $this;
     }

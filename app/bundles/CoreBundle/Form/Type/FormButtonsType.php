@@ -92,7 +92,6 @@ class FormButtonsType extends AbstractType
                 ]
             );
         }
-
         foreach ($options['post_extra_buttons'] as $btn) {
             $type = (empty($btn['type'])) ? 'button' : 'submit';
             $builder->add(

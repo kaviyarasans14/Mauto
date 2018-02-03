@@ -62,7 +62,6 @@ $attr = $form->vars['attr'];
 
 $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
 ?>
-
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
     <div class="box-layout">
         <div class="col-md-9 height-auto bg-white">
@@ -70,9 +69,15 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                 <div class="col-xs-12">
                     <!-- tabs controls -->
                     <ul class="bg-auto nav nav-tabs pr-md pl-md">
-                        <li class="active">
+                        <!--builder disabled due to bee editor-->
+                       <!-- <li class="active">
                             <a href="#email-container" role="tab" data-toggle="tab">
-                                <?php echo $view['translator']->trans('mautic.core.form.theme'); ?>
+                                <?php //echo $view['translator']->trans('mautic.core.form.theme');?>
+                            </a>
+                        </li>-->
+                        <li class="active" >
+                            <a href="#bee-template-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.beetemplate.tabheader'); ?>
                             </a>
                         </li>
                         <li>
@@ -88,19 +93,30 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                     </ul>
                     <!--/ tabs controls -->
                     <div class="tab-content pa-md">
-                        <div class="tab-pane fade in active bdr-w-0" id="email-container">
+                        <!--builder disabled due to bee editor-->
+                       <!-- <div class="tab-pane fade in active bdr-w-0" id="email-container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <?php //echo $view['form']->row($form['template']);?>
+                                </div>
+                            </div>
+                            <?php //echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
+                                //'type'   => 'email',
+                               // 'themes' => $themes,
+                              //  'active' => $form['template']->vars['value'],
+                           // ]);?>
+                        </div>-->
+                        <div class="tab-pane fade in active bdr-w-0" id="bee-template-container">
                             <div class="row">
                                 <div class="col-md-12">
                                     <?php echo $view['form']->row($form['template']); ?>
                                 </div>
                             </div>
-                            <?php echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
-                                'type'   => 'email',
-                                'themes' => $themes,
-                                'active' => $form['template']->vars['value'],
+                            <?php echo $view->render('MauticEmailBundle:Email:bee_template_select.html.php', [
+                                'beetemplates' => $beetemplates,
+                                'active'       => $form['template']->vars['value'],
                             ]); ?>
                         </div>
-
                         <div class="tab-pane fade bdr-w-0" id="advanced-container">
                             <div class="row">
                                 <div class="col-md-6">
@@ -268,17 +284,17 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
             </select>
         <?php endforeach; ?>
     </div>
-
-<?php echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
-    'type'          => 'email',
-    'isCodeMode'    => $isCodeMode,
-    'sectionForm'   => $sectionForm,
-    'builderAssets' => $builderAssets,
-    'slots'         => $slots,
-    'sections'      => $sections,
-    'objectId'      => $email->getSessionId(),
-]); ?>
-
+<?php echo $view->render('MauticEmailBundle:Email:beeeditor.html.php', ['objectId'      => $email->getSessionId(), 'type'          => 'email']); ?>
+<?php //builder disabled due to bee editor
+//echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
+//    'type'          => 'email',
+//    'isCodeMode'    => $isCodeMode,
+//    'sectionForm'   => $sectionForm,
+//    'builderAssets' => $builderAssets,
+//    'slots'         => $slots,
+//    'sections'      => $sections,
+//    'objectId'      => $email->getSessionId(),
+//]);?>
 <?php
 $type = $email->getEmailType();
 if ((empty($updateSelect) && !$isExisting && !$view['form']->containsErrors($form) && !$variantParent && empty($type)) || empty($type) || !empty($forceTypeSelection)):

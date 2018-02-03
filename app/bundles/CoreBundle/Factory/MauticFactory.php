@@ -367,6 +367,26 @@ class MauticFactory
     }
 
     /**
+     * Gets a list of installed bee templates.
+     *
+     * @return array
+     */
+    public function getInstalledBeeTemplates($ignoreCache = false, $extended=true)
+    {
+        return $this->container->get('mautic.helper.theme')->getInstalledBeeTemplates($ignoreCache, $extended);
+    }
+
+    /**
+     * Gets template json based on its name.
+     *
+     * @return string
+     */
+    public function getBeeTemplateJSONByName($templatename)
+    {
+        return $this->container->get('mautic.helper.theme')->getBeeTemplateJSONByName($templatename);
+    }
+
+    /**
      * Returns MailHelper wrapper for Swift_Message via $helper->message.
      *
      * @param bool $cleanSlate False to preserve current settings, i.e. to process batched emails
