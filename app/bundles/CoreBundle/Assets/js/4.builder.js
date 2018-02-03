@@ -144,7 +144,6 @@ Mautic.launchBuilder = function (formName, actionName) {
     Mautic.initBuilderIframe(themeHtml, btnCloseBuilder, applyBtn);
 };
 
-
 /**
  * Adds a hidded field which adds inBuilder=1 param to the request and will be returned in the response
  *
