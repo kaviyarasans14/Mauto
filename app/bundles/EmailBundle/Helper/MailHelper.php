@@ -1695,7 +1695,7 @@ class MailHelper
         }
 
         // Create a download entry if there is an Asset attachment
-        if (!empty($this->assetStats)) {
+        if (!empty($this->assetStats) && false) {
             /** @var \Mautic\AssetBundle\Model\AssetModel $assetModel */
             $assetModel = $this->factory->getModel('asset');
             foreach ($this->assets as $asset) {
