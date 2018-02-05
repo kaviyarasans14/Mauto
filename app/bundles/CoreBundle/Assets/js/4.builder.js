@@ -105,7 +105,7 @@ Mautic.launchBuilder = function (formName, actionName) {
     var form = mQuery('form[name='+formName+']');
 
     applyBtn.off('click').on('click', function(e) {
-     //   alert("apply button clicked");
+       // alert("apply button clicked");
         Mautic.activateButtonLoadingIndicator(applyBtn);
         Mautic.sendBuilderContentToTextarea(function() {
             // Trigger slot:destroy event
@@ -303,7 +303,6 @@ Mautic.htmlspecialchars_decode = function(encodedHtml) {
  * @param themeField
  */
 Mautic.initSelectTheme = function(themeField) {
-    //alert("initSelectTheme");
     var customHtml = mQuery('textarea.builder-html');
     var isNew = Mautic.isNewEntity('#page_sessionId, #emailform_sessionId');
     Mautic.showChangeThemeWarning = true;
@@ -325,7 +324,6 @@ Mautic.initSelectTheme = function(themeField) {
             e.preventDefault();
             var currentLink = mQuery(this);
             var theme = currentLink.attr('data-theme');
-           // alert(theme);
             var isCodeMode = (theme === 'mautic_code_mode');
             Mautic.builderTheme = theme;
 
@@ -347,7 +345,6 @@ Mautic.initSelectTheme = function(themeField) {
 
             // Set the theme field value
             themeField.val(theme);
-
             // Code Mode
             if (isCodeMode) {
                 mQuery('.builder').addClass('code-mode');
@@ -363,6 +360,56 @@ Mautic.initSelectTheme = function(themeField) {
                 // Load the theme HTML to the source textarea
                 Mautic.setThemeHtml(theme);
             }
+
+            // Manipulate classes to achieve the theme selection illusion
+            mQuery('.theme-list .panel').removeClass('theme-selected');
+            currentLink.closest('.panel').addClass('theme-selected');
+            mQuery('.theme-list .select-theme-selected').addClass('hide');
+            mQuery('.theme-list .select-theme-link').removeClass('hide');
+            currentLink.closest('.panel').find('.select-theme-selected').removeClass('hide');
+            currentLink.addClass('hide');
+        });
+    }
+};
+
+/**
+ * Initialize theme selection
+ *
+ * @param themeField
+ */
+Mautic.initSelectBeeTemplate = function(themeField) {
+    var templateJSON = mQuery('textarea.bee-editor-json');
+    var isNew = Mautic.isNewEntity('#page_sessionId, #emailform_sessionId');
+    Mautic.showChangeThemeWarning = true;
+    Mautic.beeTemplate = themeField.val();
+
+    if (isNew) {
+        Mautic.showChangeThemeWarning = false;
+        // Populate default content
+        if (!templateJSON.length || !templateJSON.val().length) {
+            Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+        }
+    }
+
+    if (templateJSON.length) {
+        mQuery('[data-beetemplate]').click(function(e) {
+            e.preventDefault();
+            var currentLink = mQuery(this);
+            var theme = currentLink.attr('data-beetemplate');
+            Mautic.beeTemplate = theme;
+
+            if (Mautic.showChangeThemeWarning && templateJSON.val().length) {
+                    if (confirm(Mautic.translate('mautic.core.builder.theme_change_warning'))) {
+                        templateJSON.val('');
+                        Mautic.showChangeThemeWarning = false;
+                    } else {
+                        return;
+                    }
+            }
+            // Set the theme field value
+            themeField.val(theme);
+            // Load the template JSON to the source textarea
+            Mautic.setBeeTemplateJSON(theme);
 
             // Manipulate classes to achieve the theme selection illusion
             mQuery('.theme-list .panel').removeClass('theme-selected');
@@ -409,6 +456,19 @@ Mautic.setThemeHtml = function(theme) {
     mQuery.get(mQuery('#builder_url').val()+'?template=' + theme, function(themeHtml) {
         var textarea = mQuery('textarea.builder-html');
         textarea.val(themeHtml);
+    });
+};
+
+/**
+ * Set Bee Template's JSON
+ *
+ * @param template
+ */
+
+Mautic.setBeeTemplateJSON = function(template) {
+    mQuery.get(mQuery('#builder_url').val()+'?beetemplate=' + template, function(templatejson) {
+        var textarea = mQuery('textarea.bee-editor-json');
+        textarea.val(templatejson);
     });
 };
 

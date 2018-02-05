@@ -41,6 +41,8 @@ class ThemeListType extends AbstractType
             'choices' => function (Options $options) use ($factory) {
                 $themes = $factory->getInstalledThemes($options['feature']);
                 $themes['mautic_code_mode'] = 'Code Mode';
+                $beethemes = $factory->getInstalledBeeTemplates(false, false);
+                $themes=array_merge($themes, $beethemes);
 
                 return $themes;
             },

@@ -22,6 +22,9 @@ $mauticContent = $view['slots']->get(
     var mauticAssetPrefix = '<?php echo $view['assets']->getAssetPrefix(true); ?>';
     var mauticContent     = '<?php echo $mauticContent; ?>';
     var mauticEnv         = '<?php echo $app->getEnvironment(); ?>';
+    var leClientID        = '<?php echo $view['assets']->getAppid(); ?>';
     var mauticLang        = <?php echo $view['translator']->getJsLang(); ?>;
+
 </script>
 <?php $view['assets']->outputSystemScripts(true); ?>
+<?php $view['assets']->outputBeeEditorScripts(); ?>

@@ -92,7 +92,7 @@ class EmailCampaignController extends FormController
             'force'  => [
                 ['column' => 'e.variantParent', 'expr' => 'isNull'],
                 ['column' => 'e.translationParent', 'expr' => 'isNull'],
-                ['column' => 'e.emailType', 'expr' => 'eq', 'value' => 'list']  
+                ['column' => 'e.emailType', 'expr' => 'eq', 'value' => 'list'],
             ],
         ];
         if (!$permissions['email:emails:viewother']) {
@@ -235,9 +235,9 @@ class EmailCampaignController extends FormController
                     'tmpl'        => $this->request->get('tmpl', 'index'),
                     'permissions' => $permissions,
                     'model'       => $model,
-                    'actionRoute'=> 'mautic_email_campaign_action',
-                    'indexRoute'=> 'mautic_email_campaign_index',
-                    'headerTitle'=> 'mautic.emailcampaign.emails'
+                    'actionRoute' => 'mautic_email_campaign_action',
+                    'indexRoute'  => 'mautic_email_campaign_index',
+                    'headerTitle' => 'mautic.emailcampaign.emails',
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:list.html.php',
                 'passthroughVars' => [
@@ -414,6 +414,7 @@ class EmailCampaignController extends FormController
 
         // Get click through stats
         $trackableLinks = $model->getEmailClickStats($email->getId());
+
         return $this->delegateView(
             [
                 'returnUrl' => $this->generateUrl(
@@ -472,8 +473,8 @@ class EmailCampaignController extends FormController
                         ]
                     )->getContent(),
                     'dateRangeForm' => $dateRangeForm->createView(),
-                    'actionRoute'=> 'mautic_email_campaign_action',
-                    'indexRoute'=> 'mautic_email_campaign_index'
+                    'actionRoute'   => 'mautic_email_campaign_action',
+                    'indexRoute'    => 'mautic_email_campaign_index',
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:details.html.php',
                 'passthroughVars' => [
@@ -507,8 +508,8 @@ class EmailCampaignController extends FormController
         }
 
         //set the page we came from
-        $page   = $session->get('mautic.email.page', 1);
-        $action = $this->generateUrl('mautic_email_campaign_action', ['objectAction' => 'new']);
+        $page         = $session->get('mautic.email.page', 1);
+        $action       = $this->generateUrl('mautic_email_campaign_action', ['objectAction' => 'new']);
         $updateSelect = ($method == 'POST')
             ? $this->request->request->get('emailform[updateSelect]', false, true)
             : $this->request->get(
@@ -518,8 +519,8 @@ class EmailCampaignController extends FormController
         if ($updateSelect) {
             // Force type to template
             $entity->setEmailType('template');
-        }else if(true){
-            $entity->setEmailType('list'); 
+        } elseif (true) {
+            $entity->setEmailType('list');
         }
 
         //create the form
@@ -532,7 +533,7 @@ class EmailCampaignController extends FormController
                 $formData = $this->request->request->get('emailform');
                 if ($valid = $this->isFormValid($form) && $this->isFormValidForWebinar($formData, $form, $entity)) {
                     $content = $entity->getCustomHtml();
-
+                    $entity->setBeeJSON($formData['beeJSON']);
                     $entity->setCustomHtml($content);
 
                     //form is valid so process the data
@@ -556,7 +557,7 @@ class EmailCampaignController extends FormController
                     if ($form->get('buttons')->get('save')->isClicked()) {
                         $viewParameters = [
                             'objectAction' => 'view',
-                            'objectId'     => $entity->getId(),                           
+                            'objectId'     => $entity->getId(),
                         ];
                         $returnUrl = $this->generateUrl('mautic_email_campaign_action', $viewParameters);
                         $template  = 'MauticEmailBundle:EmailCampaign:view';
@@ -567,7 +568,7 @@ class EmailCampaignController extends FormController
                 }
             } else {
                 $viewParameters = [
-                'page' => $page,               
+                'page' => $page,
             ];
                 $returnUrl      = $this->generateUrl('mautic_email_campaign_index', $viewParameters);
                 $template       = 'MauticEmailBundle:EmailCampaign:index';
@@ -629,16 +630,17 @@ class EmailCampaignController extends FormController
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'form'          => $this->setFormTheme($form, 'MauticEmailBundle:Email:form.html.php', 'MauticEmailBundle:FormTheme\Email'),
-                    'isVariant'     => $entity->isVariant(true),
-                    'email'         => $entity,
-                    'slots'         => $this->buildSlotForms($slotTypes),
-                    'sections'      => $this->buildSlotForms($sections),
-                    'themes'        => $this->factory->getInstalledThemes('email', true),
-                    'builderAssets' => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
-                    'sectionForm'   => $sectionForm->createView(),
-                    'updateSelect'  => $updateSelect,
-                    'permissions'   => $permissions,
+                    'form'               => $this->setFormTheme($form, 'MauticEmailBundle:Email:form.html.php', 'MauticEmailBundle:FormTheme\Email'),
+                    'isVariant'          => $entity->isVariant(true),
+                    'email'              => $entity,
+                    'slots'              => $this->buildSlotForms($slotTypes),
+                    'sections'           => $this->buildSlotForms($sections),
+                    'themes'             => $this->factory->getInstalledThemes('email', true),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
+                    'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
+                    'sectionForm'        => $sectionForm->createView(),
+                    'updateSelect'       => $updateSelect,
+                    'permissions'        => $permissions,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [
@@ -680,7 +682,6 @@ class EmailCampaignController extends FormController
                 'activeLink'    => 'mautic_email_campaign_index',
                 'mauticContent' => 'email',
             ],
-            
         ];
 
         //not found
@@ -719,8 +720,8 @@ class EmailCampaignController extends FormController
             : $this->request->get(
                 'updateSelect',
                 false
-            );           
-            if ($updateSelect) {
+            );
+        if ($updateSelect) {
             // Force type to template
             $entity->setEmailType('template');
         }
@@ -734,6 +735,7 @@ class EmailCampaignController extends FormController
                 $formData = $this->request->request->get('emailform');
                 if ($valid = $this->isFormValid($form) && $this->isFormValidForWebinar($formData, $form, $entity)) {
                     $content = $entity->getCustomHtml();
+                    $entity->setBeeJSON($formData['beeJSON']);
                     $entity->setCustomHtml($content);
 
                     //form is valid so process the data
@@ -785,8 +787,9 @@ class EmailCampaignController extends FormController
             if ($cancelled || ($valid && $form->get('buttons')->get('save')->isClicked())) {
                 $viewParameters = [
                     'objectAction' => 'view',
-                    'objectId'     => $entity->getId(),                  
+                    'objectId'     => $entity->getId(),
                 ];
+
                 return $this->postActionRedirect(
                     array_merge(
                         $postActionVars,
@@ -795,7 +798,6 @@ class EmailCampaignController extends FormController
                             'viewParameters'  => $viewParameters,
                             'contentTemplate' => $template,
                             'passthroughVars' => $passthrough,
-                            
                         ]
                     )
                 );
@@ -822,9 +824,9 @@ class EmailCampaignController extends FormController
         $attachmentSize = $this->getModel('asset')->getTotalFilesize($assets);
 
         $slotTypes   = $model->getBuilderComponents($entity, 'slotTypes');
-      //  file_put_contents("/var/www/mautic/app/cache/response.txt","Types:".print_r($slotTypes )."\n",FILE_APPEND);
+        //  file_put_contents("/var/www/mautic/app/cache/response.txt","Types:".print_r($slotTypes )."\n",FILE_APPEND);
         $sections    = $model->getBuilderComponents($entity, 'sections');
-      //  file_put_contents("/var/www/mautic/app/cache/response.txt","Sections:".print_r($sections )."\n",FILE_APPEND);
+        //  file_put_contents("/var/www/mautic/app/cache/response.txt","Sections:".print_r($sections )."\n",FILE_APPEND);
         $sectionForm = $this->get('form.factory')->create('builder_section');
         $routeParams = [
             'objectAction' => 'edit',
@@ -852,6 +854,7 @@ class EmailCampaignController extends FormController
                     'slots'              => $this->buildSlotForms($slotTypes),
                     'sections'           => $this->buildSlotForms($sections),
                     'themes'             => $this->factory->getInstalledThemes('email', true),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
                     'email'              => $entity,
                     'forceTypeSelection' => $forceTypeSelection,
                     'attachmentSize'     => $attachmentSize,
@@ -1007,38 +1010,45 @@ class EmailCampaignController extends FormController
                 return $this->accessDenied();
             }
         }
+        $isBeeTemplate = $this->request->get('beetemplate', false);
+        if ($isBeeTemplate) {
+            $template = InputHelper::clean($this->request->query->get('beetemplate'));
 
-        $template = InputHelper::clean($this->request->query->get('template'));
-        $slots    = $this->factory->getTheme($template)->getSlots('email');
+            return new JsonResponse($this->factory->getBeeTemplateJSONByName($template));
+        } else {
+            $template = InputHelper::clean($this->request->query->get('template'));
 
-        //merge any existing changes
-        $newContent = $this->get('session')->get('mautic.emailbuilder.'.$objectId.'.content', []);
-        $content    = $entity->getContent();
+            $slots    = $this->factory->getTheme($template)->getSlots('email');
 
-        if (is_array($newContent)) {
-            $content = array_merge($content, $newContent);
-            // Update the content for processSlots
-            $entity->setContent($content);
+            //merge any existing changes
+            $newContent = $this->get('session')->get('mautic.emailbuilder.'.$objectId.'.content', []);
+            $content    = $entity->getContent();
+
+            if (is_array($newContent)) {
+                $content = array_merge($content, $newContent);
+                // Update the content for processSlots
+                $entity->setContent($content);
+            }
+
+            // Replace short codes to emoji
+            $content = EmojiHelper::toEmoji($content, 'short');
+
+            $this->processSlots($slots, $entity);
+
+            $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':email.html.php');
+
+            return $this->render(
+                $logicalName,
+                [
+                    'isNew'    => $isNew,
+                    'slots'    => $slots,
+                    'content'  => $content,
+                    'email'    => $entity,
+                    'template' => $template,
+                    'basePath' => $this->request->getBasePath(),
+                ]
+            );
         }
-
-        // Replace short codes to emoji
-        $content = EmojiHelper::toEmoji($content, 'short');
-
-        $this->processSlots($slots, $entity);
-
-        $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':email.html.php');
-
-        return $this->render(
-            $logicalName,
-            [
-                'isNew'    => $isNew,
-                'slots'    => $slots,
-                'content'  => $content,
-                'email'    => $entity,
-                'template' => $template,
-                'basePath' => $this->request->getBasePath(),
-            ]
-        );
     }
 
     /**
@@ -1289,11 +1299,11 @@ class EmailCampaignController extends FormController
             //process and send
             $contentTemplate = 'MauticEmailBundle:Send:form.html.php';
             $viewParameters  = [
-                'form'    => $form->createView(),
-                'email'   => $entity,
-                'pending' => $pending,
+                'form'       => $form->createView(),
+                'email'      => $entity,
+                'pending'    => $pending,
                 'actionRoute'=> 'mautic_email_campaign_action',
-                'indexRoute'=> 'mautic_email_campaign_index'
+                'indexRoute' => 'mautic_email_campaign_index',
             ];
         }
 

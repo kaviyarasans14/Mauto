@@ -255,6 +255,18 @@ class EmailType extends AbstractType
                 ]
             )->addModelTransformer($emojiTransformer)
         );
+        $builder->add(
+            'beeJSON',
+            'textarea',
+            [
+                'label'      => 'mautic.email.form.beejson',
+                'label_attr' => ['class' => 'control-label'],
+                'required'   => false,
+                'attr'       => [
+                    'class'                => 'form-control bee-editor-json',
+                ],
+            ]
+        );
 
         $transformer = new IdToEntityModelTransformer($this->em, 'MauticFormBundle:Form', 'id');
         $builder->add(
@@ -474,14 +486,23 @@ class EmailType extends AbstractType
         $builder->add('sessionId', 'hidden');
         $builder->add('emailType', 'hidden');
 
-        $customButtons = [
+        $customButtons = [//builder disabled due to bee editor
+//            [
+//                'name'  => 'builder',
+//                'label' => 'mautic.core.builder',
+//                'attr'  => [
+//                    'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-builder',
+//                    'icon'    => 'fa fa-cube',
+//                    'onclick' => "Mautic.launchBuilder('emailform', 'email');",
+//                ],
+//            ],
             [
-                'name'  => 'builder',
-                'label' => 'mautic.core.builder',
+                'name'  => 'beeeditor',
+                'label' => 'mautic.core.beeeditor',
                 'attr'  => [
-                    'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-builder',
+                    'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-beeditor',
                     'icon'    => 'fa fa-cube',
-                    'onclick' => "Mautic.launchBuilder('emailform', 'email');",
+                    'onclick' => "Mautic.launchBeeEditor('emailform', 'email');",
                 ],
             ],
         ];

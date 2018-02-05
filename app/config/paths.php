@@ -9,20 +9,21 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-if(!function_exists('getLocalConfigPath')){
-    function getLocalConfigPath(){
-        $host="localhost";
-        if(isset($_SERVER['SERVER_NAME'])){
+if (!function_exists('getLocalConfigPath')) {
+    function getLocalConfigPath()
+    {
+        $host='localhost';
+        if (isset($_SERVER['SERVER_NAME'])) {
             $host=$_SERVER['SERVER_NAME'];
         }
-        if($host == "192.168.1.38"){
-            $host="localhost";
+        if ($host == '192.168.1.38') {
+            $host='localhost';
         }
-        $hostarr=explode(".",$host);
-        if(sizeof($hostarr) > 1){
+        $hostarr=explode('.', $host);
+        if (sizeof($hostarr) > 1) {
             $host= $hostarr[0];
         }
-        if(LEADSENGAGE_DOMAIN != ""){//request comes via command prompt
+        if (LEADSENGAGE_DOMAIN != '') {//request comes via command prompt
             $host=LEADSENGAGE_DOMAIN;
         }
         $localpath='%kernel.root_dir%/config/'.$host.'/local.php';
@@ -31,15 +32,15 @@ if(!function_exists('getLocalConfigPath')){
     }
 }
 
-
 $paths = [
     //customizable
-    'themes'       => 'themes',
-    'assets'       => 'media',
-    'asset_prefix' => '',
-    'plugins'      => 'plugins',
-    'translations' => 'translations',
-    'local_config' => getLocalConfigPath(),
+    'themes'             => 'themes',
+    'beetemplates'       => 'beetemplates',
+    'assets'             => 'media',
+    'asset_prefix'       => '',
+    'plugins'            => 'plugins',
+    'translations'       => 'translations',
+    'local_config'       => getLocalConfigPath(),
 ];
 
 //allow easy overrides of the above

@@ -431,7 +431,7 @@ class PublicController extends CommonFormController
      */
     public function getBeeFreeCredentialsAction()
     {
-        $beefree = new BeeFree('fd64a5a7-0de2-41f4-ad65-9c87b7a8b40b', 'LrWYwICG5oFgZiDm4Jce9Q6FYnfMdRmVg6bNigq0NLVIRTzDFO0');
+        $beefree = new BeeFree('0c5e4f0c-53ab-4ebc-ac45-863457940e51', 'ndZh9grRjpC6heDiiUiL0gnanQd1F4ysByv67E5v1GpGA6XSgIq');
         $result  = $beefree->getCredentials();
 
         return new JsonResponse($result);
