@@ -92,7 +92,7 @@ $toolbarButtons = [
 ];
 
 if ($indexMode == 'list') {
-    /*$toolbarButtons[] = [
+    $toolbarButtons[] = [
         'attr' => [
             'class'          => 'hidden-xs btn btn-default btn-sm btn-nospin'.(($anonymousShowing) ? ' btn-primary' : ''),
             'href'           => 'javascript: void(0)',
@@ -102,7 +102,7 @@ if ($indexMode == 'list') {
         ],
         'tooltip'   => $view['translator']->trans('mautic.lead.lead.anonymous_leads'),
         'iconClass' => 'fa fa-user-secret',
-    ];*/
+    ];
 }
 ?>
 
