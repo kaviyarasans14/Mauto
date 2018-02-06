@@ -75,6 +75,8 @@
       onSave: function(jsonFile, htmlFile) {
           mQuery('.builder-html').val(Mautic.domToString(htmlFile));
           mQuery('.bee-editor-json').val(jsonFile);
+          var bgApplyBtn = mQuery('.btn-apply');
+          bgApplyBtn.trigger('click');
        // save('newsletter.html', htmlFile);
         // save('newsletter.json', jsonFile);
       },
