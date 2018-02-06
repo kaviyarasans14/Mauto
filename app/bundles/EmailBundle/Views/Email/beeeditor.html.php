@@ -12,10 +12,10 @@
     <div class="builder-content">
         <input type="hidden" id="builder_url" value="<?php echo $view['router']->path('mautic_'.$type.'_action', ['objectAction' => 'builder', 'objectId' => $objectId]); ?>" />
     </div>
-    <div id="bee-plugin-btnpanel">
-        <div class="row">
+     <div id="bee-plugin-btnpanel">
+         <!--  <div class="row">
             <div class="col-xs-12">
-               <!-- <button type="button" class="btn btn-primary btn-bee-show-preview" onclick="javascript:bee.preview();">
+               <button type="button" class="btn btn-primary btn-bee-show-preview" onclick="javascript:bee.preview();">
                     <?php echo $view['translator']->trans('mautic.email.beeeditor.showpreview'); ?>
                 </button>
                 <button type="button" class="btn btn-primary btn-bee-show-structure" onclick="javascript:bee.toggleStructure();">
@@ -23,12 +23,12 @@
                 </button>
                 <button type="button" class="btn btn-primary btn-bee-save" onclick="javascript:bee.save();">
                     <?php echo $view['translator']->trans('mautic.email.beeeditor.save'); ?>
-                </button>-->
+                </button>
                 <button type="button" class="btn btn-primary btn-bee-close-editor" onclick="Mautic.closeBeeEditor();">
                     <?php echo $view['translator']->trans('mautic.email.beeeditor.closeeditor'); ?>
                 </button>
             </div>
-        </div>
+        </div>-->
     </div>
     <div id="bee-plugin-viewpanel">
 
