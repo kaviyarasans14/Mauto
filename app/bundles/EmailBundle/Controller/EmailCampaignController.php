@@ -107,10 +107,10 @@ class EmailCampaignController extends FormController
         ];
 
         //retrieve a list of themes
-        $listFilters['filters']['groups']['mautic.core.filter.themes'] = [
-            'options' => $this->factory->getInstalledThemes('email'),
-            'prefix'  => 'theme',
-        ];
+        //$listFilters['filters']['groups']['mautic.core.filter.themes'] = [
+        //    'options' => $this->factory->getInstalledThemes('email'),
+        //    'prefix'  => 'theme',
+        //];
 
         $currentFilters = $session->get('mautic.email.list_filters', []);
         $updatedFilters = $this->request->get('filters', false);
