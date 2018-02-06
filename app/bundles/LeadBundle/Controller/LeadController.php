@@ -1430,6 +1430,15 @@ class LeadController extends FormController
 
                         // Ensure safe emoji for notification
                         $subject = EmojiHelper::toHtml($email['subject']);
+                        if (!empty($email['templates'])) {
+                            $assets = $emailModel->getRepository()->getEntity($email['templates'])->getAssetAttachments();
+                            $mailer->setEmail($emailModel->getRepository()->getEntity($email['templates']));
+                            if (!empty($assets) && $assets != null) {
+                                foreach ($assets as $asset) {
+                                    $mailer->attachAsset($asset);
+                                }
+                            }
+                        }
                         if ($mailer->send(true, false, false)) {
                             $mailer->createEmailStat();
                             $this->addFlash(
