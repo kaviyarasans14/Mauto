@@ -859,12 +859,12 @@ class PageModel extends FormModel
                     $pageURL .= 's';
                 }
                 $pageURL .= '://';
-                if ($request->server->get('SERVER_PORT') != '80') {
-                    $pageURL .= $request->server->get('SERVER_NAME').':'.$request->server->get('SERVER_PORT').
-                        $request->server->get('REQUEST_URI');
-                } else {
-                    $pageURL .= $request->server->get('SERVER_NAME').$request->server->get('REQUEST_URI');
-                }
+//              if ($request->server->get('SERVER_PORT') != '80') {
+//                  $pageURL .= $request->server->get('SERVER_NAME').':'.$request->server->get('SERVER_PORT').
+//                  $request->server->get('REQUEST_URI');
+//              } else {
+                $pageURL = $request->server->get('HTTP_REFERER'); //.$request->server->get('REQUEST_URI');
+//              }
             }
         }
 

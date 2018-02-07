@@ -81,6 +81,14 @@ class LeadController extends FormController
         $listCommand = $translator->trans('mautic.lead.lead.searchcommand.list');
         $mine        = $translator->trans('mautic.core.searchcommand.ismine');
         $indexMode   = $this->request->get('view', $session->get('mautic.lead.indexmode', 'list'));
+        $listFilters = [
+            'filters' => [
+                'placeholder' => $this->get('translator')->trans('mautic.lead.lead.filter.placeholder'),
+                'multiple'    => true,
+            ],
+        ];
+
+        $listFilters['filters']['groups'] = [];
 
         $session->set('mautic.lead.indexmode', $indexMode);
 
@@ -91,8 +99,69 @@ class LeadController extends FormController
         } elseif (strpos($search, $anonymous) !== false && strpos($search, '!'.$anonymous) === false) {
             $anonymousShowing = true;
         }
+        $values         = [];
+        $currentFilters = $session->get('mautic.email.list_filters', []);
+        $updatedFilters = $this->request->get('filters', false);
+        $ignoreListJoin = true;
 
-        if (!$permissions['lead:leads:viewother']) {
+        if ($updatedFilters) {
+            // Filters have been updated
+
+            // Parse the selected values
+            $newFilters     = [];
+            $updatedFilters = json_decode($updatedFilters, true);
+
+            if ($updatedFilters) {
+                foreach ($updatedFilters as $updatedFilter) {
+                    list($clmn, $fltr) = explode(':', $updatedFilter);
+
+                    $newFilters[$clmn][] = $fltr;
+                }
+
+                $currentFilters = $newFilters;
+            } else {
+                $currentFilters = [];
+            }
+        }
+        $session->set('mautic.email.list_filters', $currentFilters);
+
+        if (!empty($currentFilters)) {
+            $listIds = [];
+            foreach ($currentFilters as $type => $typeFilters) {
+                if ($type == 'list') {
+                    $key = 'lists';
+                }
+
+                $listFilters['filters']['groups']['mautic.core.filter.'.$key]['values'] = $typeFilters;
+
+                foreach ($typeFilters as $fltr) {
+                    if ($type == 'list') {
+                        $listIds[] = (int) $fltr;
+                    }
+                }
+            }
+
+            if (!empty($listIds)) {
+                $listmodel       = $this->getModel('lead.list');
+                $leadlist_search = '';
+                for ($lid = 0; $lid < sizeof($listIds); ++$lid) {
+                    $leadlist = $listmodel->getEntity($listIds[$lid]);
+                    $values[] = $listIds[$lid];
+                    if ($li = 0) {
+                        $leadlist_search = 'segment:';
+                    } else {
+                        $leadlist_search .= ' or segment:';
+                    }
+                    if ($leadlist != null) {
+                        $leadlist_search .= $leadlist->getAlias();
+                    }
+                }
+                $filter['string'] .= $leadlist_search;
+                // $filter['string'] = "segment:sadmin-segment OR segment:test-segement1";
+            }
+        }
+
+        if (!$permissions['lead:leads:viewother'] && $ignoreListJoin) {
             $filter['force'] .= " $mine";
         }
         $results = $model->getEntities([
@@ -102,6 +171,7 @@ class LeadController extends FormController
             'orderBy'        => $orderBy,
             'orderByDir'     => $orderByDir,
             'withTotalCount' => true,
+            'ignoreListJoin' => $ignoreListJoin,
         ]);
 
         $count = $results['count'];
@@ -145,6 +215,11 @@ class LeadController extends FormController
 
         $lists = $this->getModel('lead.list')->getUserLists();
 
+        $listFilters['filters']['groups']['mautic.core.filter.lists'] = [
+            'options' => $lists,
+            'prefix'  => 'list',
+            'values'  => $values,
+        ];
         //check to see if in a single list
         $inSingleList = (substr_count($search, "$listCommand:") === 1) ? true : false;
         $list         = [];
@@ -173,6 +248,7 @@ class LeadController extends FormController
             [
                 'viewParameters' => [
                     'searchValue'      => $search,
+                    'filters'          => $listFilters,
                     'items'            => $leads,
                     'page'             => $page,
                     'totalItems'       => $count,
@@ -1354,6 +1430,15 @@ class LeadController extends FormController
 
                         // Ensure safe emoji for notification
                         $subject = EmojiHelper::toHtml($email['subject']);
+                        if (!empty($email['templates'])) {
+                            $assets = $emailModel->getRepository()->getEntity($email['templates'])->getAssetAttachments();
+                            $mailer->setEmail($emailModel->getRepository()->getEntity($email['templates']));
+                            if (!empty($assets) && $assets != null) {
+                                foreach ($assets as $asset) {
+                                    $mailer->attachAsset($asset);
+                                }
+                            }
+                        }
                         if ($mailer->send(true, false, false)) {
                             $mailer->createEmailStat();
                             $this->addFlash(

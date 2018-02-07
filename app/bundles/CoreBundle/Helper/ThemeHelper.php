@@ -67,6 +67,16 @@ class ThemeHelper
     protected $defaultThemes = ['sunday', 'skyline', 'oxygen', 'goldstar', 'neopolitan', 'blank', 'system'];
 
     /**
+     * @var array
+     */
+    private $beeTemplateInfo = [];
+
+    /**
+     * @var array|mixed
+     */
+    private $beeTemplates = [];
+
+    /**
      * ThemeHelper constructor.
      *
      * @param PathsHelper         $pathsHelper
@@ -329,6 +339,50 @@ class ThemeHelper
         } else {
             return $this->themes[$specificFeature];
         }
+    }
+
+    public function getInstalledBeeTemplates($ignoreCache = false, $extended=true)
+    {
+        if (sizeof($this->beeTemplateInfo) == 0 || $ignoreCache === true) {
+            $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+            $finder   = new Finder();
+            $finder->directories()->depth('0')->ignoreDotFiles(true)->in($dir);
+
+            $this->beeTemplateInfo = [];
+            foreach ($finder as $template) {
+                if (file_exists($template->getRealPath().'/config.json')) {
+                    $config = json_decode(file_get_contents($template->getRealPath().'/config.json'), true);
+                } else {
+                    continue;
+                }
+
+                $this->beeTemplates[$template->getBasename()]                      = $config['name'];
+                $this->beeTemplateInfo[$template->getBasename()]                   =[];
+                $this->beeTemplateInfo[$template->getBasename()]['name']           = $config['name'];
+                $this->beeTemplateInfo[$template->getBasename()]['key']            = $template->getBasename();
+                $this->beeTemplateInfo[$template->getBasename()]['config']         = $config;
+                $this->beeTemplateInfo[$template->getBasename()]['dir']            = $template->getRealPath();
+                $this->beeTemplateInfo[$template->getBasename()]['themesLocalDir'] = $this->pathsHelper->getSystemPath('beetemplates', false);
+            }
+        }
+
+        if ($extended) {
+            return  $this->beeTemplateInfo;
+        } else {
+            return  $this->beeTemplates;
+        }
+    }
+
+    /**
+     * @param string $templatename
+     *
+     * @return jsonstring
+     */
+    public function getBeeTemplateJSONByName($templatename)
+    {
+        $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+
+        return file_get_contents($dir.'/'.$templatename.'/template.json');
     }
 
     /**

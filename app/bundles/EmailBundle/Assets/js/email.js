@@ -5,7 +5,9 @@ Mautic.emailOnLoad = function (container, response) {
         var plaintext = mQuery('#emailform_plainText');
 
         Mautic.initAtWho(plaintext, plaintext.attr('data-token-callback'));
-        Mautic.initSelectTheme(mQuery('#emailform_template'));
+        //builder disabled due to bee editor
+      //  Mautic.initSelectTheme(mQuery('#emailform_template'));
+        Mautic.initSelectBeeTemplate(mQuery('#emailform_template'));
         Mautic.initEmailDynamicContent();
 
         Mautic.prepareVersioning(

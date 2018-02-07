@@ -1435,6 +1435,7 @@ class CommonRepository extends EntityRepository
     protected function buildWhereClause(&$q, array $args)
     {
         $filter                    = array_key_exists('filter', $args) ? $args['filter'] : '';
+        $isAdminRecordNeeded       = array_key_exists('isAdminRecordNeeded', $args) ? $args['isAdminRecordNeeded'] : '';
         $filterHelper              = new SearchStringHelper();
         $advancedFilters           = new \stdClass();
         $advancedFilters->root     = [];
@@ -1536,7 +1537,8 @@ class CommonRepository extends EntityRepository
                 $q->setParameter($k, $v);
             }
         }
-        if (isset($this->currentUser)) {
+
+        if (isset($this->currentUser) && empty($isAdminRecordNeeded)) {
             $alias     = $this->getTableAlias();
             $entityname=$this->getEntityName();
             $isAdmin   =$this->currentUser->isAdmin();

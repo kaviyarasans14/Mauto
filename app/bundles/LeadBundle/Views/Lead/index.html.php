@@ -114,6 +114,7 @@ if ($indexMode == 'list') {
             'searchHelp'    => 'mautic.lead.lead.help.searchcommands',
             'action'        => $currentRoute,
             'customButtons' => $toolbarButtons,
+            'filters'       => $filters,
         ]
     ); ?>
     <div class="page-list">

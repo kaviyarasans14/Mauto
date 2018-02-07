@@ -469,7 +469,8 @@ $view['slots']->set(
             <?php endif; ?>
             <div class="panel-heading">
                 <div class="panel-title">
-                    <?php echo $view['translator']->trans('mautic.lead.field.header.contact'); ?>
+                    <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.lead.field.header.contact'); ?></h6>
+                    <p class="text-muted"><?php echo $fields['core']['title']['value']; ?> <?php echo $fields['core']['firstname']['value']; ?> <?php echo $fields['core']['lastname']['value']; ?></p>
                 </div>
             </div>
             <div class="panel-body pt-sm">

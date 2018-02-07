@@ -18,6 +18,7 @@ use Mautic\CoreBundle\Model\AuditLogModel;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event as Events;
 use Mautic\EmailBundle\Model\EmailModel;
+use Mautic\LeadBundle\Entity\DoNotContact;
 use Mautic\QueueBundle\Event\QueueConsumerEvent;
 use Mautic\QueueBundle\Queue\QueueConsumerResults;
 use Mautic\QueueBundle\QueueEvents;
@@ -126,7 +127,7 @@ class EmailSubscriber extends CommonSubscriber
                 $reason = $this->translator->trans('mautic.email.dnc.failed', [
                     '%subject%' => EmojiHelper::toShort($message->getSubject()),
                 ]);
-                $this->emailModel->setDoNotContact($stat, $reason);
+                $this->emailModel->setDoNotContact($stat, $reason, DoNotContact::IS_CONTACTABLE);
             }
         }
     }
@@ -151,7 +152,7 @@ class EmailSubscriber extends CommonSubscriber
                     $reason = $this->translator->trans('mautic.email.dnc.retries', [
                         '%subject%' => EmojiHelper::toShort($message->getSubject()),
                     ]);
-                    $this->emailModel->setDoNotContact($stat, $reason);
+                    //$this->emailModel->setDoNotContact($stat, $reason);
                 } else {
                     //set it to try again
                     $event->tryAgain();

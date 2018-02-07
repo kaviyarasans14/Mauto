@@ -14,6 +14,7 @@ namespace Mautic\EmailBundle\Controller;
 use Mautic\CoreBundle\Controller\FormController as CommonFormController;
 use Mautic\CoreBundle\Helper\EmojiHelper;
 use Mautic\CoreBundle\Helper\TrackingPixelHelper;
+use Mautic\EmailBundle\BeeEditor\BeeFree;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Entity\Email;
 use Mautic\EmailBundle\Event\EmailSendEvent;
@@ -28,6 +29,7 @@ use Mautic\PageBundle\Event\PageDisplayEvent;
 use Mautic\PageBundle\EventListener\BuilderSubscriber;
 use Mautic\PageBundle\PageEvents;
 use Mautic\QueueBundle\Queue\QueueName;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class PublicController extends CommonFormController
@@ -420,6 +422,19 @@ class PublicController extends CommonFormController
         }
 
         return $this->notFound();
+    }
+
+    /**
+     * Handles bee free credentials request.
+     *
+     * @return JsonResponse
+     */
+    public function getBeeFreeCredentialsAction()
+    {
+        $beefree = new BeeFree('0c5e4f0c-53ab-4ebc-ac45-863457940e51', 'ndZh9grRjpC6heDiiUiL0gnanQd1F4ysByv67E5v1GpGA6XSgIq');
+        $result  = $beefree->getCredentials();
+
+        return new JsonResponse($result);
     }
 
     /**

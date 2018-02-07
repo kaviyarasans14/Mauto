@@ -69,6 +69,11 @@ class PathsHelper
     protected $user;
 
     /**
+     * @var Appid
+     */
+    protected $appid;
+
+    /**
      * PathsHelper constructor.
      *
      * @param CoreParametersHelper
@@ -79,6 +84,7 @@ class PathsHelper
         $this->user                   = $userHelper->getUser();
         $this->paths                  = $coreParametersHelper->getParameter('paths');
         $this->theme                  = $coreParametersHelper->getParameter('theme');
+        $this->appid                  = $coreParametersHelper->getParameter('db_name');
         $this->imagePath              = $this->removeTrailingSlash($coreParametersHelper->getParameter('image_path'));
         $this->dashboardImportDir     = $this->removeTrailingSlash($coreParametersHelper->getParameter('dashboard_import_dir'));
         $this->temporaryDir           = $this->removeTrailingSlash($coreParametersHelper->getParameter('tmp_path'));
@@ -181,5 +187,10 @@ class PathsHelper
         }
 
         return $dir;
+    }
+
+    public function getAppid()
+    {
+        return  $this->appid;
     }
 }
