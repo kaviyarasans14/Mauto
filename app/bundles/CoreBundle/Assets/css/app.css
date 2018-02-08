@@ -4753,3 +4753,26 @@ figcaption {
 .imagecard .imagecard-caption {
   background-color: #bbb !important;
 }
+#bee-plugin-btnpanel{
+   background-color: #fff;
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   right: 0;
+   left: 0;
+   width: 100%;
+   z-index: 1030;
+  padding: 10px;
+ }
+
+#bee-plugin-viewpanel {
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 700px;
+  z-index: 1030;
+}

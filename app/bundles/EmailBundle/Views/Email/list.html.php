@@ -22,9 +22,9 @@ if ($tmpl == 'index') {
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
-                        'checkall'        => 'true',
+                        'checkall'          => 'true',
                         'actionRoute'       => $actionRoute,
-                        'templateButtons' => [
+                        'templateButtons'   => [
                             'delete' => $permissions['email:emails:deleteown'] || $permissions['email:emails:deleteother'],
                         ],
                     ]
@@ -111,7 +111,8 @@ if ($tmpl == 'index') {
                                     'abtest' => (!$hasVariants && $edit && $permissions['email:emails:create']),
                                 ],
                                 'actionRoute'       => $actionRoute,
-                                'customButtons' => $customButtons,
+                                'customButtons'     => $customButtons,
+                                'translationBase'   => 'mautic.email',
                             ]
                         );
                         ?>

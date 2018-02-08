@@ -70,7 +70,8 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
         if ($message->getHeaders()->get('Precedence') != 'Bulk') {
             $message->getHeaders()->addTextHeader('IsTransactional', 'True');
         }
-
+        $bodyContent=$this->alterElasticEmailBodyContent($message->getBody());
+        $message->setBody($bodyContent);
         parent::send($message, $failedRecipients);
     }
 
@@ -107,6 +108,57 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
             $this->transportCallback->addFailureByAddress($email, $category);
         } elseif ($status == 'Error') {
             $this->transportCallback->addFailureByAddress($email, $this->translator->trans('mautic.email.complaint.reason.unknown'));
+        }
+    }
+
+    /**
+     * Alter Elastic Email Body Content to hide their own subscription url and account address.
+     *
+     * @param string $bodyContent
+     */
+    public function alterElasticEmailBodyContent($bodyContent)
+    {
+        $doc                      = new \DOMDocument();
+        $doc->strictErrorChecking = false;
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($bodyContent);
+        // Get body tag.
+        $body = $doc->getElementsByTagName('body');
+        if ($body and $body->length > 0) {
+            $body = $body->item(0);
+            //create the div element to append to body element
+            $divelement = $doc->createElement('div');
+            $ptag1      = $doc->createElement('span', '{unsubscribe}');
+            $ptag1->setAttribute('style', 'display:none;');
+            $divelement->appendChild($ptag1);
+            $ptag2 = $doc->createElement('span', '{accountaddress}');
+            $ptag2->setAttribute('style', 'display:none;');
+            $divelement->appendChild($ptag2);
+            //actually append the element
+            $body->appendChild($divelement);
+            $bodyContent = $doc->saveHTML();
+        }
+        libxml_clear_errors();
+
+        return $bodyContent;
+    }
+
+    public function removeContactStatus($curlhttp, $apikey, $emailid)
+    {
+        $parameters          =[];
+        $parameters['apikey']=$apikey;
+        $parameters['status']='Active';
+        $parameters['emails']=$emailid;
+        $result              = $curlhttp->post('https://api.elasticemail.com/v2/contact/changestatus', $parameters);
+        $presponse           = json_decode($result->body, true);
+        if (isset($presponse['success']) && $presponse['success']) {
+            $this->logger->debug('Contact Status ('.$emailid.') Changed Successfully in Elastic Email.');
+
+            return true;
+        } else {
+            $this->logger->debug('Contact Status ('.$emailid.') Change Request Failed in Elastic Email.Error:'.$presponse['error']);
+
+            return false;
         }
     }
 }

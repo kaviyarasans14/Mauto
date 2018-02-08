@@ -739,4 +739,20 @@ class AssetsHelper
     {
         return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
     }
+
+    /**
+     * Output bee editor scripts.
+     */
+    public function outputBeeEditorScripts()
+    {
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/Blob.js').'"></script>'."\n";
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/fileSaver.js').'"></script>'."\n";
+        echo '<script src="https://app-rsrc.getbee.io/plugin/BeePlugin.js"></script>'."\n";
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/beeeditor.js').'"></script>'."\n";
+    }
+
+    public function getAppid()
+    {
+        return $this->pathsHelper->getAppid();
+    }
 }

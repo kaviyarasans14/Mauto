@@ -458,6 +458,7 @@ class AjaxController extends CommonAjaxController
             if ($lead) {
                 // Use lead model to trigger listeners
                 $model->removeDncForLead($lead, 'email');
+                $status=$this->removeBounceStatusfromESP($lead->getEmail());
             } else {
                 $this->getModel('email')->getRepository()->deleteDoNotEmailEntry($dncId);
             }
@@ -466,6 +467,25 @@ class AjaxController extends CommonAjaxController
         }
 
         return $this->sendJsonResponse($dataArray);
+    }
+
+    /**
+     * @param string $emailid
+     *
+     * @return bool
+     */
+    public function removeBounceStatusfromESP($emailid)
+    {
+        $transportParam   = $this->get('mautic.helper.core_parameters')->getParameter(('mailer_transport'));
+        if ($transportParam == 'mautic.transport.elasticemail') {
+            $curlhttp         =$this->get('mautic.http.connector');
+            $apikey           = $this->get('mautic.helper.core_parameters')->getParameter(('mailer_password'));
+            $currentTransport = $this->get('swiftmailer.mailer.transport.'.$transportParam);
+
+            return $currentTransport->removeContactStatus($curlhttp, $apikey, $emailid);
+        } else {
+            return true;
+        }
     }
 
     /**
