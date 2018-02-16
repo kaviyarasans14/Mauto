@@ -51,9 +51,9 @@ if (!isset($inBuilder)) {
             <?php
                 if (isset($contactFields[$field['leadField']]['label'])) {
                     echo $contactFields[$field['leadField']]['label'];
-                } elseif ($companyFields[$field['leadField']]['label']) {
+                } /*elseif ($companyFields[$field['leadField']]['label']) {
                     echo $companyFields[$field['leadField']]['label'];
-                } else {
+                }*/ else {
                     ucfirst($field['leadField']);
                 }
             ?>

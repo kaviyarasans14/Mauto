@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticPointBundle:Point:index.html.php');
 }
+$isAdmin    =$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -63,7 +64,7 @@ if ($tmpl == 'index') {
                 );
 
                 echo '<th class="col-point-action">'.$view['translator']->trans('mautic.point.thead.action').'</th>';
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -73,6 +74,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-point-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -132,7 +134,9 @@ if ($tmpl == 'index') {
                     $action = (isset($actions[$type])) ? $actions[$type]['label'] : '';
                     ?>
                     <td><?php echo $view['translator']->trans($action); ?></td>
+                    <?php  if ($isAdmin):?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php  endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

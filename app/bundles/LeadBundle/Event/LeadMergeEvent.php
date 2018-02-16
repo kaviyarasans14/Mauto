@@ -23,14 +23,18 @@ class LeadMergeEvent extends Event
 
     private $loser;
 
+    private $details;
+
     /**
      * @param Lead $victor
      * @param Lead $loser
+     * @param $details
      */
-    public function __construct(Lead $victor, Lead $loser)
+    public function __construct(Lead $victor, Lead $loser, $details)
     {
-        $this->victor = $victor;
-        $this->loser  = $loser;
+        $this->victor   = $victor;
+        $this->loser    = $loser;
+        $this->details  = $details;
     }
 
     /**
@@ -51,5 +55,15 @@ class LeadMergeEvent extends Event
     public function getLoser()
     {
         return $this->loser;
+    }
+
+    /**
+     * Returns the loser (loser merges into the victor).
+     *
+     * @param Lead $lead
+     */
+    public function getLoserDetails()
+    {
+        return $this->details;
     }
 }

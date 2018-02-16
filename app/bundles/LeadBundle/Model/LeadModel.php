@@ -1360,8 +1360,15 @@ class LeadModel extends FormModel
         }
         $this->logger->debug('LEAD: Lead ID# '.$mergeFrom->getId().' will be merged into ID# '.$mergeWith->getId());
 
+        $details  =[];
+        $details[]=$mergeWith->getFirstname();
+        $details[]=$mergeWith->getLastname();
+        $details[]=$mergeWith->getEmail();
+        $details[]=$mergeWith->getMobile();
+
         //dispatch pre merge event
-        $event = new LeadMergeEvent($mergeWith, $mergeFrom);
+        $event = new LeadMergeEvent($mergeWith, $mergeFrom, $details);
+
         if ($this->dispatcher->hasListeners(LeadEvents::LEAD_PRE_MERGE)) {
             $this->dispatcher->dispatch(LeadEvents::LEAD_PRE_MERGE, $event);
         }
@@ -2943,5 +2950,10 @@ class LeadModel extends FormModel
         }
 
         return $lead;
+    }
+
+    public function isAdmin()
+    {
+        return $this->security->isAdmin();
     }
 }

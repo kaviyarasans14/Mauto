@@ -667,7 +667,7 @@ class CampaignModel extends CommonFormModel
                 $repo             = $this->formModel->getRepository();
                 $repo->setCurrentUser($this->userHelper->getUser());
 
-                $forms = $repo->getFormList('', 0, 0, $viewOther, 'campaign');
+                $forms = $repo->getFormList('', 0, 0, false, $viewOther, 'campaign');
 
                 if ($forms) {
                     foreach ($forms as $form) {
@@ -1352,7 +1352,9 @@ class CampaignModel extends CommonFormModel
             }
         }
     }
-    public function getCurrentUserEntity(){
+
+    public function getCurrentUserEntity()
+    {
         return $this->userHelper->getUser();
     }
 }

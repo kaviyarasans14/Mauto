@@ -18800,3 +18800,6 @@ html body .fr-gatedvideo-overlay {
   z-index: 9999;
   display: none;
 }
+#list-search,#sms-search,#form-search{
+  width: 526px;
+}

@@ -14,6 +14,7 @@ namespace Mautic\EmailBundle\EventListener;
 use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Exception\InvalidEmailException;
 use Mautic\EmailBundle\Helper\EmailValidator;
@@ -31,13 +32,19 @@ class CampaignConditionSubscriber implements EventSubscriberInterface
     protected $validator;
 
     /**
+     * @var EmailValidator
+     */
+    protected $security;
+
+    /**
      * CampaignCondition constructor.
      *
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(EmailValidator $validator)
+    public function __construct(EmailValidator $validator, CorePermissions $security)
     {
         $this->validator = $validator;
+        $this->security  =$security;
     }
 
     /**
@@ -56,7 +63,8 @@ class CampaignConditionSubscriber implements EventSubscriberInterface
      */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
-        $event->addCondition(
+        if ($this->security->isAdmin()) {
+            $event->addCondition(
             'email.validate.address',
             [
                 'label'       => 'mautic.email.campaign.event.validate_address',
@@ -64,6 +72,7 @@ class CampaignConditionSubscriber implements EventSubscriberInterface
                 'eventName'   => EmailEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
             ]
         );
+        }
     }
 
     /**

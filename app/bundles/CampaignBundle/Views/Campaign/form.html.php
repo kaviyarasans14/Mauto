@@ -15,6 +15,7 @@ $header = ($entity->getId()) ?
         ['%name%' => $view['translator']->trans($entity->getName())]) :
     $view['translator']->trans('mautic.campaign.menu.new');
 $view['slots']->set('headerTitle', $header);
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php echo $view['form']->start($form); ?>
@@ -44,9 +45,13 @@ $view['slots']->set('headerTitle', $header);
             <?php
             echo $view['form']->row($form['category']);
             echo $view['form']->row($form['isPublished']);
-            echo $view['form']->row($form['publishUp']);
-            echo $view['form']->row($form['publishDown']);
             ?>
+            <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                <?php
+                echo $view['form']->row($form['publishUp']);
+                echo $view['form']->row($form['publishDown']);
+                ?>
+            </div>
         </div>
     </div>
 </div>

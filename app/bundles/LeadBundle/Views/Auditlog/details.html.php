@@ -80,8 +80,29 @@ switch ($type) {
     case 'ipadded':
         $text = $view['translator']->trans('mautic.lead.audit.accessed').' '.implode(',', array_splice($details, 1));
         break;
-    case 'merged':
-        $text = $view['translator']->trans('mautic.lead.audit.merged');
+    case 'merge':
+        $text = '<table class="table">';
+        $text .= '<tr>';
+        $text .= '<th>Field/Object</th><th>New Value</th><th>Old Value</th>';
+        $text .= '</tr>';
+        foreach ($objects as $field => $values) {
+            $text .= '<tr>';
+            if (is_array($values)) {
+                if (count($values) >= 2) {
+                    $text .= "<td>$field</td><td>${values[1]}</td><td>${values[0]}</td>";
+                } else {
+                    $v = '';
+                    foreach ($values as $k => $value) {
+                        $v = $k.': '.implode(', ', $value);
+                    }
+                    $text .= "<td>$field</td><td>$v</td><td>&nbsp;</td>";
+                }
+            } else {
+                $text .= "<td>$field</td><td>${values}</td><td>&nbsp;</td>";
+            }
+            $text .= '</tr>';
+        }
+        $text .= '</table>';
         break;
 }
 echo $text;

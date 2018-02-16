@@ -38,7 +38,7 @@ include 'action_button_helper.php';
             <?php endif; ?>
         </div>
 
-        <div class="col-xs-6 col-lg-4 va-m text-right">
+        <div class="col-xs-6 col-lg-4 va-m text-right" style="width: 80px;">
             <?php if (!empty($buttonHelp)): ?>
                  <div class="input-group-btn">
                     <button class="btn btn-default btn-nospin" data-toggle="modal" data-target="#<?php echo $searchId; ?>-search-help">

@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticEmailBundle:Email:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -53,7 +54,7 @@ if ($tmpl == 'index') {
                 ?>
 
                 <th class="visible-sm visible-md visible-lg col-email-stats"><?php echo $view['translator']->trans('mautic.core.stats'); ?></th>
-
+                <?php if ($isAdmin):?>
                 <?php
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
@@ -65,6 +66,7 @@ if ($tmpl == 'index') {
                     ]
                 );
                 ?>
+                <?php endif; ?>
             </tr>
             </thead>
             <tbody>
@@ -220,7 +222,9 @@ if ($tmpl == 'index') {
                         <?php echo $view['content']->getCustomContent('email.stats', $mauticTemplateVars); ?>
                         <?php echo $view['content']->getCustomContent('email.stats.below', $mauticTemplateVars); ?>
                     </td>
+                    <?php if ($isAdmin):?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

@@ -18,6 +18,7 @@ if (!empty($userId)) {
     $header = $view['translator']->trans('mautic.user.user.header.new');
 }
 $view['slots']->set('headerTitle', $header);
+$isAdmin=$view['security']->isAdmin();
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -89,8 +90,12 @@ $view['slots']->set('headerTitle', $header);
 				    </div>
 				</div>
 			</div>
-			<hr class="mnr-md mnl-md">
-
+            <hr class="mnr-md mnl-md">
+             <?php if (!$isAdmin): ?>
+                <div class="hidden">
+                <?php echo $view['form']->row($form['locale']); ?>
+                </div>
+            <?php endif; ?>
 		</div>
 	</div>
  	<div class="col-md-3 bg-white height-auto">
