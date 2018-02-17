@@ -122,6 +122,8 @@
 
 
       Mautic.launchBeeEditor = function (formName, actionName) {
+
+          mQuery('body').css('overflow-y', 'hidden');
           Mautic.getTokens('email:getBuilderTokens', function(tokens) {
               mQuery.each(tokens, function(k,v){
                   if (k.match(/assetlink=/i) && v.match(/a:/)){
@@ -204,6 +206,7 @@
       }
 
       Mautic.closeBeeEditor = function (callback) {
+          mQuery('body').css('overflow-y', '');
           var viewpanel = mQuery('#bee-plugin-viewpanel');
           var container = mQuery('#bee-plugin-container');
           viewpanel.removeClass('builder-active');
