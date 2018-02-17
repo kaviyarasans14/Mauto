@@ -16,8 +16,8 @@ $header = ($lead->getId()) ?
 $view['slots']->set('headerTitle', $header);
 $view['slots']->set('mauticContent', 'lead');
 $stagehideattr= $view['security']->isGranted('stage:stages:view') ? '' : "style='display: none;'";
-
-$groups = array_keys($fields);
+$isAdmin      =$view['security']->isAdmin();
+$groups       = array_keys($fields);
 sort($groups);
 
 $img = $view['lead_avatar']->getAvatar($lead);
@@ -58,6 +58,7 @@ $img = $view['lead_avatar']->getAvatar($lead);
                 <?php $step = 1; ?>
                 <?php foreach ($groups as $g): ?>
                     <?php if (!empty($fields[$g])): ?>
+                        <?php  if ($isAdmin): ?>
                         <li class="list-group-item <?php if ($step === 1) {
     echo 'active';
 } ?>">
@@ -65,6 +66,7 @@ $img = $view['lead_avatar']->getAvatar($lead);
                                 <?php echo $view['translator']->trans('mautic.lead.field.group.'.$g); ?>
                             </a>
                         </li>
+                        <?php endif; ?>
                         <?php ++$step; ?>
                     <?php endif; ?>
                 <?php endforeach; ?>

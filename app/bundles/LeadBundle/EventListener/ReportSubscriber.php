@@ -162,18 +162,20 @@ class ReportSubscriber extends CommonSubscriber
 
             $event->addTable(self::CONTEXT_LEADS, $data, self::GROUP_CONTACTS);
 
-            $attributionTypes = [
-                self::CONTEXT_CONTACT_ATTRIBUTION_MULTI,
-                self::CONTEXT_CONTACT_ATTRIBUTION_FIRST,
-                self::CONTEXT_CONTACT_ATTRIBUTION_LAST,
-            ];
+            if ($this->security->isAdmin()) {
+                $attributionTypes = [
+                    self::CONTEXT_CONTACT_ATTRIBUTION_MULTI,
+                    self::CONTEXT_CONTACT_ATTRIBUTION_FIRST,
+                    self::CONTEXT_CONTACT_ATTRIBUTION_LAST,
+                ];
 
-            if ($event->checkContext($attributionTypes)) {
-                $context = $event->getContext();
-                foreach ($attributionTypes as $attributionType) {
-                    if (empty($context) || $event->checkContext($attributionType)) {
-                        $type = str_replace('contact.attribution.', '', $attributionType);
-                        $this->injectAttributionReportData($event, $columns, $filters, $type);
+                if ($event->checkContext($attributionTypes)) {
+                    $context = $event->getContext();
+                    foreach ($attributionTypes as $attributionType) {
+                        if (empty($context) || $event->checkContext($attributionType)) {
+                            $type = str_replace('contact.attribution.', '', $attributionType);
+                            $this->injectAttributionReportData($event, $columns, $filters, $type);
+                        }
                     }
                 }
             }

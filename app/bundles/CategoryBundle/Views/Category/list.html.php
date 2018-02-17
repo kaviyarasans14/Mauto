@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticCategoryBundle:Category:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -63,7 +64,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-page-bundle',
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -73,6 +74,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-page-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -139,7 +141,9 @@ if ($tmpl == 'index') {
                             <?php echo $view['translator']->trans($categoryTypes[$item->getBundle()]); ?>
                         <?php endif; ?>
                     </td>
+                    <?php  if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

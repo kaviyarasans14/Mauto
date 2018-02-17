@@ -58,8 +58,8 @@ $templates = [
     'locales'   => 'locale-template',
 ];
 
-$attr = $form->vars['attr'];
-
+$attr       = $form->vars['attr'];
+$isAdmin    =$view['security']->isAdmin();
 $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -136,7 +136,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                     <?php echo $view['form']->row($form['bccAddress']); ?>
                                 </div>
                             </div>
-
+                            <?php if ($isAdmin):?>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="pull-left">
@@ -149,8 +149,8 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                     <?php echo $view['form']->widget($form['assetAttachments']); ?>
                                 </div>
                             </div>
-
-                            <br>
+                            <?php endif; ?>
+                             <br>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="pull-left">
@@ -222,25 +222,31 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                 </div>
                 <?php endif; ?>
 
-                <?php if (!$isVariant): ?>
-                    <?php echo $view['form']->row($form['isPublished']); ?>
-                    <?php echo $view['form']->row($form['publishUp']); ?>
-                    <?php echo $view['form']->row($form['publishDown']); ?>
-                <?php endif; ?>
+                <?php if ($isAdmin):?>
+                    <?php if (!$isVariant): ?>
+                        <?php echo $view['form']->row($form['isPublished']); ?>
+                        <?php echo $view['form']->row($form['publishUp']); ?>
+                        <?php echo $view['form']->row($form['publishDown']); ?>
+                    <?php endif; ?>
 
-                <?php echo $view['form']->row($form['unsubscribeForm']); ?>
-                <?php if (!(empty($permissions['page:preference_center:viewown']) &&
-                    empty($permissions['page:preference_center:viewother']))): ?>
-                    <?php echo $view['form']->row($form['preferenceCenter']); ?>
+                    <?php echo $view['form']->row($form['unsubscribeForm']); ?>
+                    <?php if (!(empty($permissions['page:preference_center:viewown']) &&
+                        empty($permissions['page:preference_center:viewother']))): ?>
+                        <?php echo $view['form']->row($form['preferenceCenter']); ?>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <?php if (!$isVariant): ?>
+                        <?php echo $view['form']->row($form['isPublished']); ?>
+                    <?php endif; ?>
+                    <hr />
+                    <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
+                    <br />
+                    <?php
+                    foreach ($form['utmTags'] as $i => $utmTag):
+                        echo $view['form']->row($utmTag);
+                    endforeach;
+                    ?>
                 <?php endif; ?>
-                <hr />
-                <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
-                <br />
-                <?php
-                foreach ($form['utmTags'] as $i => $utmTag):
-                    echo $view['form']->row($utmTag);
-                endforeach;
-                ?>
             </div>
             <div class="hide">
                 <?php echo $view['form']->rest($form); ?>

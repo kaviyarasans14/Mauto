@@ -174,6 +174,15 @@ class Sms extends FormEntity
             )
         );
 
+        $metadata->addPropertyConstraint(
+            'message',
+            new NotBlank(
+                [
+                    'message' => 'mautic.core.value.required',
+                ]
+            )
+        );
+
         $metadata->addConstraint(new Callback([
             'callback' => function (Sms $sms, ExecutionContextInterface $context) {
                 $type = $sms->getSmsType();

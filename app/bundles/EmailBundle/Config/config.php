@@ -176,6 +176,7 @@ return [
                 'class'     => 'Mautic\EmailBundle\EventListener\CampaignConditionSubscriber',
                 'arguments' => [
                     'mautic.validator.email',
+                    'mautic.security',
                 ],
             ],
             'mautic.email.formbundle.subscriber' => [

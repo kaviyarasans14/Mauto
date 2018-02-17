@@ -217,6 +217,14 @@ class CorePermissions
     }
 
     /**
+     * @return bool
+     */
+    public function isCustomAdmin()
+    {
+        return $this->userHelper->getUser()->isCustomAdmin();
+    }
+
+    /**
      * Determines if the user has permission to access the given area.
      *
      * @param array|string $requestedPermission

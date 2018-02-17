@@ -4617,7 +4617,7 @@ label.required:after {
   z-index: 5;
 }
 .search-container.active .search {
-  width: 225px;
+  width: 430px;
   border: 1px solid #d5d5d5;
 }
 .search-container.active i {

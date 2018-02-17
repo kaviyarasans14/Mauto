@@ -166,7 +166,7 @@ class ReportSubscriber extends CommonSubscriber
         $data = [
             'display_name' => 'mautic.campaign.events',
             'columns'      => $columns,
-            'filters'      => $companyColumns,
+           /* 'filters'      => $columns,*/
         ];
         $event->addTable(self::CONTEXT_CAMPAIGN_LEAD_EVENT_LOG, $data);
 

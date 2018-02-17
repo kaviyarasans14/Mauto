@@ -9,6 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 $stageaccess=$security->isGranted('stage:stages:view');
+$isAdmin    =$view['security']->isAdmin();
 ?>
 <?php foreach ($items as $item): ?>
     <?php /** @var \Mautic\LeadBundle\Entity\Lead $item */ ?>
@@ -121,6 +122,8 @@ $stageaccess=$security->isGranted('stage:stages:view');
                 <?php echo $view['date']->toText($item->getLastActive()); ?>
             </abbr>
         </td>
+        <?php  if ($isAdmin): ?>
         <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+        <?php  endif; ?>
     </tr>
 <?php endforeach; ?>

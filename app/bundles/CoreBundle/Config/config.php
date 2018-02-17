@@ -126,7 +126,7 @@ return [
              ],*/
             'mautic.segments.root' => [
                 'id'        => 'mautic_segments_root',
-                'iconClass' => 'fa-pie-chart',
+                'iconClass' => 'icon pull-left fa fa-user',
                 'priority'  => 50,
             ],
             'mautic.campaigns.root' => [
