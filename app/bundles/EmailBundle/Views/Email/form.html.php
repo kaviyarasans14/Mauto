@@ -75,14 +75,19 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                 <?php //echo $view['translator']->trans('mautic.core.form.theme');?>
                             </a>
                         </li>-->
-                        <li class="active" >
-                            <a href="#bee-template-container" role="tab" data-toggle="tab">
-                                <?php echo $view['translator']->trans('mautic.email.form.beetemplate.tabheader'); ?>
+                        <li>
+                            <a id="email-editor-basic" href="#email-basic-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.basic'); ?>
                             </a>
                         </li>
                         <li>
-                            <a href="#advanced-container" role="tab" data-toggle="tab">
-                                <?php echo $view['translator']->trans('mautic.core.advanced'); ?>
+                            <a id="email-editor-advance" href="#email-advance-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.advance'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#email-other-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.other'); ?>
                             </a>
                         </li>
                         <li id="dynamic-content-tab" <?php echo (!$isCodeMode) ? 'class="hidden"' : ''; ?>>
@@ -106,7 +111,10 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                               //  'active' => $form['template']->vars['value'],
                            // ]);?>
                         </div>-->
-                        <div class="tab-pane fade in active bdr-w-0" id="bee-template-container">
+                        <div class="tab-pane fade in  bdr-w-0" id="email-basic-container">
+                            <?php echo $view['form']->widget($form['customHtml']); ?>
+                        </div>
+                        <div class="tab-pane fade in bdr-w-0" id="email-advance-container">
                             <div class="row">
                                 <div class="col-md-12 hide">
                                     <?php echo $view['form']->row($form['template']); ?>
@@ -117,7 +125,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                 'active'       => $form['template']->vars['value'],
                             ]); ?>
                         </div>
-                        <div class="tab-pane fade bdr-w-0" id="advanced-container">
+                        <div class="tab-pane fade bdr-w-0" id="email-other-container">
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php echo $view['form']->row($form['fromName']); ?>
@@ -324,3 +332,26 @@ if ((empty($updateSelect) && !$isExisting && !$view['form']->containsErrors($for
             'typeTwoOnClick'     => "Mautic.selectEmailType('list');",
         ]);
 endif;
+?>
+<?php
+$beejson = $email->getBeeJSON();
+$type    = $email->getEmailType();
+if (empty($updateSelect) && !$isExisting && !$view['form']->containsErrors($form) && !$variantParent):
+    echo $view->render('MauticCoreBundle:Helper:form_selecttype.html.php',
+        [
+            'item'               => $email,
+            'mauticLang'         => [],
+            'typePrefix'         => 'email',
+            'cancelUrl'          => $type == 'template' ? 'mautic_email_index' : 'mautic_email_campaign_index',
+            'header'             => 'mautic.email.editor.header',
+            'typeOneHeader'      => 'mautic.email.editor.basic.header',
+            'typeOneIconClass'   => 'fa-cube',
+            'typeOneDescription' => 'mautic.email.editor.basic.description',
+            'typeOneOnClick'     => "Mautic.selectEmailEditor('basic');",
+            'typeTwoHeader'      => 'mautic.email.editor.advance.header',
+            'typeTwoIconClass'   => 'fa-pie-chart',
+            'typeTwoDescription' => 'mautic.email.editor.advance.description',
+            'typeTwoOnClick'     => "Mautic.selectEmailEditor('advance');",
+        ]);
+endif;
+?>
