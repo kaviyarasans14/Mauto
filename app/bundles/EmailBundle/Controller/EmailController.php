@@ -533,9 +533,25 @@ class EmailController extends FormController
             if (!$cancelled = $this->isFormCancelled($form)) {
                 $formData = $this->request->request->get('emailform');
                 if ($valid = $this->isFormValid($form) && $this->isFormValidForWebinar($formData, $form, $entity)) {
-                    $content = $entity->getCustomHtml();
-                    $entity->setBeeJSON($formData['beeJSON']);
-                    $entity->setCustomHtml($content);
+                    //auto value assign to utm tags
+                    $currentutmtags=$entity->getUtmTags();
+                    $currentsubject=$entity->getSubject();
+                    $currentname   =$entity->getName();
+
+                    if (empty($currentutmtags['utmSource'])) {
+                        $currentutmtags['utmSource']='leadsengage';
+                    }
+                    if (empty($currentutmtags['utmMedium'])) {
+                        $currentutmtags['utmMedium']='email';
+                    }
+                    if (empty($currentutmtags['utmCampaign'])) {
+                        $currentutmtags['utmCampaign']=$currentname;
+                    }
+                    if (empty($currentutmtags['utmContent'])) {
+                        $currentutmtags['utmContent']=$currentsubject;
+                    }
+
+                    $entity->setUtmTags($currentutmtags);
 
                     //form is valid so process the data
                     $model->saveEntity($entity);
@@ -666,9 +682,12 @@ class EmailController extends FormController
         $model  = $this->getModel('email');
         $method = $this->request->getMethod();
 
-        $entity  = $model->getEntity($objectId);
-        $session = $this->get('session');
-        $page    = $this->get('session')->get('mautic.email.page', 1);
+        $entity     = $model->getEntity($objectId);
+        $lastutmtags=$entity->getUtmTags();
+        $lastsubject=$entity->getSubject();
+        $lastname   =$entity->getName();
+        $session    = $this->get('session');
+        $page       = $this->get('session')->get('mautic.email.page', 1);
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_index', ['page' => $page]);
@@ -733,9 +752,27 @@ class EmailController extends FormController
             if (!$cancelled = $this->isFormCancelled($form)) {
                 $formData = $this->request->request->get('emailform');
                 if ($valid = $this->isFormValid($form) && $this->isFormValidForWebinar($formData, $form, $entity)) {
-                    $content = $entity->getCustomHtml();
-                    $entity->setCustomHtml($content);
-                    $entity->setBeeJSON($formData['beeJSON']);
+                    //auto value assign to utm tags
+                    $currentutmtags=$entity->getUtmTags();
+                    $currentsubject=$entity->getSubject();
+                    $currentname   =$entity->getName();
+                    if (empty($currentutmtags['utmSource'])) {
+                        $currentutmtags['utmSource']='leadsengage';
+                    }
+                    if (empty($currentutmtags['utmMedium'])) {
+                        $currentutmtags['utmMedium']='email';
+                    }
+                    if (empty($currentutmtags['utmCampaign'])) {
+                        $currentutmtags['utmCampaign']=$currentname;
+                    } elseif ($currentname != $lastname && $currentutmtags['utmCampaign'] == $lastname) {
+                        $currentutmtags['utmCampaign']= $currentname;
+                    }
+                    if (empty($currentutmtags['utmContent'])) {
+                        $currentutmtags['utmContent']=$currentsubject;
+                    } elseif ($currentsubject != $lastsubject && $currentutmtags['utmContent'] == $lastsubject) {
+                        $currentutmtags['utmContent']= $currentsubject;
+                    }
+                    $entity->setUtmTags($currentutmtags);
                     //form is valid so process the data
                     $model->saveEntity($entity, $form->get('buttons')->get('save')->isClicked());
 

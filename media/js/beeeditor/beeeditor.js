@@ -75,13 +75,16 @@
       onSave: function(jsonFile, htmlFile) {
           mQuery('.builder-html').val(Mautic.domToString(htmlFile));
           mQuery('.bee-editor-json').val(jsonFile);
-          var bgApplyBtn = mQuery('.btn-apply');
-          bgApplyBtn.trigger('click');
+          Mautic.closeBeeEditor(function(){
+              var bgApplyBtn = mQuery('.btn-apply');
+              bgApplyBtn.trigger('click');
+          });
+
        // save('newsletter.html', htmlFile);
         // save('newsletter.json', jsonFile);
       },
       onSaveAsTemplate: function(jsonFile) { // + thumbnail?
-          alert("Not Supported!");
+          alert("Feature not supported.");
         //save('newsletter-template.json', jsonFile);
       },
       onAutoSave: function(jsonFile) {
@@ -91,7 +94,7 @@
        // window.localStorage.setItem('newsletter.autosave', jsonFile);
       },
       onSend: function(htmlFile) {
-          alert("Not Supported!");
+          alert("Feature not supported.");
         //write your send test function here
       },
       onError: function(errorMessage) {
@@ -200,10 +203,11 @@
           });
       }
 
-      Mautic.closeBeeEditor = function () {
+      Mautic.closeBeeEditor = function (callback) {
           var viewpanel = mQuery('#bee-plugin-viewpanel');
           var container = mQuery('#bee-plugin-container');
           viewpanel.removeClass('builder-active');
           container.addClass('hide');
           viewpanel.html("");
+          callback();
       }

@@ -108,7 +108,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                         </div>-->
                         <div class="tab-pane fade in active bdr-w-0" id="bee-template-container">
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-12 hide">
                                     <?php echo $view['form']->row($form['template']); ?>
                                 </div>
                             </div>
