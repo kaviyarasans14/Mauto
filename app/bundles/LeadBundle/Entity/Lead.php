@@ -524,11 +524,11 @@ class Lead extends FormEntity implements CustomFieldEntityInterface
         $current = $oldValue !== null ? $oldValue : $this->$getter();
         if ($prop == 'owner') {
             if ($current && !$val) {
-                $this->changes['owner'] = [$current->getId(), $val];
+                $this->changes['owner'] = [$current->getName(), $val];
             } elseif (!$current && $val) {
-                $this->changes['owner'] = [$current, $val->getId()];
+                $this->changes['owner'] = [$current, $val->getName()];
             } elseif ($current && $val && $current->getId() != $val->getId()) {
-                $this->changes['owner'] = [$current->getId(), $val->getId()];
+                $this->changes['owner'] = [$current->getName(), $val->getName()];
             }
         } elseif ($prop == 'ipAddresses') {
             $this->changes['ipAddresses'] = ['', $val->getIpAddress()];

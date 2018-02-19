@@ -58,8 +58,8 @@ $templates = [
     'locales'   => 'locale-template',
 ];
 
-$attr = $form->vars['attr'];
-
+$attr       = $form->vars['attr'];
+$isAdmin    =$view['security']->isAdmin();
 $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -75,14 +75,19 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                 <?php //echo $view['translator']->trans('mautic.core.form.theme');?>
                             </a>
                         </li>-->
-                        <li class="active" >
-                            <a href="#bee-template-container" role="tab" data-toggle="tab">
-                                <?php echo $view['translator']->trans('mautic.email.form.beetemplate.tabheader'); ?>
+                        <li>
+                            <a id="email-editor-basic" href="#email-basic-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.basic'); ?>
                             </a>
                         </li>
                         <li>
-                            <a href="#advanced-container" role="tab" data-toggle="tab">
-                                <?php echo $view['translator']->trans('mautic.core.advanced'); ?>
+                            <a id="email-editor-advance" href="#email-advance-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.advance'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#email-other-container" role="tab" data-toggle="tab">
+                                <?php echo $view['translator']->trans('mautic.email.form.editor.other'); ?>
                             </a>
                         </li>
                         <li id="dynamic-content-tab" <?php echo (!$isCodeMode) ? 'class="hidden"' : ''; ?>>
@@ -106,9 +111,12 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                               //  'active' => $form['template']->vars['value'],
                            // ]);?>
                         </div>-->
-                        <div class="tab-pane fade in active bdr-w-0" id="bee-template-container">
+                        <div class="tab-pane fade in  bdr-w-0" id="email-basic-container">
+                            <?php echo $view['form']->widget($form['customHtml']); ?>
+                        </div>
+                        <div class="tab-pane fade in bdr-w-0" id="email-advance-container">
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-12 hide">
                                     <?php echo $view['form']->row($form['template']); ?>
                                 </div>
                             </div>
@@ -117,7 +125,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                 'active'       => $form['template']->vars['value'],
                             ]); ?>
                         </div>
-                        <div class="tab-pane fade bdr-w-0" id="advanced-container">
+                        <div class="tab-pane fade bdr-w-0" id="email-other-container">
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php echo $view['form']->row($form['fromName']); ?>
@@ -136,7 +144,7 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                     <?php echo $view['form']->row($form['bccAddress']); ?>
                                 </div>
                             </div>
-
+                            <?php if ($isAdmin):?>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="pull-left">
@@ -149,8 +157,8 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                                     <?php echo $view['form']->widget($form['assetAttachments']); ?>
                                 </div>
                             </div>
-
-                            <br>
+                            <?php endif; ?>
+                             <br>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="pull-left">
@@ -222,25 +230,31 @@ $isCodeMode = ($email->getTemplate() === 'mautic_code_mode');
                 </div>
                 <?php endif; ?>
 
-                <?php if (!$isVariant): ?>
-                    <?php echo $view['form']->row($form['isPublished']); ?>
-                    <?php echo $view['form']->row($form['publishUp']); ?>
-                    <?php echo $view['form']->row($form['publishDown']); ?>
-                <?php endif; ?>
+                <?php if ($isAdmin):?>
+                    <?php if (!$isVariant): ?>
+                        <?php echo $view['form']->row($form['isPublished']); ?>
+                        <?php echo $view['form']->row($form['publishUp']); ?>
+                        <?php echo $view['form']->row($form['publishDown']); ?>
+                    <?php endif; ?>
 
-                <?php echo $view['form']->row($form['unsubscribeForm']); ?>
-                <?php if (!(empty($permissions['page:preference_center:viewown']) &&
-                    empty($permissions['page:preference_center:viewother']))): ?>
-                    <?php echo $view['form']->row($form['preferenceCenter']); ?>
+                    <?php echo $view['form']->row($form['unsubscribeForm']); ?>
+                    <?php if (!(empty($permissions['page:preference_center:viewown']) &&
+                        empty($permissions['page:preference_center:viewother']))): ?>
+                        <?php echo $view['form']->row($form['preferenceCenter']); ?>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <?php if (!$isVariant): ?>
+                        <?php echo $view['form']->row($form['isPublished']); ?>
+                    <?php endif; ?>
+                    <hr />
+                    <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
+                    <br />
+                    <?php
+                    foreach ($form['utmTags'] as $i => $utmTag):
+                        echo $view['form']->row($utmTag);
+                    endforeach;
+                    ?>
                 <?php endif; ?>
-                <hr />
-                <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
-                <br />
-                <?php
-                foreach ($form['utmTags'] as $i => $utmTag):
-                    echo $view['form']->row($utmTag);
-                endforeach;
-                ?>
             </div>
             <div class="hide">
                 <?php echo $view['form']->rest($form); ?>
@@ -318,3 +332,26 @@ if ((empty($updateSelect) && !$isExisting && !$view['form']->containsErrors($for
             'typeTwoOnClick'     => "Mautic.selectEmailType('list');",
         ]);
 endif;
+?>
+<?php
+$beejson = $email->getBeeJSON();
+$type    = $email->getEmailType();
+if (empty($updateSelect) && !$isExisting && !$view['form']->containsErrors($form) && !$variantParent):
+    echo $view->render('MauticCoreBundle:Helper:form_selecttype.html.php',
+        [
+            'item'               => $email,
+            'mauticLang'         => [],
+            'typePrefix'         => 'email',
+            'cancelUrl'          => $type == 'template' ? 'mautic_email_index' : 'mautic_email_campaign_index',
+            'header'             => 'mautic.email.editor.header',
+            'typeOneHeader'      => 'mautic.email.editor.basic.header',
+            'typeOneIconClass'   => 'fa-cube',
+            'typeOneDescription' => 'mautic.email.editor.basic.description',
+            'typeOneOnClick'     => "Mautic.selectEmailEditor('basic');",
+            'typeTwoHeader'      => 'mautic.email.editor.advance.header',
+            'typeTwoIconClass'   => 'fa-pie-chart',
+            'typeTwoDescription' => 'mautic.email.editor.advance.description',
+            'typeTwoOnClick'     => "Mautic.selectEmailEditor('advance');",
+        ]);
+endif;
+?>

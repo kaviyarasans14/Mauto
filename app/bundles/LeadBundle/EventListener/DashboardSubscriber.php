@@ -33,20 +33,15 @@ class DashboardSubscriber extends MainDashboardSubscriber
      *
      * @var string
      */
-    protected $types = [
-        'created.leads.in.time' => [
-            'formAlias' => 'lead_dashboard_leads_in_time_widget',
+    protected $types =['created.leads.in.time' => [
+        'formAlias' => 'lead_dashboard_leads_in_time_widget',
         ],
         'anonymous.vs.identified.leads' => [],
-        'lead.lifetime'                 => [
-            'formAlias' => 'lead_dashboard_leads_lifetime_widget',
-        ],
-        'map.of.leads'  => [],
-        'top.lists'     => [],
-        'top.creators'  => [],
-        'top.owners'    => [],
-        'created.leads' => [],
-    ];
+        'map.of.leads'                  => [],
+        'top.lists'                     => [],
+        'top.creators'                  => [],
+        'top.owners'                    => [],
+        'created.leads'                 => [], ];
 
     /**
      * Define permissions to see those widgets.
@@ -78,6 +73,10 @@ class DashboardSubscriber extends MainDashboardSubscriber
     {
         $this->leadModel     = $leadModel;
         $this->leadListModel = $leadListModel;
+
+        if ($leadModel->isAdmin()) {
+            $this->types= array_merge($this->types, ['lead.lifetime' => ['formAlias' => 'leaddashboard_leads_lifetime_widget']]);
+        }
     }
 
     /**

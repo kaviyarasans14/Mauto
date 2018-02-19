@@ -8,6 +8,8 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
+$isAdmin      = $view['security']->isAdmin();
+$isCustomAdmin= $view['security']->isCustomAdmin();
 ?>
 <!-- start: loading bar -->
 <div class="loading-bar">
@@ -35,11 +37,13 @@
     <!-- start: right nav -->
     <ul class="nav navbar-nav navbar-right">
         <?php echo $view->render('MauticCoreBundle:Menu:profile.html.php'); ?>
-        <li>
-            <a href="javascript: void(0);" data-toggle="sidebar" data-direction="rtl">
-                <i class="fa fa-cog fs-16"></i>
-            </a>
-        </li>
+        <?php if ($isAdmin || $isCustomAdmin): ?>
+            <li>
+                <a href="javascript: void(0);" data-toggle="sidebar" data-direction="rtl">
+                    <i class="fa fa-cog fs-16"></i>
+                </a>
+            </li>
+        <?php endif; ?>
     </ul>
     <div class="navbar-toolbar pull-right mt-15 mr-10">
     <?php

@@ -72,7 +72,7 @@ class EmailType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html']));
+        $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html', 'beeJSON' => 'raw']));
         $builder->addEventSubscriber(new FormExitSubscriber('email.email', $options));
 
         $builder->add(
@@ -179,10 +179,10 @@ class EmailType extends AbstractType
             [
                 'feature' => 'email',
                 'attr'    => [
-                    'class'   => 'form-control not-chosen hidden',
+                    'class'   => 'form-control hide not-chosen hidden',
                     'tooltip' => 'mautic.email.form.template.help',
                 ],
-                'data' => $options['data']->getTemplate() ? $options['data']->getTemplate() : 'blank',
+                'data' => $options['data']->getTemplate() ? $options['data']->getTemplate() : '1blank1',
             ]
         );
 
@@ -248,7 +248,7 @@ class EmailType extends AbstractType
                     'label_attr' => ['class' => 'control-label'],
                     'required'   => false,
                     'attr'       => [
-                        'class'                => 'form-control editor-builder-tokens builder-html editor-email',
+                        'class'                => 'form-control editor editor-basic-fullpage editor-builder-tokens builder-html editor-email',
                         'data-token-callback'  => 'email:getBuilderTokens',
                         'data-token-activator' => '{',
                     ],

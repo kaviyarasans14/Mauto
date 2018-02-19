@@ -4617,7 +4617,7 @@ label.required:after {
   z-index: 5;
 }
 .search-container.active .search {
-  width: 225px;
+  width: 430px;
   border: 1px solid #d5d5d5;
 }
 .search-container.active i {
@@ -4773,6 +4773,11 @@ figcaption {
   right: 0;
   left: 0;
   width: 100%;
-  height: 700px;
+  height: 620px;
   z-index: 1030;
+}
+#email-basic-container{
+  height: 410px;
+  overflow-y: scroll;
+  overflow-x: scroll;
 }

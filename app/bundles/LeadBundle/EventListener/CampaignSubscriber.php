@@ -182,7 +182,9 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
         ];
 
-        $event->addCondition('lead.device', $trigger);
+        if ($this->security->isAdmin()) {
+            $event->addCondition('lead.device', $trigger);
+        }
 
         $trigger = [
             'label'       => 'mautic.lead.lead.events.tags',

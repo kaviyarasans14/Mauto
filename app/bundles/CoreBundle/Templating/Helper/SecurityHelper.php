@@ -75,7 +75,6 @@ class SecurityHelper extends Helper
         return $this->security->hasEntityAccess($ownPermission, $otherPermission, $ownerId);
     }
 
-
     /**
      * @param $permission
      *
@@ -110,5 +109,13 @@ class SecurityHelper extends Helper
     public function isAdmin()
     {
         return $this->security->isAdmin();
+    }
+
+    /**
+     * Helper function to check if the logged in user has admin access or not.
+     */
+    public function isCustomAdmin()
+    {
+        return $this->security->isCustomAdmin();
     }
 }

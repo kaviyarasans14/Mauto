@@ -11,7 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticSmsBundle:Sms:index.html.php');
 }
-
+$isAdmin    =$view['security']->isAdmin();
 if (count($items)):
 
     ?>
@@ -56,6 +56,7 @@ if (count($items)):
                 <th class="visible-sm visible-md visible-lg col-sms-stats"><?php echo $view['translator']->trans('mautic.core.stats'); ?></th>
 
                 <?php
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -65,6 +66,7 @@ if (count($items)):
                         'class'      => 'visible-md visible-lg col-sms-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -161,7 +163,9 @@ if (count($items)):
                                 ); ?></a>
                         </span>
                     </td>
+                    <?php if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

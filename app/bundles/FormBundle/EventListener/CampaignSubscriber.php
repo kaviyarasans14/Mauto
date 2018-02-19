@@ -90,7 +90,10 @@ class CampaignSubscriber extends CommonSubscriber
             'formTheme'   => 'MauticFormBundle:FormTheme\FieldValueCondition',
             'eventName'   => FormEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
         ];
-        $event->addCondition('form.field_value', $trigger);
+
+        if ($this->security->isAdmin()) {
+            $event->addCondition('form.field_value', $trigger);
+        }
     }
 
     /**
