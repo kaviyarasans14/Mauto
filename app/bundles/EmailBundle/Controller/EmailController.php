@@ -1688,7 +1688,7 @@ class EmailController extends FormController
         return $this->generateContactsGrid(
             $objectId,
             $page,
-            ['email:emails:viewown', 'email:emails:viewother'],
+            ['email:emails:viewown'], // 'email:emails:viewother' --Removed by Bevek
             'email',
             'email_stats',
             'email',
