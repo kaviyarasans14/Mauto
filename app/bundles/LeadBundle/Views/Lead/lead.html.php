@@ -287,6 +287,7 @@ $view['slots']->set(
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php if ($view['security']->isAdmin()): ?>
                 <li class="">
                     <a href="#integration-container" role="tab" data-toggle="tab">
                     <span class="label label-primary mr-sm" id="IntegrationCount">
@@ -295,6 +296,7 @@ $view['slots']->set(
                         <?php echo $view['translator']->trans('mautic.lead.lead.tab.integration'); ?>
                     </a>
                 </li>
+                <?php endif; ?>
                 <li class="">
                     <a href="#auditlog-container" role="tab" data-toggle="tab">
                     <span class="label label-primary mr-sm" id="AuditLogCount">
@@ -354,7 +356,7 @@ $view['slots']->set(
                 </div>
             <?php endif; ?>
             <!--/ #social-container -->
-
+            <?php if ($view['security']->isAdmin()): ?>
             <!-- #integration-container -->
             <div class="tab-pane fade bdr-w-0" id="integration-container">
                 <?php echo $view->render(
@@ -366,7 +368,7 @@ $view['slots']->set(
                 ); ?>
             </div>
             <!--/ #integration-container -->
-
+            <?php endif; ?>
             <!-- #auditlog-container -->
             <div class="tab-pane fade bdr-w-0" id="auditlog-container">
                 <?php echo $view->render(
