@@ -293,7 +293,15 @@ Mautic.togglePublishStatus = function (event, el, model, id, extra, backdrop) {
         data: "action=togglePublishStatus&model=" + model + '&id=' + id + extra,
         dataType: "json",
         success: function (response) {
-            if (response.reload) {
+            if(!response.success){
+                var addClass = (wasPublished) ? 'fa-toggle-on' : 'fa-toggle-off';
+                mQuery(el).removeClass('fa-spin fa-spinner').addClass(addClass);
+                var alertmsg="publish";
+                if(wasPublished){
+                    alertmsg="un publish";
+                }
+                alert("You don't have rights to "+alertmsg+" it");
+            }else if (response.reload) {
                 Mautic.redirectWithBackdrop(window.location);
             } else if (response.statusHtml) {
                 mQuery(el).replaceWith(response.statusHtml);
