@@ -690,6 +690,16 @@ abstract class AbstractStandardFormController extends AbstractFormController
     }
 
     /**
+     * Provide the name of the column which is used for default ordering.
+     *
+     * @return string
+     */
+    protected function getDefaultCampaignOrderColumn()
+    {
+        return 'campaignOrder';
+    }
+
+    /**
      * Provide the direction for default ordering.
      *
      * @return string
@@ -1001,7 +1011,8 @@ abstract class AbstractStandardFormController extends AbstractFormController
         $this->beforeFormProcessed($entity, $form, 'new', $isPost);
 
         if ($isPost) {
-            $valid = false;
+            $objectId = 'blank';
+            $valid    = false;
             if (!$cancelled = $this->isFormCancelled($form)) {
                 if ($valid = $this->isFormValid($form)) {
                     if ($valid = $this->beforeEntitySave($entity, $form, 'new')) {
@@ -1083,12 +1094,11 @@ abstract class AbstractStandardFormController extends AbstractFormController
 
         $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
         $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
-
-        $orderBy    = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultOrderColumn());
-        $orderByDir = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
         if ($objectId == null) {
             $campaignargs                        = [];
             $campaignargs['isAdminRecordNeeded'] = true;
+            $orderBy                             = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultCampaignOrderColumn());
+            $orderByDir                          = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
             list($count, $items)                 = $this->getIndexItems($start, $limit, $filter, $orderBy, $orderByDir, $campaignargs);
             if ($count == 0) {
                 $items = '';
