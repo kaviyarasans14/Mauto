@@ -30,6 +30,7 @@ class EmailUtmTagsType extends AbstractType
             'text',
             [
                 'label'      => 'mautic.email.campaign_source',
+                'data'       => 'leadsengage',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class' => 'form-control',
@@ -43,6 +44,7 @@ class EmailUtmTagsType extends AbstractType
             'text',
             [
                 'label'      => 'mautic.email.campaign_medium',
+                'data'       => 'email',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class' => 'form-control',

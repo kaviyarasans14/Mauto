@@ -13,6 +13,7 @@ if ($tmpl == 'index'):
     $view->extend('MauticLeadBundle:List:index.html.php');
 endif;
 $listCommand = $view['translator']->trans('mautic.lead.lead.searchcommand.list');
+$isAdmin     =$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -52,7 +53,7 @@ $listCommand = $view['translator']->trans('mautic.lead.lead.searchcommand.list')
                         'class'      => 'visible-md visible-lg col-leadlist-leadcount',
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -62,6 +63,7 @@ $listCommand = $view['translator']->trans('mautic.lead.lead.searchcommand.list')
                         'class'      => 'visible-md visible-lg col-leadlist-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -141,7 +143,9 @@ $listCommand = $view['translator']->trans('mautic.lead.lead.searchcommand.list')
                             ); ?>
                         </a>
                     </td>
+                    <?php  if ($isAdmin):?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php  endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

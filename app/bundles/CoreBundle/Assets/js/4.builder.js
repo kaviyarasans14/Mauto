@@ -385,15 +385,26 @@ Mautic.initSelectBeeTemplate = function(themeField) {
     Mautic.beeTemplate = themeField.val();
 
     if (isNew) {
-        Mautic.showChangeThemeWarning = false;
-        // Populate default content
+        if(mQuery('.sidebar-content').is(':visible')) {
+            Mautic.showChangeThemeWarning = false;
+            // Populate default content
+            if (!templateJSON.length || !templateJSON.val().length) {
+                Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+            }
+        }else{
+            Mautic.selectEmailEditor("basic");
+        }
+
+    }else{
         if (!templateJSON.length || !templateJSON.val().length) {
-            Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+            Mautic.selectEmailEditor("basic");
+        }else{
+            Mautic.selectEmailEditor("advance");
         }
     }
 
     if (templateJSON.length) {
-        mQuery('[data-beetemplate]').click(function(e) {
+         mQuery('[data-beetemplate]').click(function(e) {
             e.preventDefault();
             var currentLink = mQuery(this);
             var theme = currentLink.attr('data-beetemplate');

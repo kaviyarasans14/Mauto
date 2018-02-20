@@ -110,10 +110,25 @@ class AuditlogController extends CommonController
             if (is_array($eventLabel)) {
                 $eventLabel = $eventLabel['label'];
             }
+            $exportType=$event['eventType'];
+
+            if ($exportType == 'create') {
+                $exportType='Contact created';
+            } elseif ($exportType == 'update') {
+                $exportType='Contact updated';
+            } elseif ($exportType == 'delete') {
+                $exportType='Contact deleted';
+            } elseif ($exportType == 'merge') {
+                $exportType = 'Contact merged';
+            } elseif ($exportType == 'identified') {
+                $exportType = 'Contact identified';
+            } elseif ($exportType == 'ipadded') {
+                $exportType='Accessed from IP';
+            }
 
             return [
                 'eventName'      => $eventLabel,
-                'eventType'      => isset($event['eventType']) ? $event['eventType'] : '',
+                'eventType'      => isset($event['eventType']) ? $exportType : '',
                 'eventTimestamp' => $this->get('mautic.helper.template.date')->toText($event['timestamp'], 'local', 'Y-m-d H:i:s', true),
             ];
         };

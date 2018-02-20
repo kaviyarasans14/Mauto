@@ -95,14 +95,18 @@ $isAdmin=$view['security']->isAdmin();
 	</div>
  	<div class="col-md-3 bg-white height-auto">
 		<div class="pr-lg pl-lg pt-md pb-md">
-			<?php
-                echo $view['form']->row($form['category']);
+            <?php
+            echo $view['form']->row($form['category']);
+            echo $view['form']->row($form['isPublished']);
+            ?>
+            <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                <?php
                 echo $view['form']->row($form['language']);
-                echo $view['form']->row($form['isPublished']);
                 echo $view['form']->row($form['publishUp']);
                 echo $view['form']->row($form['publishDown']);
-            ?>
-		</div>
+                ?>
+            </div>
+        </div>
 	</div>
 </div>
 <?php echo $view['form']->end($form); ?>

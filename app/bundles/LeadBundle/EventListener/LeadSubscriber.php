@@ -260,14 +260,26 @@ class LeadSubscriber extends CommonSubscriber
             $event->getVictor()->getId()
         );
 
+        $loserValue = $event->getLoserDetails();
+
         $log = [
             'bundle'    => 'lead',
             'object'    => 'lead',
-            'objectId'  => $event->getLoser()->getId(),
+            'objectId'  => $event->getVictor()->getId(),
             'action'    => 'merge',
-            'details'   => ['merged_into' => $event->getVictor()->getId()],
+            'details'   => ['fields'=> ['firstname' => [$loserValue[0],
+                                              $event->getVictor()->getFirstname(), ],
+                             'lastname' => [$loserValue[1],
+                                              $event->getVictor()->getLastname(), ],
+                             'email' => [$loserValue[2],
+                                              $event->getVictor()->getEmail(), ],
+                             'mobile' => [$loserValue[3],
+                                              $event->getVictor()->getMobile(), ],
+                             ],
+                           ],
             'ipAddress' => $this->ipLookupHelper->getIpAddressFromRequest(),
         ];
+
         $this->auditLogModel->writeToLog($log);
     }
 

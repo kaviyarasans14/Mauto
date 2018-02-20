@@ -10,7 +10,7 @@
  */
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'point');
-
+$isAdmin=$view['security']->isAdmin();
 $header = ($entity->getId()) ?
     $view['translator']->trans('mautic.point.menu.edit',
         ['%name%' => $view['translator']->trans($entity->getName())]) :
@@ -49,12 +49,14 @@ echo $view['form']->start($form);
 	</div>
  	<div class="col-md-3 bg-white height-auto">
 		<div class="pr-lg pl-lg pt-md pb-md">
-			<?php
-                echo $view['form']->row($form['category']);
-                echo $view['form']->row($form['isPublished']);
+            <?php  echo $view['form']->row($form['category']);
+                   echo $view['form']->row($form['isPublished']); ?>
+            <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                <?php
                 echo $view['form']->row($form['publishUp']);
                 echo $view['form']->row($form['publishDown']);
-            ?>
+                ?>
+            </div>
 		</div>
 	</div>
 </div>

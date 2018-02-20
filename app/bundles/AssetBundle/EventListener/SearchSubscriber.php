@@ -66,7 +66,7 @@ class SearchSubscriber extends CommonSubscriber
         if ($permissions['asset:assets:viewown'] || $permissions['asset:assets:viewother']) {
             if (!$permissions['asset:assets:viewother']) {
                 $filter['force'][] = [
-                    'column' => 'IDENTITY(a.createdBy)',
+                    'column' => 'a.createdBy', //'IDENTITY(a.createdBy)',
                     'expr'   => 'eq',
                     'value'  => $this->factory->getUser()->getId(),
                 ];

@@ -214,6 +214,24 @@ Mautic.selectEmailType = function(emailType) {
     mQuery('.email-type-modal-backdrop').remove();
 };
 
+Mautic.selectEmailEditor = function(editorType) {
+    var basic= mQuery('#email-editor-basic');
+    var advance= mQuery('#email-editor-advance');
+    var builderbtn= mQuery('.btn-beeditor');
+    if (editorType == 'basic') {
+        advance.addClass('hide');
+        builderbtn.addClass('hide');
+        var textarea = mQuery('textarea.bee-editor-json');
+        textarea.val("");
+        basic.trigger('click');
+    } else {
+        basic.addClass('hide');
+        advance.trigger('click');
+    }
+    mQuery('.email-type-modal').remove();
+    mQuery('.email-type-modal-backdrop').remove();
+};
+
 Mautic.getTotalAttachmentSize = function() {
     var assets = mQuery('#emailform_assetAttachments').val();
     if (assets) {

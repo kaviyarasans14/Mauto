@@ -37,7 +37,7 @@ class LeadImportFieldType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $specialFields = [
+        $propertieFields = [
             'dateAdded'      => 'mautic.lead.import.label.dateAdded',
             'createdByUser'  => 'mautic.lead.import.label.createdByUser',
             'dateModified'   => 'mautic.lead.import.label.dateModified',
@@ -47,9 +47,14 @@ class LeadImportFieldType extends AbstractType
             'ip'             => 'mautic.lead.import.label.ip',
             'points'         => 'mautic.lead.import.label.points',
             'stage'          => 'mautic.lead.import.label.stage',
-            'doNotEmail'     => 'mautic.lead.import.label.doNotEmail',
             'ownerusername'  => 'mautic.lead.import.label.ownerusername',
         ];
+
+        if ($this->factory->getUser()->isAdmin()) {
+            $specialFields =array_merge($propertieFields, ['doNotEmail'=> 'mautic.lead.import.label.doNotEmail']);
+        } else {
+            $specialFields =['doNotEmail'=> 'mautic.lead.import.label.doNotEmail'];
+        }
 
         $importChoiceFields = [
             'mautic.lead.contact'        => $options['lead_fields'],

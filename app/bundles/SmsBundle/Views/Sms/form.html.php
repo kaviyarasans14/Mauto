@@ -12,7 +12,7 @@
 $view->extend('MauticCoreBundle:FormTheme:form_simple.html.php');
 $view->addGlobal('translationBase', 'mautic.sms');
 $view->addGlobal('mauticContent', 'sms');
-
+$isAdmin    =$view['security']->isAdmin();
 ?>
 
 <?php $view['slots']->start('primaryFormContent'); ?>
@@ -27,11 +27,14 @@ $view->addGlobal('mauticContent', 'sms');
         <?php echo $view['form']->row($form['message']); ?>
     </div>
 </div>
+
 <?php $view['slots']->stop(); ?>
 
 <?php $view['slots']->start('rightFormContent'); ?>
 <?php echo $view['form']->row($form['category']); ?>
+<div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
 <?php echo $view['form']->row($form['language']); ?>
+</div>
 <div class="hide">
     <?php echo $view['form']->row($form['isPublished']); ?>
     <?php echo $view['form']->row($form['publishUp']); ?>
