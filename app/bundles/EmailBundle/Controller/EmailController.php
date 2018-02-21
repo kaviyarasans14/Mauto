@@ -226,18 +226,19 @@ class EmailController extends FormController
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'searchValue' => $search,
-                    'filters'     => $listFilters,
-                    'items'       => $emails,
-                    'totalItems'  => $count,
-                    'page'        => $page,
-                    'limit'       => $limit,
-                    'tmpl'        => $this->request->get('tmpl', 'index'),
-                    'permissions' => $permissions,
-                    'model'       => $model,
-                    'actionRoute' => 'mautic_email_action',
-                    'indexRoute'  => 'mautic_email_index',
-                    'headerTitle' => 'mautic.email.emails',
+                    'searchValue'     => $search,
+                    'filters'         => $listFilters,
+                    'items'           => $emails,
+                    'totalItems'      => $count,
+                    'page'            => $page,
+                    'limit'           => $limit,
+                    'tmpl'            => $this->request->get('tmpl', 'index'),
+                    'permissions'     => $permissions,
+                    'model'           => $model,
+                    'actionRoute'     => 'mautic_email_action',
+                    'indexRoute'      => 'mautic_email_index',
+                    'headerTitle'     => 'mautic.email.emails',
+                    'translationBase' => 'mautic.email',
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:list.html.php',
                 'passthroughVars' => [
@@ -1688,7 +1689,7 @@ class EmailController extends FormController
         return $this->generateContactsGrid(
             $objectId,
             $page,
-            ['email:emails:viewown', 'email:emails:viewother'],
+            ['email:emails:viewown'], // 'email:emails:viewother' --Removed by Bevek
             'email',
             'email_stats',
             'email',

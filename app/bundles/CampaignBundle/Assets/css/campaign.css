@@ -16,8 +16,8 @@
 
 .campaign-builder #builder-errors {
     position: fixed;
-    top: 52px;
-    right: 30px;
+    top: 5px;
+    right: 206px;
     z-index: 1040;
 }
 

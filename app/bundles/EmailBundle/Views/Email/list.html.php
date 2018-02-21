@@ -114,7 +114,7 @@ $isAdmin=$view['security']->isAdmin();
                                 ],
                                 'actionRoute'       => $actionRoute,
                                 'customButtons'     => $customButtons,
-                                'translationBase'   => 'mautic.email',
+                                'translationBase'   => $translationBase,
                             ]
                         );
                         ?>

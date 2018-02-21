@@ -243,6 +243,33 @@ trait CustomFieldEntityTrait
     }
 
     /**
+     * Get profile values.
+     *
+     * @return array
+     */
+    public function getExportProfileFields()
+    {
+        if (isset($this->fields['core'])) {
+            $fieldValues = [
+                'ID' => $this->id,
+            ];
+            if (isset($this->fields['core'])) {
+                foreach ($this->fields as $group => $fields) {
+                    foreach ($fields as $alias => $field) {
+                        $fieldValues[$field['label']] = $field['value'];
+                    }
+                }
+            }
+
+            return array_merge($fieldValues, $this->updatedFields);
+        } else {
+            // The fields are already flattened
+
+            return $this->fields;
+        }
+    }
+
+    /**
      * @param ClassMetadataBuilder $builder
      * @param array                $fields
      * @param array                $customFieldDefinitions
