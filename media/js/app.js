@@ -49,7 +49,7 @@ Mautic.onPageUnload(response.target,response);if(response.newContent){if(respons
 if(response.flashes){Mautic.setFlashes(response.flashes);}
 if(response.notifications){Mautic.setNotifications(response.notifications);}
 if(response.browserNotifications){Mautic.setBrowserNotifications(response.browserNotifications);}
-if(response.route){MauticVars.manualStateChange=false;History.pushState(null,"Mautic",response.route);Mautic.generatePageTitle(response.route);}
+if(response.route){MauticVars.manualStateChange=false;History.pushState(null,"LeadsEngage",response.route);Mautic.generatePageTitle(response.route);}
 if(response.target=='#app-content'){if(response.mauticContent){mauticContent=response.mauticContent;}
 if(response.activeLink){var link=response.activeLink;if(link!==undefined&&link.charAt(0)!='#'){link="#"+link;}
 var parent=mQuery(link).parent();mQuery(".nav-sidebar").find(".active").removeClass("active");parent.addClass("active");var openParent=parent.closest('li.open');mQuery(".nav-sidebar").find(".open").each(function(){if(!openParent.hasClass('open')||(openParent.hasClass('open')&&openParent[0]!==mQuery(this)[0])){mQuery(this).removeClass('open');}});}
