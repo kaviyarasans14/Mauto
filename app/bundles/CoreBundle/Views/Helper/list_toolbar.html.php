@@ -26,6 +26,7 @@ include 'action_button_helper.php';
                     'searchHelp'  => (isset($searchHelp)) ? $searchHelp : '',
                     'target'      => (empty($target)) ? null : $target,
                     'tmpl'        => (empty($tmpl)) ? null : $tmpl,
+                    'merge_search'=> '',
                 ]); ?>
             <?php endif; ?>
 
