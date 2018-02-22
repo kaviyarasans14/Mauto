@@ -493,7 +493,7 @@ class EmailCampaignController extends FormController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function newAction($entity = null)
+    public function newAction($entity = null, $isClone=false)
     {
         $model = $this->getModel('email');
 
@@ -657,6 +657,7 @@ class EmailCampaignController extends FormController
                     'sectionForm'        => $sectionForm->createView(),
                     'updateSelect'       => $updateSelect,
                     'permissions'        => $permissions,
+                    'isClone'            => $isClone,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [
@@ -942,7 +943,7 @@ class EmailCampaignController extends FormController
             $session->set($contentName, $entity->getCustomHtml());
         }
 
-        return $this->newAction($entity);
+        return $this->newAction($entity, true);
     }
 
     /**
@@ -1129,7 +1130,7 @@ class EmailCampaignController extends FormController
             $clone->setVariantParent($entity);
         }
 
-        return $this->newAction($clone);
+        return $this->newAction($clone, false);
     }
 
     /**

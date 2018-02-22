@@ -4581,8 +4581,9 @@ a.label:focus {
   vertical-align: baseline;
   white-space: nowrap;
   text-align: center;
-  background-color: #a0acb8;
-  border-radius: 9px;
+  background-color: #304c82;
+  /*background-color: #a0acb8;*/
+  /*border-radius: 9px;*/
 }
 .badge:empty {
   display: none;
@@ -16236,6 +16237,7 @@ iframe.fr-iframe {
   overflow: auto;
   position: relative;
   max-height: 275px;
+    width: 250px;
 }
 .fr-command.fr-btn + .fr-dropdown-menu .fr-dropdown-wrapper .fr-dropdown-content ul.fr-dropdown-list {
   list-style-type: none;

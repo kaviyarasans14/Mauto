@@ -130,6 +130,9 @@ class PathsHelper
                 }
 
             case 'images':
+                if (!is_dir($this->imagePath) && !file_exists($this->imagePath)) {
+                    mkdir($this->imagePath, 0755);
+                }
                 $path = $this->imagePath;
                 break;
 

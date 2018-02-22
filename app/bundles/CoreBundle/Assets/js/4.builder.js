@@ -387,9 +387,14 @@ Mautic.initSelectBeeTemplate = function(themeField) {
     if (isNew) {
         if(mQuery('.sidebar-content').is(':visible')) {
             Mautic.showChangeThemeWarning = false;
-            // Populate default content
-            if (!templateJSON.length || !templateJSON.val().length) {
-                Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+            if(mQuery('#email-editor-advance').is(':visible')) {
+                // Populate default content
+                if (!templateJSON.length || !templateJSON.val().length) {
+                    Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+                }
+            }else{
+                var builderbtn= mQuery('.btn-beeditor');
+                builderbtn.addClass('hide');
             }
         }else{
             Mautic.selectEmailEditor("basic");

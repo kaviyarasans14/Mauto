@@ -122,8 +122,16 @@
 
 
       Mautic.launchBeeEditor = function (formName, actionName) {
+          var height=620;
+          if(mQuery('.sidebar-content').is(':visible')) {
+              height=mQuery('.sidebar-left').height();
+              if(height <= 0){
+                  height=620;
+              }
+          }
 
           mQuery('body').css('overflow-y', 'hidden');
+          mQuery('#bee-plugin-viewpanel').css('height', height+"px");
           Mautic.getTokens('email:getBuilderTokens', function(tokens) {
               mQuery.each(tokens, function(k,v){
                   if (k.match(/assetlink=/i) && v.match(/a:/)){
@@ -207,6 +215,7 @@
 
       Mautic.closeBeeEditor = function (callback) {
           mQuery('body').css('overflow-y', '');
+          mQuery('#bee-plugin-viewpanel').css('height', '');
           var viewpanel = mQuery('#bee-plugin-viewpanel');
           var container = mQuery('#bee-plugin-container');
           viewpanel.removeClass('builder-active');

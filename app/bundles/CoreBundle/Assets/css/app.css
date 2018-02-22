@@ -4773,11 +4773,5 @@ figcaption {
   right: 0;
   left: 0;
   width: 100%;
-  height: 620px;
   z-index: 1030;
-}
-#email-basic-container{
-  height: 410px;
-  overflow-y: scroll;
-  overflow-x: scroll;
 }
