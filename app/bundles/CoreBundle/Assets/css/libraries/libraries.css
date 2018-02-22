@@ -2670,7 +2670,7 @@ select[multiple].input-lg {
     vertical-align: middle;
   }
   .form-inline .input-group .input-group-addon,
-  .form-inline .input-group .input-group-btn,
+  .form-inline .input-group ,
   .form-inline .input-group .form-control {
     width: auto;
   }
@@ -18801,5 +18801,5 @@ html body .fr-gatedvideo-overlay {
   display: none;
 }
 #list-search,#sms-search,#form-search{
-  width: 526px;
+  width: 100%;
 }
