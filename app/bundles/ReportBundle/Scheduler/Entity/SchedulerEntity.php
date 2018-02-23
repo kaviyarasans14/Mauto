@@ -36,12 +36,34 @@ class SchedulerEntity implements SchedulerInterface
      */
     private $scheduleMonthFrequency;
 
-    public function __construct($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency)
+    /**
+     * @var null|string
+     */
+    private $scheduleDate;
+
+    public function __construct($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency, $scheduleDate)
     {
         $this->isScheduled            = $isScheduled;
         $this->scheduleUnit           = $scheduleUnit;
         $this->scheduleDay            = $scheduleDay;
         $this->scheduleMonthFrequency = $scheduleMonthFrequency;
+        $this->scheduleDate           = $scheduleDate;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getScheduleDate()
+    {
+        return $this->scheduleDate;
+    }
+
+    /**
+     * @param null|string $scheduleDate
+     */
+    public function setScheduleDate($scheduleDate)
+    {
+        $this->scheduleDate = $scheduleDate;
     }
 
     /**
