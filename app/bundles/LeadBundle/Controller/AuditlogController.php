@@ -127,9 +127,9 @@ class AuditlogController extends CommonController
             }
 
             return [
-                'eventName'      => $eventLabel,
-                'eventType'      => isset($event['eventType']) ? $exportType : '',
-                'eventTimestamp' => $this->get('mautic.helper.template.date')->toText($event['timestamp'], 'local', 'Y-m-d H:i:s', true),
+                'User/SourceName'      => $eventLabel,
+                'EventType'            => isset($event['eventType']) ? $exportType : '',
+                'EventTimestamp'       => $this->get('mautic.helper.template.date')->toText($event['timestamp'], 'local', 'Y-m-d H:i:s', true),
             ];
         };
 

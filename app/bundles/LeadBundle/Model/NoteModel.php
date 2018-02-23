@@ -160,4 +160,9 @@ class NoteModel extends FormModel
 
         return $this->getRepository()->getNoteCount($lead->getId(), $filter, $noteType);
     }
+
+    public function getCurrentUser()
+    {
+        return $this->userHelper->getUser();
+    }
 }
