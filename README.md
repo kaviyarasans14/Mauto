@@ -81,6 +81,9 @@ Each time you update Mautic's source after the initial setup/installation via a 
     $ php app/console mautic:campaigns:rebuild --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
     $ php app/console mautic:campaigns:trigger --domain=<your_domain_name> --batch-limit=<batch_limit> (default=100)
     $ php app/console mautic:emails:send --domain=<your_domain_name> --message-limit=<message_limit>
+    $ php app/console mautic:import --domain=<your_domain_name> --limit=<Maximum no of record to import for this execution>
+    $ php app/console mautic:segments:update --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
+    $ php app/console mautic:segments:rebuild --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
 
 (Note that if you are accessing Mautic through the dev environment (via index_dev.php), you would need to add the <code>--env=dev</code> from the command).
 
