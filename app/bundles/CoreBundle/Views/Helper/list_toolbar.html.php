@@ -29,14 +29,12 @@ include 'action_button_helper.php';
                     'merge_search'=> '',
                 ]); ?>
             <?php endif; ?>
-            <?php if (!empty($indexRoute) && $indexRoute != 'mautic_email_index'): ?>
             <?php if (!empty($filters)): ?>
             <?php echo $view->render('MauticCoreBundle:Helper:list_filters.html.php', [
                     'filters' => $filters,
                     'target'  => (empty($target)) ? null : $target,
                     'tmpl'    => (empty($tmpl)) ? null : $tmpl,
                 ]); ?>
-            <?php endif; ?>
             <?php endif; ?>
         </div>
 
