@@ -910,7 +910,7 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
             'mautic.lead.lead.searchcommand.isunowned',
             'mautic.lead.lead.searchcommand.list',
             'mautic.core.searchcommand.name',
-            //'mautic.lead.lead.searchcommand.company',
+            'mautic.lead.lead.searchcommand.company',
             'mautic.core.searchcommand.email',
             'mautic.lead.lead.searchcommand.owner',
             'mautic.core.searchcommand.ip',

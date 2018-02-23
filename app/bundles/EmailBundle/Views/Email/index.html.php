@@ -35,6 +35,7 @@ $view['slots']->set(
             'searchHelp'  => 'mautic.email.help.searchcommands',
             'action'      => $currentRoute,
             'filters'     => $filters,
+            'indexRoute'  => $indexRoute,
         ]
     ); ?>
 
