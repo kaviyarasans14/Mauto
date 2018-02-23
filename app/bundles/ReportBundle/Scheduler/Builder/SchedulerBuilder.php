@@ -11,6 +11,7 @@
 
 namespace Mautic\ReportBundle\Scheduler\Builder;
 
+use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\ReportBundle\Scheduler\Exception\InvalidSchedulerException;
 use Mautic\ReportBundle\Scheduler\Exception\NotSupportedScheduleTypeException;
 use Mautic\ReportBundle\Scheduler\Factory\SchedulerTemplateFactory;
@@ -24,8 +25,18 @@ class SchedulerBuilder
     /** @var SchedulerTemplateFactory */
     private $schedulerTemplateFactory;
 
-    public function __construct(SchedulerTemplateFactory $schedulerTemplateFactory)
+    /**
+     * SchedulerBuilder constructor.
+     *
+     * @param SchedulerTemplateFactory $schedulerTemplateFactory
+     */
+
+    /** @var UserHelper */
+    private $userHelper;
+
+    public function __construct(UserHelper $userHelper, SchedulerTemplateFactory $schedulerTemplateFactory)
     {
+        $this->userHelper               =$userHelper;
         $this->schedulerTemplateFactory = $schedulerTemplateFactory;
     }
 
@@ -56,14 +67,49 @@ class SchedulerBuilder
         if (!$scheduler->isScheduled()) {
             throw new InvalidSchedulerException();
         }
+        date_default_timezone_set('UTC');
+        $schedulerTime    = $scheduler->getScheduleDate();
+        list($hour, $min) = explode(':', $schedulerTime);
+        $startDate        = (new \DateTime())->setTime($hour, $min)->modify('+1 day');
+        $rule             = new Rule();
 
-        $startDate = (new \DateTime())->setTime(0, 0)->modify('+1 day');
-        $rule      = new Rule();
         $rule->setStartDate($startDate)
             ->setCount($count);
-
         $builder = $this->schedulerTemplateFactory->getBuilder($scheduler);
 
+        try {
+            $finalScheduler = $builder->build($rule, $scheduler);
+            $transformer    = new ArrayTransformer();
+
+            return $transformer->transform($finalScheduler);
+        } catch (InvalidWeekday $e) {
+            throw new InvalidSchedulerException();
+        }
+    }
+
+    /**
+     * @param SchedulerInterface $scheduler
+     * @param int                $count
+     *
+     * @return \Recurr\Recurrence[]|\Recurr\RecurrenceCollection
+     *
+     * @throws InvalidSchedulerException
+     * @throws NotSupportedScheduleTypeException
+     */
+    public function getPreviewEvents(SchedulerInterface $scheduler, $count)
+    {
+        if (!$scheduler->isScheduled()) {
+            throw new InvalidSchedulerException();
+        }
+        $userTime     = $scheduler->getScheduleDate();
+        $userTimeZone =$this->userHelper->getUser()->getTimezone();
+        date_default_timezone_set($userTimeZone);
+        list($hour, $min, $sec) = explode(':', $userTime);
+        $startDate              = (new \DateTime())->setTime($hour, $min)->modify('+1 day');
+        $rule                   = new Rule();
+        $rule->setStartDate($startDate)
+            ->setCount($count);
+        $builder = $this->schedulerTemplateFactory->getBuilder($scheduler);
         try {
             $finalScheduler = $builder->build($rule, $scheduler);
             $transformer    = new ArrayTransformer();
