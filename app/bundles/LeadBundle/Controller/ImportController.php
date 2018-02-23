@@ -316,8 +316,10 @@ class ImportController extends FormController
                                             $importFields = [];
 
                                             foreach ($headers as $header) {
-                                                $fieldName                = strtolower(InputHelper::alphanum($header, false, '_'));
-                                                $importFields[$fieldName] = $header;
+                                                if (!empty($header)) {
+                                                    $fieldName                = strtolower(InputHelper::alphanum($header, false, '_'));
+                                                    $importFields[$fieldName] = $header;
+                                                }
                                             }
 
                                             $session->set('mautic.'.$object.'.import.step', self::STEP_MATCH_FIELDS);

@@ -226,18 +226,19 @@ class EmailController extends FormController
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'searchValue' => $search,
-                    'filters'     => $listFilters,
-                    'items'       => $emails,
-                    'totalItems'  => $count,
-                    'page'        => $page,
-                    'limit'       => $limit,
-                    'tmpl'        => $this->request->get('tmpl', 'index'),
-                    'permissions' => $permissions,
-                    'model'       => $model,
-                    'actionRoute' => 'mautic_email_action',
-                    'indexRoute'  => 'mautic_email_index',
-                    'headerTitle' => 'mautic.email.emails',
+                    'searchValue'     => $search,
+                    'filters'         => $listFilters,
+                    'items'           => $emails,
+                    'totalItems'      => $count,
+                    'page'            => $page,
+                    'limit'           => $limit,
+                    'tmpl'            => $this->request->get('tmpl', 'index'),
+                    'permissions'     => $permissions,
+                    'model'           => $model,
+                    'actionRoute'     => 'mautic_email_action',
+                    'indexRoute'      => 'mautic_email_index',
+                    'headerTitle'     => 'mautic.email.emails',
+                    'translationBase' => 'mautic.email',
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:list.html.php',
                 'passthroughVars' => [
@@ -493,7 +494,7 @@ class EmailController extends FormController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function newAction($entity = null)
+    public function newAction($entity = null, $isClone=false)
     {
         $model = $this->getModel('email');
 
@@ -656,6 +657,7 @@ class EmailController extends FormController
                     'sectionForm'        => $sectionForm->createView(),
                     'updateSelect'       => $updateSelect,
                     'permissions'        => $permissions,
+                    'isClone'            => $isClone,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [
@@ -938,7 +940,7 @@ class EmailController extends FormController
             $session->set($contentName, $entity->getCustomHtml());
         }
 
-        return $this->newAction($entity);
+        return $this->newAction($entity, true);
     }
 
     /**
@@ -1125,7 +1127,7 @@ class EmailController extends FormController
             $clone->setVariantParent($entity);
         }
 
-        return $this->newAction($clone);
+        return $this->newAction($clone, true);
     }
 
     /**
@@ -1688,7 +1690,7 @@ class EmailController extends FormController
         return $this->generateContactsGrid(
             $objectId,
             $page,
-            ['email:emails:viewown', 'email:emails:viewother'],
+            ['email:emails:viewown'], // 'email:emails:viewother' --Removed by Bevek
             'email',
             'email_stats',
             'email',

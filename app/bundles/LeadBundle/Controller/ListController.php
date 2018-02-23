@@ -79,7 +79,8 @@ class ListController extends FormController
             $translator      = $this->get('translator');
             $mine            = $translator->trans('mautic.core.searchcommand.ismine');
             $global          = $translator->trans('mautic.lead.list.searchcommand.isglobal');
-            $filter['force'] = " ($mine or $global)";
+            //$filter['force'] = " ($mine or $global)";
+            $filter['force'] = " $mine or $global";
         }
 
         $items = $model->getEntities(
@@ -596,7 +597,7 @@ class ListController extends FormController
                     ],
                 ],
             ]);
-        } elseif (!$this->get('mautic.security')->hasEntityAccess(
+        } elseif (!$list->isGlobal() && !$this->get('mautic.security')->hasEntityAccess(
             'lead:lists:viewother',
             'lead:lists:editother',
             'lead:lists:deleteother',
@@ -691,7 +692,7 @@ class ListController extends FormController
         return $this->generateContactsGrid(
             $objectId,
             $page,
-            'lead:lists:viewother',
+            '',          //lead:lists:viewother --Removed by Bevek
             'segment',
             'lead_lists_leads',
             null,

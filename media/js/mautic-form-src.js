@@ -642,7 +642,7 @@
                     if (response && response.formName) {
                         Core.getValidator(response.formName).parseFormResponse(response);
                     }
-                    document.cookie = "IsTrackingEnabled=true;";
+                    document.cookie = "IsTrackingEnabled=true; path=/";
                 } catch (err) {
                     if (Core.debug()) console.log(err);
                 }

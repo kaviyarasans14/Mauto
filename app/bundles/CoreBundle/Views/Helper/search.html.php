@@ -14,10 +14,11 @@ $overlayTarget  = (empty($overlayTarget)) ? $target : $overlayTarget;
 $overlayEnabled = (!empty($overlayDisabled)) ? 'false' : 'true';
 $id             = (empty($searchId)) ? 'list-search' : $searchId;
 $tmpl           = (empty($tmpl)) ? 'list' : $tmpl;
-$isAdmin        =$view['security']->isAdmin();
+$widthstyle     = (empty($merge_search)) ? 'width: 70%;' : 'width: 100;';
+$isAdmin        = $view['security']->isAdmin();
 ?>
 
-<div class="input-group" style="width: 530px;">
+<div class="input-group" style="<?php echo $widthstyle?>">
     <?php  if ($isAdmin): ?>
         <?php if (!empty($searchHelp)): ?>
             <div class="input-group-btn">

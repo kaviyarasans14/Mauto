@@ -2670,7 +2670,7 @@ select[multiple].input-lg {
     vertical-align: middle;
   }
   .form-inline .input-group .input-group-addon,
-  .form-inline .input-group .input-group-btn,
+  .form-inline .input-group ,
   .form-inline .input-group .form-control {
     width: auto;
   }
@@ -4581,8 +4581,9 @@ a.label:focus {
   vertical-align: baseline;
   white-space: nowrap;
   text-align: center;
-  background-color: #a0acb8;
-  border-radius: 9px;
+  background-color: #304c82;
+  /*background-color: #a0acb8;*/
+  /*border-radius: 9px;*/
 }
 .badge:empty {
   display: none;
@@ -16236,6 +16237,7 @@ iframe.fr-iframe {
   overflow: auto;
   position: relative;
   max-height: 275px;
+    width: 250px;
 }
 .fr-command.fr-btn + .fr-dropdown-menu .fr-dropdown-wrapper .fr-dropdown-content ul.fr-dropdown-list {
   list-style-type: none;
@@ -18801,5 +18803,5 @@ html body .fr-gatedvideo-overlay {
   display: none;
 }
 #list-search,#sms-search,#form-search{
-  width: 526px;
+  width: 100%;
 }
