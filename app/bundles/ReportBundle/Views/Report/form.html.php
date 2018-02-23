@@ -159,6 +159,9 @@ $showGraphTab = count($form['graphs']->vars['choices']);
                                         <div id='scheduleDay'>
                                             <?php echo $view['form']->row($form['scheduleDay']); ?>
                                         </div>
+                                         <div id='scheduleDate'>
+                                        <?php echo $view['form']->row($form['scheduleDate']); ?>
+                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6">
