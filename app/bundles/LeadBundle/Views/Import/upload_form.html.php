@@ -22,6 +22,11 @@ $view['slots']->set(
         ]
     )
 );
+$isAdmin=$view['security']->isAdmin();
+$style  = [];
+if (!$isAdmin) {
+    $style =  ['attr' => ['tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']];
+}
 
 ?>
 <div class="row">
@@ -43,25 +48,25 @@ $view['slots']->set(
                     <div class="row">
                         <div class="col-xs-3">
                             <?php echo $view['form']->label($form['batchlimit']); ?>
-                            <?php echo $view['form']->widget($form['batchlimit']); ?>
+                            <?php echo $view['form']->widget($form['batchlimit'], $style); ?>
                             <?php echo $view['form']->errors($form['batchlimit']); ?>
                         </div>
 
                         <div class="col-xs-3">
                             <?php echo $view['form']->label($form['delimiter']); ?>
-                            <?php echo $view['form']->widget($form['delimiter']); ?>
+                            <?php echo $view['form']->widget($form['delimiter'], $style); ?>
                             <?php echo $view['form']->errors($form['delimiter']); ?>
                         </div>
 
                         <div class="col-xs-3">
                             <?php echo $view['form']->label($form['enclosure']); ?>
-                            <?php echo $view['form']->widget($form['enclosure']); ?>
+                            <?php echo $view['form']->widget($form['enclosure'], $style); ?>
                             <?php echo $view['form']->errors($form['enclosure']); ?>
                         </div>
 
                         <div class="col-xs-3">
                             <?php echo $view['form']->label($form['escape']); ?>
-                            <?php echo $view['form']->widget($form['escape']); ?>
+                            <?php echo $view['form']->widget($form['escape'], $style); ?>
                             <?php echo $view['form']->errors($form['escape']); ?>
                         </div>
                     </div>
