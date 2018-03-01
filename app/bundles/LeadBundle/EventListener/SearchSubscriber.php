@@ -160,6 +160,18 @@ class SearchSubscriber extends CommonSubscriber
             case $this->translator->trans('mautic.lead.lead.searchcommand.email_read', [], null, 'en_US'):
                     $this->buildEmailReadQuery($event);
                 break;
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_failure'):
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_failure', [], null, 'en_US'):
+                $this->buildEmailFailureQuery($event);
+                break;
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_unsubscribe'):
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_unsubscribe', [], null, 'en_US'):
+                $this->buildEmailUnsubscribeQuery($event);
+                break;
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_bounce'):
+            case $this->translator->trans('mautic.lead.lead.searchcommand.email_bounce', [], null, 'en_US'):
+                $this->buildEmailBounceQuery($event);
+                break;
             case $this->translator->trans('mautic.lead.lead.searchcommand.email_sent'):
             case $this->translator->trans('mautic.lead.lead.searchcommand.email_sent', [], null, 'en_US'):
                     $this->buildEmailSentQuery($event);
@@ -275,6 +287,9 @@ class SearchSubscriber extends CommonSubscriber
 
         $config = [
             'column' => 'es.email_id',
+            'params' => [
+                'es.is_failed' => 0,
+            ],
         ];
 
         $this->buildJoinQuery($event, $tables, $config);
@@ -301,6 +316,72 @@ class SearchSubscriber extends CommonSubscriber
             ],
         ];
 
+        $this->buildJoinQuery($event, $tables, $config);
+    }
+
+    /**
+     * @param LeadBuildSearchEvent $event
+     */
+    private function buildEmailFailureQuery(LeadBuildSearchEvent $event)
+    {
+        $tables = [
+            [
+                'from_alias' => 'l',
+                'table'      => 'email_stats',
+                'alias'      => 'es',
+                'condition'  => 'l.id = es.lead_id',
+            ],
+        ];
+        $config = [
+            'column' => 'es.email_id',
+            'params' => [
+                'es.is_failed' => 1,
+            ],
+        ];
+        $this->buildJoinQuery($event, $tables, $config);
+    }
+
+    /**
+     * @param LeadBuildSearchEvent $event
+     */
+    private function buildEmailUnsubscribeQuery(LeadBuildSearchEvent $event)
+    {
+        $tables = [
+            [
+                'from_alias' => 'l',
+                'table'      => 'email_stats',
+                'alias'      => 'es',
+                'condition'  => 'l.id = es.lead_id',
+            ],
+        ];
+        $config = [
+            'column' => 'es.email_id',
+            'params' => [
+                'es.is_unsubscribe' => 1,
+            ],
+        ];
+        $this->buildJoinQuery($event, $tables, $config);
+    }
+
+    /**
+     * @param LeadBuildSearchEvent $event
+     */
+    private function buildEmailBounceQuery(LeadBuildSearchEvent $event)
+    {
+        $tables = [
+            [
+                'from_alias' => 'l',
+                'table'      => 'email_stats',
+                'alias'      => 'es',
+                'condition'  => 'l.id = es.lead_id',
+            ],
+        ];
+        $config = [
+            'column' => 'es.email_id',
+            'params' => [
+                'es.is_bounce' => 1,
+            ],
+        ];
         $this->buildJoinQuery($event, $tables, $config);
     }
 

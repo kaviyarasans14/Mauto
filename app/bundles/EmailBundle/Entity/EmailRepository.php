@@ -549,6 +549,98 @@ class EmailRepository extends CommonRepository
     }
 
     /**
+     * Up the read/sent counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function upDownSentCount($id, $type = 'sent', $increaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count - '.(int) $increaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $increaseBy);
+        }
+
+        $q->execute();
+    }
+
+    /**
+     * Up the failure counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function upFailureCount($id, $type = 'failure', $increaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) $increaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $increaseBy);
+        }
+
+        $q->execute();
+    }
+
+    /**
+     * Up the Unsubscribe counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function upUnsubscribeCount($id, $type = 'unsubscribe', $increaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) $increaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $increaseBy);
+        }
+
+        $q->execute();
+    }
+
+    /**
+     * Up the Bounce counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function upBounceCount($id, $type = 'bounce', $increaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) $increaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $increaseBy);
+        }
+
+        $q->execute();
+    }
+
+    /**
      * @param null $id
      *
      * @return \Doctrine\ORM\Internal\Hydration\IterableResult

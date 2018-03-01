@@ -76,12 +76,27 @@ class SendEmailToContact
     /**
      * @var array
      */
-    private $badEmails = [];
+    public $badEmails = [];
 
     /**
      * @var array
      */
     private $emailSentCounts = [];
+
+    /**
+     * @var array
+     */
+    private $emailFailureCounts = [];
+
+    /**
+     * @var array
+     */
+    private $emailUnsubscribeCounts = [];
+
+    /**
+     * @var array
+     */
+    private $emailBounceCounts = [];
 
     /**
      * @var
@@ -106,7 +121,7 @@ class SendEmailToContact
     /**
      * @var array
      */
-    private $contact = [];
+    public $contact = [];
 
     /**
      * SendEmailToContact constructor.
@@ -167,7 +182,7 @@ class SendEmailToContact
             $this->statRepo->deleteEntities($this->deleteEntities);
         }
 
-        $this->processBadEmails();
+        //$this->processBadEmails();
     }
 
     /**
@@ -264,7 +279,7 @@ class SendEmailToContact
             $this->failContact(true, implode('; ', (array) $queueErrors));
         }
 
-        $this->createContactStatEntry($this->contact['email']);
+        $this->createContactStatEntry($this->contact['email'], $this->contact['id']);
     }
 
     /**
@@ -272,19 +287,22 @@ class SendEmailToContact
      */
     public function reset()
     {
-        $this->saveEntities      = [];
-        $this->deleteEntities    = [];
-        $this->statEntities      = [];
-        $this->badEmails         = [];
-        $this->errorMessages     = [];
-        $this->failedContacts    = [];
-        $this->emailEntityErrors = null;
-        $this->emailEntityId     = null;
-        $this->emailSentCounts   = [];
-        $this->singleEmailMode   = null;
-        $this->listId            = null;
-        $this->statBatchCounter  = 0;
-        $this->contact           = [];
+        $this->saveEntities           = [];
+        $this->deleteEntities         = [];
+        $this->statEntities           = [];
+        $this->badEmails              = [];
+        $this->errorMessages          = [];
+        $this->failedContacts         = [];
+        $this->emailEntityErrors      = null;
+        $this->emailEntityId          = null;
+        $this->emailSentCounts        = [];
+        $this->emailFailureCounts     = [];
+        $this->emailUnsubscribeCounts = [];
+        $this->emailBounceCounts      = [];
+        $this->singleEmailMode        = null;
+        $this->listId                 = null;
+        $this->statBatchCounter       = 0;
+        $this->contact                = [];
 
         $this->statRepo->clear();
         $this->dncModel->clearEntities();
@@ -298,6 +316,30 @@ class SendEmailToContact
     public function getSentCounts()
     {
         return $this->emailSentCounts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFailureCounts()
+    {
+        return $this->emailFailureCounts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUnsubscribeCounts()
+    {
+        return $this->emailUnsubscribeCounts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBounceCounts()
+    {
+        return $this->emailBounceCounts;
     }
 
     /**
@@ -335,7 +377,7 @@ class SendEmailToContact
         if ($hasBadEmail) {
             $this->badEmails[$this->contact['id']] = $this->contact['email'];
         }
-
+        $this->createContactStatEntry($this->contact['email'], $this->contact['id'], 1);
         throw new FailedToSendToContactException($errorMessages);
     }
 
@@ -393,21 +435,25 @@ class SendEmailToContact
 
     /**
      * @param $email
+     * @param $contactId
+     * @param $isfailed
      */
-    protected function createContactStatEntry($email)
+    protected function createContactStatEntry($email, $contactId, $isfailed = 0)
     {
         ++$this->statBatchCounter;
 
-        $stat = $this->mailer->createEmailStat(false, null, $this->listId);
+        $stat = $this->mailer->createEmailStat(false, null, $this->listId, $isfailed);
         // Store it in the saveEntities array so that every 20 are persisted to prevent mass duplciation resends if
         // something goes wrong
         $this->saveEntities[$email] = $stat;
         // Store it in the statEntities array so that the stat can be deleted if the transport fails the
         // send for whatever reason after flushing the queue
         $this->statEntities[$email] = $stat;
-
-        $this->upEmailSentCount($stat->getEmail()->getId());
-
+        if (!isset($this->badEmails[$contactId])) {
+            $this->upEmailSentCount($stat->getEmail()->getId());
+        } elseif (isset($this->badEmails[$contactId])) {
+            $this->upEmailFailureCount($stat->getEmail()->getId());
+        }
         if (20 === $this->statBatchCounter) {
             // Save in batches of 20 to prevent email loops if the there are issuses with persisting a large number of stats at once
             $this->statRepo->saveEntities($this->saveEntities);
@@ -427,6 +473,42 @@ class SendEmailToContact
         }
 
         ++$this->emailSentCounts[$emailId];
+    }
+
+    /**
+     * Up Failure counter for the given email ID.
+     */
+    public function upEmailFailureCount($emailId)
+    {
+        // Up failure counts
+        if (!isset($this->emailFailureCounts[$emailId])) {
+            $this->emailFailureCounts[$emailId] = 0;
+        }
+        ++$this->emailFailureCounts[$emailId];
+    }
+
+    /**
+     * Up Unsubscriber counter for the given email ID.
+     */
+    public function upEmailUnsubscriberCount($emailId)
+    {
+        // Up unsubscribe counts
+        if (!isset($this->emailUnsubscribeCounts[$emailId])) {
+            $this->emailUnsubscribeCounts[$emailId] = 0;
+        }
+        ++$this->emailUnsubscribeCounts[$emailId];
+    }
+
+    /**
+     * Up Bounce counter for the given email ID.
+     */
+    public function upEmailBounceCount($emailId)
+    {
+        // Up bounce counts
+        if (!isset($this->emailBounceCounts[$emailId])) {
+            $this->emailBounceCounts[$emailId] = 0;
+        }
+        ++$this->emailBounceCounts[$emailId];
     }
 
     /**

@@ -1794,12 +1794,15 @@ class MailHelper
      * @param bool|true   $persist
      * @param string|null $emailAddress
      * @param null        $listId
+     * @param int         $is_failed
+     *@param int         $is_unsubscribe
+     * @param int $is_bounce
      *
      * @return Stat|void
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function createEmailStat($persist = true, $emailAddress = null, $listId = null)
+    public function createEmailStat($persist = true, $emailAddress = null, $listId = null, $is_failed = 0, $is_unsubscribe=0, $is_bounce=0)
     {
         //create a stat
         $stat = new Stat();
@@ -1836,6 +1839,10 @@ class MailHelper
         }
 
         $stat->setTokens($this->getTokens());
+
+        $stat->setIsFailed($is_failed);
+        $stat->setIsUnsubscribe($is_unsubscribe);
+        $stat->setIsBounce($is_bounce);
 
         /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
         $emailModel = $this->factory->getModel('email');

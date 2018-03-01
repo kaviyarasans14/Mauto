@@ -14,6 +14,7 @@ namespace Mautic\EmailBundle\Entity;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\CoreBundle\Helper\Chart\ChartQuery;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
+use Mautic\LeadBundle\Entity\DoNotContact as DNC;
 use Mautic\LeadBundle\Entity\TimelineTrait;
 
 /**
@@ -545,5 +546,26 @@ class StatRepository extends CommonRepository
         $results = $query->execute()->fetch();
 
         return $results;
+    }
+
+    /**
+     * @param $emailId
+     * @param $dncReason
+     *
+     * @return mixed
+     */
+    public function updateBouneorUnsubscribecount($emailId, $dncReason)
+    {
+        $query = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $type  = '';
+        if (DNC::BOUNCED === $dncReason) {
+            $type = 'bounce';
+        } elseif (DNC::UNSUBSCRIBED === $dncReason) {
+            $type = 'unsubscriber';
+        }
+        $query->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) 1)
+            ->where('id = '.(int) $emailId);
+        $query->execute();
     }
 }

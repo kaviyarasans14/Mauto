@@ -183,7 +183,7 @@ $isAdmin=$view['security']->isAdmin();
                                 ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_queued').':'.$item->getId()]
                             ); ?>"></a>
                         </span>
-                        <span class="mt-xs label label-warning has-click-event clickable-stat"
+                        <span class="mt-xs label label-primary has-click-event clickable-stat"
                               id="sent-count-<?php echo $item->getId(); ?>">
                             <a href="<?php echo $view['router']->path(
                                 'mautic_contact_index',
@@ -201,19 +201,57 @@ $isAdmin=$view['security']->isAdmin();
                                 'mautic_contact_index',
                                 ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_read').':'.$item->getId()]
                             ); ?>" data-toggle="tooltip"
-                               title="<?php echo $view['translator']->trans('mautic.email.stat.tooltip'); ?>">
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.read.tooltip'); ?>">
                                 <div style="width: 50px;">
                                     <i class="fa fa-spin fa-spinner"></i>
                                 </div>
                             </a>
                         </span>
-                        <span class="mt-xs label label-primary has-click-event clickable-stat"
+                        <span class="mt-xs label label-info has-click-event clickable-stat"
                               id="read-percent-<?php echo $item->getId(); ?>">
                             <a href="<?php echo $view['router']->path(
                                 'mautic_contact_index',
                                 ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_read').':'.$item->getId()]
                             ); ?>" data-toggle="tooltip"
-                               title="<?php echo $view['translator']->trans('mautic.email.stat.tooltip'); ?>">
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.read.percentage.tooltip'); ?>">
+                                <div style="width: 50px;">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </div>
+                            </a>
+                        </span>
+                        <span class="mt-xs label label-warning has-click-event clickable-stat"
+                              id="failure-count-<?php echo $item->getId(); ?>">
+                            <a href="<?php echo $view['router']->path(
+                                'mautic_contact_index',
+                                ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_failure').':'.$item->getId()]
+                            ); ?>" data-toggle="tooltip"
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.failure.tooltip'); ?>">
+                                <div style="width: 50px;">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </div>
+                            </a>
+                        </span>
+
+                        <span class="mt-xs label label-default has-click-event clickable-stat"
+                              id="unsubscribe-count-<?php echo $item->getId(); ?>">
+                            <a href="<?php echo $view['router']->path(
+                                'mautic_contact_index',
+                                ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_unsubscribe').':'.$item->getId()]
+                            ); ?>" data-toggle="tooltip"
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.unsubscribe.tooltip'); ?>">
+                                <div style="width: 50px;">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </div>
+                            </a>
+                        </span>
+
+                        <span class="mt-xs label label-danger has-click-event clickable-stat"
+                              id="bounce-count-<?php echo $item->getId(); ?>">
+                            <a href="<?php echo $view['router']->path(
+                                'mautic_contact_index',
+                                ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_bounce').':'.$item->getId()]
+                            ); ?>" data-toggle="tooltip"
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.bounce.tooltip'); ?>">
                                 <div style="width: 50px;">
                                     <i class="fa fa-spin fa-spinner"></i>
                                 </div>
