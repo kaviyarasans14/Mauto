@@ -174,9 +174,13 @@ abstract class AbstractCommonModel
      */
     public function getCommandList()
     {
-        $repo = $this->getRepository();
+        if ($this->security->isAdmin()) {
+            $repo = $this->getRepository();
 
-        return ($repo instanceof CommonRepository) ? $repo->getSearchCommands() : [];
+            return ($repo instanceof CommonRepository) ? $repo->getSearchCommands() : [];
+        } else {
+            return [];
+        }
     }
 
     /**

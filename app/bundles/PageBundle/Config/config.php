@@ -113,6 +113,7 @@ return [
                 'class'     => 'Mautic\PageBundle\EventListener\PointSubscriber',
                 'arguments' => [
                     'mautic.point.model.point',
+                    'mautic.security',
                 ],
             ],
             'mautic.page.reportbundle.subscriber' => [

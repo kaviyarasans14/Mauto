@@ -16,7 +16,9 @@ use Mautic\CoreBundle\Helper\EmojiHelper;
 use Mautic\CoreBundle\Model\IteratorExportDataModel;
 use Mautic\LeadBundle\Entity\DoNotContact;
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Entity\LeadNoteRepository;
 use Mautic\LeadBundle\Model\LeadModel;
+use Mautic\LeadBundle\Model\NoteModel;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -425,6 +427,12 @@ class LeadController extends FormController
                 }
             }
         }
+
+        /** @var NoteModel $noteModel */
+        $noteModel = $this->getModel('lead.note');
+        /** @var LeadNoteRepository $repo */
+        $repo  = $noteModel->getRepository();
+        $repo->setCurrentUser($noteModel->getCurrentUser());
 
         // We need the EmailRepository to check if a lead is flagged as do not contact
         /** @var \Mautic\EmailBundle\Entity\EmailRepository $emailRepo */
@@ -967,7 +975,8 @@ class LeadController extends FormController
                         'viewParameters'  => $viewParameters,
                         'contentTemplate' => 'MauticLeadBundle:Lead:view',
                         'passthroughVars' => [
-                            'closeModal' => 1,
+                            'closeModal'    => 1,
+                            'mauticContent' => 'lead',
                         ],
                     ]
                 );

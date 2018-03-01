@@ -12,7 +12,11 @@ $view->extend('MauticCoreBundle:Default:content.html.php');
 
 $view['slots']->set('mauticContent', 'emailSend');
 $view['slots']->set('headerTitle', $view['translator']->trans('mautic.email.send.list', ['%name%' => $email->getName()]));
-
+$isAdmin=$view['security']->isAdmin();
+$style  = [];
+if (!$isAdmin) {
+    $style =  ['attr' => ['tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']];
+}
 ?>
 <div class="row">
     <div class="col-sm-offset-3 col-sm-6">
@@ -28,7 +32,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.email.send
                     <div class="col-xs-8 col-xs-offset-2">
                         <div class="well mt-lg">
                             <div class="input-group">
-                                <?php echo $view['form']->widget($form['batchlimit']); ?>
+                                <?php echo $view['form']->widget($form['batchlimit'], $style); ?>
                                 <span class="input-group-btn">
                                     <?php echo $view->render('MauticCoreBundle:Helper:confirm.html.php', [
                                         'message'         => $view['translator']->trans('mautic.email.form.confirmsend', ['%name%' => $email->getName()]),

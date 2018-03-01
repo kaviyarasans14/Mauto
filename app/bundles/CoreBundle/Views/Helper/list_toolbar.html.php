@@ -15,7 +15,7 @@ $wrap = true;
 $view['buttons']->reset($app->getRequest(), ButtonHelper::LOCATION_TOOLBAR_ACTIONS, ButtonHelper::TYPE_GROUP);
 include 'action_button_helper.php';
 ?>
-<div class="panel-body">
+<div class="panel-body" style="background-color: white;">
     <div class="box-layout">
         <div class="col-xs-6 col-lg-8 va-m form-inline">
             <?php if (isset($searchValue)): ?>
@@ -29,7 +29,6 @@ include 'action_button_helper.php';
                     'merge_search'=> '',
                 ]); ?>
             <?php endif; ?>
-
             <?php if (!empty($filters)): ?>
             <?php echo $view->render('MauticCoreBundle:Helper:list_filters.html.php', [
                     'filters' => $filters,
