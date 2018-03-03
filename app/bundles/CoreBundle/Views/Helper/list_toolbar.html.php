@@ -29,6 +29,7 @@ include 'action_button_helper.php';
                     'merge_search'=> '',
                 ]); ?>
             <?php endif; ?>
+
             <?php if (!empty($filters)): ?>
             <?php echo $view->render('MauticCoreBundle:Helper:list_filters.html.php', [
                     'filters' => $filters,
