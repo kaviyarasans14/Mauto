@@ -112,6 +112,11 @@ class Report extends FormEntity implements SchedulerInterface
     /**
      * @var null|string
      */
+    private $scheduleDate;
+
+    /**
+     * @var null|string
+     */
     private $scheduleMonthFrequency;
 
     public function __clone()
@@ -177,6 +182,7 @@ class Report extends FormEntity implements SchedulerInterface
         $builder->addNullableField('toAddress', Type::STRING, 'to_address');
         $builder->addNullableField('scheduleDay', Type::STRING, 'schedule_day');
         $builder->addNullableField('scheduleMonthFrequency', Type::STRING, 'schedule_month_frequency');
+        $builder->addNullableField('scheduleDate', Type::STRING, 'schedule_time');
     }
 
     /**
@@ -224,6 +230,7 @@ class Report extends FormEntity implements SchedulerInterface
                     'toAddress',
                     'scheduleDay',
                     'scheduleMonthFrequency',
+                    'scheduleDate',
                 ]
             )
             ->build();
@@ -237,6 +244,22 @@ class Report extends FormEntity implements SchedulerInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getScheduleDate()
+    {
+        return $this->scheduleDate;
+    }
+
+    /**
+     * @param null|string $scheduleDate
+     */
+    public function setScheduleDate($scheduleDate)
+    {
+        $this->scheduleDate = $scheduleDate;
     }
 
     /**

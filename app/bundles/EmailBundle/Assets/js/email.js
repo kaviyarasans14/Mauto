@@ -51,6 +51,9 @@ Mautic.emailOnLoad = function (container, response) {
                         mQuery('#sent-count-' + id + ' > a').html(response.sentCount);
                         mQuery('#read-count-' + id + ' > a').html(response.readCount);
                         mQuery('#read-percent-' + id + ' > a').html(response.readPercent);
+                        mQuery('#failure-count-' + id + ' > a').html(response.failureCount);
+                        mQuery('#unsubscribe-count-' + id + ' > a').html(response.unsubscribeCount);
+                        mQuery('#bounce-count-' + id + ' > a').html(response.bounceCount);
                     }
                 },
                 false,

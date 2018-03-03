@@ -1305,7 +1305,20 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         // Get sent counts to update email stats
         $sentCounts = $this->sendModel->getSentCounts();
-
+        // Get failure counts to update email stats
+        $failureCounts = $this->sendModel->getFailureCounts();
+        foreach ($failureCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $this->getRepository()->upFailureCount($emailId, 'failure', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
         // Reset the model for the next send
         $this->sendModel->reset();
 
@@ -1509,8 +1522,20 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         if ($lead instanceof Lead) {
             $email   = $stat->getEmail();
             $channel = ($email) ? ['email' => $email->getId()] : 'email';
+            if ($reason == DoNotContact::IS_CONTACTABLE) {
+                $this->sendModel->upEmailFailureCount($email->getId());
+                $this->updateFailureCount($stat);
+            } else {
+                if ($reason == DoNotContact::UNSUBSCRIBED) {
+                    $this->sendModel->upEmailUnsubscriberCount($email->getId());
+                    $this->updateUnsubscribeCount($stat);
+                } elseif ($reason == DoNotContact::BOUNCED) {
+                    $this->sendModel->upEmailBounceCount($email->getId());
+                    $this->updateBounceCount($stat);
+                }
 
-            return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+            }
         }
 
         return false;
@@ -2136,5 +2161,75 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         unset($mailer);
 
         return $errors;
+    }
+
+    /**
+     *@Param Stat $stat
+     *
+     * @return array
+     */
+    public function updateFailureCount(Stat $stat)
+    {
+        $failureCounts = $this->sendModel->getFailureCounts();
+        foreach ($failureCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsFailed(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->getRepository()->upFailureCount($emailId, 'failure', $count);
+                    $this->getRepository()->upDownSentCount($emailId, 'sent', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    /**
+     *@Param Stat $stat
+     *
+     * @return array
+     */
+    public function updateUnsubscribeCount(Stat $stat)
+    {
+        $unsubscribeCounts = $this->sendModel->getUnsubscribeCounts();
+        // Get Unsubscribe counts to update email stats
+        foreach ($unsubscribeCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsUnsubscribe(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->getRepository()->upUnsubscribeCount($emailId, 'unsubscribe', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    public function updateBounceCount(Stat $stat)
+    {
+        // Get Bounce counts to update email stats
+        $bounceCounts = $this->sendModel->getBounceCounts();
+        foreach ($bounceCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsBounce(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->getRepository()->upBounceCount($emailId, 'bounce', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
     }
 }

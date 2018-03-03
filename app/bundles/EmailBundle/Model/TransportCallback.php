@@ -78,13 +78,18 @@ class TransportCallback
      */
     public function addFailureByAddress($address, $comments, $dncReason = DNC::BOUNCED, $channelId = null)
     {
-        $result = $this->finder->findByAddress($address);
-
+        $result     = $this->finder->findByAddress($address);
+        $resultstat = $this->finder->findByAddressandId($address);
         if ($contacts = $result->getContacts()) {
             foreach ($contacts as $contact) {
                 $channel = ($channelId) ? ['email' => $channelId] : 'email';
                 $this->dncModel->addDncForContact($contact->getId(), $channel, $dncReason, $comments);
             }
+        }
+        $stat = $resultstat->getStat();
+        $this->updateStatDetails($stat, $comments, $dncReason);
+        if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null) {
+            $this->statRepository->updateBouneorUnsubscribecount($stat->getEmail()->getId(), $dncReason);
         }
     }
 
@@ -107,7 +112,9 @@ class TransportCallback
     private function updateStatDetails(Stat $stat, $comments, $dncReason)
     {
         if (DNC::BOUNCED === $dncReason) {
-            $stat->setIsFailed(true);
+            $stat->setIsBounce(true);
+        } elseif (DNC::UNSUBSCRIBED === $dncReason) {
+            $stat->setIsUnsubscribe(true);
         }
 
         $openDetails = $stat->getOpenDetails();

@@ -13,6 +13,8 @@ namespace Mautic\ReportBundle\Scheduler;
 
 interface SchedulerInterface
 {
+    public function getScheduleDate();
+
     public function isScheduled();
 
     public function isScheduledDaily();

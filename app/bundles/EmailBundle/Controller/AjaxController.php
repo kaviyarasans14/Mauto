@@ -306,10 +306,13 @@ class AjaxController extends CommonAjaxController
                         'mautic.email.stat.leadcount',
                         ['%count%' => $pending]
                     ) : 0,
-                    'queued'      => ($queued) ? $this->translator->trans('mautic.email.stat.queued', ['%count%' => $queued]) : 0,
-                    'sentCount'   => $this->translator->trans('mautic.email.stat.sentcount', ['%count%' => $email->getSentCount(true)]),
-                    'readCount'   => $this->translator->trans('mautic.email.stat.readcount', ['%count%' => $email->getReadCount(true)]),
-                    'readPercent' => $this->translator->trans('mautic.email.stat.readpercent', ['%count%' => $email->getReadPercentage(true)]),
+                    'queued'           => ($queued) ? $this->translator->trans('mautic.email.stat.queued', ['%count%' => $queued]) : 0,
+                    'sentCount'        => $this->translator->trans('mautic.email.stat.sentcount', ['%count%' => $email->getSentCount(true)]),
+                    'readCount'        => $this->translator->trans('mautic.email.stat.readcount', ['%count%' => $email->getReadCount(true)]),
+                    'readPercent'      => $this->translator->trans('mautic.email.stat.readpercent', ['%count%' => $email->getReadPercentage(true)]),
+                    'failureCount'     => $this->translator->trans('mautic.email.stat.failurecount', ['%count%' => $email->getFailureCount(true)]),
+                    'unsubscribeCount' => $this->translator->trans('mautic.email.stat.unsubscribecount', ['%count%' => $email->getUnsubscribeCount(true)]),
+                    'bounceCount'      => $this->translator->trans('mautic.email.stat.bouncecount', ['%count%' => $email->getBounceCount(true)]),
                 ];
             }
         }
