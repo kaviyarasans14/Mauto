@@ -808,6 +808,7 @@ class FieldModel extends FormModel
 
     /**
      * @param string $object
+     * @param array  $filters
      *
      * @return array
      */
@@ -820,9 +821,9 @@ class FieldModel extends FormModel
         ];
         if (!$this->security->isAdmin() && $object == 'lead') {
             $forceFilters[]= [
-                'column' => 'f.order',
-                'expr'   => 'neq',
-                'value'  => '4',
+                'column' => 'f.isPublished',
+                'expr'   => 'eq',
+                'value'  => '1',
             ];
         }
         $contactFields = $this->getEntities(

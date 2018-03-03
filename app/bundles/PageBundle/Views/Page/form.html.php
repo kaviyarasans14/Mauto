@@ -36,7 +36,7 @@ $attr                               = $form->vars['attr'];
 $attr['data-submit-callback-async'] = 'clearThemeHtmlBeforeSave';
 
 $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
-
+$isAdmin    =$view['security']->isAdmin();
 ?>
 
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -82,30 +82,29 @@ $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
             <?php else: ?>
             <?php echo $view['form']->row($form['template']); ?>
             <?php endif; ?>
-            <?php
-            if ($isVariant):
-            echo $view['form']->row($form['variantSettings']);
-
-            else:
-            echo $view['form']->row($form['category']);
-            echo $view['form']->row($form['language']);
-            echo $view['form']->row($form['translationParent']);
-            endif;
-
-            echo $view['form']->row($form['isPublished']);
-            if (($permissions['page:preference_center:editown'] ||
+            <?php if ($isVariant): ?>
+            <?php echo $view['form']->row($form['variantSettings']); ?>
+            <?php else: ?>
+            <?php echo $view['form']->row($form['category']); ?>
+            <?php endif; ?>
+            <?php echo $view['form']->row($form['isPublished']); ?>
+            <?php if (($permissions['page:preference_center:editown'] ||
                     $permissions['page:preference_center:editother']) &&
                         !$activePage->isVariant()) {
-                echo $view['form']->row($form['isPreferenceCenter']);
-            }
-            echo $view['form']->row($form['publishUp']);
-            echo $view['form']->row($form['publishDown']);
-
-            if (!$isVariant):
-            echo $view['form']->row($form['redirectType']);
-            echo $view['form']->row($form['redirectUrl']);
-            endif;
-            ?>
+                            echo $view['form']->row($form['isPreferenceCenter']);
+                        } ?>
+            <div <?php echo ($isAdmin) ? '' : 'class="hide"' ?>>
+            <?php if (!$isVariant): ?>
+            <?php echo $view['form']->row($form['language']); ?>
+            <?php endif; ?>
+            <?php echo $view['form']->row($form['publishUp']); ?>
+            <?php echo $view['form']->row($form['publishDown']); ?>
+            <?php echo $view['form']->row($form['translationParent']); ?>
+            </div>
+            <?php if (!$isVariant): ?>
+            <?php echo $view['form']->row($form['redirectType']); ?>
+            <?php echo $view['form']->row($form['redirectUrl']); ?>
+            <?php endif; ?>
 
             <div class="template-fields<?php echo (!$template) ? ' hide"' : ''; ?>">
                 <?php echo $view['form']->row($form['metaDescription']); ?>

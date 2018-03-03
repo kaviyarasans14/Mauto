@@ -1089,24 +1089,24 @@ abstract class AbstractStandardFormController extends AbstractFormController
 
         $filter = ['string' => $search, 'force' => []];
 
-        $model = $this->getModel($this->getModelName());
-        $repo  = $model->getRepository();
+        /* $model = $this->getModel($this->getModelName());
+         $repo  = $model->getRepository();
 
-        $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
-        $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
-        if ($objectId == null) {
-            $campaignargs                        = [];
-            $campaignargs['isAdminRecordNeeded'] = true;
-            $orderBy                             = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultCampaignOrderColumn());
-            $orderByDir                          = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
-            list($count, $items)                 = $this->getIndexItems($start, $limit, $filter, $orderBy, $orderByDir, $campaignargs);
-            if ($count == 0) {
-                $items = '';
-            }
-        } else {
-            $items = '';
-        }
-
+         $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
+         $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
+         if ($objectId == null) {
+             $campaignargs                        = [];
+             $campaignargs['isAdminRecordNeeded'] = true;
+             $orderBy                             = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultCampaignOrderColumn());
+             $orderByDir                          = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
+             list($count, $items)                 = $this->getIndexItems($start, $limit, $filter, $orderBy, $orderByDir, $campaignargs);
+             if ($count == 0) {
+                 $items = '';
+             }
+         } else {
+             $items = '';
+         }*/
+        $items        = '';
         $delegateArgs = [
             'viewParameters' => [
                 'permissionBase'  => $this->getPermissionBase(),

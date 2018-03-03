@@ -23,7 +23,7 @@ $view['slots']->set('headerTitle', $header);
 
 echo $view['assets']->includeScript('plugins/MauticFocusBundle/Assets/js/focus.js');
 echo $view['assets']->includeStylesheet('plugins/MauticFocusBundle/Assets/css/focus.css');
-
+$isAdmin=$view['security']->isAdmin();
 echo $view['form']->start($form);
 ?>
     <!-- start: box layout -->
@@ -49,9 +49,13 @@ echo $view['form']->start($form);
                 <?php
                 echo $view['form']->row($form['category']);
                 echo $view['form']->row($form['isPublished']);
-                echo $view['form']->row($form['publishUp']);
-                echo $view['form']->row($form['publishDown']);
                 ?>
+                <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                    <?php
+                    echo $view['form']->row($form['publishUp']);
+                    echo $view['form']->row($form['publishDown']);
+                    ?>
+                </div>
                 <hr />
                 <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
                 <br />
