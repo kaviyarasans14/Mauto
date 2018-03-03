@@ -1094,7 +1094,7 @@ abstract class AbstractStandardFormController extends AbstractFormController
 
         $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
         $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
-        if ($objectId == null) {
+        if ($objectId == null && $this->getActionRoute() == 'mautic_campaign_action') {
             $campaignargs                        = [];
             $campaignargs['isAdminRecordNeeded'] = true;
             $orderBy                             = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultCampaignOrderColumn());
