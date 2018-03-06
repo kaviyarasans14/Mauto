@@ -453,14 +453,14 @@ class ReportSubscriber extends CommonSubscriber
                         $options['translator']->trans('mautic.email.ignored.emails'),
                         $counts['ignored']
                     );
-                    $event->setGraph(
-                        $g,
-                        [
-                            'data'      => $chart->render(),
-                            'name'      => $g,
-                            'iconClass' => 'fa-flag-checkered',
-                        ]
-                    );
+
+                    $data =$chart->render();
+
+                    $data['name']     =$g;
+                    $data['iconClass']='fa-flag-checkered';
+
+                    $event->setGraph($g, $data);
+
                     break;
 
                 case 'mautic.email.graph.pie.read.ingored.unsubscribed.bounced':
@@ -492,38 +492,66 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.sent':
-                    $queryBuilder->select('e.id, e.subject as title, SUM(DISTINCT e. sent_count) as sent')
+                    $queryBuilder->select('e.id as id,e.subject as title, SUM(DISTINCT e. sent_count) as sent')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('sent', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-paper-plane-o';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.sent' => [
+                                'value' => $item['sent'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.email.table.most.emails.read':
-                    $queryBuilder->select('e.id, e.subject as title, SUM(DISTINCT e. read_count) as opens')
+                    $queryBuilder->select('e.id as id,e.subject as title, SUM(DISTINCT e. read_count) as opens')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('opens', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-eye';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.read' => [
+                                'value' => $item['opens'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.email.table.most.emails.failed':
                     $queryBuilder->select(
-                        'e.id, e.subject as title, count(CASE WHEN es.is_failed THEN 1 ELSE null END) as failed'
+                        'e.id as id,e.subject as title, count(CASE WHEN es.is_failed THEN 1 ELSE null END) as failed'
                     )
                         ->having('count(CASE WHEN es.is_failed THEN 1 ELSE null END) > 0')
                         ->groupBy('e.id, e.subject')
@@ -532,10 +560,24 @@ class ReportSubscriber extends CommonSubscriber
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-exclamation-triangle';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.failed'=> [
+                                'value' => $item['failed'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
@@ -583,17 +625,31 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.read.percent':
-                    $queryBuilder->select('e.id, e.subject as title, round(e.read_count / e.sent_count * 100) as ratio')
+                    $queryBuilder->select('e.id as id,e.subject as title, round(e.read_count / e.sent_count * 100) as ratio')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('ratio', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-tachometer';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.read.percent' => [
+                                'value' => $item['ratio'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
             }
