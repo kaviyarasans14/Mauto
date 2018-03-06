@@ -629,7 +629,7 @@ class AssetModel extends FormModel
             ->from(MAUTIC_TABLE_PREFIX.'assets', 't')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('t.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }
