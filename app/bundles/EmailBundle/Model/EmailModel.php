@@ -1922,7 +1922,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             ->groupBy('e.id')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('e.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }
@@ -1961,7 +1961,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             ->from(MAUTIC_TABLE_PREFIX.'emails', 't')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('t.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }
