@@ -106,17 +106,13 @@ class DashboardModel extends FormModel
      */
     public function getWidgets()
     {
-        $widgets = $this->getEntities([
-            'orderBy' => 'w.ordering',
-            'filter'  => [
-                'force' => [
-                    [
-                        'column' => 'w.createdBy',
-                        'expr'   => 'eq',
-                        'value'  => $this->userHelper->getUser()->getId(),
-                    ],
-                ],
-            ],
+        $filter = ['string' => '', 'force' => []];
+
+        $filter['where'][] = ['expr' => 'orX', 'val'  => [['column' => 'w.canViewOthers', 'expr' => 'eq', 'value' => 1], ['column' => 'w.createdBy', 'expr' => 'eq', 'value' => $this->userHelper->getUser()->getId()]]];
+
+        $widgets=$this->getEntities([
+            'filter' => $filter,
+            'orderBy'=> 'w.ordering',
         ]);
 
         return $widgets;
