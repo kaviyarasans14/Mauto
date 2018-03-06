@@ -94,6 +94,15 @@ class WidgetType extends AbstractType
             'required'   => false,
         ]);
 
+        $builder->add('canViewOthers', 'yesno_button_group',
+            [
+                'label' => 'mautic.report.report.form.issystem',
+                'data'  => (bool) $options['data']->getCanViewOthers(),
+                'attr'  => [
+                    'tooltip' => 'mautic.report.report.form.issystem.tooltip',
+                ],
+            ]);
+
         $ff = $builder->getFormFactory();
 
         // function to add a form for specific widget type dynamically
