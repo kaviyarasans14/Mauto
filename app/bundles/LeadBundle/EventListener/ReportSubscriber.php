@@ -507,69 +507,139 @@ class ReportSubscriber extends CommonSubscriber
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.most.points' => [
+                                'value' => $item['points'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-asterisk';
-                    $graphData['link']      = 'mautic_contact_action';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.countries':
-                    $queryBuilder->select('l.country as title, count(l.country) as quantity')
+                    $queryBuilder->select('l.id as id,l.country as title, count(l.country) as quantity')
                         ->groupBy('l.country')
                         ->orderBy('quantity', 'DESC');
                     $limit  = 10;
                     $offset = 0;
 
                     $items                  = $pointLogRepo->getMostLeads($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.countries' => [
+                                'value' => $item['quantity'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-globe';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.cities':
-                    $queryBuilder->select('l.city as title, count(l.city) as quantity')
+                    $queryBuilder->select('l.id as id,l.city as title, count(l.city) as quantity')
                         ->groupBy('l.city')
                         ->orderBy('quantity', 'DESC');
                     $limit  = 10;
                     $offset = 0;
 
                     $items                  = $pointLogRepo->getMostLeads($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.cities' => [
+                                'value' => $item['quantity'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-university';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.events':
-                    $queryBuilder->select('lp.event_name as title, count(lp.event_name) as events')
+                    $queryBuilder->select('lp.id as id,lp.event_name as title, count(lp.event_name) as events')
                         ->groupBy('lp.event_name')
                         ->orderBy('events', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            [
+                                'value' => $item['events'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-calendar';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.actions':
-                    $queryBuilder->select('lp.action_name as title, count(lp.action_name) as actions')
+                    $queryBuilder->select('lp.id as id,lp.action_name as title, count(lp.action_name) as actions')
                         ->groupBy('lp.action_name')
                         ->orderBy('actions', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.actions' => [
+                                'value' => $item['actions'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-bolt';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
