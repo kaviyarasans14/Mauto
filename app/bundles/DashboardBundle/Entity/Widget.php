@@ -86,6 +86,10 @@ class Widget extends FormEntity
      * @var array
      */
     private $templateData = [];
+    /**
+     * @var int
+     */
+    private $canViewOthers;
 
     public function __clone()
     {
@@ -109,6 +113,7 @@ class Widget extends FormEntity
         $builder->addField('type', 'string');
         $builder->addField('width', 'integer');
         $builder->addField('height', 'integer');
+        $builder->addField('canViewOthers', 'integer');
 
         $builder->createField('cacheTimeout', 'integer')
             ->columnName('cache_timeout')
@@ -132,6 +137,22 @@ class Widget extends FormEntity
         $metadata->addPropertyConstraint('type', new NotBlank([
             'message' => 'mautic.core.type.required',
         ]));
+    }
+
+    /**
+     * @return int
+     */
+    public function getCanViewOthers()
+    {
+        return $this->canViewOthers;
+    }
+
+    /**
+     * @param int $canViewOthers
+     */
+    public function setCanViewOthers($canViewOthers)
+    {
+        $this->canViewOthers = $canViewOthers;
     }
 
     /**
