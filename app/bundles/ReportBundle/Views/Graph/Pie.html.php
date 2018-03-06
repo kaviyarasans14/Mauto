@@ -22,6 +22,6 @@
                 <h3 class="text-white dark-sm"><span class="fa <?php echo isset($graph['iconClass']) ? $graph['iconClass'] : ''; ?>"></span></h3>
             </div>
         </div>
-        <?php echo $view->render('MauticCoreBundle:Helper:chart.html.php', ['chartData' => $graph['data'], 'chartType' => 'pie', 'chartHeight' => 210]); ?>
+        <?php echo $view->render('MauticCoreBundle:Helper:chart.html.php', ['chartData' => $graph, 'chartType' => 'pie', 'chartHeight' => 210]); ?>
     </div>
 </div>
