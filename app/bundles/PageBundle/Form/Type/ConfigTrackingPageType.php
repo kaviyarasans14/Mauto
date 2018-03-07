@@ -112,6 +112,52 @@ class ConfigTrackingPageType extends AbstractType
                 'data'  => (bool) $options['data']['google_analytics_landingpage_enabled'],
             ]
         );
+
+        $builder->add(
+            'emailInstructionsto',
+            'text',
+            [
+                'label'      => 'mautic.page.tracking.emailinstructions',
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'class'    => 'form-control',
+                    'preaddon' => 'fa fa-envelope',
+                    'id'       => 'emailInstructionsto',
+                    'tooltip'  => 'mautic.page.tracking.emailinstructions.tooltip',
+                ],
+                'required' => false,
+                'data'     => (array_key_exists('emailInstructionsto', $options['data']) && !empty($options['data']['emailInstructionsto']))
+                    ? $options['data']['emailInstructionsto']
+                    : '',
+            ]
+        );
+
+        $builder->add(
+            'emailAdditionainfo',
+            'textarea',
+            [
+                'label' => 'mautic.page.tracking.emailAdditioninfo',
+                'attr'  => [
+                    'class'    => 'form-control',
+                    'id'       => 'emailAdditionainfo',
+                    'tooltip'  => 'mautic.page.tracking.emailAdditioninfo.tooltip',
+                ],
+                'required' => false,
+            ]
+        );
+
+        $builder->add(
+            'send_tracking_instruction',
+            'standalone_button',
+            [
+                'label'    => 'mautic.email.config.mailer.transport.send_tracking',
+                'required' => false,
+                'attr'     => [
+                    'class'   => 'btn btn-success',
+                    'onclick' => 'Mautic.testEmailServerConnection()',
+                ],
+            ]
+        );
     }
 
     /**
