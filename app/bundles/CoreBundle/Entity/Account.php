@@ -62,7 +62,7 @@ class Account extends FormEntity
     /**
      * @var
      */
-    private $needpoweredby;
+    private $needpoweredby = 0;
 
     /**
      * @param ORM\ClassMetadata $metadata
