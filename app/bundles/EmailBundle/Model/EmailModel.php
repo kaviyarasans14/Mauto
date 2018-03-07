@@ -1521,20 +1521,28 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         if ($lead instanceof Lead) {
             $email   = $stat->getEmail();
-            $channel = ($email) ? ['email' => $email->getId()] : 'email';
-            if ($reason == DoNotContact::IS_CONTACTABLE) {
-                $this->sendModel->upEmailFailureCount($email->getId());
-                $this->updateFailureCount($stat);
-            } else {
-                if ($reason == DoNotContact::UNSUBSCRIBED) {
-                    $this->sendModel->upEmailUnsubscriberCount($email->getId());
-                    $this->updateUnsubscribeCount($stat);
-                } elseif ($reason == DoNotContact::BOUNCED) {
-                    $this->sendModel->upEmailBounceCount($email->getId());
-                    $this->updateBounceCount($stat);
-                }
+            if ($email instanceof Email) {
+                $channel = ($email) ? ['email' => $email->getId()] : 'email';
+                if ($reason == DoNotContact::IS_CONTACTABLE) {
+                    $this->sendModel->upEmailFailureCount($email->getId());
+                    $this->updateFailureCount($stat);
+                } else {
+                    if ($reason == DoNotContact::UNSUBSCRIBED) {
+                        $this->sendModel->upEmailUnsubscriberCount($email->getId());
+                        $this->updateUnsubscribeCount($stat);
+                    } elseif ($reason == DoNotContact::BOUNCED) {
+                        $this->sendModel->upEmailBounceCount($email->getId());
+                        $this->updateBounceCount($stat);
+                    }
 
-                return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
+            } else {
+                if ($reason == DoNotContact::UNSUBSCRIBED || $reason == DoNotContact::BOUNCED) {
+                    $channel = 'email';
+
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
             }
         }
 
