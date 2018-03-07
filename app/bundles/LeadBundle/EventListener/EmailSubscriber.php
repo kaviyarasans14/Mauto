@@ -56,9 +56,9 @@ class EmailSubscriber extends CommonSubscriber
         // the permissions are for viewing contact data, not for managing contact fields
         $tokenHelper->setPermissionSet(['lead:leads:viewown', 'lead:leads:viewother']);
 
-        if ($event->tokensRequested(self::$leadFieldRegex)) {
-            $event->addTokensFromHelper($tokenHelper, self::$leadFieldRegex, 'label', 'alias', true);
-        }
+        //if ($event->tokensRequested(self::$leadFieldRegex)) {
+        //  $event->addTokensFromHelper($tokenHelper, self::$leadFieldRegex, 'label', 'alias', true);
+        //}
 
         if ($event->tokensRequested(self::$contactFieldRegex)) {
             $event->addTokensFromHelper($tokenHelper, self::$contactFieldRegex, 'label', 'alias', true);
@@ -82,8 +82,11 @@ class EmailSubscriber extends CommonSubscriber
         $content = $event->getSubject();
         $content .= $event->getContent();
         $content .= $event->getPlainText();
-        $lead = $event->getLead();
-
+        $lead   = $event->getLead();
+        $tokens = $event->getTokens();
+        if (isset($tokens['{footer_text}']) && $tokens['{footer_text}'] != '') {
+            $content .= $tokens['{footer_text}'];
+        }
         $tokenList = TokenHelper::findLeadTokens($content, $lead);
         if (count($tokenList)) {
             $event->addTokens($tokenList);
