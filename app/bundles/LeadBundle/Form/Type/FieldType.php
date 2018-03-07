@@ -421,7 +421,10 @@ class FieldType extends AbstractType
                     'attr'          => ['class' => 'form-control'],
                     'query_builder' => function (EntityRepository $er) {
                         return $er->createQueryBuilder('f')
-                            ->orderBy('f.order', 'ASC');
+                            ->orWhere('f.createdBy != :nullcreatedby OR f.isPublished = :isPublished')
+                            ->orderBy('f.order', 'ASC')
+                            ->setParameter('isPublished', 1)
+                            ->setParameter('nullcreatedby', 'isNotNull');
                     },
                     'required' => false,
                 ]
