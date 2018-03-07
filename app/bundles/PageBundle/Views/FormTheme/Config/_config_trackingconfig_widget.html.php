@@ -19,7 +19,7 @@ $isAdmin    =$view['security']->isAdmin();
     <div class="panel-body">
         <div class="form-group">
             <p><?php echo $view['translator']->trans('mautic.config.tab.pagetracking.info'); ?></p>
-            <pre>&lt;script&gt;
+            <pre id="script_preTag">&lt;script&gt;
     (function(w,d,t,u,n,a,m){w['LeadsEngageTrackingObject']=n;
         w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)},a=d.createElement(t),
         m=d.getElementsByTagName(t)[0];a.async=1;a.src=u;m.parentNode.insertBefore(a,m)
@@ -28,7 +28,7 @@ $isAdmin    =$view['security']->isAdmin();
     mt('send', 'pageview');
 &lt;/script&gt;</pre>
         </div>
-        <div class="row">
+        <div class="row" <?php echo $hidepanel ?>>
             <?php foreach ($form->children as $name => $f): ?>
                 <?php if (in_array($name, ['track_contact_by_ip', 'track_by_tracking_url', 'track_by_fingerprint'])) {
     ?>
@@ -38,6 +38,21 @@ $isAdmin    =$view['security']->isAdmin();
                     <?php
 }
             endforeach; ?>
+        </div>
+        <div class="row" style="margin:0;">
+                <?php echo $view['form']->row($form['emailInstructionsto']); ?>
+        </div>
+        <div class="row" style="margin:0;">
+            <?php echo $view['form']->row($form['emailAdditionainfo']); ?>
+        </div>
+        <div class="row" style="margin:0;">
+        <div id="mailerTestButtonContainer">
+            <div class="button_container">
+                <?php echo $view['form']->widget($form['send_tracking_instruction']); ?>
+                <span class="fa fa-spinner fa-spin hide"></span>
+            </div>
+            <div class="col-md-9 help-block"></div>
+        </div>
         </div>
     </div>
     <div class="panel-heading" <?php echo $hidepanel ?>>
