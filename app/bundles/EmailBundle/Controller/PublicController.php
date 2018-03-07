@@ -134,6 +134,46 @@ class PublicController extends CommonFormController
      * @throws \Exception
      * @throws \Mautic\CoreBundle\Exception\FileNotFoundException
      */
+    public function subscribeAction($idHash)
+    {
+        /** @var \Mautic\EmailBundle\Model\EmailModel $model */
+        $model       = $this->getModel('email');
+        $translator  = $this->get('translator');
+        $stat        = $model->getEmailStatus($idHash);
+        $formContent = '';
+        $lead        = '';
+        $message     = '';
+        if (!empty($stat)) {
+            if ($email = $stat->getEmailAddress()) {
+                $lead = $stat->getLead();
+            }
+            $formContent = '';
+        } else {
+            $message = $this->translator->trans('mautic.email.stat_record.not_found');
+        }
+        $actionRoute = $this->generateUrl('mautic_email_unsubscribe', ['idHash' => $idHash]);
+        $viewParams  = [
+            'name'        => 'Subscriptions',
+            'email'       => $email,
+            'lead'        => $lead,
+            'message'     => $message,
+            'actionroute' => $actionRoute,
+            'actionName'  => 'subscribe',
+        ];
+        $viewParams['content'] = $formContent;
+        $contentTemplate       = 'MauticEmailBundle:Email:unsubscribe.html.php';
+
+        return $this->render($contentTemplate, $viewParams);
+    }
+
+    /**
+     * @param $idHash
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     * @throws \Mautic\CoreBundle\Exception\FileNotFoundException
+     */
     public function unsubscribeAction($idHash)
     {
         // Find the email
@@ -290,6 +330,10 @@ class PublicController extends CommonFormController
                 $contentTemplate = 'MauticFormBundle::form.html.php';
             }
         }
+        $viewParams['name']              = 'Unsubscribed';
+        $viewParams['actionName']        = 'unsubscribe';
+        $viewParams['subscriptiontitle'] = 'mautic.email.unsubscribe.title';
+        $contentTemplate                 = 'MauticEmailBundle:Email:unsubscribe.html.php';
 
         return $this->render($contentTemplate, $viewParams);
     }
@@ -326,7 +370,8 @@ class PublicController extends CommonFormController
 
             $model->removeDoNotContact($stat->getEmailAddress());
 
-            $message = $this->coreParametersHelper->getParameter('resubscribe_message');
+//            $message = $this->coreParametersHelper->getParameter('resubscribe_message');
+            $message = false;
             if (!$message) {
                 $message = $this->translator->trans(
                     'mautic.email.resubscribed.success',
@@ -342,7 +387,7 @@ class PublicController extends CommonFormController
                     '|EMAIL|',
                 ],
                 [
-                    $this->generateUrl('mautic_email_unsubscribe', ['idHash' => $idHash]),
+                    $this->generateUrl('mautic_email_subscribe', ['idHash' => $idHash]),
                     $stat->getEmailAddress(),
                 ],
                 $message
@@ -373,8 +418,14 @@ class PublicController extends CommonFormController
         }
 
         $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':message.html.php');
-
-        return $this->render(
+        $viewParams  = [
+            'message'  => $message,
+            'type'     => 'notice',
+            'email'    => $email,
+            'lead'     => $lead,
+            'template' => $template,
+        ];
+        /*return $this->render(
             $logicalName,
             [
                 'message'  => $message,
@@ -383,7 +434,13 @@ class PublicController extends CommonFormController
                 'lead'     => $lead,
                 'template' => $template,
             ]
-        );
+        );*/
+        $viewParams['name']              = 'Subscrptions';
+        $viewParams['actionName']        = 'resubscribe';
+        $viewParams['subscriptiontitle'] = 'mautic.email.resubscribe.title';
+        $contentTemplate                 = 'MauticEmailBundle:Email:unsubscribe.html.php';
+
+        return $this->render($contentTemplate, $viewParams);
     }
 
     /**
@@ -747,7 +804,8 @@ class PublicController extends CommonFormController
     {
         $model->setDoNotContact($stat, $translator->trans('mautic.email.dnc.unsubscribed'), DoNotContact::UNSUBSCRIBED);
 
-        $message = $this->coreParametersHelper->getParameter('unsubscribe_message');
+        //$message = $this->coreParametersHelper->getParameter('unsubscribe_message');
+        $message = false;
         if (!$message) {
             $message = $translator->trans(
                 'mautic.email.unsubscribed.success',
