@@ -332,11 +332,16 @@ class PublicController extends CommonFormController
         $form              = $model->getEntity($objectId);
         $customStylesheets = (!empty($css)) ? explode(',', $css) : [];
         $template          = null;
-
+        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('core.accountinfo');
+        $accrepo         = $accmodel->getRepository();
+        $accountentity   = $accrepo->findAll();
+        $account         = $accountentity[0]; //$model->getEntity(1);
+        $ishidepoweredby = $account->getNeedpoweredby();
         if ($form === null || !$form->isPublished()) {
             return $this->notFound();
         } else {
-            $html = $model->getContent($form);
+            $html = $model->getContent($form, true, true, $ishidepoweredby);
 
             $model->populateValuesWithGetParameters($form, $html);
 
@@ -397,11 +402,17 @@ class PublicController extends CommonFormController
         $model = $this->getModel('form.form');
         $form  = $model->getEntity($formId);
         $js    = '';
+        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('core.accountinfo');
+        $accrepo         = $accmodel->getRepository();
+        $accountentity   = $accrepo->findAll();
+        $account         = $accountentity[0]; //$model->getEntity(1);
+        $ishidepoweredby = $account->getNeedpoweredby();
 
         if ($form !== null) {
             $status = $form->getPublishStatus();
             if ($status == 'published') {
-                $js = $model->getAutomaticJavascript($form);
+                $js = $model->getAutomaticJavascript($form, $ishidepoweredby);
             }
         }
 
