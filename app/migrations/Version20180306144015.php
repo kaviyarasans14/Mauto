@@ -35,6 +35,6 @@ class Version20180306144015 extends AbstractMauticMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD canViewOthers INT(11) DEFAULT 0");
+        $this->addSql("ALTER TABLE {$this->prefix}widgets ADD canViewOthers INT(11) DEFAULT 0");
     }
 }
