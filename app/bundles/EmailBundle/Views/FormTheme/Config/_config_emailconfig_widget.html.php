@@ -95,11 +95,17 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_recover_timeout', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_clear_timeout', $template); ?>
             </div>
+            <div class="row" style="margin:0;">
+                <?php echo $view['form']->rowIfExists($fields, 'postal_address'); ?>
+            </div>
+            <div class="row" style="margin:0;">
+                <?php echo $view['form']->rowIfExists($fields, 'footer_text'); ?>
+            </div>
         </div>
     </div>
 <?php endif; ?>
 
-<div class="panel panel-primary">
+<div class="panel panel-primary" <?php echo $hidepanel ?>>
     <div class="panel-heading">
         <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.config.tab.frequency_rules'); ?></h3>
     </div>
@@ -130,7 +136,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
     </div>
 <?php endif; ?>
 
-<div class="panel panel-primary">
+<div class="panel panel-primary" <?php echo $hidepanel ?> >
     <div class="panel-heading">
         <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.header.message'); ?></h3>
     </div>
@@ -146,14 +152,11 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
         </div>
     </div>
 </div>
-<div class="panel panel-primary">
+<div class="panel panel-primary" <?php echo $hidepanel ?>>
     <div class="panel-heading">
         <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.header.unsubscribe'); ?></h3>
     </div>
     <div class="panel-body">
-        <div class="row">
-            <?php echo $view['form']->rowIfExists($fields, 'unsubscribe_text', $template); ?>
-        </div>
         <div class="row">
             <?php echo $view['form']->rowIfExists($fields, 'unsubscribe_message', $template); ?>
             <?php echo $view['form']->rowIfExists($fields, 'resubscribe_message', $template); ?>
