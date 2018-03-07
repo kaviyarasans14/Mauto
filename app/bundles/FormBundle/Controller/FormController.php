@@ -906,6 +906,12 @@ class FormController extends CommonFormController
         /** @var FormModel $model */
         $model = $this->getModel('form.form');
         $form  = $model->getEntity($objectId);
+        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('core.accountinfo');
+        $accrepo         = $accmodel->getRepository();
+        $accountentity   = $accrepo->findAll();
+        $account         = $accountentity[0];
+        $ishidepoweredby = $account->getNeedpoweredby();
 
         if ($form === null) {
             $html =
@@ -920,7 +926,7 @@ class FormController extends CommonFormController
         ) {
             $html = '<h1>'.$this->get('translator')->trans('mautic.core.error.accessdenied', [], 'flashes').'</h1>';
         } else {
-            $html = $model->getContent($form, true, false);
+            $html = $model->getContent($form, true, false, $ishidepoweredby);
         }
 
         $model->populateValuesWithGetParameters($form, $html);
