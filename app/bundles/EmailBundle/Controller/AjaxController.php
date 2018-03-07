@@ -259,24 +259,45 @@ class AjaxController extends CommonAjaxController
                     $mailer->start();
                     $translator = $this->get('translator');
 
-                    if ($settings['send_test'] == 'true') {
-                        $message = new \Swift_Message(
-                            $translator->trans('mautic.email.config.mailer.transport.test_send.subject'),
-                            $translator->trans('mautic.email.config.mailer.transport.test_send.body')
-                        );
+                    if ($settings['send_test'] == 'true' || $settings['toemail'] != '') {
+                        if ($settings['toemail'] != '') {
+                            $trackingcode = $settings['trackingcode'];
+                            $mailbody     = $translator->trans('mautic.email.website_tracking.body');
+                            $mailbody     = str_replace('|FROM_EMAIL|', $settings['from_email'], nl2br($mailbody));
+                            if ($settings['additionalinfo'] != '') {
+                                $additioninfo = $settings['additionalinfo'];
+                                $mailbody .= "$additioninfo<br>";
+                            }
+                            $mailbody .= "<br><pre style='font-size:12px;'>$trackingcode</pre></body></html>";
+
+                            $message = \Swift_Message::newInstance()
+                                ->setSubject($translator->trans('mautic.email.config.mailer.transport.tracking_send.subject'));
+                            $message->setBody($mailbody, 'text/html');
+                        } else {
+                            $message = new \Swift_Message(
+                                $translator->trans('mautic.email.config.mailer.transport.test_send.subject'),
+                                $translator->trans('mautic.email.config.mailer.transport.test_send.body')
+                            );
+                        }
 
                         $userFullName = trim($user->getFirstName().' '.$user->getLastName());
                         if (empty($userFullName)) {
                             $userFullName = null;
                         }
                         $message->setFrom([$settings['from_email'] => $settings['from_name']]);
-                        $message->setTo([$user->getEmail() => $userFullName]);
-
+                        if ($settings['toemail'] != '') {
+                            $message->setTo([$settings['toemail']]);
+                        } else {
+                            $message->setTo([$user->getEmail() => $userFullName]);
+                        }
                         $mailer->send($message);
-                    }
 
-                    $dataArray['success'] = 1;
-                    $dataArray['message'] = $translator->trans('mautic.core.success');
+                        $dataArray['success'] = 1;
+                        $dataArray['message'] = $translator->trans('mautic.core.success');
+                    } else {
+                        $dataArray['success'] = 1;
+                        $dataArray['message'] = $translator->trans('mautic.core.failed');
+                    }
                 } catch (\Exception $e) {
                     $dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
                 }
