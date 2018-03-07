@@ -64,6 +64,14 @@ Mautic.testMonitoredEmailServerConnection = function(mailbox) {
 };
 
 Mautic.testEmailServerConnection = function(sendEmail) {
+    var toemail = "";
+    var trackingcode = "";
+    var additionalinfo = "";
+    if(typeof mQuery('#config_trackingconfig_emailInstructionsto') !== "undefined" && mQuery('#config_trackingconfig_emailInstructionsto') != null){
+        toemail = mQuery('#config_trackingconfig_emailInstructionsto').val();
+        trackingcode = mQuery('#script_preTag').html();
+        additionalinfo = mQuery('#config_trackingconfig_emailAdditionainfo').val();
+    }
     var data = {
         amazon_region: mQuery('#config_emailconfig_mailer_amazon_region').val(),
         api_key:       mQuery('#config_emailconfig_mailer_api_key').val(),
@@ -76,7 +84,10 @@ Mautic.testEmailServerConnection = function(sendEmail) {
         port:          mQuery('#config_emailconfig_mailer_port').val(),
         send_test:     (typeof sendEmail !== 'undefined') ? sendEmail : false,
         transport:     mQuery('#config_emailconfig_mailer_transport').val(),
-        user:          mQuery('#config_emailconfig_mailer_user').val()
+        user:          mQuery('#config_emailconfig_mailer_user').val(),
+        toemail:       toemail,
+        trackingcode:  trackingcode,
+        additionalinfo:additionalinfo
     };
 
     mQuery('#mailerTestButtonContainer .fa-spinner').removeClass('hide');
