@@ -11,6 +11,9 @@
 
 namespace Mautic\CoreBundle\Controller;
 
+use Mautic\CoreBundle\Entity\Account;
+use Mautic\CoreBundle\Entity\Billing;
+
 /**
  * Class AccountController.
  */
@@ -30,7 +33,11 @@ class AccountController extends FormController
         $action        = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'edit']);
         $accrepo       = $model->getRepository();
         $accountentity = $accrepo->findAll();
-        $account       = $accountentity[0]; //$model->getEntity(1);
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0]; //$model->getEntity(1);
+        } else {
+            $account = new Account();
+        }
         $form          = $model->createForm($account, $this->get('form.factory'), $action);
         if ($this->request->getMethod() == 'POST') {
             $isValid = false;
@@ -108,7 +115,11 @@ class AccountController extends FormController
         $action        = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'billing']);
         $billingrepo   = $model->getRepository();
         $billingentity = $billingrepo->findAll();
-        $billing       = $billingentity[0]; //$model->getEntity(1);
+        if (sizeof($billingentity) > 0) {
+            $billing = $billingentity[0]; //$model->getEntity(1);
+        } else {
+            $billing = new Billing();
+        }
         $form          = $model->createForm($billing, $this->get('form.factory'), $action);
         if ($this->request->getMethod() == 'POST') {
             $isValid = false;
