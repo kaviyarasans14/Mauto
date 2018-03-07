@@ -418,10 +418,11 @@ class FormModel extends CommonFormModel
      * @param Form      $form
      * @param bool|true $withScript
      * @param bool|true $useCache
+     * @param bool|true $ishidepoweredby
      *
      * @return string
      */
-    public function getContent(Form $form, $withScript = true, $useCache = true)
+    public function getContent(Form $form, $withScript = true, $useCache = true, $ishidepoweredby = true)
     {
         if ($useCache && !$form->usesProgressiveProfiling()) {
             $cachedHtml = $form->getCachedHtml();
@@ -437,6 +438,13 @@ class FormModel extends CommonFormModel
 
         if ($withScript) {
             $cachedHtml = $this->getFormScript($form)."\n\n".$cachedHtml;
+        }
+        if (!$ishidepoweredby) {
+            $cachedHtml .= '<div style="text-align: center;padding-bottom:10px">
+            Powered By <a href="https://www.leadsengage.com" target="_blank">
+            Leadsengage
+                </a>
+            </div>';
         }
 
         return $cachedHtml;
@@ -719,13 +727,14 @@ class FormModel extends CommonFormModel
     /**
      * Get the document write javascript for the form.
      *
-     * @param Form $form
+     * @param Form      $form
+     * @param bool|true $ishidepoweredby
      *
      * @return string
      */
-    public function getAutomaticJavascript(Form $form)
+    public function getAutomaticJavascript(Form $form, $ishidepoweredby = true)
     {
-        $html = $this->getContent($form);
+        $html = $this->getContent($form, true, true, $ishidepoweredby);
 
         //replace line breaks with literal symbol and escape quotations
         $search  = ["\r\n", "\n", '"'];
