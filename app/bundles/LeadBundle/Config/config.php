@@ -343,11 +343,10 @@ return [
             'priority' => 50,
             'items'    => [
                 'mautic.lead.field.menu.index' => [
-                    'id'        => 'mautic_lead_field',
-                    'iconClass' => 'fa-list',
-                    'route'     => 'mautic_contactfield_index',
-                    // 'access'    => 'lead:fields:full',
-                    'access'    => 'admin',
+                    'id'         => 'mautic_lead_field',
+                    'iconClass'  => 'fa-list',
+                    'route'      => 'mautic_contactfield_index',
+                     'access'    => 'lead:fields:full',
                 ],
             ],
         ],
