@@ -367,6 +367,8 @@ class MailHelper
                 $this->addUnsubscribeHeader();
 
                 // Search/replace tokens if this is not a queue flush
+                $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
+                $this->body['content'] = $bodycontent;
 
                 // Generate tokens from listeners
                 if ($dispatchSendEvent) {
@@ -481,6 +483,38 @@ class MailHelper
         } // else handled in flushQueue
 
         return $error;
+    }
+
+    /**
+     * Alter Elastic Email Body Content to hide their own subscription url and account address.
+     *
+     * @param \Swift_Message $bodyContent
+     */
+    public function alterEmailBodyContent($bodyContent)
+    {
+        $doc                      = new \DOMDocument();
+        $doc->strictErrorChecking = false;
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($bodyContent);
+        // Get body tag.
+        $body = $doc->getElementsByTagName('body');
+        if ($body and $body->length > 0) {
+            $body = $body->item(0);
+            //create the div element to append to body element
+            $divelement = $doc->createElement('div');
+            $divelement->setAttribute('style', 'margin-top:30px;background-color:#ffffff;border-top:1px solid #d0d0d0;font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+            font-weight: normal;');
+            $ptag1      = $doc->createElement('span', '{footer_text}');
+            $ptag1->setAttribute('style', 'display:block;padding-top:20px;');
+            $divelement->appendChild($ptag1);
+
+            //actually append the element
+            $body->appendChild($divelement);
+            $bodyContent = $doc->saveHTML();
+        }
+        libxml_clear_errors();
+
+        return $bodyContent;
     }
 
     /**
@@ -1252,6 +1286,14 @@ class MailHelper
         } catch (\Exception $e) {
             $this->logError($e, 'from');
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFrom()
+    {
+        return $this->from;
     }
 
     /**
