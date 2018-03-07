@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Form\Type;
 
+use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\EmailBundle\Model\TransportType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -52,24 +53,25 @@ class ConfigType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $builder->addEventSubscriber(new CleanFormSubscriber(['unsubscribe_text' => 'html']));
         $builder->add(
-            'unsubscribe_text',
-            'textarea',
-            [
-                'label'      => 'mautic.email.config.unsubscribe_text',
-                'label_attr' => ['class' => 'control-label'],
-                'attr'       => [
-                    'class'   => 'form-control',
-                    'tooltip' => 'mautic.email.config.unsubscribe_text.tooltip',
-                ],
-                'required' => false,
-                'data'     => (array_key_exists('unsubscribe_text', $options['data']) && !empty($options['data']['unsubscribe_text']))
-                    ? $options['data']['unsubscribe_text']
-                    : $this->translator->trans(
-                        'mautic.email.unsubscribe.text',
-                        ['%link%' => '|URL|']
-                    ),
-            ]
+            $builder->create(
+                'footer_text',
+                'textarea',
+                [
+                    'label'      => 'mautic.email.config.footer_text',
+                    'label_attr' => ['class' => 'control-label'],
+                    'attr'       => [
+                        'class'                => 'form-control editor editor-basic-fullpage builder-html builder editor-email',
+                        'data-token-callback'  => 'email:getBuilderTokens',
+                        'data-token-activator' => '{',
+                    ],
+                    'required' => false,
+                    'data'     => (array_key_exists('footer_text', $options['data']) && !empty($options['data']['footer_text']))
+                        ? $options['data']['footer_text']
+                        : '',
+                ]
+            )
         );
 
         $builder->add(
@@ -103,15 +105,31 @@ class ConfigType extends AbstractType
                     'tooltip' => 'mautic.email.config.unsubscribe_message.tooltip',
                 ],
                 'required' => false,
-                'data'     => (array_key_exists('unsubscribe_message', $options['data']) && !empty($options['data']['unsubscribe_message']))
-                    ? $options['data']['unsubscribe_message']
-                    : $this->translator->trans(
+                'data'     => $this->translator->trans(
                         'mautic.email.unsubscribed.success',
                         [
                             '%resubscribeUrl%' => '|URL|',
                             '%email%'          => '|EMAIL|',
                         ]
                     ),
+            ]
+        );
+
+        $builder->add(
+            'postal_address',
+            'textarea',
+            [
+                'label'      => 'mautic.email.config.postal_address',
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'class'   => 'form-control',
+                    'tooltip' => 'mautic.email.config.postal_address.tooltip',
+                    'style'   => 'height:100px;',
+                ],
+                'required' => false,
+                'data'     => (array_key_exists('postal_address', $options['data']) && !empty($options['data']['postal_address']))
+                    ? $options['data']['postal_address']
+                    : '',
             ]
         );
 
@@ -126,9 +144,7 @@ class ConfigType extends AbstractType
                     'tooltip' => 'mautic.email.config.resubscribe_message.tooltip',
                 ],
                 'required' => false,
-                'data'     => (array_key_exists('resubscribe_message', $options['data']) && !empty($options['data']['resubscribe_message']))
-                    ? $options['data']['resubscribe_message']
-                    : $this->translator->trans(
+                'data'     => $this->translator->trans(
                         'mautic.email.resubscribed.success',
                         [
                             '%unsubscribeUrl%' => '|URL|',
