@@ -12,6 +12,7 @@
 namespace Mautic\FormBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController as CommonFormController;
+use Mautic\CoreBundle\Entity\Account;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\FormBundle\Event\SubmissionEvent;
 use Mautic\FormBundle\Model\FormModel;
@@ -336,7 +337,11 @@ class PublicController extends CommonFormController
         $accmodel        = $this->getModel('core.accountinfo');
         $accrepo         = $accmodel->getRepository();
         $accountentity   = $accrepo->findAll();
-        $account         = $accountentity[0]; //$model->getEntity(1);
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
         $ishidepoweredby = $account->getNeedpoweredby();
         if ($form === null || !$form->isPublished()) {
             return $this->notFound();
@@ -406,7 +411,11 @@ class PublicController extends CommonFormController
         $accmodel        = $this->getModel('core.accountinfo');
         $accrepo         = $accmodel->getRepository();
         $accountentity   = $accrepo->findAll();
-        $account         = $accountentity[0]; //$model->getEntity(1);
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
         $ishidepoweredby = $account->getNeedpoweredby();
 
         if ($form !== null) {
