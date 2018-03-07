@@ -35,7 +35,7 @@ class Version20180306143715 extends AbstractMauticMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD is_unsubscribe TINYINT(1) DEFAULT 0");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD is_bounce TINYINT(1) DEFAULT 0");
+        $this->addSql("ALTER TABLE {$this->prefix}email_stats ADD is_unsubscribe TINYINT(1) DEFAULT 0");
+        $this->addSql("ALTER TABLE {$this->prefix}email_stats ADD is_bounce TINYINT(1) DEFAULT 0");
     }
 }
