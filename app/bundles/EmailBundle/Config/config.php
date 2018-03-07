@@ -78,6 +78,10 @@ return [
                 'path'       => '/email/unsubscribe/{idHash}',
                 'controller' => 'MauticEmailBundle:Public:unsubscribe',
             ],
+            'mautic_email_subscribe' => [
+                'path'       => '/email/subscribers/{idHash}',
+                'controller' => 'MauticEmailBundle:Public:subscribe',
+            ],
             'mautic_email_resubscribe' => [
                 'path'       => '/email/resubscribe/{idHash}',
                 'controller' => 'MauticEmailBundle:Public:resubscribe',
@@ -720,5 +724,7 @@ return [
         'mailer_mailjet_sandbox'              => false,
         'mailer_mailjet_sandbox_default_mail' => null,
         'disable_trackable_urls'              => false,
+        'footer_text'                         => null,
+        'postal_address'                      => null,
     ],
 ];
