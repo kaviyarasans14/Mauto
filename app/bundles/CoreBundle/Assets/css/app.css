@@ -4775,3 +4775,29 @@ figcaption {
   width: 100%;
   z-index: 1030;
 }
+.panel-heading-account{
+  color: #ffffff;
+  background-color: #375695;
+  border-color: rgba(0, 0, 0, 0.03);
+  padding: 5px;
+  font-size:16px;
+  font-weight: 600;
+  border-radius: 5px;
+}
+
+.cancel-subscription{
+  background-color: #f22446;
+  color: #FFFFFF;
+  border: 1px solid !important;
+  font-size: 13px;
+  padding: 10px 10px;
+}
+.cancel-subscription:hover{
+  background-color: #f64623;
+  color: #FFFFFF;
+  border: 1px solid #f22446;
+
+}
+
+
+
