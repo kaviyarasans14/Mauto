@@ -35,11 +35,11 @@ class Version20180306142615 extends AbstractMauticMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD failure_count INT(10) DEFAULT NULL");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD unsubscribe_count INT(10) DEFAULT NULL");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD bounce_count INT(10) DEFAULT NULL");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD variant_failure_count INT(10) DEFAULT NULL");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD variant_unsubscribe_count INT(10) DEFAULT NULL");
-        $this->addSql("ALTER TABLE {$this->prefix}reports ADD variant_bounce_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD failure_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD unsubscribe_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD bounce_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD variant_failure_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD variant_unsubscribe_count INT(10) DEFAULT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD variant_bounce_count INT(10) DEFAULT NULL");
     }
 }
