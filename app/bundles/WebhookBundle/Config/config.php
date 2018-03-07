@@ -41,8 +41,7 @@ return [
                 'mautic.webhook.webhooks' => [
                     'id'        => 'mautic_webhook_root',
                     'iconClass' => 'fa-exchange',
-                    //  'access'    => ['webhook:webhooks:viewown', 'webhook:webhooks:viewother'],
-                    'access'    => 'admin',
+                    'access'    => ['webhook:webhooks:viewown', 'webhook:webhooks:viewother'],
                     'route'     => 'mautic_webhook_index',
                 ],
             ],
