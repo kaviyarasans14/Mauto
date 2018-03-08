@@ -251,7 +251,6 @@ trait CustomFieldEntityTrait
     }
 
     /**
-<<<<<<< HEAD
      * Get profile values.
      *
      * @return array
@@ -276,7 +275,9 @@ trait CustomFieldEntityTrait
 
             return $this->fields;
         }
-=======
+    }
+
+    /**
      * @param $key
      */
     public function getEventData($key)
@@ -295,7 +296,6 @@ trait CustomFieldEntityTrait
         $this->eventData[$key] = $value;
 
         return $this;
->>>>>>> 2.12.2
     }
 
     /**
