@@ -17,6 +17,7 @@ use Mautic\UserBundle\UserEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
 /**
@@ -40,17 +41,28 @@ class SecurityHelper extends Helper
     private $dispatcher;
 
     /**
+     * @var CsrfTokenManagerInterface
+     */
+    private $tokenManager;
+
+    /**
      * SecurityHelper constructor.
      *
-     * @param CorePermissions          $security
-     * @param RequestStack             $requestStack
-     * @param EventDispatcherInterface $dispatcher
+     * @param CorePermissions           $security
+     * @param RequestStack              $requestStack
+     * @param EventDispatcherInterface  $dispatcher
+     * @param CsrfTokenManagerInterface $tokenManager
      */
-    public function __construct(CorePermissions $security, RequestStack $requestStack, EventDispatcherInterface $dispatcher)
-    {
-        $this->security   = $security;
-        $this->request    = $requestStack->getCurrentRequest();
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        CorePermissions $security,
+        RequestStack $requestStack,
+        EventDispatcherInterface $dispatcher,
+        CsrfTokenManagerInterface $tokenManager
+    ) {
+        $this->security     = $security;
+        $this->request      = $requestStack->getCurrentRequest();
+        $this->dispatcher   = $dispatcher;
+        $this->tokenManager = $tokenManager;
     }
 
     /**
@@ -104,6 +116,7 @@ class SecurityHelper extends Helper
     }
 
     /**
+<<<<<<< HEAD
      * Helper function to check if the logged in user has admin access or not.
      */
     public function isAdmin()
@@ -117,5 +130,16 @@ class SecurityHelper extends Helper
     public function isCustomAdmin()
     {
         return $this->security->isCustomAdmin();
+=======
+     * Returns CSRF token string for an intention.
+     *
+     * @param string $intention
+     *
+     * @return string
+     */
+    public function getCsrfToken($intention)
+    {
+        return $this->tokenManager->getToken($intention)->getValue();
+>>>>>>> 2.12.2
     }
 }

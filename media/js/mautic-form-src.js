@@ -634,7 +634,12 @@
         Form.registerFormMessenger = function() {
 	        window.addEventListener('message', function(event) {
                 if (Core.debug()) console.log(event);
+<<<<<<< HEAD
               if (event.origin !== MauticDomain && MauticDomain.indexOf(event.origin) < 0) return;
+=======
+
+                if (MauticDomain.indexOf(event.origin) !== 0) return;
+>>>>>>> 2.12.2
 
                 try {
                     var response = JSON.parse(event.data);

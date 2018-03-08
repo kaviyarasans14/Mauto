@@ -424,6 +424,15 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
         );
 
         $metadata->addPropertyConstraint(
+            'subject',
+            new NotBlank(
+                [
+                    'message' => 'mautic.core.subject.required',
+                ]
+            )
+        );
+
+        $metadata->addPropertyConstraint(
             'fromAddress',
             new \Symfony\Component\Validator\Constraints\Email(
                 [

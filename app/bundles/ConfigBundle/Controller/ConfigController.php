@@ -36,12 +36,15 @@ class ConfigController extends FormController
         if (!$this->user->isAdmin() && !$this->user->isCustomAdmin()) {
             return $this->accessDenied();
         }
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'), $this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
         $fileFields  = $event->getFileFields();
         $formThemes  = $event->getFormThemes();
         $formConfigs = $this->get('mautic.config.mapper')->bindFormConfigsWithRealValues($event->getForms());
+        $doNotChange = $this->coreParametersHelper->getParameter('security.restrictedConfigFields');
+
+        $this->mergeParamsWithLocal($formConfigs, $doNotChange);
 
         // Create the form
         $action = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
@@ -178,8 +181,7 @@ class ConfigController extends FormController
             return $this->accessDenied();
         }
 
-
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'), $this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
 
@@ -220,9 +222,8 @@ class ConfigController extends FormController
             return $this->accessDenied();
         }
 
-
         $success    = 0;
-        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'),$this->user->isAdmin());
+        $event      = new ConfigBuilderEvent($this->get('mautic.helper.paths'), $this->get('mautic.helper.bundle'), $this->user->isAdmin());
         $dispatcher = $this->get('event_dispatcher');
         $dispatcher->dispatch(ConfigEvents::CONFIG_ON_GENERATE, $event);
 
@@ -244,5 +245,38 @@ class ConfigController extends FormController
         }
 
         return new JsonResponse(['success' => $success]);
+    }
+
+    /**
+     * Merges default parameters from each subscribed bundle with the local (real) params.
+     *
+     * @param array $forms
+     * @param array $doNotChange
+     *
+     * @return array
+     */
+    private function mergeParamsWithLocal(&$forms, $doNotChange)
+    {
+        // Import the current local configuration, $parameters is defined in this file
+
+        /** @var \AppKernel $kernel */
+        $kernel          = $this->container->get('kernel');
+        $localConfigFile = $kernel->getLocalConfigFile();
+
+        /** @var $parameters */
+        include $localConfigFile;
+
+        $localParams = $parameters;
+
+        foreach ($forms as &$form) {
+            // Merge the bundle params with the local params
+            foreach ($form['parameters'] as $key => $value) {
+                if (in_array($key, $doNotChange)) {
+                    unset($form['parameters'][$key]);
+                } elseif (array_key_exists($key, $localParams)) {
+                    $form['parameters'][$key] = (is_string($localParams[$key])) ? str_replace('%%', '%', $localParams[$key]) : $localParams[$key];
+                }
+            }
+        }
     }
 }

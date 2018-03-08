@@ -93,6 +93,7 @@ $filterErrors = ($view['form']->containsErrors($form['filters'])) ? 'class="text
                                     foreach ($fields as $object => $field):
                                         $header = $object;
                                         $icon   = ($object == 'company') ? 'building' : 'user';
+<<<<<<< HEAD
                                         ?>
                                         <optgroup label="<?php echo $view['translator']->trans('mautic.lead.'.$header); ?>">
                                             <?php foreach ($field as $value => $params):
@@ -110,6 +111,25 @@ $filterErrors = ($view['form']->containsErrors($form['filters'])) ? 'class="text
                                                         data-field-callback="<?php echo $callback; ?>"
                                                         data-field-operators="<?php echo $operators; ?>"
                                                         class="segment-filter <?php echo $icon; ?>">
+=======
+                                    ?>
+                                    <optgroup label="<?php echo $view['translator']->trans('mautic.lead.'.$header); ?>">
+                                        <?php foreach ($field as $value => $params):
+                                            $list      = (!empty($params['properties']['list'])) ? $params['properties']['list'] : [];
+                                            $choices   = \Mautic\LeadBundle\Helper\FormFieldHelper::parseList($list, true, ('boolean' === $params['properties']['type']));
+                                            $list      = json_encode($choices);
+                                            $callback  = (!empty($params['properties']['callback'])) ? $params['properties']['callback'] : '';
+                                            $operators = (!empty($params['operators'])) ? $view->escape(json_encode($params['operators'])) : '{}';
+                                            ?>
+                                            <option value="<?php echo $view->escape($value); ?>"
+                                                    id="available_<?php echo $value; ?>"
+                                                    data-field-object="<?php echo $object; ?>"
+                                                    data-field-type="<?php echo $params['properties']['type']; ?>"
+                                                    data-field-list="<?php echo $view->escape($list); ?>"
+                                                    data-field-callback="<?php echo $callback; ?>"
+                                                    data-field-operators="<?php echo $operators; ?>"
+                                                    class="segment-filter <?php echo $icon; ?>">
+>>>>>>> 2.12.2
                                                     <?php echo $view['translator']->trans($params['label']); ?>
                                                 </option>
                                             <?php endforeach; ?>

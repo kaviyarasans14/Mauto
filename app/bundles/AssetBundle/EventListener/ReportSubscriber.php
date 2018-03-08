@@ -140,7 +140,6 @@ class ReportSubscriber extends CommonSubscriber
                         $event->getIpColumn(),
                         $companyColumns
                     ),
-                    'filters' => $companyColumns,
                 ],
                 self::CONTEXT_ASSET
             );

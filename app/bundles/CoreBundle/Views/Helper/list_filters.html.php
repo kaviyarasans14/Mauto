@@ -63,7 +63,7 @@
                     }
 
                 ?>
-                <option value="<?php echo $value; ?>"<?php echo $selected; ?>><?php echo $label; ?></option>
+                <option value="<?php echo $view->escape($value); ?>"<?php echo $selected; ?>><?php echo $label; ?></option>
                 <?php endforeach; ?>
                 <?php endif; ?>
             </optgroup>
@@ -77,7 +77,7 @@
                 endif;
                 $selected = (isset($filter['values']) && in_array($value, $filter['values'])) ? ' selected' : '';
                 ?>
-                <option value="<?php echo $value; ?>"<?php echo $selected; ?>>
+                <option value="<?php echo $view->escape($value); ?>"<?php echo $selected; ?>>
                     <?php echo empty($filter['translateLabels']) ? $label : $view['translator']->trans($label); ?>
                 </option>
             <?php endforeach; ?>
