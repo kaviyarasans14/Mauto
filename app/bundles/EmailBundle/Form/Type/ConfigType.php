@@ -62,7 +62,7 @@ class ConfigType extends AbstractType
                     'label'      => 'mautic.email.config.footer_text',
                     'label_attr' => ['class' => 'control-label'],
                     'attr'       => [
-                        'class'                => 'form-control editor editor-basic-fullpage builder-html builder editor-email',
+                        'class'                => 'form-control editor editor-advanced editor-builder-tokens',
                         'data-token-callback'  => 'email:getBuilderTokens',
                         'data-token-activator' => '{',
                     ],
