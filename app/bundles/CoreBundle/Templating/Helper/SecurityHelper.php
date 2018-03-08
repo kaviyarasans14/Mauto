@@ -116,7 +116,6 @@ class SecurityHelper extends Helper
     }
 
     /**
-<<<<<<< HEAD
      * Helper function to check if the logged in user has admin access or not.
      */
     public function isAdmin()
@@ -130,7 +129,9 @@ class SecurityHelper extends Helper
     public function isCustomAdmin()
     {
         return $this->security->isCustomAdmin();
-=======
+    }
+
+    /**
      * Returns CSRF token string for an intention.
      *
      * @param string $intention
@@ -140,6 +141,5 @@ class SecurityHelper extends Helper
     public function getCsrfToken($intention)
     {
         return $this->tokenManager->getToken($intention)->getValue();
->>>>>>> 2.12.2
     }
 }
