@@ -80,15 +80,19 @@ class TransportCallback
     {
         $result     = $this->finder->findByAddress($address);
         $resultstat = $this->finder->findByAddressandId($address);
+        $stat       = $resultstat->getStat();
         if ($contacts = $result->getContacts()) {
             foreach ($contacts as $contact) {
-                $channel = ($channelId) ? ['email' => $channelId] : 'email';
+                if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null && $stat->getLead() != null && $stat->getLead()->getId() != null && $stat->getLead()->getId() == $contact->getId()) {
+                    $channel = ['email' => $stat->getEmail()->getId()];
+                } else {
+                    $channel = ($channelId) ? ['email' => $channelId] : 'email';
+                }
                 $this->dncModel->addDncForContact($contact->getId(), $channel, $dncReason, $comments);
             }
         }
-        $stat = $resultstat->getStat();
-        $this->updateStatDetails($stat, $comments, $dncReason);
         if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null) {
+            $this->updateStatDetails($stat, $comments, $dncReason);
             $this->statRepository->updateBouneorUnsubscribecount($stat->getEmail()->getId(), $dncReason);
         }
     }

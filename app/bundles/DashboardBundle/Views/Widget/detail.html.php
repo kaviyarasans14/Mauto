@@ -10,7 +10,7 @@
  */
 ?>
 
-<div class="card" style="height: <?php echo $widget->getHeight() ? ($widget->getHeight() - 10).'px' : '300px' ?>">
+<div class="card" style="height: <?php echo $widget->getHeight() ? ($widget->getHeight() - 10).'px' : 'auto' ?>">
     <div class="card-header">
         <h4><?php echo $widget->getName(); ?></h4>
         <?php if ($widget->getId()) : ?>

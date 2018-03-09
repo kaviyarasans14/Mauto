@@ -21,7 +21,7 @@ if (!isset($shortenLinkText)) {
         <thead>
             <tr>
             <?php foreach ($headItems as $headItem) : ?>
-                <th><?php echo $view['translator']->trans($headItem); ?></th>
+                <th style="width:100%;"><?php echo $view['translator']->trans($headItem); ?></th>
             <?php endforeach; ?>
             </tr>
         </thead>
@@ -29,7 +29,7 @@ if (!isset($shortenLinkText)) {
     <?php if (!empty($bodyItems)) : ?>
         <tbody>
             <?php foreach ($bodyItems as $row) : ?>
-                <tr>
+                <tr style="width:100%;">
                     <?php if (is_array($row)) : ?>
                         <?php foreach ($row as $item) : ?>
                             <td>

@@ -498,6 +498,7 @@ class ReportSubscriber extends CommonSubscriber
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
+                    $email                  = [];
                     foreach ($items as $item) {
                         $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
                         $row     = [
@@ -513,7 +514,7 @@ class ReportSubscriber extends CommonSubscriber
                         $graphData[]      = $row;
                     }
                     $graphData['name']       = $g;
-                    $graphData['data']       = $items;
+                    $graphData['data']       = $email;
                     $graphData['value']      = $g;
                     $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);

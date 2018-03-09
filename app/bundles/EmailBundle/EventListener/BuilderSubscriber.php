@@ -292,7 +292,7 @@ class BuilderSubscriber extends CommonSubscriber
             $footerText = str_replace('|URL|', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]), $footerText);
             if ($email != null) {
                 $footerText = str_replace('{from_email}', $email->getFromAddress(), $footerText);
-            } elseif (!empty($helper->getFrom())) {
+            } elseif ($helper != null && !empty($helper->getFrom())) {
                 foreach ($helper->getFrom() as $fromemail => $fromname) {
                     $footerText = str_replace('{from_email}', $fromemail, $footerText);
                 }
@@ -302,6 +302,7 @@ class BuilderSubscriber extends CommonSubscriber
             }
             $postal_address = $this->coreParametersHelper->getParameter('postal_address');
             $footerText     = str_replace('{postal_address}', $postal_address, $footerText);
+            $footerText     = str_replace('{unsubscribe_url}', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]), $footerText);
             $event->addToken('{footer_text}', EmojiHelper::toHtml($footerText));
         }
     }

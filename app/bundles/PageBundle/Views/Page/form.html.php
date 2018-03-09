@@ -37,6 +37,7 @@ $attr['data-submit-callback-async'] = 'clearThemeHtmlBeforeSave';
 
 $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
 $isAdmin    =$view['security']->isAdmin();
+$hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
 ?>
 
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
