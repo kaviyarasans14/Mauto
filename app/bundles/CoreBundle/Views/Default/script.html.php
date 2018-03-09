@@ -25,7 +25,9 @@ $mauticContent = $view['slots']->get(
     var mauticEnv         = '<?php echo $app->getEnvironment(); ?>';
     var leClientID        = '<?php echo $view['assets']->getAppid(); ?>';
     var mauticLang        = <?php echo $view['translator']->getJsLang(); ?>;
-
+    document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
 </script>
 
 <?php $view['assets']->outputSystemScripts(true); ?>
