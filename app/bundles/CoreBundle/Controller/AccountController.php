@@ -171,33 +171,6 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
-        /** @var \Mautic\CoreBundle\Model\BillingModel $model */
-        $model   = $this->getModel('core.billinginfo');
-        $action  = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'payment']);
-        $billing = $model->getEntity(1);
-        $form    = $model->createForm($billing, $this->get('form.factory'), $action);
-        if ($this->request->getMethod() == 'POST') {
-            $isValid = false;
-            if (!$cancelled = $this->isFormCancelled($form)) {
-                if ($isValid = $this->isFormValid($form)) {
-                    $data               = $this->request->request->get('billinginfo');
-                    $companyname        = $data['companyname'];
-                    $companyaddressname = $data['companyaddress'];
-                    $accountingemail    = $data['accountingemail'];
-                    $billing->setCompanyname($companyname);
-                    $billing->setCompanyaddress($companyaddressname);
-                    $billing->setAccountingemail($accountingemail);
-                    $model->saveEntity($billing);
-                }
-            }
-            if ($cancelled || $isValid) {
-                if (!$cancelled && $this->isFormApplied($form)) {
-                    return $this->delegateRedirect($this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'payment']));
-                } else {
-                    return $this->delegateRedirect($this->generateUrl('mautic_dashboard_index'));
-                }
-            }
-        }
         $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
 
         return $this->delegateView([
