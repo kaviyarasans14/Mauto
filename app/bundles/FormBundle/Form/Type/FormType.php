@@ -33,6 +33,8 @@ class FormType extends AbstractType
      */
     private $security;
 
+    private $factory;
+
     /**
      * @param MauticFactory $factory
      */
@@ -40,6 +42,7 @@ class FormType extends AbstractType
     {
         $this->translator = $factory->getTranslator();
         $this->security   = $factory->getSecurity();
+        $this->factory    = $factory;
     }
 
     /**
@@ -49,7 +52,10 @@ class FormType extends AbstractType
     {
         $builder->addEventSubscriber(new CleanFormSubscriber(['description' => 'html']));
         $builder->addEventSubscriber(new FormExitSubscriber('form.form', $options));
-
+        $style = 'display:none;';
+        if ($this->factory->getUser()->isAdmin()) {
+            $style = 'display:block;';
+        }
         //details
         $builder->add('name', 'text', [
             'label'      => 'mautic.core.name',
@@ -123,10 +129,11 @@ class FormType extends AbstractType
         $builder->add('publishUp', 'datetime', [
             'widget'     => 'single_text',
             'label'      => 'mautic.core.form.publishup',
-            'label_attr' => ['class' => 'control-label'],
+            'label_attr' => ['class' => 'control-label', 'style' => $style],
             'attr'       => [
                 'class'       => 'form-control',
                 'data-toggle' => 'datetime',
+                'style'       => $style,
             ],
             'format'   => 'yyyy-MM-dd HH:mm',
             'required' => false,
@@ -135,10 +142,14 @@ class FormType extends AbstractType
         $builder->add('publishDown', 'datetime', [
             'widget'     => 'single_text',
             'label'      => 'mautic.core.form.publishdown',
-            'label_attr' => ['class' => 'control-label'],
+            'label_attr' => [
+                'class' => 'control-label',
+                'style' => $style,
+            ],
             'attr'       => [
                 'class'       => 'form-control',
                 'data-toggle' => 'datetime',
+                'style'       => $style,
             ],
             'format'   => 'yyyy-MM-dd HH:mm',
             'required' => false,

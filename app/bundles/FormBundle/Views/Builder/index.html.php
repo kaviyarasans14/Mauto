@@ -10,8 +10,9 @@
  */
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'form');
-$isadmin=$view['security']->isAdmin();
-$header = ($activeForm->getId())
+$isadmin    =$view['security']->isAdmin();
+$hidepanel  =$view['security']->isAdmin() ? '' : 'display: none;';
+$header     = ($activeForm->getId())
     ?
     $view['translator']->trans(
         'mautic.form.form.header.edit',

@@ -88,7 +88,7 @@ class WidgetType extends AbstractType
                 '560'  => '560px',
                 '675'  => '675px',
             ],
-            'empty_data' => 'auto',
+            'empty_data' => '445',
             'label_attr' => ['class' => 'control-label'],
             'attr'       => ['class' => 'form-control'],
             'required'   => false,

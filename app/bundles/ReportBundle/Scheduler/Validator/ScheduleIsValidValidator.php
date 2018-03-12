@@ -46,10 +46,20 @@ class ScheduleIsValidValidator extends ConstraintValidator
                 ->atPath('toAddress')
                 ->addViolation();
         }
+        file_put_contents('/var/www/log.txt', $report->getScheduleDate()."\n", FILE_APPEND);
+        if (is_null($report->getScheduleDate()) || $report->getScheduleDate() == '') {
+            $this->context->buildViolation('mautic.report.schedule.schedule_date_required')
+                ->atPath('scheduleDate')
+                ->addViolation();
+        }
 
         if ($report->isScheduledDaily()) {
-            $report->ensureIsDailyScheduled();
-            $this->buildScheduler($report);
+            try {
+                $report->ensureIsDailyScheduled();
+                $this->buildScheduler($report);
+            } catch (ScheduleNotValidException $e) {
+                $this->addViolation();
+            }
 
             return;
         }

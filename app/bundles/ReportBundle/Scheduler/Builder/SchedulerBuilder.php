@@ -69,8 +69,12 @@ class SchedulerBuilder
         }
         date_default_timezone_set('UTC');
         $schedulerTime    = $scheduler->getScheduleDate();
-        list($hour, $min) = explode(':', $schedulerTime);
-        $startDate        = (new \DateTime())->setTime($hour, $min)->modify('+1 day');
+        if ($schedulerTime != '' && $schedulerTime != null) {
+            list($hour, $min) = explode(':', $schedulerTime);
+            $startDate        = (new \DateTime())->setTime($hour, $min)->modify('+1 day');
+        } else {
+            $startDate        = (new \DateTime())->modify('+1 day');
+        }
         $rule             = new Rule();
 
         $rule->setStartDate($startDate)

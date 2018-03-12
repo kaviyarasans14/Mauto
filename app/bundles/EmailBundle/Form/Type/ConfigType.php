@@ -53,7 +53,7 @@ class ConfigType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addEventSubscriber(new CleanFormSubscriber(['unsubscribe_text' => 'html']));
+        $builder->addEventSubscriber(new CleanFormSubscriber(['footer_text' => 'html']));
         $builder->add(
             $builder->create(
                 'footer_text',

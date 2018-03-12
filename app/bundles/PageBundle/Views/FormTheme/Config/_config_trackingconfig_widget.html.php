@@ -19,7 +19,7 @@ $isAdmin    =$view['security']->isAdmin();
     <div class="panel-body">
         <div class="form-group">
             <p><?php echo $view['translator']->trans('mautic.config.tab.pagetracking.info'); ?></p>
-            <pre id="script_preTag">&lt;script&gt;
+            <pre id="script_preTag" style="display:none;">&lt;script&gt;
     (function(w,d,t,u,n,a,m){w['LeadsEngageTrackingObject']=n;
         w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)},a=d.createElement(t),
         m=d.getElementsByTagName(t)[0];a.async=1;a.src=u;m.parentNode.insertBefore(a,m)
@@ -27,16 +27,32 @@ $isAdmin    =$view['security']->isAdmin();
 
     mt('send', 'pageview');
 &lt;/script&gt;</pre>
+
+            <textarea id="copy_to_clipboard" style="height:180px;" class="form-control" readonly>&lt;script&gt;
+    (function(w,d,t,u,n,a,m){w['LeadsEngageTrackingObject']=n;
+        w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)},a=d.createElement(t),
+        m=d.getElementsByTagName(t)[0];a.async=1;a.src=u;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','<?php echo $view['router']->url('mautic_js'); ?>','mt');
+
+    mt('send', 'pageview');
+&lt;/script&gt;</textarea>
+            <a id="copy_to_clipboard_atag" onclick="Mautic.copytoClipboardforms('copy_to_clipboard');">
+                <i aria-hidden="true" class="fa fa-clipboard"></i>
+                <?php echo $view['translator']->trans(
+                    'leadsengage.core.clicktocopy'
+                ); ?>
+            </a>
+
         </div>
         <div class="row" <?php echo $hidepanel ?>>
             <?php foreach ($form->children as $name => $f): ?>
                 <?php if (in_array($name, ['track_contact_by_ip', 'track_by_tracking_url', 'track_by_fingerprint'])) {
-    ?>
+                    ?>
                     <div class="col-md-6">
                         <?php echo $view['form']->row($f); ?>
                     </div>
                     <?php
-}
+                }
             endforeach; ?>
         </div>
         <div class="row" style="margin:0;">

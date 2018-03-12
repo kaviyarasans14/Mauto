@@ -100,3 +100,16 @@ Mautic.testEmailServerConnection = function(sendEmail) {
         mQuery('#mailerTestButtonContainer .fa-spinner').addClass('hide');
     });
 };
+
+Mautic.copytoClipboardforms = function(id) {
+    var copyText = document.getElementById(id);
+    copyText.select();
+    document.execCommand("Copy");
+    var copyTexts = document.getElementById(id+"_atag");
+    copyTexts.innerHTML = '<i aria-hidden="true" class="fa fa-clipboard"></i>copied';
+    setTimeout(function() {
+        var copyTexta = document.getElementById(id+"_atag");
+        copyTextval = '<i aria-hidden="true" class="fa fa-clipboard"></i>copy to clipboard';
+        copyTexta.innerHTML = copyTextval;
+    }, 1000);
+};

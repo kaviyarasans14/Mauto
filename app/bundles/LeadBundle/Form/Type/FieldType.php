@@ -451,8 +451,8 @@ class FieldType extends AbstractType
             'isPublished',
             'yesno_button_group',
             [
-                'disabled' => ($options['data']->getAlias() == 'email'),
-                'data'     => ($options['data']->getAlias() == 'email') ? true : $options['data']->getIsPublished(),
+                'disabled' => ($options['data']->getIsFixed() == 1),
+                'data'     => ($options['data']->getIsFixed() == 1) ? true : $options['data']->getIsPublished(),
             ]
         );
 
@@ -501,7 +501,8 @@ class FieldType extends AbstractType
                     'tooltip'  => 'mautic.lead.field.form.isuniqueidentifer.tooltip',
                     'onchange' => 'Mautic.displayUniqueIdentifierWarning(this)',
                 ],
-                'data' => (!empty($data)),
+                'disabled' => ($options['data']->getAlias() == 'email'),
+                'data'     => (!empty($data)),
             ]
         );
 

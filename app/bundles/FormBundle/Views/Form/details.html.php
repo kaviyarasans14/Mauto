@@ -316,18 +316,31 @@ $isadmin     =$view['security']->isAdmin();
                 <div class="modal-body">
                     <p><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy'); ?></p>
                     <h3><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.js'); ?></h3>
-                    <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;script type="text/javascript" src="<?php echo $view['router']->url(
+                    <textarea id="javascipt_textarea" class="form-control" readonly>&lt;script type="text/javascript" src="<?php echo $view['router']->url(
                             'mautic_form_generateform',
                             ['id' => $activeForm->getId()]
                         ); ?>"&gt;&lt;/script&gt;</textarea>
+                    <a id="javascipt_textarea_atag" onclick="Mautic.copytoClipboardforms('javascipt_textarea');">
+                        <i aria-hidden="true" class="fa fa-clipboard"></i>
+                        <?php echo $view['translator']->trans(
+                            'leadsengage.core.clicktocopy'
+                        ); ?>
+                    </a>
                     <h3 class="pt-lg"><?php echo $view['translator']->trans(
                             'mautic.form.form.help.automaticcopy.iframe'
                         ); ?></h3>
-                    <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;iframe src="<?php echo $view['router']->url(
+                    <textarea id="iframe_textarea" class="form-control" readonly onclick="Mautic.copytoClipboardforms(this);">&lt;iframe src="<?php echo $view['router']->url(
                             'mautic_form_preview',
                             ['id' => $activeForm->getId()]
                         ); ?>" width="300" height="300"&gt;&lt;p&gt;Your browser does not support iframes.&lt;/p&gt;&lt;/iframe&gt;</textarea>
+                    <a id="iframe_textarea_atag" onclick="Mautic.copytoClipboardforms('iframe_textarea');"><i aria-hidden="true" class="fa fa-clipboard"></i>
+                        <?php echo $view['translator']->trans(
+                            'leadsengage.core.clicktocopy'
+                        ); ?></a>
+                    <br>
+                    <br>
                     <i><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.iframe.note'); ?></i>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $view['translator']->trans(

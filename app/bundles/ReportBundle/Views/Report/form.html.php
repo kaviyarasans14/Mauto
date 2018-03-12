@@ -23,6 +23,9 @@ $view['slots']->set('headerTitle', $header);
 $showGraphTab = count($form['graphs']->vars['choices']);
 
 $scheduleTabErrorClass = ($view['form']->containsErrors($form['toAddress'])) ? 'class="text-danger"' : '';
+if ($scheduleTabErrorClass == '') {
+    $scheduleTabErrorClass = ($view['form']->containsErrors($form['scheduleDate'])) ? 'class="text-danger"' : '';
+}
 ?>
 
 <?php echo $view['form']->start($form); ?>
