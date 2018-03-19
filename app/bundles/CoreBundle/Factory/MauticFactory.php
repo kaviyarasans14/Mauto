@@ -377,6 +377,16 @@ class MauticFactory
     }
 
     /**
+     * Gets a list of available plans.
+     *
+     * @return array
+     */
+    public function getAvailablePlans($ignoreCache = false)
+    {
+        return $this->container->get('mautic.helper.theme')->getAvailablePlans($ignoreCache);
+    }
+
+    /**
      * Gets template json based on its name.
      *
      * @return string

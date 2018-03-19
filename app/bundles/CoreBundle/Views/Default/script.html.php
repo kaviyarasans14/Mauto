@@ -32,3 +32,8 @@ $mauticContent = $view['slots']->get(
 
 <?php $view['assets']->outputSystemScripts(true); ?>
 <?php $view['assets']->outputBeeEditorScripts(); ?>
+<?php
+if ($mauticContent == 'subscription') {
+    echo '<script src="https://checkout.razorpay.com/v1/checkout.js"></script>';
+}
+?>

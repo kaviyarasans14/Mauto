@@ -93,6 +93,11 @@ class ThemeHelper
     private $beeTemplates = [];
 
     /**
+     * @var array|mixed
+     */
+    private $planinfo = [];
+
+    /**
      * ThemeHelper constructor.
      *
      * @param PathsHelper         $pathsHelper
@@ -387,6 +392,33 @@ class ThemeHelper
         } else {
             return  $this->beeTemplates;
         }
+    }
+
+    public function getAvailablePlans($ignoreCache = false)
+    {
+        if (sizeof($this->planinfo) == 0 || $ignoreCache === true) {
+            $dir      = $this->pathsHelper->getSystemPath('plans', true);
+            $finder   = new Finder();
+            $finder->directories()->depth('0')->ignoreDotFiles(true)->in($dir);
+
+            $this->planinfo = [];
+            foreach ($finder as $plan) {
+                if (file_exists($plan->getRealPath().'/config.json')) {
+                    $config = json_decode(file_get_contents($plan->getRealPath().'/config.json'), true);
+                } else {
+                    continue;
+                }
+
+                $this->planinfo[$plan->getBasename()]                        =[];
+                $this->planinfo[$plan->getBasename()]['name']                = $config['name'];
+                $this->planinfo[$plan->getBasename()]['key']                 = $plan->getBasename();
+                $this->planinfo[$plan->getBasename()]['details']             = $config['details'];
+                $this->planinfo[$plan->getBasename()]['features']            = $config['features'];
+                $this->planinfo[$plan->getBasename()]['price']               = $config['price'];
+            }
+        }
+
+        return $this->planinfo;
     }
 
     /**
