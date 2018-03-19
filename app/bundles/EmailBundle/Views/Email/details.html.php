@@ -106,6 +106,7 @@ if (!$isEmbedded) {
                 'actionRoute'   => $actionRoute,
                 'indexRoute'    => $indexRoute,
                 'customButtons' => $customButtons,
+                'langVar'       => 'email',
             ]
         )
     );
