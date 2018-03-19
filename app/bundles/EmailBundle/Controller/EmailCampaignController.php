@@ -1054,6 +1054,12 @@ class EmailCampaignController extends FormController
 
             return new JsonResponse($this->factory->getBeeTemplateJSONByName($template));
         } else {
+            $isBeeHTMLTemplate = $this->request->get('beehtmltemplate', false);
+            if ($isBeeHTMLTemplate) {
+                $template = InputHelper::clean($this->request->query->get('beehtmltemplate'));
+
+                return new JsonResponse($this->factory->getBeeTemplateHTMLByName($template));
+            }
             $template = InputHelper::clean($this->request->query->get('template'));
 
             $slots    = $this->factory->getTheme($template)->getSlots('email');

@@ -281,7 +281,7 @@ class EmailController extends FormController
             return $this->postActionRedirect(
                 [
                     'returnUrl'       => $returnUrl,
-                    'viewParameters'  => ['page' => $page],
+                    'viewParameters'  => ['page' => $page, 'translationBase' => 'mautic.email'],
                     'contentTemplate' => 'MauticEmailBundle:Email:index',
                     'passthroughVars' => [
                         'activeLink'    => '#mautic_email_index',
@@ -474,9 +474,10 @@ class EmailController extends FormController
                             'ignoreAjax' => true,
                         ]
                     )->getContent(),
-                    'dateRangeForm' => $dateRangeForm->createView(),
-                    'actionRoute'   => 'mautic_email_action',
-                    'indexRoute'    => 'mautic_email_index',
+                    'dateRangeForm'   => $dateRangeForm->createView(),
+                    'actionRoute'     => 'mautic_email_action',
+                    'indexRoute'      => 'mautic_email_index',
+                    'translationBase' => 'email',
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:details.html.php',
                 'passthroughVars' => [
@@ -652,7 +653,7 @@ class EmailController extends FormController
                     'slots'              => $this->buildSlotForms($slotTypes),
                     'sections'           => $this->buildSlotForms($sections),
                     'themes'             => $this->factory->getInstalledThemes('email', true),
-                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates('email'),
                     'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
                     'sectionForm'        => $sectionForm->createView(),
                     'updateSelect'       => $updateSelect,
@@ -1051,6 +1052,12 @@ class EmailController extends FormController
 
             return new JsonResponse($this->factory->getBeeTemplateJSONByName($template));
         } else {
+            $isBeeHTMLTemplate = $this->request->get('beehtmltemplate', false);
+            if ($isBeeHTMLTemplate) {
+                $template = InputHelper::clean($this->request->query->get('beehtmltemplate'));
+
+                return new JsonResponse($this->factory->getBeeTemplateHTMLByName($template));
+            }
             $template = InputHelper::clean($this->request->query->get('template'));
 
             $slots    = $this->factory->getTheme($template)->getSlots('email');
