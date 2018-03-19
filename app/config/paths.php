@@ -16,7 +16,7 @@ if (!function_exists('getLocalConfigPath')) {
         if (isset($_SERVER['SERVER_NAME'])) {
             $host=$_SERVER['SERVER_NAME'];
         }
-        if ($host == '192.168.1.38') {
+        if ($host == '192.168.1.59') {
             $host='localhost';
         }
         $hostarr=explode('.', $host);
@@ -36,6 +36,7 @@ $paths = [
     //customizable
     'themes'             => 'themes',
     'beetemplates'       => 'beetemplates',
+    'plans'              => 'plans',
     'assets'             => 'media',
     'asset_prefix'       => '',
     'plugins'            => 'plugins',
