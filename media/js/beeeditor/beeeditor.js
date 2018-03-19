@@ -98,7 +98,7 @@
         //write your send test function here
       },
       onError: function(errorMessage) {
-          alert(errorMessage);
+          alert(JSON.stringify(errorMessage));
        // console.log('onError ', errorMessage);
       }
     };
