@@ -59,8 +59,8 @@ class AjaxController extends CommonAjaxController
                     }
                     //test card details
                     //5104015555555558 any cvv any future expiry date
-                    $apikey                    =$this->coreParametersHelper->getParameter('razoparpay_apikey');
-                    $apisecret                 =$this->coreParametersHelper->getParameter('razoparpay_apisecret');
+                    $apikey                      =$this->coreParametersHelper->getParameter('razoparpay_apikey');
+                    $apisecret                   =$this->coreParametersHelper->getParameter('razoparpay_apisecret');
                     $api                         = new Api($apikey, $apisecret);
                     $subscription                = $api->subscription->create(['plan_id' => $planid, 'customer_notify' => 1, 'total_count' => $totalcount]);
                     $subscriptionid              =$subscription->id;
@@ -167,14 +167,15 @@ class AjaxController extends CommonAjaxController
 
     public function validatepaymentAction(Request $request)
     {
-        $clienthost        =$request->getHost();
-        $clientprotocal    =$request->getScheme();
-        $paymentid         = $request->request->get('paymentid');
-        $subscriptionid    = $request->request->get('subscriptionid');
-        $signature         = $request->request->get('signature');
-        $expectedSignature = hash_hmac('sha256', $paymentid.'|'.$subscriptionid, $this->RAZOR_PAY_APP_SECRET);
-        $dataArray         = ['success' => true];
-        $parameters        =['provider' => 'razorpay', 'paymentid' => $paymentid, 'subscriptionid' => $subscriptionid];
+        $clienthost                =$request->getHost();
+        $clientprotocal            =$request->getScheme();
+        $paymentid                 = $request->request->get('paymentid');
+        $subscriptionid            = $request->request->get('subscriptionid');
+        $signature                 = $request->request->get('signature');
+        $apisecret                 =$this->coreParametersHelper->getParameter('razoparpay_apisecret');
+        $expectedSignature         = hash_hmac('sha256', $paymentid.'|'.$subscriptionid, $apisecret);
+        $dataArray                 = ['success' => true];
+        $parameters                =['provider' => 'razorpay', 'paymentid' => $paymentid, 'subscriptionid' => $subscriptionid];
         if ($expectedSignature === $signature) {
             $parameters['status']=true;
         } else {
