@@ -93,3 +93,12 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
         </div>
     </div>
 <?php endif; ?>
+<?php
+if ($showvideo) {
+    echo $view->render('MauticSubscriptionBundle:Subscription:video.html.php',
+        [
+            'typePrefix' => 'email',
+            'videoURL'   => $videoURL,
+        ]);
+}
+?>

@@ -89,7 +89,7 @@ class Widget extends FormEntity
     /**
      * @var int
      */
-    private $canViewOthers;
+    private $canViewOthers = 0;
 
     public function __clone()
     {

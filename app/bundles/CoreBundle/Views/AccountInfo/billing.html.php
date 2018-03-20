@@ -63,19 +63,48 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.accountinf
                             <p style="color: #342345;font-family: 'Open Sans', Helvetica, Arial, sans-serif;font-size:13px;">Plan Type: Basic</p>
                             <br>
                             <div class="row">
+                                <div class="col-md-12">
                                 <?php echo $view['form']->label($form['companyname']); ?>
                                 <?php echo $view['form']->widget($form['companyname']); ?>
+                                </div>
                             </div>
                             <br>
                             <div class="row">
+                                <div class="col-md-12">
                                 <?php echo $view['form']->label($form['accountingemail']); ?>
                                 <?php echo $view['form']->widget($form['accountingemail']); ?>
+                                </div>
                             </div>
                             <br>
                             <div class="row">
+                                <div class="col-md-12">
                                 <?php echo $view['form']->label($form['companyaddress']); ?>
                                 <?php echo $view['form']->widget($form['companyaddress']); ?>
+                                </div>
                             </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-6">
+                                <?php echo $view['form']->label($form['postalcode']); ?>
+                                <?php echo $view['form']->widget($form['postalcode']); ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <?php echo $view['form']->label($form['state']); ?>
+                                    <?php echo $view['form']->widget($form['state']); ?>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <?php echo $view['form']->label($form['city']); ?>
+                                    <?php echo $view['form']->widget($form['city']); ?>
+                                </div>
+                                <div class="col-md-6">
+                                <?php echo $view['form']->label($form['country']); ?>
+                                <?php echo $view['form']->widget($form['country']); ?>
+                                </div>
+                            </div>
+                            <br>
                         </div>
                     </div>
                 </div>

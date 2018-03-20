@@ -143,6 +143,9 @@ class ConfigController extends FormController
                 if (!$cancelled && $this->isFormApplied($form)) {
                     return $this->delegateRedirect($this->generateUrl('mautic_config_action', ['objectAction' => 'edit']));
                 } else {
+                    $loginsession = $this->get('session');
+                    $loginsession->set('isLogin', false);
+
                     return $this->delegateRedirect($this->generateUrl('mautic_dashboard_index'));
                 }
             }
