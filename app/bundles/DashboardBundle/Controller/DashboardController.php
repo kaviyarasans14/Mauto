@@ -33,6 +33,9 @@ class DashboardController extends FormController
         $model   = $this->getModel('dashboard');
         $widgets = $model->getWidgets();
 
+        $licenseRemDays  = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $emailUsageCount = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
             return $this->applyDashboardFileAction('global.leadsengagecustom');
@@ -71,9 +74,11 @@ class DashboardController extends FormController
 
         return $this->delegateView([
             'viewParameters' => [
-                'security'      => $this->get('mautic.security'),
-                'widgets'       => $widgets,
-                'dateRangeForm' => $dateRangeForm->createView(),
+                'security'         => $this->get('mautic.security'),
+                'widgets'          => $widgets,
+                'dateRangeForm'    => $dateRangeForm->createView(),
+                'licenseRemCount'  => $licenseRemDays,
+                'emailUsageCount'  => $emailUsageCount,
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [

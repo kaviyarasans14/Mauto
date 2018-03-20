@@ -606,12 +606,14 @@ return [
                     'mautic.user.model.user',
                     'mautic.channel.model.queue',
                     'mautic.email.model.send_email_to_contacts',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.email.model.send_email_to_user' => [
                 'class'     => \Mautic\EmailBundle\Model\SendEmailToUser::class,
                 'arguments' => [
                     'mautic.email.model.email',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.email.model.send_email_to_contacts' => [

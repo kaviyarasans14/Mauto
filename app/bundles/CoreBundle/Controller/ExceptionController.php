@@ -82,6 +82,7 @@ class ExceptionController extends CommonController
 
             $template   = "MauticCoreBundle:{$layout}:{$code}.html.php";
             $templating = $this->factory->getTemplating();
+
             if (!$templating->exists($template)) {
                 $template = "MauticCoreBundle:{$layout}:base.html.php";
             }

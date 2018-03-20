@@ -18,7 +18,7 @@ $isCustomAdmin= $view['security']->isCustomAdmin();
 <!--/ end: loading bar -->
 
 <!-- start: navbar nocollapse -->
-<div class="navbar-nocollapse">
+<div class="navbar-nocollapse" style=" margin-top: -5px;margin-bottom: -7px;">
     <!-- start: left nav -->
     <ul class="nav navbar-nav navbar-left">
         <li class="hidden-xs" data-toggle="tooltip" data-placement="right" title="Minimize Sidebar">

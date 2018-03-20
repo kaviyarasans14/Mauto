@@ -67,6 +67,7 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
     </div>
 </div>
 
+
 <?php if (count($widgets)): ?>
     <div id="dashboard-widgets" class="dashboard-widgets cards">
         <?php foreach ($widgets as $widget): ?>

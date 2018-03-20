@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\CoreBundle\Helper\InputHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\PathsHelper;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\CoreBundle\Model\NotificationModel;
@@ -68,6 +69,11 @@ class ImportModel extends FormModel
     protected $leadEventLogRepo;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    protected $licenseInfoHelper;
+
+    /**
      * ImportModel constructor.
      *
      * @param PathsHelper          $pathsHelper
@@ -75,13 +81,15 @@ class ImportModel extends FormModel
      * @param NotificationModel    $notificationModel
      * @param CoreParametersHelper $config
      * @param CompanyModel         $companyModel
+     * @param LicenseInfoHelper    $licenseInfoHelper
      */
     public function __construct(
         PathsHelper $pathsHelper,
         LeadModel $leadModel,
         NotificationModel $notificationModel,
         CoreParametersHelper $config,
-        CompanyModel $companyModel
+        CompanyModel $companyModel,
+        LicenseInfoHelper $licenseInfoHelper
     ) {
         $this->pathsHelper       = $pathsHelper;
         $this->leadModel         = $leadModel;
@@ -89,6 +97,7 @@ class ImportModel extends FormModel
         $this->config            = $config;
         $this->leadEventLogRepo  = $leadModel->getEventLogRepository();
         $this->companyModel      = $companyModel;
+        $this->licenseInfoHelper =  $licenseInfoHelper;
     }
 
     /**
@@ -382,6 +391,7 @@ class ImportModel extends FormModel
                         $import->increaseUpdatedCount();
                     } else {
                         $this->logDebug('Entity on line '.$lineNumber.' has been created', $import);
+                        $this->licenseInfoHelper->intRecordCount('1', true);
                         $import->increaseInsertedCount();
                     }
                 } catch (\Exception $e) {

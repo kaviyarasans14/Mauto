@@ -12,6 +12,7 @@
 namespace Mautic\UserBundle\Security\Provider;
 
 use Mautic\CoreBundle\Helper\EncryptionHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\UserBundle\Entity\PermissionRepository;
 use Mautic\UserBundle\Entity\User;
 use Mautic\UserBundle\Entity\UserRepository;
@@ -24,6 +25,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -58,24 +60,32 @@ class UserProvider implements UserProviderInterface
     protected $encoder;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    protected $licenseInfoHelper;
+
+    /**
      * @param UserRepository           $userRepository
      * @param PermissionRepository     $permissionRepository
      * @param Session                  $session
      * @param EventDispatcherInterface $dispatcher
      * @param EncoderFactory           $encoder
+     * @param LicenseInfoHelper        $licenseInfoHelper
      */
     public function __construct(
         UserRepository $userRepository,
         PermissionRepository $permissionRepository,
         Session $session,
         EventDispatcherInterface $dispatcher,
-        EncoderFactory $encoder
+        EncoderFactory $encoder,
+        LicenseInfoHelper  $licenseInfoHelper
     ) {
         $this->userRepository       = $userRepository;
         $this->permissionRepository = $permissionRepository;
         $this->session              = $session;
         $this->dispatcher           = $dispatcher;
         $this->encoder              = $encoder;
+        $this->licenseInfoHelper    = $licenseInfoHelper;
     }
 
     /**
@@ -130,7 +140,21 @@ class UserProvider implements UserProviderInterface
             );
         }
 
-        return $this->loadUserByUsername($user->getUsername());
+        $licenseRemDays = $this->licenseInfoHelper->getLicenseRemainingDays();
+
+        $getAppStatus = $this->licenseInfoHelper->getAppStatus();
+
+        if ($getAppStatus == 'Active') {
+            if ($licenseRemDays > 0) {
+                return $this->loadUserByUsername($user->getUsername());
+            } else {
+                $this->session->set(Security::AUTHENTICATION_ERROR, 'License Expired Please Contact Support Team');
+                throw new AuthenticationException();
+            }
+        } else {
+            $this->session->set(Security::AUTHENTICATION_ERROR, 'Account Suspended Please Contact Support Team');
+            throw new AuthenticationException();
+        }
     }
 
     /**

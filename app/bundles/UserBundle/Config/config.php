@@ -247,6 +247,7 @@ return [
                     'session',
                     'event_dispatcher',
                     'security.encoder_factory',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.security.authentication_listener' => [

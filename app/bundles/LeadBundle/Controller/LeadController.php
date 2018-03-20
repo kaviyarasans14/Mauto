@@ -493,6 +493,8 @@ class LeadController extends FormController
         $model = $this->getModel('lead.lead');
         $lead  = $model->getEntity();
 
+        $isValidRecordAdd = $this->get('mautic.helper.licenseinfo')->isValidRecordAdd();
+
         if (!$this->get('mautic.security')->isGranted('lead:leads:create')) {
             return $this->accessDenied();
         }
@@ -538,8 +540,13 @@ class LeadController extends FormController
 
                     $model->setFieldValues($lead, $data, true);
 
-                    //form is valid so process the data
-                    $model->saveEntity($lead);
+                    if ($isValidRecordAdd) {
+                        //form is valid so process the data
+                        $model->saveEntity($lead);
+                        $this->get('mautic.helper.licenseinfo')->intRecordCount('1', true);
+                    } else {
+                        $this->addFlash('mautic.record.count.exceeds');
+                    }
 
                     if (!empty($companies)) {
                         $model->modifyCompanies($lead, $companies);
@@ -587,7 +594,9 @@ class LeadController extends FormController
                         $returnUrl = $this->generateUrl('mautic_contact_action', $viewParameters);
                         $template  = 'MauticLeadBundle:Lead:view';
                     } else {
-                        return $this->editAction($lead->getId(), true);
+                        if ($isValidRecordAdd) {
+                            return $this->editAction($lead->getId(), true);
+                        }
                     }
                 }
             } else {
@@ -596,7 +605,22 @@ class LeadController extends FormController
                 $template       = 'MauticLeadBundle:Lead:index';
             }
 
-            if ($cancelled || $valid) { //cancelled or success
+            if ($valid) { // success
+                if ($isValidRecordAdd) {
+                    return $this->postActionRedirect(
+                        [
+                            'returnUrl'       => $returnUrl,
+                            'viewParameters'  => $viewParameters,
+                            'contentTemplate' => $template,
+                            'passthroughVars' => [
+                                'activeLink'    => '#mautic_contact_index',
+                                'mauticContent' => 'lead',
+                                'closeModal'    => 1, //just in case in quick form
+                            ],
+                        ]
+                    );
+                }
+            } elseif ($cancelled) { //failure
                 return $this->postActionRedirect(
                     [
                         'returnUrl'       => $returnUrl,
@@ -1130,6 +1154,7 @@ class LeadController extends FormController
             } elseif ($model->isLocked($entity)) {
                 return $this->isLocked($postActionVars, $entity, 'lead.lead');
             } else {
+                $this->get('mautic.helper.licenseinfo')->intRecordCount('1', false);
                 $model->deleteEntity($entity);
 
                 $identifier = $this->get('translator')->trans($entity->getPrimaryIdentifier());
@@ -1206,6 +1231,8 @@ class LeadController extends FormController
 
             // Delete everything we are able to
             if (!empty($deleteIds)) {
+                $deleteCount =count($deleteIds);
+                $this->get('mautic.helper.licenseinfo')->intRecordCount($deleteCount, false);
                 $entities = $model->deleteEntities($deleteIds);
 
                 $flashes[] = [
@@ -1370,7 +1397,8 @@ class LeadController extends FormController
         $model = $this->getModel('lead');
 
         /** @var \Mautic\LeadBundle\Entity\Lead $lead */
-        $lead = $model->getEntity($objectId);
+        $lead              = $model->getEntity($objectId);
+        $isValidEmailCount = $this->get('mautic.helper.licenseinfo')->isValidEmailCount();
 
         if ($lead === null
             || !$this->get('mautic.security')->hasEntityAccess(
@@ -1448,24 +1476,26 @@ class LeadController extends FormController
                                 }
                             }
                         }
-                        if ($mailer->send(true, false, false)) {
-                            $mailer->createEmailStat();
-                            $this->addFlash(
+                        if ($isValidEmailCount) {
+                            if ($mailer->send(true, false, false)) {
+                                $mailer->createEmailStat();
+                                $this->get('mautic.helper.licenseinfo')->intEmailCount('1');
+                                $this->addFlash(
                                 'mautic.lead.email.notice.sent',
                                 [
                                     '%subject%' => $subject,
                                     '%email%'   => $leadEmail,
                                 ]
                             );
-                        } else {
-                            $errors = $mailer->getErrors();
+                            } else {
+                                $errors = $mailer->getErrors();
 
-                            // Unset the array of failed email addresses
-                            if (isset($errors['failures'])) {
-                                unset($errors['failures']);
-                            }
+                                // Unset the array of failed email addresses
+                                if (isset($errors['failures'])) {
+                                    unset($errors['failures']);
+                                }
 
-                            $form->addError(
+                                $form->addError(
                                 new FormError(
                                     $this->get('translator')->trans(
                                         'mautic.lead.email.error.failed',
@@ -1478,7 +1508,10 @@ class LeadController extends FormController
                                     )
                                 )
                             );
-                            $valid = false;
+                                $valid = false;
+                            }
+                        } else {
+                            $this->addFlash('mautic.email.count.exceeds');
                         }
                     } else {
                         $form['body']->addError(

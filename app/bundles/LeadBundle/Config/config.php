@@ -791,6 +791,7 @@ return [
                     'mautic.core.model.notification',
                     'mautic.helper.core_parameters',
                     'mautic.lead.model.company',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.lead.model.tag' => [

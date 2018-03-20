@@ -1093,8 +1093,8 @@ h6,
 }
 .page-header {
   background-color: #fbfbfb;
-  padding: 15px;
-  margin: 0;
+  padding: 27px;
+  margin: 0px;
   border-bottom: 0;
   border-bottom: 1px solid #fff;
   box-shadow: inset 0 -1px 0 0 #e5e8eb;
@@ -4797,6 +4797,21 @@ figcaption {
   color: #FFFFFF;
   border: 1px solid #f22446;
 
+}
+.license-notifiation {
+  background-color: #f9edbe;
+  width: 100%;
+  height: 31px;
+  text-align: center;
+  padding: 5px;
+  display: block;
+  font-weight: bold;
+}
+.button-notification{
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #faebcc;
 }
 
 
