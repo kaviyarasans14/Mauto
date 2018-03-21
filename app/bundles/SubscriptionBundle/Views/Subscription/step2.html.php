@@ -88,7 +88,7 @@
 
                     <button class="signup_next" type="submit" value="Next"><?php echo $view['translator']->trans('leadsengage.kyc.next_button'); ?></button>
                     <span>&nbsp;&nbsp;&nbsp;&nbsp;Or&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <a class="signup_back" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_action', ['objectAction' => 'signup']); ?>');"><?php echo $view['translator']->trans('leadsengage.kyc.go_back'); ?></a>
+                    <a class="signup_back" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_kyc_action', ['objectAction' => 'signup']); ?>');"><?php echo $view['translator']->trans('leadsengage.kyc.go_back'); ?></a>
                 </div>
             </div>
     </div>
