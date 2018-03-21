@@ -57,5 +57,10 @@ CREATE TABLE {$this->prefix}`licenseinfo` (
 SQL;
 
         $this->addSql($sql);
+        $sql = <<<SQL
+INSERT INTO {$this->prefix}licenseinfo (
+  VALUES ('UL',0,'UL',0,'0','UL','UL','2018-03-21','','UL',0,'','','Active')
+SQL;
+        $this->addSql($sql);
     }
 }
