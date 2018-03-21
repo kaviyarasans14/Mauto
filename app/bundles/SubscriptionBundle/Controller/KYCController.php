@@ -89,12 +89,12 @@ class KYCController extends FormController
             $city           = $data['city'];
             $country        = $data['country'];
             $billing->setCompanyname($companyname);
+            $billing->setAccountingemail($email);
             $billing->setCompanyaddress($companyaddress);
             $billing->setPostalcode($postalcode);
             $billing->setState($state);
             $billing->setCity($city);
             $billing->setCountry($country);
-            $billing->setAccountingemail($email);
             $billingmodel->saveEntity($billing);
 
             $phonenumber    = $accountdata['phonenumber'];
