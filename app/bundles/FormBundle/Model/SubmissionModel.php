@@ -18,6 +18,7 @@ use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\CoreBundle\Helper\IpLookupHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\CoreBundle\Model\FormModel as CommonFormModel;
 use Mautic\FormBundle\Crate\UploadFileCrate;
@@ -114,6 +115,11 @@ class SubmissionModel extends CommonFormModel
     private $formUploader;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    private $licenseInfoHelper;
+
+    /**
      * @param IpLookupHelper       $ipLookupHelper
      * @param TemplatingHelper     $templatingHelper
      * @param FormModel            $formModel
@@ -125,6 +131,7 @@ class SubmissionModel extends CommonFormModel
      * @param FormFieldHelper      $fieldHelper
      * @param UploadFieldValidator $uploadFieldValidator
      * @param FormUploader         $formUploader
+     * @param LicenseInfoHelper    $licenseInfoHelper
      */
     public function __construct(
         IpLookupHelper $ipLookupHelper,
@@ -137,7 +144,8 @@ class SubmissionModel extends CommonFormModel
         CompanyModel $companyModel,
         FormFieldHelper $fieldHelper,
         UploadFieldValidator $uploadFieldValidator,
-        FormUploader $formUploader
+        FormUploader $formUploader,
+        LicenseInfoHelper $licenseInfoHelper
     ) {
         $this->ipLookupHelper       = $ipLookupHelper;
         $this->templatingHelper     = $templatingHelper;
@@ -150,6 +158,7 @@ class SubmissionModel extends CommonFormModel
         $this->fieldHelper          = $fieldHelper;
         $this->uploadFieldValidator = $uploadFieldValidator;
         $this->formUploader         = $formUploader;
+        $this->licenseInfoHelper    = $licenseInfoHelper;
     }
 
     /**
@@ -174,6 +183,8 @@ class SubmissionModel extends CommonFormModel
     public function saveSubmission($post, $server, Form $form, Request $request = null, $returnEvent = false)
     {
         $leadFields = $this->leadFieldModel->getFieldListWithProperties(false);
+
+        $isValidRecordAdd = $this->licenseInfoHelper->isValidRecordAdd();
 
         //everything matches up so let's save the results
         $submission = new Submission();
@@ -356,7 +367,12 @@ class SubmissionModel extends CommonFormModel
         // Create/update lead
         $lead = null;
         if (!empty($leadFieldMatches)) {
-            $this->createLeadFromSubmit($form, $leadFieldMatches, $leadFields);
+            if ($isValidRecordAdd) {
+                $this->createLeadFromSubmit($form, $leadFieldMatches, $leadFields);
+                $this->licenseInfoHelper->intRecordCount('1', true);
+            } else {
+                return ['errors' => 'InSufficient Record Count Please Contact Support Team'];
+            }
         }
 
         // Get updated lead if applicable with tracking ID

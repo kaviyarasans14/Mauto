@@ -377,6 +377,7 @@ return [
                     'mautic.helper.form.field_helper',
                     'mautic.form.validator.upload_field_validator',
                     'mautic.form.helper.form_uploader',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.form.model.submission_result_loader' => [

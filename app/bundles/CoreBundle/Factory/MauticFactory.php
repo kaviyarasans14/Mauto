@@ -371,9 +371,9 @@ class MauticFactory
      *
      * @return array
      */
-    public function getInstalledBeeTemplates($ignoreCache = false, $extended=true)
+    public function getInstalledBeeTemplates($specificFeature = 'all', $ignoreCache = false, $extended=true)
     {
-        return $this->container->get('mautic.helper.theme')->getInstalledBeeTemplates($ignoreCache, $extended);
+        return $this->container->get('mautic.helper.theme')->getInstalledBeeTemplates($specificFeature, $ignoreCache, $extended);
     }
 
     /**
@@ -394,6 +394,16 @@ class MauticFactory
     public function getBeeTemplateJSONByName($templatename)
     {
         return $this->container->get('mautic.helper.theme')->getBeeTemplateJSONByName($templatename);
+    }
+
+    /**
+     * Gets template json based on its name.
+     *
+     * @return string
+     */
+    public function getBeeTemplateHTMLByName($templatename)
+    {
+        return $this->container->get('mautic.helper.theme')->getBeeTemplateHTMLByName($templatename);
     }
 
     /**

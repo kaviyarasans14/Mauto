@@ -335,6 +335,7 @@ class AssetController extends FormController
 
                     //form is valid so process the data
                     $model->saveEntity($entity);
+                    $this->get('mautic.helper.licenseinfo')->intAttachmentSize($entity->getSize(), true);
 
                     //remove the asset from request
                     $this->request->files->remove('asset');
@@ -651,6 +652,8 @@ class AssetController extends FormController
             }
 
             $entity->removeUpload();
+            $removeSize= $entity->getSize();
+            $this->get('mautic.helper.licenseinfo')->intAttachmentSize($removeSize, false);
             $model->deleteEntity($entity);
 
             $flashes[] = [
@@ -699,7 +702,9 @@ class AssetController extends FormController
 
             // Loop over the IDs to perform access checks pre-delete
             foreach ($ids as $objectId) {
-                $entity = $model->getEntity($objectId);
+                $entity    = $model->getEntity($objectId);
+                $removeSize= $entity->getSize();
+                $this->get('mautic.helper.licenseinfo')->intAttachmentSize($removeSize, false);
 
                 if ($entity === null) {
                     $flashes[] = [

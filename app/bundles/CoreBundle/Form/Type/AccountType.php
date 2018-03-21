@@ -133,7 +133,7 @@ class AccountType extends AbstractType
                 'label'       => 'mautic.core.accountmobile',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => false,
+                'required'    => true,
             ]
         );
 
@@ -160,8 +160,9 @@ class AccountType extends AbstractType
                     'tooltip' => 'mautic.core.config.form.default.timezone.tooltip',
                 ],
                 'multiple'    => false,
-                'empty_value' => 'mautic.user.user.form.defaulttimezone',
-                'required'    => false,
+                'empty_value' => '',
+                'data'        => $options['data']->getTimezone(),
+                'required'    => true,
             ]
         );
 

@@ -449,6 +449,11 @@ return [
             'mautic.helper.app_version' => [
                 'class' => \Mautic\CoreBundle\Helper\AppVersion::class,
             ],
+            'mautic.helper.licenseinfo' => [
+                'class'     => 'Mautic\CoreBundle\Helper\LicenseInfoHelper',
+                'arguments' => ['doctrine.orm.entity_manager',
+                                'mautic.email.repository.licenseinfo', ],
+            ],
             'mautic.helper.template.menu' => [
                 'class'     => 'Mautic\CoreBundle\Templating\Helper\MenuHelper',
                 'arguments' => ['knp_menu.helper'],
@@ -624,7 +629,13 @@ return [
             'symfony.filesystem' => [
                 'class' => \Symfony\Component\Filesystem\Filesystem::class,
             ],
-
+            'mautic.email.repository.licenseinfo' => [
+                'class'     => Doctrine\ORM\EntityRepository::class,
+                'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
+                'arguments' => [
+                    \Mautic\CoreBundle\Entity\LicenseInfo::class,
+                ],
+            ],
             // Error handler
             'mautic.core.errorhandler.subscriber' => [
                 'class'     => 'Mautic\CoreBundle\EventListener\ErrorHandlingListener',

@@ -362,7 +362,7 @@ class ThemeHelper
         }
     }
 
-    public function getInstalledBeeTemplates($ignoreCache = false, $extended=true)
+    public function getInstalledBeeTemplates($specificFeature = 'all', $ignoreCache = false, $extended=true)
     {
         if (sizeof($this->beeTemplateInfo) == 0 || $ignoreCache === true) {
             $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
@@ -371,19 +371,28 @@ class ThemeHelper
 
             $this->beeTemplateInfo = [];
             foreach ($finder as $template) {
+                $addTheme = false;
                 if (file_exists($template->getRealPath().'/config.json')) {
                     $config = json_decode(file_get_contents($template->getRealPath().'/config.json'), true);
                 } else {
                     continue;
                 }
-
-                $this->beeTemplates[$template->getBasename()]                      = $config['name'];
-                $this->beeTemplateInfo[$template->getBasename()]                   =[];
-                $this->beeTemplateInfo[$template->getBasename()]['name']           = $config['name'];
-                $this->beeTemplateInfo[$template->getBasename()]['key']            = $template->getBasename();
-                $this->beeTemplateInfo[$template->getBasename()]['config']         = $config;
-                $this->beeTemplateInfo[$template->getBasename()]['dir']            = $template->getRealPath();
-                $this->beeTemplateInfo[$template->getBasename()]['themesLocalDir'] = $this->pathsHelper->getSystemPath('beetemplates', false);
+                if ($specificFeature != 'all') {
+                    if (isset($config['features']) && in_array($specificFeature, $config['features'])) {
+                        $addTheme = true;
+                    }
+                } else {
+                    $addTheme = true;
+                }
+                if ($addTheme) {
+                    $this->beeTemplates[$template->getBasename()]                      = $config['name'];
+                    $this->beeTemplateInfo[$template->getBasename()]                   = [];
+                    $this->beeTemplateInfo[$template->getBasename()]['name']           = $config['name'];
+                    $this->beeTemplateInfo[$template->getBasename()]['key']            = $template->getBasename();
+                    $this->beeTemplateInfo[$template->getBasename()]['config']         = $config;
+                    $this->beeTemplateInfo[$template->getBasename()]['dir']            = $template->getRealPath();
+                    $this->beeTemplateInfo[$template->getBasename()]['themesLocalDir'] = $this->pathsHelper->getSystemPath('beetemplates', false);
+                }
             }
         }
 
@@ -431,6 +440,18 @@ class ThemeHelper
         $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
 
         return file_get_contents($dir.'/'.$templatename.'/template.json');
+    }
+
+    /**
+     * @param string $templatename
+     *
+     * @return string
+     */
+    public function getBeeTemplateHTMLByName($templatename)
+    {
+        $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+
+        return file_get_contents($dir.'/'.$templatename.'/template.html');
     }
 
     /**

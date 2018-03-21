@@ -167,6 +167,9 @@ class ImportController extends FormController
             return $this->accessDenied();
         }
 
+        $totalRecordCount  = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+        $actualRecordCount = $this->get('mautic.helper.licenseinfo')->getActualRecordCount();
+
         // Move the file to cache and rename it
         $forceStop = $this->request->get('cancel', false);
         $step      = ($forceStop) ? 1 : $session->get('mautic.'.$object.'.import.step', self::STEP_UPLOAD_CSV);
@@ -420,8 +423,17 @@ class ImportController extends FormController
 
                                 $session->set('mautic.'.$object.'.import.step', self::STEP_PROGRESS_BAR);
                             }
+                            $lineCount         = $import->getLineCount() - 1;
+                            $toBeinsertedCount = $actualRecordCount + $lineCount;
 
-                            $importModel->saveEntity($import);
+                            if ($totalRecordCount >= $toBeinsertedCount || $totalRecordCount == 'UL') {
+                                $importModel->saveEntity($import);
+                            } else {
+                                $this->addFlash('mautic.record.count.exceeds');
+                                $this->resetImport($fullPath);
+
+                                return $this->indexAction();
+                            }
 
                             $session->set('mautic.'.$object.'.import.id', $import->getId());
 

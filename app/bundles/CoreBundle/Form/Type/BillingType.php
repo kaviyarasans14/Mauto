@@ -15,9 +15,11 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\LanguageHelper;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\ReportBundle\Model\ReportModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -77,6 +79,8 @@ class BillingType extends AbstractType
         $builder->addEventSubscriber(new CleanFormSubscriber());
         $builder->addEventSubscriber(new FormExitSubscriber('user.user', $options));
 
+        $choices = FormFieldHelper::getRegionChoices();
+
         $builder->add(
             'companyname',
             'text',
@@ -87,7 +91,7 @@ class BillingType extends AbstractType
                     'class'        => 'form-control',
                     'autocomplete' => 'off',
                 ],
-                'required'    => false,
+                'required'    => true,
             ]
         );
 
@@ -98,25 +102,98 @@ class BillingType extends AbstractType
                 'label'       => 'mautic.billing.companyaddress',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => false,
+                'required'    => true,
             ]
         );
 
         $builder->add(
-            'accountingemail',
-            'email',
+            'postalcode',
+            'number',
             [
-                'label'       => 'mautic.billing.accountingemail',
+                'label'       => 'leadsengage.billing.postalcode',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => false,
+                'required'    => true,
             ]
         );
 
         $builder->add(
-            'buttons',
-            'form_buttons'
+            'city',
+            'text',
+            [
+                'label'       => 'leadsengage.billing.city',
+                'label_attr'  => ['class' => 'control-label'],
+                'attr'        => ['class' => 'form-control'],
+                'required'    => true,
+            ]
         );
+
+        $builder->add(
+            'state',
+            'choice',
+            [
+                'choices'     => $choices,
+                'label'       => 'leadsengage.billing.state',
+                'label_attr'  => ['class' => 'control-label'],
+                'attr'        => ['class' => 'form-control'],
+                'empty_value' => '',
+                'data'        => '',
+                'data'        => $options['data']->getState(),
+                'required'    => true,
+            ]
+        );
+
+        $builder->add(
+            'country',
+            'choice',
+            [
+                'choices'     => FormFieldHelper::getCountryChoices(),
+                'label'       => 'leadsengage.billing.country',
+                'label_attr'  => ['class' => 'control-label'],
+                'attr'        => [
+                    'class'    => 'form-control',
+                    'onchange' => 'Mautic.showGSTNumber(this.value);',
+                ],
+                'empty_value' => '',
+                'data'        => $options['data']->getCountry(),
+                'required'    => true,
+            ]
+        );
+
+        $builder->add(
+            'gstnumber',
+            'text',
+            [
+                'label'       => 'leadsengage.billing.gstnumber',
+                'label_attr'  => [
+                    'class' => 'control-label',
+                    'id'    => 'gstnumber_info',
+                    'style' => 'display:none;',
+                ],
+                'attr'        => ['class' => 'form-control', 'style' => 'display:none;'],
+                'required'    => false,
+            ]
+        );
+
+        if ($options['isBilling']) {
+            $builder->add(
+                'accountingemail',
+                'email',
+                [
+                    'label'      => 'mautic.billing.accountingemail',
+                    'label_attr' => ['class' => 'control-label'],
+                    'attr'       => ['class' => 'form-control'],
+                    'required'   => true,
+                ]
+            );
+        }
+
+        if ($options['isBilling']) {
+            $builder->add(
+                'buttons',
+                'form_buttons'
+            );
+        }
 
         // Get the list of available languages
         $languages   = $this->langHelper->fetchLanguages(false, false);
@@ -130,6 +207,21 @@ class BillingType extends AbstractType
 
         // Alpha sort the languages by name
         asort($langChoices);
+    }
+
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(
+            [
+                'data_class'  => 'Mautic\CoreBundle\Entity\Billing',
+                'isBilling'   => false,
+            ]
+        );
+
+        $resolver->setRequired(['isBilling']);
     }
 
     /**

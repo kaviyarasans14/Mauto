@@ -367,8 +367,10 @@ class MailHelper
                 $this->addUnsubscribeHeader();
 
                 // Search/replace tokens if this is not a queue flush
-                $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
-                $this->body['content'] = $bodycontent;
+                if (!empty($this->body['content'])) {
+                    $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
+                    $this->body['content'] = $bodycontent;
+                }
 
                 // Generate tokens from listeners
                 if ($dispatchSendEvent) {

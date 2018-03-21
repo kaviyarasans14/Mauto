@@ -211,7 +211,7 @@ $dbalSettings = [
             'driver'   => '%mautic.db_driver%',
             'host'     => '%mautic.db_host%',
             'port'     => '%mautic.db_port%',
-            'dbname'   => '%mautic.app_db_name%',
+            'dbname'   => '%mautic.db_name%',
             'user'     => '%mautic.db_user%',
             'password' => '%mautic.db_password%',
             'charset'  => 'UTF8',
@@ -227,7 +227,23 @@ $dbalSettings = [
             'driver'   => '%mautic.db_driver%',
             'host'     => '%mautic.db_host%',
             'port'     => '%mautic.db_port%',
-            'dbname'   => '%mautic.common_db_name%',
+            'dbname'   => 'leadsengage_apps', // Cpanel Database name
+            'user'     => '%mautic.db_user%',
+            'password' => '%mautic.db_password%',
+            'charset'  => 'UTF8',
+            // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
+            'mapping_types' => [
+                'enum'  => 'string',
+                'point' => 'string',
+                'bit'   => 'string',
+            ],
+            'server_version' => '%mautic.db_server_version%',
+        ],
+        'signupdb' => [
+            'driver'   => '%mautic.db_driver%',
+            'host'     => '%mautic.db_host%',
+            'port'     => '%mautic.db_port%',
+            'dbname'   => 'leadsengage_signup', // KYC & Customer details updating schema
             'user'     => '%mautic.db_user%',
             'password' => '%mautic.db_password%',
             'charset'  => 'UTF8',
@@ -284,6 +300,10 @@ $container->loadFromExtension('doctrine', [
             ],
             'commondb' => [
                 'connection' => 'commondb',
+                'mappings'   => [],
+            ],
+            'signupdb' => [
+                'connection' => 'signupdb',
                 'mappings'   => [],
             ],
         ],

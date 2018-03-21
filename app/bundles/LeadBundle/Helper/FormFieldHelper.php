@@ -183,6 +183,22 @@ class FormFieldHelper extends AbstractFormFieldHelper
     }
 
     /**
+     * @return array
+     */
+    public static function getFeedbackChoices()
+    {
+        $feedbackJson = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/feedback.json');
+        $feedbacks    = json_decode($feedbackJson);
+
+        $choices = [];
+        foreach ($feedbacks as $property => &$propertyValue) {
+            $choices[$property] = array_combine($propertyValue, $propertyValue);
+        }
+
+        return $choices;
+    }
+
+    /**
      * Symfony deprecated and changed Symfony\Component\Form\Extension\Core\Type\TimezoneType::getTimezones to private
      * in 3.0 - so duplicated code here.
      *

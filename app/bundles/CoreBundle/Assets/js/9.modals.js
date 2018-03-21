@@ -344,6 +344,17 @@ Mautic.closeModalAndRedirect = function(el, url) {
 };
 
 /**
+ * Close the given modal and redirect to a URL
+ *
+ * @param url
+ */
+Mautic.RedirectToGivenURL = function(url) {
+
+    window.location.href = url;
+
+};
+
+/**
  * Open modal route when a specific value is selected from a select list
  *
  * @param el

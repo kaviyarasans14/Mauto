@@ -1093,8 +1093,8 @@ h6,
 }
 .page-header {
   background-color: #fbfbfb;
-  padding: 15px;
-  margin: 0;
+  padding: 27px;
+  margin: 0px;
   border-bottom: 0;
   border-bottom: 1px solid #fff;
   box-shadow: inset 0 -1px 0 0 #e5e8eb;
@@ -4798,6 +4798,164 @@ figcaption {
   border: 1px solid #f22446;
 
 }
+.license-notifiation {
+  background-color: #f9edbe;
+  width: 100%;
+  height: 31px;
+  text-align: center;
+  padding: 5px;
+  display: block;
+  font-weight: bold;
+}
+.button-notification{
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #faebcc;
+}
+#complete_profile{
+  font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  font-size:20px;
+  padding-left: 15px;
+  padding-top: 25px;
+}
+#complete_profile_header{
+  height:80px;
+  background-color: #FFFFFF;
+}
 
+.signup_next {
+  background: #375695;
+  background-image: -webkit-linear-gradient(top, #375695, #375695);
+  background-image: -moz-linear-gradient(top, #375695, #375695);
+  background-image: -ms-linear-gradient(top, #375695, #375695);
+  background-image: -o-linear-gradient(top, #375695, #375695);
+  background-image: linear-gradient(to bottom, #375695, #375695);
+  -webkit-border-radius: 4;
+  -moz-border-radius: 4;
+  border-radius: 4px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 16px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  border: 0px;
+}
 
+.signup_next:hover {
+  background: #41609c;
+  background-image: -webkit-linear-gradient(top, #41609c, #42619e);
+  background-image: -moz-linear-gradient(top, #41609c, #42619e);
+  background-image: -ms-linear-gradient(top, #41609c, #42619e);
+  background-image: -o-linear-gradient(top, #41609c, #42619e);
+  background-image: linear-gradient(to bottom, #41609c, #42619e);
+  text-decoration: none;
+}
 
+.signup_back {
+  -webkit-border-radius: 4;
+  -moz-border-radius: 4;
+  border-radius: 4px;
+  font-family: Arial;
+  color: #375695;
+  font-size: 16px;
+  text-decoration: none;
+  border: 0px;
+}
+
+.signup_back:hover {
+  color: #41609c;
+  text-decoration: none;
+}
+
+#anti_spam_policy{
+  font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-size:16px;
+}
+
+#terms{
+  width: 100%;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  padding: 15px;
+  height: 300px;
+  overflow-y: scroll;
+  font-size: 13px;
+  color: #333;
+}
+.control {
+  font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 5px;
+  padding-top: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.control input {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
+}
+.control_indicator {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background: #e6e6e6;
+  border: 0px solid #000000;
+}
+
+.control:hover input ~ .control_indicator,
+.control input:focus ~ .control_indicator {
+  background: #cccccc;
+}
+
+.control input:checked ~ .control_indicator {
+  background: #2aa1c0;
+}
+.control:hover input:not([disabled]):checked ~ .control_indicator,
+.control input:checked:focus ~ .control_indicator {
+  background: #0e6647d;
+}
+.control input:disabled ~ .control_indicator {
+  background: #e6e6e6;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.control_indicator:after {
+  box-sizing: unset;
+  content: '';
+  position: absolute;
+  display: none;
+}
+.control input:checked ~ .control_indicator:after {
+  display: block;
+}
+.control-checkbox .control_indicator:after {
+  left: 8px;
+  top: 4px;
+  width: 3px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.control-checkbox input:disabled ~ .control_indicator:after {
+  border-color: #7b7b7b;
+}
+.first_time_setup{
+  margin-left:20%;
+}
+.dont_show_again{
+  float:right;
+  font-size:12px;
+  position: relative;
+  top: 0;
+  right: 10px;
+}

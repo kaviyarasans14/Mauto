@@ -111,9 +111,9 @@ class BuilderSubscriber extends CommonSubscriber
         }
 
         $tokens = [
-            '{from_email}'       => $this->translator->trans('mautic.email.token.from_email'),
-            '{postal_address}'   => $this->translator->trans('mautic.email.token.postal_address'),
-            '{unsubscribe}'      => $this->translator->trans('mautic.email.token.unsubscribe_text'),
+            '{from_email}'            => $this->translator->trans('mautic.email.token.from_email'),
+            '{postal_address}'        => $this->translator->trans('mautic.email.token.postal_address'),
+            '{unsubscribe_text}'      => $this->translator->trans('mautic.email.token.unsubscribe_text'),
             //'{webview_text}'     => $this->translator->trans('mautic.email.token.webview_text'),
             '{signature}'        => $this->translator->trans('mautic.email.token.signature'),
             '{subject}'          => $this->translator->trans('mautic.email.subject'),
@@ -287,8 +287,11 @@ class BuilderSubscriber extends CommonSubscriber
         $event->addToken('{subject}', EmojiHelper::toHtml($event->getSubject()));
 
         $footerText = $this->coreParametersHelper->getParameter('footer_text');
+        if (!$footerText) {
+            $footerText = $this->translator->trans('leadsengage.email.default.footer');
+        }
         if ($footerText != '') {
-            $footerText = str_replace('{unsubscribe}', "<a href='|URL|'>Unsubscribe</a>", $footerText);
+            $footerText = str_replace('{unsubscribe_text}', "<a href='|URL|'>Unsubscribe</a>", $footerText);
             $footerText = str_replace('|URL|', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]), $footerText);
             if ($email != null) {
                 $footerText = str_replace('{from_email}', $email->getFromAddress(), $footerText);

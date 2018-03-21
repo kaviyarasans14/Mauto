@@ -14,6 +14,7 @@ namespace Mautic\DashboardBundle\Controller;
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\DashboardBundle\Entity\Widget;
+use Mautic\SubscriptionBundle\Entity\UserPreference;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -29,9 +30,28 @@ class DashboardController extends FormController
      */
     public function indexAction()
     {
+        $videoarg     = $this->request->get('login');
+        $loginsession = $this->get('session');
+        $loginarg     = $loginsession->get('isLogin');
+        /** @var \Mautic\SubscriptionBundle\Model\KYCModel $kycmodel */
+        $kycmodel  = $this->getModel('subscription.kycinfo');
+        $kycrepo   = $kycmodel->getRepository();
+        $kycentity = $kycrepo->findAll();
+        if (empty($kycentity)) {
+            return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
+        } elseif (sizeof($kycentity) > 0) {
+            $kyc = $kycentity[0];
+            if (!$kyc->getConditionsagree()) {
+                return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
+            }
+        }
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
         $model   = $this->getModel('dashboard');
         $widgets = $model->getWidgets();
+        $loginsession->set('isLogin', false);
+
+        $licenseRemDays  = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $emailUsageCount = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -69,11 +89,34 @@ class DashboardController extends FormController
 
         $model->populateWidgetsContent($widgets, $filter);
 
+        $usermodel  =$this->getModel('user.user');
+        $currentuser= $usermodel->getCurrentUserEntity();
+
+        /** @var \Mautic\SubscriptionBundle\Model\UserPreferenceModel $userprefmodel */
+        $userprefmodel  = $this->getModel('subscription.userpreference');
+        $userprefrepo   = $userprefmodel->getRepository();
+        $userprefentity = $userprefrepo->findOneBy(['userid' => $currentuser->getId()]);
+        $videoURL       = $this->coreParametersHelper->getParameter('video_url');
+        $showvideo      = 0;
+        if ($userprefentity == null && $loginarg) {
+            $showvideo = 1;
+        }
+        if ($videoarg == 'dont_show_again') {
+            $userprefentity = new UserPreference();
+            $userprefentity->setProperty('Dont Show Video again');
+            $userprefentity->setUserid($currentuser->getId());
+            $userprefmodel->saveEntity($userprefentity);
+        }
+
         return $this->delegateView([
             'viewParameters' => [
-                'security'      => $this->get('mautic.security'),
-                'widgets'       => $widgets,
-                'dateRangeForm' => $dateRangeForm->createView(),
+                'security'         => $this->get('mautic.security'),
+                'widgets'          => $widgets,
+                'dateRangeForm'    => $dateRangeForm->createView(),
+                'licenseRemCount'  => $licenseRemDays,
+                'emailUsageCount'  => $emailUsageCount,
+                'showvideo'        => $showvideo,
+                'videoURL'         => $videoURL,
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [

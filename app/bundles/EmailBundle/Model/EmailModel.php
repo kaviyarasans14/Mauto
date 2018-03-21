@@ -21,6 +21,7 @@ use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\Chart\PieChart;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\CoreBundle\Helper\IpLookupHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\ThemeHelper;
 use Mautic\CoreBundle\Model\AjaxLookupModelInterface;
 use Mautic\CoreBundle\Model\BuilderModelTrait;
@@ -121,6 +122,11 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     protected $sendModel;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    protected $licenseInfoHelper;
+
+    /**
      * EmailModel constructor.
      *
      * @param IpLookupHelper     $ipLookupHelper
@@ -133,6 +139,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      * @param UserModel          $userModel
      * @param MessageQueueModel  $messageQueueModel
      * @param SendEmailToContact $sendModel
+     * @param LicenseInfoHelper  $licenseInfoHelper
      */
     public function __construct(
         IpLookupHelper $ipLookupHelper,
@@ -144,7 +151,8 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         TrackableModel $pageTrackableModel,
         UserModel $userModel,
         MessageQueueModel $messageQueueModel,
-        SendEmailToContact $sendModel
+        SendEmailToContact $sendModel,
+        LicenseInfoHelper  $licenseInfoHelper
     ) {
         $this->ipLookupHelper     = $ipLookupHelper;
         $this->themeHelper        = $themeHelper;
@@ -156,6 +164,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         $this->userModel          = $userModel;
         $this->messageQueueModel  = $messageQueueModel;
         $this->sendModel          = $sendModel;
+        $this->licenseInfoHelper  =  $licenseInfoHelper;
     }
 
     /**
@@ -1146,6 +1155,8 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         $dncAsError          = (isset($options['dnc_as_error'])) ? $options['dnc_as_error'] : false;
         $errors              = [];
 
+        $isValidEmailCount=$this->licenseInfoHelper->isValidEmailCount();
+
         if (empty($channel)) {
             $channel = (isset($options['source'])) ? $options['source'] : [];
         }
@@ -1280,14 +1291,18 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
                 foreach ($contacts as $contact) {
                     try {
-                        $this->sendModel->setContact($contact, $tokens)
-                            ->send();
+                        if ($isValidEmailCount) {
+                            $this->sendModel->setContact($contact, $tokens)
+                                ->send();
+                            // Update $emailSetting so campaign a/b tests are handled correctly
+                            ++$emailSettings[$parentId]['sentCount'];
 
-                        // Update $emailSetting so campaign a/b tests are handled correctly
-                        ++$emailSettings[$parentId]['sentCount'];
-
-                        if (!empty($emailSettings[$parentId]['isVariant'])) {
-                            ++$emailSettings[$parentId]['variantCount'];
+                            if (!empty($emailSettings[$parentId]['isVariant'])) {
+                                ++$emailSettings[$parentId]['variantCount'];
+                            }
+                        } else {
+                            throw new FailedToSendToContactException();
+                            $this->sendModel->reset();
                         }
                     } catch (FailedToSendToContactException $exception) {
                         // move along to the next contact
@@ -1328,6 +1343,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $strikes = 3;
             while ($strikes >= 0) {
                 try {
+                    $this->licenseInfoHelper->intEmailCount($count);
                     $this->getRepository()->upCount($emailId, 'sent', $count, $emailSettings[$emailId]['isVariant']);
                     break;
                 } catch (\Exception $exception) {
@@ -2230,6 +2246,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
                 try {
                     $stat->setIsBounce(1);
                     $this->getStatRepository()->saveEntity($stat);
+                    $this->licenseInfoHelper->intBounceCount($count);
                     $this->getRepository()->upBounceCount($emailId, 'bounce', $count);
                     break;
                 } catch (\Exception $exception) {

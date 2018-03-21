@@ -27,17 +27,42 @@ class Billing extends FormEntity
     /**
      * @var string
      */
-    private $companyname = '';
+    private $companyname;
 
     /**
      * @var string
      */
-    private $companyaddress = '';
+    private $companyaddress;
 
     /**
      * @var string
      */
-    private $accountingemail = '';
+    private $accountingemail;
+
+    /**
+     * @var
+     */
+    private $postalcode;
+
+    /**
+     * @var string
+     */
+    private $city;
+
+    /**
+     * @var string
+     */
+    private $state;
+
+    /**
+     * @var string
+     */
+    private $country;
+
+    /**
+     * @var string
+     */
+    private $gstnumber;
 
     /**
      * @param ORM\ClassMetadata $metadata
@@ -65,6 +90,31 @@ class Billing extends FormEntity
 
         $builder->createField('accountingemail', 'string')
             ->columnName('accountingemail')
+            ->nullable()
+            ->build();
+
+        $builder->createField('postalcode', 'integer')
+            ->columnName('postalcode')
+            ->nullable()
+            ->build();
+
+        $builder->createField('city', 'string')
+            ->columnName('city')
+            ->nullable()
+            ->build();
+
+        $builder->createField('state', 'string')
+            ->columnName('state')
+            ->nullable()
+            ->build();
+
+        $builder->createField('country', 'string')
+            ->columnName('country')
+            ->nullable()
+            ->build();
+
+        $builder->createField('gstnumber', 'string')
+            ->columnName('gstnumber')
             ->nullable()
             ->build();
     }
@@ -135,6 +185,106 @@ class Billing extends FormEntity
     public function setAccountingemail($email)
     {
         $this->accountingemail = $email;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostalcode()
+    {
+        return $this->postalcode;
+    }
+
+    /**
+     * @param mixed $postalcode
+     *
+     * @return Account
+     */
+    public function setPostalcode($postalcode)
+    {
+        $this->postalcode = $postalcode;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param mixed $city
+     *
+     * @return Billing
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * @param mixed $state
+     *
+     * @return Billing
+     */
+    public function setState($state)
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param mixed $country
+     *
+     * @return Billing
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGstnumber()
+    {
+        return $this->gstnumber;
+    }
+
+    /**
+     * @param mixed $gstnumber
+     *
+     * @return Billing
+     */
+    public function setGstnumber($gstnumber)
+    {
+        $this->gstnumber = $gstnumber;
 
         return $this;
     }

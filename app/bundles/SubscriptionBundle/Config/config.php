@@ -11,6 +11,10 @@ return [
                 'path'       => '/subscription-status',
                 'controller' => 'MauticSubscriptionBundle:Subscription:status',
             ],
+            'mautic_kyc_action' => [
+                'path'       => '/kyc/{objectAction}/{objectId}',
+                'controller' => 'MauticSubscriptionBundle:KYC:execute',
+            ],
         ],
         'public' => [],
         'api'    => [],
@@ -23,7 +27,18 @@ return [
     ],
     'services' => [
         'events'  => [],
-        'forms'   => [],
+        'forms'   => [
+            'mautic.form.type.kycinfo' => [
+                'class'     => 'Mautic\SubscriptionBundle\Form\Type\KYCType',
+                'alias'     => 'kycinfo',
+                'arguments' => [
+                    'mautic.report.model.report',
+                    'translator',
+                    'mautic.helper.language',
+                    'mautic.helper.core_parameters',
+                ],
+            ],
+        ],
         'helpers' => [],
         'menus'   => [],
         'other'   => [
@@ -33,8 +48,21 @@ return [
                     'doctrine.orm.commondb_entity_manager',
                 ],
             ],
+            'le.core.repository.signup' => [
+                'class'     => 'Mautic\SubscriptionBundle\Entity\SignupRepository',
+                'arguments' => [
+                    'doctrine.orm.signupdb_entity_manager',
+                ],
+            ],
         ],
-        'models'    => [],
+        'models'    => [
+            'mautic.subscription.model.kycinfo' => [
+                'class' => 'Mautic\SubscriptionBundle\Model\KYCModel',
+            ],
+            'mautic.subscription.model.userpreference' => [
+                'class' => 'Mautic\SubscriptionBundle\Model\UserPreferenceModel',
+            ],
+        ],
         'validator' => [],
     ],
     'parameters' => [

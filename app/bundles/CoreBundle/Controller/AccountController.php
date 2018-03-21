@@ -120,7 +120,7 @@ class AccountController extends FormController
         } else {
             $billing = new Billing();
         }
-        $form          = $model->createForm($billing, $this->get('form.factory'), $action);
+        $form          = $model->createForm($billing, $this->get('form.factory'), $action, ['isBilling' => true]);
         if ($this->request->getMethod() == 'POST') {
             $isValid = false;
             if (!$cancelled = $this->isFormCancelled($form)) {

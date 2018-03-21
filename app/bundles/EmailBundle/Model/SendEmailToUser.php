@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Model;
 
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\EmailBundle\Exception\EmailCouldNotBeSentException;
 use Mautic\EmailBundle\OptionsAccessor\EmailToUserAccessor;
 use Mautic\LeadBundle\Entity\Lead;
@@ -21,20 +22,29 @@ class SendEmailToUser
     /** @var EmailModel */
     private $emailModel;
 
-    public function __construct(EmailModel $emailModel)
+    /**
+     * @var LicenseInfoHelper
+     */
+    private $licenseInfoHelper;
+
+    public function __construct(EmailModel $emailModel, LicenseInfoHelper $licenseInfoHelper)
     {
-        $this->emailModel = $emailModel;
+        $this->emailModel        = $emailModel;
+        $this->licenseInfoHelper = $licenseInfoHelper;
     }
 
     /**
-     * @param array $config
-     * @param Lead  $lead
+     * @param array             $config
+     * @param Lead              $lead
+     * @param LicenseInfoHelper $licenseInfoHelper
      *
      * @throws EmailCouldNotBeSentException
      */
     public function sendEmailToUsers(array $config, Lead $lead)
     {
         $emailToUserAccessor = new EmailToUserAccessor($config);
+
+        $isValidEmailCount= $this->licenseInfoHelper->isValidEmailCount();
 
         $email = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
 
@@ -52,11 +62,17 @@ class SendEmailToUser
         $users = $emailToUserAccessor->getUserIdsToSend($owner);
 
         $idHash = UserHash::getFakeUserHash();
-        $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
-        $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
 
-        if ($errors) {
-            throw new EmailCouldNotBeSentException(implode(', ', $errors));
+        if ($isValidEmailCount) {
+            $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
+            $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
+            $this->licenseInfoHelper->intEmailCount('1');
+
+            if ($errors) {
+                throw new EmailCouldNotBeSentException(implode(', ', $errors));
+            }
+        } else {
+            throw new EmailCouldNotBeSentException('InSufficient Email Count Please Contact Support');
         }
     }
 }

@@ -502,9 +502,23 @@ Mautic.setThemeHtml = function(theme) {
  */
 
 Mautic.setBeeTemplateJSON = function(template) {
+    Mautic.setBeeTemplateHTML(template);
     mQuery.get(mQuery('#builder_url').val()+'?beetemplate=' + template, function(templatejson) {
         var textarea = mQuery('textarea.bee-editor-json');
         textarea.val(templatejson);
+    });
+};
+
+/**
+ * Set Bee Template's JSON
+ *
+ * @param template
+ */
+
+Mautic.setBeeTemplateHTML = function(template) {
+    mQuery.get(mQuery('#builder_url').val()+'?beehtmltemplate=' + template, function(templatehtml) {
+        var textarea = mQuery('textarea.builder-html');
+        textarea.val(templatehtml);
     });
 };
 
