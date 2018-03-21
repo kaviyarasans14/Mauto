@@ -57,7 +57,30 @@ try {
             throw new Exception('Not able to connect to DB');
         }
         $operation=$argv[1];
-        $sql      = "select skiplimit from cronmonitorinfo where command='$operation'";
+        if (isset($argv[1])) {
+            $fcolname='';
+            if ($operation == 'mautic:import') {
+                $fcolname = 'f17';
+            } elseif ($operation == 'mautic:segments:update') {
+                $fcolname = 'f18';
+            } elseif ($operation == 'mautic:campaigns:rebuild') {
+                $fcolname = 'f19';
+            } elseif ($operation == 'mautic:campaigns:trigger') {
+                $fcolname = 'f20';
+            } elseif ($operation == 'mautic:emails:send') {
+                $fcolname = 'f21';
+            } elseif ($operation == 'mautic:email:fetch') {
+                $fcolname = 'f26';
+            } elseif ($operation == 'mautic:list:update') {
+                $fcolname = 'f27';
+            } elseif ($operation == 'mautic:reports:scheduler') {
+                $fcolname = 'f28';
+            }
+        } else {
+            die('Please Configure Valid Parameter');
+        }
+
+        $sql  = "select skiplimit from cronmonitorinfo where command='$operation'";
         displayCronlog('general', 'SQL QUERY:'.$sql);
         $monitorinfo = getResultArray($con, $sql);
         if (sizeof($monitorinfo) > 0) {
@@ -76,7 +99,7 @@ try {
             displayCronlog('general', 'SQL QUERY:'.$sql);
             $result = execSQL($con, $sql);
         }
-        $sql        ='select domain from applicationlist';
+        $sql        ='select f5 from applicationlist where '.$fcolname.'=\'1\'';
         $domainlist = getResultArray($con, $sql);
         //$SKIP_MAX_LIMIT=5;
         for ($di=0; $di < sizeof($domainlist); ++$di) {
