@@ -50,4 +50,17 @@ class SubscriptionRepository
 
         return $qb->execute()->fetchAll();
     }
+
+    public function getSignupInfo($emailid)
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+
+        $qb->select('al.f11', 'al.f2')
+            ->from(MAUTIC_TABLE_PREFIX.'applicationlist', 'al');
+        $qb->andWhere('al.f4 = :email')
+            ->setParameter('email', $emailid);
+        file_put_contents('/var/www/log.txt', $qb."\n", FILE_APPEND);
+
+        return $qb->execute()->fetchAll();
+    }
 }
