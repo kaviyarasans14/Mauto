@@ -47,6 +47,9 @@ class KYCController extends FormController
         $signupinfo  =$repository->getSignupInfo($userentity->getEmail());
         if (!empty($signupinfo)) {
             $account->setPhonenumber($signupinfo[0]['f11']);
+            $account->setDomainname($signupinfo[0]['f5']);
+            $account->setAccountid($signupinfo[0]['appid']);
+            $account->setAccountname($signupinfo[0]['f2']);
         }
         $form = $model->createForm($account, $this->get('form.factory'));
 
@@ -97,6 +100,7 @@ class KYCController extends FormController
             $timezone       = $accountdata['timezone'];
             $account->setTimezone($timezone);
             $account->setPhonenumber($phonenumber);
+            $account->setEmail($email);
             /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
             $configurator = $this->get('mautic.configurator');
             $isWritabale  = $configurator->isFileWritable();
