@@ -1441,10 +1441,12 @@ Mautic.setAsPrimaryCompany = function (companyId,leadId){
 
 Mautic.showOthersField = function (selectedval){
     if(selectedval == "Other"){
+        mQuery('#kycinfo_others_label').addClass('required');
         mQuery('#kycinfo_others_label').css("display", "block");
         mQuery('#kycinfo_others').css("display", "block");
         mQuery('#kycinfo_others').prop('required',true);
     } else {
+        mQuery('#kycinfo_others_label').removeClass('required');
         mQuery('#kycinfo_others_label').css("display", "none");
         mQuery('#kycinfo_others').css("display", "none");
         mQuery('#kycinfo_others').prop('required',false);
@@ -1453,10 +1455,12 @@ Mautic.showOthersField = function (selectedval){
 
 Mautic.showMarketingOthersField = function (selectedval){
     if(selectedval == "Other"){
+        mQuery('#marketing_others_label').addClass('required');
         mQuery('#marketing_others_label').css("display", "block");
         mQuery('#kycinfo_emailcontent').css("display", "block");
         mQuery('#kycinfo_emailcontent').prop('required',true);
     } else {
+        mQuery('#marketing_others_label').removeClass('required');
         mQuery('#marketing_others_label').css("display", "none");
         mQuery('#kycinfo_emailcontent').css("display", "none");
         mQuery('#kycinfo_emailcontent').prop('required',false);
@@ -1465,10 +1469,12 @@ Mautic.showMarketingOthersField = function (selectedval){
 
 Mautic.showGSTNumber = function (selectedval){
     if(selectedval == "India"){
+        mQuery('#gstnumber_info').addClass('required');
         mQuery('#gstnumber_info').css("display", "block");
         mQuery('#billinginfo_gstnumber').css("display", "block");
         mQuery('#billinginfo_gstnumber').prop('required',true);
     } else {
+        mQuery('#gstnumber_info').removeClass('required');
         mQuery('#gstnumber_info').css("display", "none");
         mQuery('#billinginfo_gstnumber').css("display", "none");
         mQuery('#billinginfo_gstnumber').prop('required',false);

@@ -28,6 +28,12 @@ class KYCController extends FormController
      */
     public function signupAction()
     {
+        /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
+        $usermodel     = $this->getModel('user.user');
+        $userentity    = $usermodel->getCurrentUserEntity();
+
+        $userform = $usermodel->createForm($userentity, $this->get('form.factory'));
+
         /** @var \Mautic\CoreBundle\Model\AccountInfoModel $model */
         $model         = $this->getModel('core.accountinfo');
         $accrepo       = $model->getRepository();
@@ -37,13 +43,12 @@ class KYCController extends FormController
         } else {
             $account = new Account();
         }
+        $repository  =$this->get('le.core.repository.subscription');
+        $signupinfo  =$repository->getSignupInfo($userentity->getEmail());
+        if (!empty($signupinfo)) {
+            $account->setPhonenumber($signupinfo[0]['f11']);
+        }
         $form = $model->createForm($account, $this->get('form.factory'));
-
-        /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
-        $usermodel     = $this->getModel('user.user');
-        $userentity    = $usermodel->getCurrentUserEntity();
-
-        $userform = $usermodel->createForm($userentity, $this->get('form.factory'));
 
         /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
         $billingmodel  = $this->getModel('core.billinginfo');
@@ -53,6 +58,9 @@ class KYCController extends FormController
             $billing = $billingentity[0]; //$model->getEntity(1);
         } else {
             $billing = new Billing();
+        }
+        if (!empty($signupinfo)) {
+            $billing->setCompanyname($signupinfo[0]['f2']);
         }
         $billform = $billingmodel->createForm($billing, $this->get('form.factory'), [], ['isBilling' => false]);
 
