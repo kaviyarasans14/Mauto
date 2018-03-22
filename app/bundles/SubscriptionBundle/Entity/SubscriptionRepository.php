@@ -55,7 +55,7 @@ class SubscriptionRepository
     {
         $qb = $this->getConnection()->createQueryBuilder();
 
-        $qb->select('al.f11', 'al.f2')
+        $qb->select('al.f11', 'al.f2', 'al.f5', 'al.appid')
             ->from(MAUTIC_TABLE_PREFIX.'applicationlist', 'al');
         $qb->andWhere('al.f4 = :email')
             ->setParameter('email', $emailid);

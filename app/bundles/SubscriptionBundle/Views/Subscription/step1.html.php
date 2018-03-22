@@ -49,7 +49,10 @@
                         </div>
                         <div class="col-md-6">
                             <?php echo $view['form']->label($userform['email']); ?>
-                            <?php echo $view['form']->widget($userform['email']); ?>
+                            <?php echo $view['form']->widget(
+                                    $userform['email'],
+                                    ['attr' => ['style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']]
+                                ); ?>
                         </div>
                     </div>
                     <br>
