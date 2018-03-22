@@ -33,16 +33,19 @@ class DashboardController extends FormController
         $videoarg     = $this->request->get('login');
         $loginsession = $this->get('session');
         $loginarg     = $loginsession->get('isLogin');
-        /** @var \Mautic\SubscriptionBundle\Model\KYCModel $kycmodel */
-        $kycmodel  = $this->getModel('subscription.kycinfo');
-        $kycrepo   = $kycmodel->getRepository();
-        $kycentity = $kycrepo->findAll();
-        if (empty($kycentity)) {
-            return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
-        } elseif (sizeof($kycentity) > 0) {
-            $kyc = $kycentity[0];
-            if (!$kyc->getConditionsagree()) {
+        $dbhost       =$this->coreParametersHelper->getParameter('db_host');
+        if ($dbhost != 'localhost') {
+            /** @var \Mautic\SubscriptionBundle\Model\KYCModel $kycmodel */
+            $kycmodel  = $this->getModel('subscription.kycinfo');
+            $kycrepo   = $kycmodel->getRepository();
+            $kycentity = $kycrepo->findAll();
+            if (empty($kycentity)) {
                 return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
+            } elseif (sizeof($kycentity) > 0) {
+                $kyc = $kycentity[0];
+                if (!$kyc->getConditionsagree()) {
+                    return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
+                }
             }
         }
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
