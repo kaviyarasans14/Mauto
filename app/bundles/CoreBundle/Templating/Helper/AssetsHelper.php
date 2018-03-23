@@ -755,4 +755,9 @@ class AssetsHelper
     {
         return $this->pathsHelper->getAppid();
     }
+
+    public function getImportSampleFilePath()
+    {
+        return $this->getUrl('media/sample/Sample_Contact.csv');
+    }
 }

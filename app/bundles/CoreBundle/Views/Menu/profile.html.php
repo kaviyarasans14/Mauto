@@ -25,6 +25,11 @@ $inline = $view['menu']->render('profile');
             </a>
         </li>
         <li>
+            <a href="<?php echo $view['router']->path('le_plan_index'); ?>">
+                <i class="fa fa-plus-circle fs-14"></i><span><?php echo $view['translator']->trans('le.plans.buycredits'); ?></span>
+            </a>
+        </li>
+        <li>
             <a href="<?php echo $view['router']->path('mautic_user_logout'); ?>">
                 <i class="fa fa-sign-out fs-14"></i><span><?php echo $view['translator']->trans('mautic.user.auth.logout'); ?></span>
             </a>

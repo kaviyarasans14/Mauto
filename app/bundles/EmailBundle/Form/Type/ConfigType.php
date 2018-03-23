@@ -474,7 +474,7 @@ class ConfigType extends AbstractType
                 'required' => false,
                 'attr'     => [
                     'class'   => 'btn btn-success',
-                    'onclick' => 'Mautic.testEmailServerConnection()',
+                    'onclick' => 'Mautic.testEmailServerConnection(true)',
                 ],
             ]
         );

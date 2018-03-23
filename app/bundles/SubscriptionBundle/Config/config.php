@@ -7,9 +7,17 @@ return [
                 'path'       => '/subscription',
                 'controller' => 'MauticSubscriptionBundle:Subscription:index',
             ],
+            'le_plan_index' => [
+                'path'       => '/plans',
+                'controller' => 'MauticSubscriptionBundle:Subscription:indexplan',
+            ],
             'le_subscription_status' => [
                 'path'       => '/subscription-status',
-                'controller' => 'MauticSubscriptionBundle:Subscription:status',
+                'controller' => 'MauticSubscriptionBundle:Subscription:subscriptionstatus',
+            ],
+            'le_payment_status' => [
+                'path'       => '/payment-status',
+                'controller' => 'MauticSubscriptionBundle:Subscription:paymentstatus',
             ],
             'mautic_kyc_action' => [
                 'path'       => '/kyc/{objectAction}/{objectId}',
@@ -45,13 +53,19 @@ return [
             'le.core.repository.subscription' => [
                 'class'     => 'Mautic\SubscriptionBundle\Entity\SubscriptionRepository',
                 'arguments' => [
-                    'doctrine.orm.commondb_entity_manager',
+                    'doctrine.orm.commondb_entity_manager', 'mautic.email.repository.licenseinfo',
                 ],
             ],
             'le.core.repository.signup' => [
                 'class'     => 'Mautic\SubscriptionBundle\Entity\SignupRepository',
                 'arguments' => [
                     'doctrine.orm.signupdb_entity_manager',
+                ],
+            ],
+            'le.helper.payment' => [
+                'class'     => \Mautic\SubscriptionBundle\Helper\PaymentHelper::class,
+                'arguments' => [
+                    'mautic.factory',
                 ],
             ],
         ],

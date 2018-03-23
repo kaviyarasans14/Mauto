@@ -483,4 +483,22 @@ class LicenseInfoHelper
             return $bounceUsageCount;
         }
     }
+
+    public function getAvailableEmailCount()
+    {
+        $entity           = $this->licenseinfo->findAll()[0];
+        $totalEmailCount  = $entity->getTotalEmailCount();
+        $actualEmailCount = $entity->getActualEmailCount();
+        $availablecredits =0;
+        if ($totalEmailCount == 'UL') {
+            return 0;
+        } else {
+            $availablecredits=$totalEmailCount - $actualEmailCount;
+            if ($availablecredits < 0) {
+                $availablecredits=0;
+            }
+        }
+
+        return $availablecredits;
+    }
 }

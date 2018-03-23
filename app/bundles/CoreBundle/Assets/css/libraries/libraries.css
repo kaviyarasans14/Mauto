@@ -18859,24 +18859,24 @@ display: block;
   top: -20px;
   font-size: 30px;
 }
-#subscription-panel .section-header{
+#subscription-panel .section-header,#prepaidplan-panel .section-header{
   height: 35px;
   background-color: #e6f0fa;
   margin-bottom: 2px;
   border: 1px solid #bfdfff;
 
 }
-#subscription-panel .section-header h5{
+#subscription-panel .section-header h5,#prepaidplan-panel .section-header h5{
   padding-top: 8px;
   margin-left: 10px;
   color: #fff;
 }
-#subscription-panel .section-header a{
+#subscription-panel .section-header a,#prepaidplan-panel .section-header a{
   color: #444;
   font-size: 15px;
 }
 
-#subscription-panel .section-block{
+#subscription-panel .section-block,#prepaidplan-panel .section-block{
   padding: 15px;
 }
 
@@ -18901,7 +18901,7 @@ display: block;
   display: block;
 }
 
-#subscription-panel{
+#subscription-panel,#prepaidplan-panel{
   margin: 10px;
 }
 
@@ -18918,26 +18918,21 @@ display: block;
   float: right;
 }
 
-#subscription-panel #sectionTwo table{
+#subscription-panel #sectionTwo table,#prepaidplan-panel #sectionTwo table,#subscription-panel #sectionThree table,#prepaidplan-panel #sectionThree table{
   width: 100%;
   margin: 10px;
 }
 
-#subscription-panel #sectionTwo td{
+#subscription-panel #sectionTwo td,#prepaidplan-panel #sectionTwo td,#prepaidplan-panel #sectionThree td{
   width: 66%;
   padding: 2px;
   font-size: 14px;
   font-weight: 700;
 }
 
-#subscription-panel #sectionTwo td:first-child{
+#subscription-panel #sectionTwo td:first-child,#prepaidplan-panel #sectionTwo td:first-child,#prepaidplan-panel #sectionThree td:first-child{
   width: 33%;
   font-weight: 400;
-}
-
-#subscription-panel #sectionThree table{
-  width: 100%;
-  margin: 10px;
 }
 
 #subscription-panel #sectionThree tr:first-child td{
@@ -18977,4 +18972,53 @@ margin-left: -3px;
 }
 .subscription-status table{
   width: 100%;
+}
+.prepaid-plan-list{
+  /*margin-left: 10px;*/
+}
+.prepaid-plan-list .details-list span {
+  display: block;
+}
+.prepaid-plan-list .details-list{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+
+}
+.prepaid-plan-list .plan-header{
+  color: #000;
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.prepaid-plan-list .plan-btn {
+  display: block;
+  font-size: 14px;
+  padding: 10px 30px;
+  width: 100%;
+  border: none;
+}
+.prepaid-plan-list .price{
+  text-align: center;
+  width: 100%;
+  padding: 5px;
+}
+.prepaid-plan-list .price span {
+  color: #3366cc;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.prepaid-plan-list .price span:first-child {
+  position: relative;
+  top: -15px;
+  font-size: 20px;
+}
+
+#prepaidplan-panel .currency_symbol{
+  font-size: 12px;
+  margin-right: -3px;
 }

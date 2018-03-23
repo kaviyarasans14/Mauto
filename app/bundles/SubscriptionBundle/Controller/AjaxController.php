@@ -13,11 +13,16 @@ namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\AjaxController as CommonAjaxController;
 use PayPal\Api\Agreement;
+use PayPal\Api\Amount;
+use PayPal\Api\Details;
+use PayPal\Api\Item;
+use PayPal\Api\ItemList;
 use PayPal\Api\MerchantPreferences;
 use PayPal\Api\Payer;
+use PayPal\Api\Payment;
 use PayPal\Api\Plan;
-use PayPal\Auth\OAuthTokenCredential;
-use PayPal\Rest\ApiContext;
+use PayPal\Api\RedirectUrls;
+use PayPal\Api\Transaction;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\Error;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,43 +78,6 @@ class AjaxController extends CommonAjaxController
                     $dataArray['errormsg'] ='Payment Error:'.$ex->getMessage();
                 }
             } else {
-                $clientid        =$this->coreParametersHelper->getParameter('paypal_clientid');
-                $clientsecret    =$this->coreParametersHelper->getParameter('paypal_clientsecret');
-                $paypalmode      =$this->coreParametersHelper->getParameter('paypal_mode');
-                $paypallogpath   =$this->coreParametersHelper->getParameter('paypal_logpath');
-                $paypalloglevel  =$this->coreParametersHelper->getParameter('paypal_loglevel');
-                $paypallogenabled=$this->coreParametersHelper->getParameter('paypal_log_enabled');
-                $paypalcachepath =$this->coreParametersHelper->getParameter('paypal_cachepath');
-                $paypalrootpath  =$this->coreParametersHelper->getParameter('paypal_rootpath');
-                if (!is_dir($paypalrootpath) && !file_exists($paypalrootpath)) {
-                    mkdir($paypalrootpath, 0777);
-                }
-                if (!is_dir($paypallogpath) && !file_exists($paypallogpath)) {
-                    mkdir($paypallogpath, 0777);
-                }
-                if (!is_dir($paypalcachepath) && !file_exists($paypalcachepath)) {
-                    mkdir($paypalcachepath, 0777);
-                }
-                $dataArray['provider'] ='paypal';
-                $apiContext            = new ApiContext(
-                    new OAuthTokenCredential(
-                        $clientid,
-                        $clientsecret
-                    )
-                );
-                $apiContext->setConfig(
-                    [
-                        'mode'           => $paypalmode,
-                        'log.LogEnabled' => $paypallogenabled,
-                        'log.FileName'   => $paypallogpath.'/paypal.log',
-                        'log.LogLevel'   => $paypalloglevel, // PLEASE USE `INFO` LEVEL FOR LOGGING IN LIVE ENVIRONMENTS
-                        'cache.enabled'  => true,
-                        'cache.FileName' => $paypalcachepath.'/auth.cache', // for determining paypal cache directory
-                        // 'http.CURLOPT_CONNECTTIMEOUT' => 30
-                        // 'http.headers.PayPal-Partner-Attribution-Id' => '123123123'
-                        //'log.AdapterFactory' => '\PayPal\Log\DefaultLogFactory' // Factory class implementing \PayPal\Log\PayPalLogFactory
-                    ]
-                );
                 date_default_timezone_set('Asia/Kolkata');
                 $timezone = date_default_timezone_get();
                 $start_at = new \DateTime();
@@ -147,7 +115,8 @@ class AjaxController extends CommonAjaxController
                 $agreement->setOverrideMerchantPreferences($merchantPreferences);
                 $cloneagreement = clone $agreement;
                 try {
-                    $agreement                = $agreement->create($apiContext);
+                    $paymenthelper            =$this->get('le.helper.payment');
+                    $agreement                = $agreement->create($paymenthelper->getPayPalApiContext());
                     $approvalUrl              = $agreement->getApprovalLink();
                     $dataArray['approvalurl'] =$approvalUrl;
                 } catch (Exception $ex) {
@@ -167,8 +136,6 @@ class AjaxController extends CommonAjaxController
 
     public function validatepaymentAction(Request $request)
     {
-        $clienthost                =$request->getHost();
-        $clientprotocal            =$request->getScheme();
         $paymentid                 = $request->request->get('paymentid');
         $subscriptionid            = $request->request->get('subscriptionid');
         $signature                 = $request->request->get('signature');
@@ -183,6 +150,124 @@ class AjaxController extends CommonAjaxController
         }
         $returnUrl            = $this->generateUrl('le_subscription_status', $parameters);
         $dataArray['redirect']=$returnUrl;
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function purchaseplanAction(Request $request)
+    {
+        $dataArray    = ['success' => true];
+        $plancurrency = $request->request->get('plancurrency');
+        $planamount   = $request->request->get('planamount');
+        $planame      = $request->request->get('planname');
+        $plankey      = $request->request->get('plankey');
+        $provider     ='paypal';
+        if ($plancurrency == '₹') {
+            $provider = 'razorpay';
+        }
+        $username              =$this->user->getName();
+        $useremail             =$this->user->getEmail();
+        $dataArray['username'] =$username;
+        $dataArray['useremail']=$useremail;
+        $dataArray['provider'] =$provider;
+        if ($provider == 'razorpay') {
+            $apikey              =$this->coreParametersHelper->getParameter('razoparpay_apikey');
+            $dataArray['apikey'] =$apikey;
+            $dataArray['orderid']=uniqid();
+        } else {
+            $clienthost          =$request->getHost();
+            $clientprotocal      =$request->getScheme();
+            $payer               = new Payer();
+            $payer->setPaymentMethod('paypal');
+            $item = new Item();
+            $item->setName($planame.' Plan Purchase')
+                ->setCurrency('USD')
+                ->setQuantity(1)
+                ->setSku($plankey) // Similar to `item_number` in Classic API
+                ->setPrice($planamount);
+            $itemList = new ItemList();
+            $itemList->setItems([$item]);
+            $details = new Details();
+            $details->setShipping(0)
+                ->setTax(0)
+                ->setSubtotal($planamount);
+            $amount = new Amount();
+            $amount->setCurrency('USD')
+                ->setTotal($planamount)
+                ->setDetails($details);
+            $transaction = new Transaction();
+            $transaction->setAmount($amount)
+                ->setItemList($itemList)
+                ->setDescription($planame.' Plan Purchase')
+                ->setInvoiceNumber(uniqid());
+            $successparameters   =['provider' => 'paypal', 'status' => true];
+            $returnUrl           = $this->generateUrl('le_payment_status', $successparameters);
+            $returnUrl           =$clientprotocal.'://'.$clienthost.$returnUrl;
+            $cancelparameters    =['provider' => 'paypal', 'status' => false];
+            $cancelUrl           = $this->generateUrl('le_payment_status', $cancelparameters);
+            $cancelUrl           =$clientprotocal.'://'.$clienthost.$cancelUrl;
+            $redirectUrls        = new RedirectUrls();
+            $redirectUrls->setReturnUrl($returnUrl)
+                ->setCancelUrl($cancelUrl);
+            $payment = new Payment();
+            $payment->setIntent('sale')
+                ->setPayer($payer)
+                ->setRedirectUrls($redirectUrls)
+                ->setTransactions([$transaction]);
+            $request = clone $payment;
+            try {
+                $paymenthelper            =$this->get('le.helper.payment');
+                $payment                  =$payment->create($paymenthelper->getPayPalApiContext());
+                $approvalUrl              = $payment->getApprovalLink();
+                $dataArray['approvalurl'] =$approvalUrl;
+            } catch (Exception $ex) {
+                $dataArray['success']  =false;
+                $dataArray['errormsg'] ='Payment Error:'.$ex->getMessage();
+            }
+        }
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function getAvailableCountAction()
+    {
+        $dataArray                  = ['success' => true];
+        $availablecount             = $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
+        $dataArray['availablecount']=$availablecount;
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function capturepaymentAction(Request $request)
+    {
+        $dataArray['success']  =true;
+        $paymentid             = $request->request->get('paymentid');
+        $captureamount         = $request->request->get('captureamount');
+        $apikey                =$this->coreParametersHelper->getParameter('razoparpay_apikey');
+        $apisecret             =$this->coreParametersHelper->getParameter('razoparpay_apisecret');
+        $api                   =new Api($apikey, $apisecret);
+        try {
+            $payment                   = $api->payment->fetch($paymentid)->capture(['amount'=>$captureamount]);
+            $paymentstatus             =$payment->status;
+            $error_code                =$payment->error_code;
+            $error_desc                =$payment->error_description;
+            $notes                     =$payment->notes;
+            $orderid                   =$notes->merchant_order_id;
+            $plankey                   =$notes->plankey;
+            $parameters                =['provider' => 'razorpay', 'paymentid' => $paymentid, 'orderid' => $orderid];
+            if ($error_code == null) {
+                $parameters['status']=true;
+                $repository          =$this->get('le.core.repository.subscription');
+                $repository->updateEmailCredits($plankey);
+            } else {
+                $parameters['status']=false;
+            }
+            $returnUrl            = $this->generateUrl('le_payment_status', $parameters);
+            $dataArray['redirect']=$returnUrl;
+        } catch (Error $ex) {
+            $dataArray['success']  =false;
+            $dataArray['errormsg'] ='Payment Error:'.$ex->getMessage();
+        }
 
         return $this->sendJsonResponse($dataArray);
     }

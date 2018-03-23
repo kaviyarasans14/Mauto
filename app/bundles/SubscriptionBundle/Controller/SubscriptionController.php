@@ -4,8 +4,8 @@ namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
 use PayPal\Api\Agreement;
-use PayPal\Auth\OAuthTokenCredential;
-use PayPal\Rest\ApiContext;
+use PayPal\Api\Payment;
+use PayPal\Api\PaymentExecution;
 
 /**
  * Class SubscriptionController.
@@ -14,20 +14,12 @@ class SubscriptionController extends CommonController
 {
     public function indexAction()
     {
-        $clientip        = $this->request->getClientIp();
-        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
-        $countrycode     =$dataArray->{'geoplugin_countryCode'};
-        $isIndianCurrency=false;
-        if ($countrycode == '' || $isIndianCurrency == 'IN') {
-            $isIndianCurrency=true;
-        }
-
         return $this->delegateView([
             'viewParameters' => [
                 'security'        => $this->get('mautic.security'),
                 'contentOnly'     => 0,
                 'plans'           => $this->factory->getAvailablePlans(),
-                'isIndianCurrency'=> $isIndianCurrency,
+                'isIndianCurrency'=> $this->getCurrencyType(),
                            ],
             'contentTemplate' => 'MauticSubscriptionBundle:Subscription:index.html.php',
             'passthroughVars' => [
@@ -38,44 +30,40 @@ class SubscriptionController extends CommonController
         ]);
     }
 
-    public function statusAction()
+    public function indexplanAction()
+    {
+        $repository=$this->get('le.core.repository.subscription');
+        $planinfo  =$repository->getAllPrepaidPlans();
+
+        return $this->delegateView([
+        'viewParameters' => [
+            'security'        => $this->get('mautic.security'),
+            'contentOnly'     => 0,
+            'plans'           => $planinfo,
+            'isIndianCurrency'=> $this->getCurrencyType(),
+        ],
+        'contentTemplate' => 'MauticSubscriptionBundle:Plans:index.html.php',
+        'passthroughVars' => [
+            'activeLink'    => '#le_plan_index',
+            'mauticContent' => 'prepaidplans',
+            'route'         => $this->generateUrl('le_plan_index'),
+        ],
+    ]);
+    }
+
+    public function subscriptionstatusAction()
     {
         $paymentid       = $this->request->get('paymentid');
         $subscriptionid  = $this->request->get('subscriptionid');
         $provider        = $this->request->get('provider');
         $status          = $this->request->get('status');
         if ($provider == 'paypal') {
-            $clientid        =$this->coreParametersHelper->getParameter('paypal_clientid');
-            $clientsecret    =$this->coreParametersHelper->getParameter('paypal_clientsecret');
-            $paypalmode      =$this->coreParametersHelper->getParameter('paypal_mode');
-            $paypallogpath   =$this->coreParametersHelper->getParameter('paypal_logpath');
-            $paypalloglevel  =$this->coreParametersHelper->getParameter('paypal_loglevel');
-            $paypallogenabled=$this->coreParametersHelper->getParameter('paypal_log_enabled');
-            $paypalcachepath =$this->coreParametersHelper->getParameter('paypal_cachepath');
             $ectoken         = $this->request->get('token');
-            $apiContext      = new ApiContext(
-        new OAuthTokenCredential(
-            $clientid,
-            $clientsecret
-        )
-    );
-            $apiContext->setConfig(
-        [
-            'mode'           => $paypalmode,
-            'log.LogEnabled' => $paypallogenabled,
-            'log.FileName'   => $paypallogpath,
-            'log.LogLevel'   => $paypalloglevel, // PLEASE USE `INFO` LEVEL FOR LOGGING IN LIVE ENVIRONMENTS
-            'cache.enabled'  => true,
-            'cache.FileName' => $paypalcachepath, // for determining paypal cache directory
-            // 'http.CURLOPT_CONNECTTIMEOUT' => 30
-            // 'http.headers.PayPal-Partner-Attribution-Id' => '123123123'
-            //'log.AdapterFactory' => '\PayPal\Log\DefaultLogFactory' // Factory class implementing \PayPal\Log\PayPalLogFactory
-        ]
-    );
             if ($status) {
                 $agreement = new Agreement();
                 try {
-                    $agreement->execute($ectoken, $apiContext);
+                    $paymenthelper=$this->get('le.helper.payment');
+                    $agreement->execute($ectoken, $paymenthelper->getPayPalApiContext());
                     $subscriptionid=$agreement->getId();
                     $paymentid     ='NA';
                 } catch (Exception $ex) {
@@ -104,5 +92,98 @@ class SubscriptionController extends CommonController
             'route'         => $this->generateUrl('le_subscription_status'),
         ],
     ]);
+    }
+
+    public function paymentstatusAction()
+    {
+        $paymentid       ='';
+        $orderid         ='';
+        $provider        = $this->request->get('provider');
+        $status          = $this->request->get('status');
+        if ($provider == 'paypal') {
+            if ($status) {
+                $paymenthelper     =$this->get('le.helper.payment');
+                $apiContext        =$paymenthelper->getPayPalApiContext();
+                $paymentid         = $this->request->get('paymentId');
+                $payerid           = $this->request->get('PayerID');
+                $payment           = Payment::get($paymentid, $apiContext);
+                $paymentstate      =$payment->getState();
+                $transactions      =$payment->getTransactions();
+                $transaction       =$transactions[0];
+                $orderid           =$transaction->getInvoiceNumber();
+                $itemlist          =$transaction->getItemList();
+                $items             =$itemlist->getItems();
+                $item              =$items[0];
+                $plankey           =$item->getSku();
+                if ($paymentstate == 'created') {
+                    $execution = new PaymentExecution();
+                    $execution->setPayerId($payerid);
+                    try {
+                        $result    = $payment->execute($execution, $apiContext);
+                        $repository=$this->get('le.core.repository.subscription');
+                        $repository->updateEmailCredits($plankey);
+//                    try{
+//                        $payment = Payment::get($paymentid, $apiContext);
+//                    }catch(Exception $ex){
+//                        $status=false;
+//                    }
+                    } catch (Exception $ex) {
+                        $status=false;
+                    }
+                }
+            } else {
+                $repository=$this->get('le.core.repository.subscription');
+                $planinfo  =$repository->getAllPrepaidPlans();
+
+                return $this->postActionRedirect(
+                    [
+                        'returnUrl'       => $this->generateUrl('le_plan_index'),
+                        'viewParameters'  => [
+                            'security'        => $this->get('mautic.security'),
+                            'contentOnly'     => 0,
+                            'plans'           => $planinfo,
+                            'isIndianCurrency'=> $this->getCurrencyType(),
+                        ],
+                        'contentTemplate' => 'MauticSubscriptionBundle:Plans:index',
+                        'passthroughVars' => [
+                            'activeLink'    => '#le_plan_index',
+                            'mauticContent' => 'prepaidplans',
+                        ],
+                    ]
+                );
+            }
+        } else {
+            $paymentid        = $this->request->get('paymentid');
+            $orderid          = $this->request->get('orderid');
+        }
+
+        return $this->delegateView([
+            'viewParameters' => [
+                'security'       => $this->get('mautic.security'),
+                'contentOnly'    => 0,
+                'paymentid'      => $paymentid,
+                'orderid'        => $orderid,
+                'status'         => $status,
+            ],
+            'contentTemplate' => 'MauticSubscriptionBundle:Plans:status.html.php',
+            'passthroughVars' => [
+                'activeLink'    => '#le_payment_status',
+                'mauticContent' => 'payment-status',
+                'route'         => $this->generateUrl('le_payment_status'),
+            ],
+        ]);
+    }
+
+    public function getCurrencyType()
+    {
+        $clientip        = $this->request->getClientIp();
+        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
+        $countrycode     =$dataArray->{'geoplugin_countryCode'};
+        $isIndianCurrency=false;
+        if ($countrycode == '' || $isIndianCurrency == 'IN') {
+            $isIndianCurrency=true;
+        }
+
+        return $isIndianCurrency;
     }
 }

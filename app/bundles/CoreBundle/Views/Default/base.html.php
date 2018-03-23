@@ -76,10 +76,10 @@
            <?php else : ?>
                <?php  $message = $message  ?>
            <?php endif; ?>
-           <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
+           <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
        <?php else: ?>
            <?php if (!empty($usageMsg)) : ?>
-               <span class="license-notifiation" id="licenseclosebutton"><?php echo $usageMsg ?> <img class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
+               <span class="license-notifiation" id="licenseclosebutton"><?php echo $usageMsg ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
            <?php endif; ?>
        <?php endif; ?>
 
