@@ -608,7 +608,7 @@ class LeadModel extends FormModel
             );
 
             // Unset stage and owner from the form because it's already been handled
-            unset($data['stage'], $data['owner'], $data['tags']);
+            unset($data['stage'], $data['owner'], $data['tags'], $data['lead_lists']);
             // Prepare special fields
             $this->prepareParametersFromRequest($form, $data, $lead);
             // Submit the data
@@ -2221,6 +2221,30 @@ class LeadModel extends FormModel
             // update the lead's company name to nothing
             $lead->addUpdatedField('company', '');
             $this->getRepository()->saveEntity($lead);
+        }
+    }
+
+    /**
+     * Modify segments for lead.
+     *
+     * @param Lead $lead
+     * @param $segments
+     */
+    public function modifySegments(Lead $lead, $segments)
+    {
+        // See which companies belong to the lead already
+        $leadsegments = $this->leadListModel->getListLeadRepository()->getSegmentIDbyLeads($lead->getId());
+
+        foreach ($leadsegments as $key => $leadSegment) {
+            if (array_search($leadSegment['leadlist_id'], $segments) === false) {
+                $this->removeFromLists($lead, [$leadSegment['leadlist_id']]);
+            }
+        }
+
+        if (count($segments)) {
+            foreach ($segments as $leadSegment => $leadlist) {
+                $this->addToLists($lead, [$leadlist]);
+            }
         }
     }
 

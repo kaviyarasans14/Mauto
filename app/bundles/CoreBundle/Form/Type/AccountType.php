@@ -156,7 +156,7 @@ class AccountType extends AbstractType
                 'label'      => 'mautic.core.accounttimezone',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
-                    'class'   => 'form-control',
+                    'class'   => 'form-control accountTimezone',
                     'tooltip' => 'mautic.core.config.form.default.timezone.tooltip',
                 ],
                 'multiple'    => false,

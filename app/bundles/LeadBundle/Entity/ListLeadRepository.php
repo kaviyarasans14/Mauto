@@ -57,4 +57,21 @@ class ListLeadRepository extends CommonRepository
             $q->execute();
         }
     }
+
+    /**
+     * Select Segments by lead ID.
+     *
+     * @param $leadID
+     */
+    public function getSegmentIDbyLeads($leadID)
+    {
+        $qb = $this->_em->getConnection()->createQueryBuilder();
+
+        $qb->select('l.leadlist_id')
+            ->from(MAUTIC_TABLE_PREFIX.'lead_lists_leads', 'l');
+        $qb->andWhere('l.lead_id = :lead')
+            ->setParameter('lead', $leadID);
+
+        return $qb->execute()->fetchAll();
+    }
 }

@@ -4853,6 +4853,26 @@ figcaption {
   text-decoration: none;
 }
 
+.download_sample{
+  background: #375695;
+  background-image: linear-gradient(to bottom, #375695, #375695);
+  -webkit-border-radius: 4;
+  -moz-border-radius: 4;
+  border-radius: 4px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 5px 10px 5px 10px;
+  text-decoration: none;
+  border: 0px;
+}
+
+.download_sample{
+  background: #41609c;
+  background-image: linear-gradient(to bottom, #41609c, #42619e);
+  text-decoration: none;
+}
+
 .signup_back {
   -webkit-border-radius: 4;
   -moz-border-radius: 4;

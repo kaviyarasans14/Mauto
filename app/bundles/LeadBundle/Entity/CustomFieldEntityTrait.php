@@ -121,6 +121,9 @@ trait CustomFieldEntityTrait
      */
     public function addUpdatedField($alias, $value, $oldValue = null)
     {
+        if ($alias == 'lead_lists') {
+            return $this;
+        }
         $property = (defined('self::FIELD_ALIAS')) ? str_replace(self::FIELD_ALIAS, '', $alias) : $alias;
         $field    = $this->getField($alias);
         $setter   = 'set'.ucfirst($property);

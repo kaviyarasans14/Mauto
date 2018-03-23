@@ -461,7 +461,7 @@ return [
         'forms' => [
             'mautic.form.type.lead' => [
                 'class'     => 'Mautic\LeadBundle\Form\Type\LeadType',
-                'arguments' => ['mautic.factory', 'mautic.lead.model.company'],
+                'arguments' => ['mautic.factory', 'mautic.lead.model.company', 'mautic.lead.model.list'],
                 'alias'     => 'lead',
             ],
             'mautic.form.type.leadlist' => [

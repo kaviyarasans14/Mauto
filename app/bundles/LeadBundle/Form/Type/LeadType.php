@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\CompanyModel;
+use Mautic\LeadBundle\Model\ListModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -32,15 +33,17 @@ class LeadType extends AbstractType
     private $translator;
     private $factory;
     private $companyModel;
+    private $leadListModel;
 
     /**
      * @param MauticFactory $factory
      */
-    public function __construct(MauticFactory $factory, CompanyModel $companyModel)
+    public function __construct(MauticFactory $factory, CompanyModel $companyModel, ListModel $leadListModel)
     {
-        $this->translator   = $factory->getTranslator();
-        $this->factory      = $factory;
-        $this->companyModel = $companyModel;
+        $this->translator    = $factory->getTranslator();
+        $this->factory       = $factory;
+        $this->companyModel  = $companyModel;
+        $this->leadListModel = $leadListModel;
     }
 
     /**
@@ -142,6 +145,25 @@ class LeadType extends AbstractType
                 ]
             );
         }
+
+        $segments       = $this->leadListModel->getListLeadRepository()->getSegmentIDbyLeads($options['data']->getId());
+        $leadSegments   = [];
+        foreach ($segments as $segment) {
+            $leadSegments[(string) $segment['leadlist_id']] = (string) $segment['leadlist_id'];
+        }
+        $builder->add(
+            'lead_lists',
+            'leadlist_choices',
+            [
+                'by_reference' => false,
+                'label'        => 'mautic.lead.form.list',
+                'label_attr'   => ['class' => 'control-label'],
+                'multiple'     => true,
+                'required'     => false,
+                'data'         => $leadSegments,
+            ]
+        );
+
         $transformer = new IdToEntityModelTransformer(
             $this->factory->getEntityManager(),
             'MauticUserBundle:User'

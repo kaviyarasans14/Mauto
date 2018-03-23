@@ -24,8 +24,10 @@ $view['slots']->set(
 );
 $isAdmin=$view['security']->isAdmin();
 $style  = [];
+$hide   = '';
 if (!$isAdmin) {
     $style =  ['attr' => ['tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']];
+    $hide  = "style='display:none;'";
 }
 
 ?>
@@ -38,6 +40,16 @@ if (!$isAdmin) {
                 </div>
                 <div class="panel-body">
                     <?php echo $view['form']->start($form); ?>
+                    <div class="row" style="margin-left:25%;">
+                        <div class="col-xs-3">
+                            <a href="../../../../media/sample/Sample_Contact.csv" download>
+                            <span class="input-group-btn download_sample">
+                                <i class="fa fa-download"></i> <b><?php echo $view['translator']->trans('leadsengage.lead.import.download.sample'); ?></b>
+                            </span>
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="input-group well mt-lg">
                         <?php echo $view['form']->widget($form['file']); ?>
                         <span class="input-group-btn">
@@ -45,7 +57,7 @@ if (!$isAdmin) {
                         </span>
                     </div>
 
-                    <div class="row">
+                    <div class="row" <?php echo $hide; ?>>
                         <div class="col-xs-3">
                             <?php echo $view['form']->label($form['batchlimit']); ?>
                             <?php echo $view['form']->widget($form['batchlimit'], $style); ?>

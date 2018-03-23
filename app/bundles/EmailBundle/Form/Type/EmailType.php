@@ -75,11 +75,16 @@ class EmailType extends AbstractType
         $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html', 'beeJSON' => 'raw']));
         $builder->addEventSubscriber(new FormExitSubscriber('email.email', $options));
 
+        $name = 'leadsengage.email.form.template.name';
+        if (!$options['isEmailTemplate']) {
+            $name = 'leadsengage.email.form.campaign.name';
+        }
+
         $builder->add(
             'name',
             'text',
             [
-                'label'      => 'mautic.email.form.internal.name',
+                'label'      => $name,
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => ['class' => 'form-control'],
             ]
@@ -543,7 +548,7 @@ class EmailType extends AbstractType
             ]
         );
 
-        $resolver->setDefined(['update_select']);
+        $resolver->setDefined(['update_select', 'isEmailTemplate']);
     }
 
     /**

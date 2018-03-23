@@ -537,7 +537,11 @@ class LeadController extends FormController
                         $companies = $data['companies'];
                         unset($data['companies']);
                     }
-
+                    $segment = [];
+                    if (isset($data['lead_lists'])) {
+                        $segment = $data['lead_lists'];
+                        unset($data['lead_lists']);
+                    }
                     $model->setFieldValues($lead, $data, true);
 
                     if ($isValidRecordAdd) {
@@ -550,6 +554,9 @@ class LeadController extends FormController
 
                     if (!empty($companies)) {
                         $model->modifyCompanies($lead, $companies);
+                    }
+                    if (!empty($segment)) {
+                        $model->modifySegments($lead, $segment);
                     }
 
                     // Upload avatar if applicable
@@ -742,12 +749,18 @@ class LeadController extends FormController
                         $companies = $data['companies'];
                         unset($data['companies']);
                     }
+
+                    $segment = [];
+                    if (isset($data['lead_lists'])) {
+                        $segment = $data['lead_lists'];
+                        unset($data['lead_lists']);
+                    }
                     $model->setFieldValues($lead, $data, true);
 
                     //form is valid so process the data
                     $model->saveEntity($lead, $form->get('buttons')->get('save')->isClicked());
                     $model->modifyCompanies($lead, $companies);
-
+                    $model->modifySegments($lead, $segment);
                     // Upload avatar if applicable
                     $image = $form['preferred_profile_image']->getData();
                     if ($image == 'custom') {
