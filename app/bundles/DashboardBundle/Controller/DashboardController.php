@@ -56,7 +56,7 @@ class DashboardController extends FormController
         $licenseRemDays   = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
         $emailUsageCount  = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
         $bounceUsageCount = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
-        $emailValidity    = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
+        $emailValidity    = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
