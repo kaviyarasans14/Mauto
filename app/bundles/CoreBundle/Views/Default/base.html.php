@@ -50,7 +50,7 @@
        <?php if (isset($bounceUsageCount) && $bounceUsageCount > 5): ?>
            <?php $bouceUsage=true; ?>
        <?php endif; ?>
-       <?php if (isset($emailValidity) && !$emailValidity): ?>
+       <?php if (isset($emailValidity) && $emailValidity < 7): ?>
            <?php $emailsValidity=true; ?>
        <?php endif; ?>
 
@@ -67,7 +67,7 @@
        <?php elseif ($bouceUsage): ?>
            <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.usage.exceeds'); ?>
        <?php elseif ($emailsValidity): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.expired'); ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.expired', ['%emailValidity%' => $emailValidity]); ?>
        <?php endif; ?>
 
        <?php  if (!empty($message)) : ?>
