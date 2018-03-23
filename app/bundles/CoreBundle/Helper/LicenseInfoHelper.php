@@ -412,9 +412,11 @@ class LicenseInfoHelper
         if ($totalEmailCount == 'UL') {
             return $totalEmailCount;
         } else {
-            $emailUsageCount = ($actualEmailCount / $totalEmailCount) * 100;
+            if ($actualEmailCount > 0) {
+                $emailUsageCount = ($actualEmailCount / $totalEmailCount) * 100;
 
-            return $emailUsageCount;
+                return $emailUsageCount;
+            }
         }
     }
 
@@ -475,8 +477,10 @@ class LicenseInfoHelper
         $actualEmailCount  = $entity->getActualEmailCount();
         $bouncedEmailCount = $entity->getBounceCount();
 
-        $bounceUsageCount = ($bouncedEmailCount / $actualEmailCount) * 100;
+        if ($actualEmailCount > 0) {
+            $bounceUsageCount = ($bouncedEmailCount / $actualEmailCount) * 100;
 
-        return $bounceUsageCount;
+            return $bounceUsageCount;
+        }
     }
 }
