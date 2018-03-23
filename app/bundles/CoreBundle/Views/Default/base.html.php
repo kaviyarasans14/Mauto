@@ -44,13 +44,13 @@
        <?php $bouceUsage     = false; ?>
        <?php $emailsValidity = false; ?>
 
-       <?php if ($emailUsageCount > 85): ?>
+       <?php if (isset($emailUsageCount) && $emailUsageCount > 85): ?>
            <?php $emailUssage=true; ?>
        <?php endif; ?>
-       <?php if ($bounceUsageCount > 5): ?>
+       <?php if (isset($bounceUsageCount) && $bounceUsageCount > 5): ?>
            <?php $bouceUsage=true; ?>
        <?php endif; ?>
-       <?php if (!$emailValidity): ?>
+       <?php if (isset($emailValidity) && !$emailValidity): ?>
            <?php $emailsValidity=true; ?>
        <?php endif; ?>
 
