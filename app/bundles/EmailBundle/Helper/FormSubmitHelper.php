@@ -34,12 +34,13 @@ class FormSubmitHelper
         $email      = $emailModel->getEntity($emailId);
 
         /** @var \Mautic\LeadBundle\Model\LeadModel $leadModel */
-        $leadModel        = $factory->getModel('lead');
-        $isValidEmailCount= $factory->get('mautic.helper.licenseinfo')->isValidEmailCount();
+        $leadModel             = $factory->getModel('lead');
+        $isValidEmailCount     = $factory->get('mautic.helper.licenseinfo')->isValidEmailCount();
+        $isHavingEmailValidity = $factory->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
 
         //make sure the email still exists and is published
         if ($email != null && $email->isPublished()) {
-            if ($isValidEmailCount) {
+            if ($isValidEmailCount && $isHavingEmailValidity) {
                 // Deal with Lead email
                 if (!empty($feedback['lead.create']['lead'])) {
                     //the lead was just created via the lead.create action

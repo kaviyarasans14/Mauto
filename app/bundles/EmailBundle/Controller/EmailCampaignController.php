@@ -1223,12 +1223,13 @@ class EmailCampaignController extends FormController
     public function sendAction($objectId)
     {
         /** @var \Mautic\EmailBundle\Model\EmailModel $model */
-        $model           = $this->getModel('email');
-        $entity          = $model->getEntity($objectId);
-        $session         = $this->get('session');
-        $page            = $session->get('mautic.email.page', 1);
-        $totalEmailCount = $this->get('mautic.helper.licenseinfo')->getTotalEmailCount();
-        $actualEmailCount= $this->get('mautic.helper.licenseinfo')->getActualEmailCount();
+        $model                 = $this->getModel('email');
+        $entity                = $model->getEntity($objectId);
+        $session               = $this->get('session');
+        $page                  = $session->get('mautic.email.page', 1);
+        $totalEmailCount       = $this->get('mautic.helper.licenseinfo')->getTotalEmailCount();
+        $actualEmailCount      = $this->get('mautic.helper.licenseinfo')->getActualEmailCount();
+        $isHavingEmailValidity = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_campaign_index', ['page' => $page]);
@@ -1315,7 +1316,7 @@ class EmailCampaignController extends FormController
         $complete      = $this->request->request->get('complete', false);
         $remainingCount= $pending + $actualEmailCount;
 
-        if ($totalEmailCount >= $remainingCount || $totalEmailCount == 'UL') {
+        if ((($totalEmailCount >= $remainingCount) && ($isHavingEmailValidity)) || $totalEmailCount == 'UL') {
             if ($this->request->getMethod() == 'POST' && ($complete || $this->isFormValid($form))) {
                 if (!$complete) {
                     $progress = [0, (int) $pending];
@@ -1366,7 +1367,11 @@ class EmailCampaignController extends FormController
                 ]
             );
         } else {
-            $this->addFlash('mautic.email.count.exceeds');
+            if (!$isHavingEmailValidity) {
+                $this->addFlash('mautic.email.validity.expired');
+            } else {
+                $this->addFlash('mautic.email.count.exceeds');
+            }
 
             return $this->postActionRedirect(
                 [

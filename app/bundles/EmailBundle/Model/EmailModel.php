@@ -1155,7 +1155,8 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         $dncAsError          = (isset($options['dnc_as_error'])) ? $options['dnc_as_error'] : false;
         $errors              = [];
 
-        $isValidEmailCount=$this->licenseInfoHelper->isValidEmailCount();
+        $isValidEmailCount     =$this->licenseInfoHelper->isValidEmailCount();
+        $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
 
         if (empty($channel)) {
             $channel = (isset($options['source'])) ? $options['source'] : [];
@@ -1291,7 +1292,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
                 foreach ($contacts as $contact) {
                     try {
-                        if ($isValidEmailCount) {
+                        if ($isValidEmailCount && $isHavingEmailValidity) {
                             $this->sendModel->setContact($contact, $tokens)
                                 ->send();
                             // Update $emailSetting so campaign a/b tests are handled correctly

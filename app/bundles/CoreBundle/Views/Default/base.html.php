@@ -33,35 +33,57 @@
    <header id="app-header" class="navbar">
 
        <?php if (!empty($licenseRemCount)) : ?>
-           <?php if ($licenseRemCount <= 15 && $licenseRemCount > 7) : ?>
-               <?php $message="Kind Attention: Your License is Going To Expire in  $licenseRemCount  Days Please Contact Support." ?>
-           <?php elseif ($licenseRemCount <= 7 && $licenseRemCount > 1) : ?>
-               <?php $message="Attention Required: Your License is Going To Expire in  $licenseRemCount  Days Please Contact Support." ?>
+           <?php if ($licenseRemCount <= 7 && $licenseRemCount > 1) : ?>
+               <?php $message = $view['translator']->trans('leadsengage.license.expired', ['%licenseRemCount%' => $licenseRemCount]); ?>
            <?php elseif ($licenseRemCount <= 1) : ?>
-               <?php $message='Kind Attention: Your License is Going To Expire Tommorow Please Contact Support.' ?>
+               <?php $message = $view['translator']->trans('leadsengage.license.expired.tommorow'); ?>
            <?php endif; ?>
        <?php endif; ?>
 
+       <?php $emailUssage    = false; ?>
+       <?php $bouceUsage     = false; ?>
+       <?php $emailsValidity = false; ?>
 
-       <?php if (!empty($message)) : ?>
-          <?php if (!empty($emailUsageCount) && $emailUsageCount != 'UL') : ?>
-             <?php if ($emailUsageCount > 80) : ?>
-                <?php  $message = "$message Hi ! You’ve used 80% of Email Credits." ?>
-             <?php endif; ?>
-          <?php else : ?>
-             <?php  $message= $message  ?>
-          <?php endif; ?>
-       <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
-       <?php else : ?>
-         <?php if (!empty($emailUsageCount) && $emailUsageCount != 'UL') : ?>
-           <?php if ($emailUsageCount > 80) : ?>
-             <span class="license-notifiation" id="licenseclosebutton">Hi ! You’ve used 80% of Email Credits.<img class="close" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
-           <?php endif; ?>
-         <?php endif; ?>
+       <?php if ($emailUsageCount > 85): ?>
+           <?php $emailUssage=true; ?>
+       <?php endif; ?>
+       <?php if ($bounceUsageCount > 5): ?>
+           <?php $bouceUsage=true; ?>
+       <?php endif; ?>
+       <?php if (!$emailValidity): ?>
+           <?php $emailsValidity=true; ?>
        <?php endif; ?>
 
-       <?php echo $view->render('MauticCoreBundle:Default:navbar.html.php'); ?>
+       <?php if ($emailUssage && $bouceUsage && $emailsValidity): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.expired'); ?>
+       <?php elseif ($emailUssage && $bouceUsage): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.email.usage.exceeds'); ?>
+       <?php elseif ($bouceUsage && $emailsValidity): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.expired'); ?>
+       <?php elseif ($emailUssage && $emailsValidity): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.exceeds'); ?>
+       <?php elseif ($emailUssage): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.usage.exceeds'); ?>
+       <?php elseif ($bouceUsage): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.usage.exceeds'); ?>
+       <?php elseif ($emailsValidity): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.expired'); ?>
+       <?php endif; ?>
 
+       <?php  if (!empty($message)) : ?>
+           <?php if (!empty($usageMsg)) : ?>
+               <?php  $message = "$message $usageMsg" ?>
+           <?php else : ?>
+               <?php  $message = $message  ?>
+           <?php endif; ?>
+           <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
+       <?php else: ?>
+           <?php if (!empty($usageMsg)) : ?>
+               <span class="license-notifiation" id="licenseclosebutton"><?php echo $usageMsg ?> <img class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
+           <?php endif; ?>
+       <?php endif; ?>
+
+        <?php echo $view->render('MauticCoreBundle:Default:navbar.html.php'); ?>
         <?php echo $view->render('MauticCoreBundle:Notification:flashes.html.php'); ?>
     </header>
     <!--/ end: app-header -->

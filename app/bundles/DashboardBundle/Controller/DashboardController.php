@@ -53,8 +53,10 @@ class DashboardController extends FormController
         $widgets = $model->getWidgets();
         $loginsession->set('isLogin', false);
 
-        $licenseRemDays  = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $emailUsageCount = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $licenseRemDays   = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $emailUsageCount  = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $emailValidity    = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -118,6 +120,8 @@ class DashboardController extends FormController
                 'dateRangeForm'    => $dateRangeForm->createView(),
                 'licenseRemCount'  => $licenseRemDays,
                 'emailUsageCount'  => $emailUsageCount,
+                'bounceUsageCount' => $bounceUsageCount,
+                'emailValidity'    => $emailValidity,
                 'showvideo'        => $showvideo,
                 'videoURL'         => $videoURL,
             ],

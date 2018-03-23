@@ -44,7 +44,8 @@ class SendEmailToUser
     {
         $emailToUserAccessor = new EmailToUserAccessor($config);
 
-        $isValidEmailCount= $this->licenseInfoHelper->isValidEmailCount();
+        $isValidEmailCount     = $this->licenseInfoHelper->isValidEmailCount();
+        $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
 
         $email = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
 
@@ -63,7 +64,7 @@ class SendEmailToUser
 
         $idHash = UserHash::getFakeUserHash();
 
-        if ($isValidEmailCount) {
+        if ($isValidEmailCount && $isHavingEmailValidity) {
             $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
             $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
             $this->licenseInfoHelper->intEmailCount('1');

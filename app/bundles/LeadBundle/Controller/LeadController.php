@@ -1410,8 +1410,9 @@ class LeadController extends FormController
         $model = $this->getModel('lead');
 
         /** @var \Mautic\LeadBundle\Entity\Lead $lead */
-        $lead              = $model->getEntity($objectId);
-        $isValidEmailCount = $this->get('mautic.helper.licenseinfo')->isValidEmailCount();
+        $lead                  = $model->getEntity($objectId);
+        $isValidEmailCount     = $this->get('mautic.helper.licenseinfo')->isValidEmailCount();
+        $isHavingEmailValidity = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
 
         if ($lead === null
             || !$this->get('mautic.security')->hasEntityAccess(
@@ -1489,7 +1490,7 @@ class LeadController extends FormController
                                 }
                             }
                         }
-                        if ($isValidEmailCount) {
+                        if ($isValidEmailCount && $isHavingEmailValidity) {
                             if ($mailer->send(true, false, false)) {
                                 $mailer->createEmailStat();
                                 $this->get('mautic.helper.licenseinfo')->intEmailCount('1');
@@ -1524,7 +1525,11 @@ class LeadController extends FormController
                                 $valid = false;
                             }
                         } else {
-                            $this->addFlash('mautic.email.count.exceeds');
+                            if (!$isHavingEmailValidity) {
+                                $this->addFlash('mautic.email.validity.expired');
+                            } else {
+                                $this->addFlash('mautic.email.count.exceeds');
+                            }
                         }
                     } else {
                         $form['body']->addError(

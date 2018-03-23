@@ -92,6 +92,11 @@ class LicenseInfo
     private $appstatus;
 
     /**
+     * @var string
+     */
+    private $emailvalidity;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
@@ -172,6 +177,11 @@ class LicenseInfo
 
         $builder->createField('appstatus', 'string')
             ->columnName('app_status')
+            ->nullable()
+            ->build();
+
+        $builder->createField('emailvalidity', 'string')
+            ->columnName('email_validity')
             ->nullable()
             ->build();
     }
@@ -420,5 +430,21 @@ class LicenseInfo
     public function setAppStatus($appstatus)
     {
         $this->appstatus = $appstatus;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmailValidity()
+    {
+        return $this->emailvalidity;
+    }
+
+    /**
+     * @param mixed $emailvalidity
+     */
+    public function setEmailValidity($emailvalidity)
+    {
+        $this->emailvalidity = $emailvalidity;
     }
 }

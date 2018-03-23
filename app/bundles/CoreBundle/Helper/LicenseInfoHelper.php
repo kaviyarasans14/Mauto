@@ -433,4 +433,50 @@ class LicenseInfoHelper
 
         return $appStatus;
     }
+
+    public function isHavingEmailValidity()
+    {
+        $data=$this->em->getRepository('Mautic\CoreBundle\Entity\LicenseInfo')->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        $currentDate     = date('Y-m-d');
+        $emailValidity   = $entity->getEmailValidity();
+        $totalEmailCount = $entity->getTotalEmailCount();
+
+        $remDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
+
+        if ($totalEmailCount == 'UL') {
+            return true;
+        } else {
+            if ($remDays > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getEmailBounceUsageCount()
+    {
+        $data=$this->em->getRepository('Mautic\CoreBundle\Entity\LicenseInfo')->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $actualEmailCount  = $entity->getActualEmailCount();
+        $bouncedEmailCount = $entity->getBounceCount();
+
+        $bounceUsageCount = ($bouncedEmailCount / $actualEmailCount) * 100;
+
+        return $bounceUsageCount;
+    }
 }
