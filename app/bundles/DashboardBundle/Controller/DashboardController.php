@@ -53,10 +53,13 @@ class DashboardController extends FormController
         $widgets = $model->getWidgets();
         $loginsession->set('isLogin', false);
 
-        $licenseRemDays   = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $emailUsageCount  = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
-        $bounceUsageCount = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
-        $emailValidity    = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $licenseRemDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $emailUsageCount      = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount     = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
+        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -115,15 +118,18 @@ class DashboardController extends FormController
 
         return $this->delegateView([
             'viewParameters' => [
-                'security'         => $this->get('mautic.security'),
-                'widgets'          => $widgets,
-                'dateRangeForm'    => $dateRangeForm->createView(),
-                'licenseRemCount'  => $licenseRemDays,
-                'emailUsageCount'  => $emailUsageCount,
-                'bounceUsageCount' => $bounceUsageCount,
-                'emailValidity'    => $emailValidity,
-                'showvideo'        => $showvideo,
-                'videoURL'         => $videoURL,
+                'security'            => $this->get('mautic.security'),
+                'widgets'             => $widgets,
+                'dateRangeForm'       => $dateRangeForm->createView(),
+                'licenseRemCount'     => $licenseRemDays,
+                'licenseRemDate'      => $licenseRemDate,
+                'emailUsageCount'     => $emailUsageCount,
+                'bounceUsageCount'    => $bounceUsageCount,
+                'emailValidity'       => $emailValidity,
+                'totalRecordUsage'    => $totalRecordUsage,
+                'showvideo'           => $showvideo,
+                'videoURL'            => $videoURL,
+                'emailValidityEndDate'=> $emailValidityEndDate,
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [

@@ -528,4 +528,61 @@ class LicenseInfoHelper
 
         return $availablecredits;
     }
+
+    public function getLicenseEndDate()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $licenseEndDate = $entity->getLicenseEnd();
+
+        return $licenseEndDate;
+    }
+
+    public function getEmailValidityEndDate()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $emailValidityEndDate = $entity->getEmailValidity();
+
+        return $emailValidityEndDate;
+    }
+
+    public function getTotalRecordUsage()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return $totalRecordCount;
+        } else {
+            if ($actualRecordCount > 0) {
+                $totalRecordUsage = ($actualRecordCount / $totalRecordCount) * 100;
+
+                return $totalRecordUsage;
+            }
+        }
+    }
 }

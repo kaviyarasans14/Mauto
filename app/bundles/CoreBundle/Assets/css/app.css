@@ -4801,9 +4801,9 @@ figcaption {
 .license-notifiation {
   background-color: #f9edbe;
   width: 100%;
-  height: 31px;
   text-align: center;
   padding: 5px;
+  max-height: inherit;
   display: block;
   font-weight: bold;
 }
