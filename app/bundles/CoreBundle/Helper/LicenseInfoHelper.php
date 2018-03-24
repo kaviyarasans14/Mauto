@@ -507,7 +507,7 @@ class LicenseInfoHelper
         if ($actualEmailCount > 0) {
             $bounceUsageCount = ($bouncedEmailCount / $actualEmailCount) * 100;
 
-            return $bounceUsageCount;
+            return round($bounceUsageCount);
         }
     }
 
