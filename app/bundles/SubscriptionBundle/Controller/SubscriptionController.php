@@ -180,7 +180,7 @@ class SubscriptionController extends CommonController
         $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
         $countrycode     =$dataArray->{'geoplugin_countryCode'};
         $isIndianCurrency=false;
-        if ($countrycode == '' || $isIndianCurrency == 'IN') {
+        if ($countrycode == '' || $countrycode == 'IN') {
             $isIndianCurrency=true;
         }
 
