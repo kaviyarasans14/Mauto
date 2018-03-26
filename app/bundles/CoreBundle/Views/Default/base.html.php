@@ -34,7 +34,8 @@
 
        <?php if (!empty($licenseRemCount)) : ?>
            <?php if ($licenseRemCount <= 7) : ?>
-               <?php $message = $view['translator']->trans('leadsengage.license.expired', ['%licenseRemDate%' => $licenseRemDate]); ?>
+               <?php $message        = $view['translator']->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]); ?>
+               <?php $licensemessage = $view['translator']->trans('leadsengage.license.expired', ['%licenseRemDate%' => $licenseRemDate, '%url%'=> $route]); ?>
            <?php endif; ?>
        <?php endif; ?>
 
@@ -57,44 +58,110 @@
        <?php endif; ?>
 
        <?php if ($emailUssage && $bouceUsage && $emailsValidity && $recordUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($emailCountExpired && $recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.record.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php elseif ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.email.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php elseif ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.record.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php else:?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($emailUssage && $bouceUsage && $emailsValidity): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($bouceUsage && $emailsValidity && $recordUsage): ?>
-          <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.record.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($recordUsage && $emailUssage && $bouceUsage): ?>
-          <?php $usageMsg = $view['translator']->trans('leadsengage.record.email.bounce.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($emailCountExpired && $recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.email.bounce.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php elseif ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.bounce.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php elseif ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.bounce.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php else:?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.email.bounce.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($emailsValidity && $recordUsage && $emailUssage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.email.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
-
+           <?php if ($emailCountExpired && $recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.email.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php elseif ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.validity.email.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php elseif ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.validity.record.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php else:?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.email.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php endif; ?>
        <?php elseif ($emailUssage && $bouceUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.email.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]); ?>
+           <?php if ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.email.usage.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%url%'=> $route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.email.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount, '%url%'=> $route]); ?>
+           <?php endif; ?>
        <?php elseif ($bouceUsage && $emailsValidity): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
        <?php elseif ($emailsValidity && $recordUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.iszero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($emailUssage && $recordUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.record.expired'); ?>
+           <?php if ($emailCountExpired && $recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.record.iszero', ['%url%' =>$route]); ?>
+           <?php elseif ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.iszero', ['%url%' =>$route]); ?>
+           <?php elseif ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.record.iszero', ['%url%' =>$route]); ?>
+           <?php else:?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.record.expired', ['%url%' =>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($bouceUsage && $recordUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.record.expired', ['%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php if ($recordCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.record.iszero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route, '%bounceUsageCount%' => $bounceUsageCount]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.record.expired', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$route, '%bounceUsageCount%' => $bounceUsageCount]); ?>
+           <?php endif; ?>
        <?php elseif ($emailUssage && $emailsValidity): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]); ?>
-
+           <?php if ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.iszero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$route]); ?>
+           <?php endif; ?>
        <?php elseif ($emailUssage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.usage.exceeds'); ?>
+           <?php if ($emailCountExpired): ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.usage.expired', ['%url%'=> $route]); ?>
+           <?php else: ?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.email.usage.exceeds', ['%url%'=> $route]); ?>
+           <?php endif; ?>
        <?php elseif ($bouceUsage): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]); ?>
+       <?php if ($bouceUsage && !empty($message)): ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.license.expired.bounce', ['%bounceUsageCount%' => $bounceUsageCount, '%licenseRemDate%' => $licenseRemDate]); ?>
+               <?php else:?>
+               <?php $usageMsg = $view['translator']->trans('leadsengage.bounce.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]); ?>
+           <?php endif; ?>
        <?php elseif ($emailsValidity): ?>
-           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate]); ?>
+           <?php $usageMsg = $view['translator']->trans('leadsengage.email.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=> $route]); ?>
        <?php elseif ($recordUsage): ?>
-           <?php $recordUsage = $view['translator']->trans('leadsengage.record.usage.exceeds'); ?>
+             <?php if ($recordCountExpired): ?>
+              <?php $usageMsg = $view['translator']->trans('leadsengage.record.usage.expired', ['%url%'=> $route]); ?>
+                <?php else: ?>
+              <?php $usageMsg = $view['translator']->trans('leadsengage.record.usage.exceeds', ['%licenseRemDate%' => $licenseRemDate, '%url%'=> $route]); ?>
+             <?php endif; ?>
        <?php endif; ?>
 
        <?php  if (!empty($message)) : ?>
            <?php if (!empty($usageMsg)) : ?>
                <?php  $message = "$message $usageMsg" ?>
            <?php else : ?>
-               <?php  $message = $message  ?>
+               <?php  $message = $licensemessage  ?>
            <?php endif; ?>
            <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
        <?php else: ?>

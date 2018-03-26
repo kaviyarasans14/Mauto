@@ -585,4 +585,60 @@ class LicenseInfoHelper
             }
         }
     }
+
+    public function recordCountExpired()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return $totalRecordCount;
+        } else {
+            if ($actualRecordCount > 0) {
+                $recordCountExpired = $totalRecordCount - $actualRecordCount;
+                if ($recordCountExpired == 0) {
+                    return  true;
+                } else {
+                    return  false;
+                }
+            }
+        }
+    }
+
+    public function emailCountExpired()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalEmailCount  = $entity->getTotalEmailCount();
+        $actualEmailCount = $entity->getActualEmailCount();
+
+        if ($totalEmailCount == 'UL') {
+            return $totalEmailCount;
+        } else {
+            if ($actualEmailCount > 0) {
+                $emailCountExpired = $totalEmailCount - $actualEmailCount;
+                if ($emailCountExpired == 0) {
+                    return  true;
+                } else {
+                    return  false;
+                }
+            }
+        }
+    }
 }
