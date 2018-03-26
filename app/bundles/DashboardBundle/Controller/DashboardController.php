@@ -60,6 +60,8 @@ class DashboardController extends FormController
         $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
         $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
         $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $recordCountExpired   = $this->get('mautic.helper.licenseinfo')->recordCountExpired();
+        $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -127,9 +129,12 @@ class DashboardController extends FormController
                 'bounceUsageCount'    => $bounceUsageCount,
                 'emailValidity'       => $emailValidity,
                 'totalRecordUsage'    => $totalRecordUsage,
+                'recordCountExpired'  => $recordCountExpired,
+                'emailCountExpired'   => $emailCountExpired,
                 'showvideo'           => $showvideo,
                 'videoURL'            => $videoURL,
                 'emailValidityEndDate'=> $emailValidityEndDate,
+                'route'               => $this->generateUrl('le_plan_index'),
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [
