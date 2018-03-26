@@ -1386,7 +1386,7 @@ blockquote > p:after {
 }
 .alert-growl-container {
   position: absolute;
-  top: 20px;
+  top: 5px;
   right: 20px;
   z-index: 100000;
 }
