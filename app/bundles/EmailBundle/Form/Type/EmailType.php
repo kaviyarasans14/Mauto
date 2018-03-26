@@ -56,7 +56,7 @@ class EmailType extends AbstractType
 
         $this->countryChoices  = FormFieldHelper::getCountryChoices();
         $this->regionChoices   = FormFieldHelper::getRegionChoices();
-        $this->timezoneChoices = FormFieldHelper::getTimezonesChoices();
+        $this->timezoneChoices = FormFieldHelper::getCustomTimezones();
         $this->localeChoices   = FormFieldHelper::getLocaleChoices();
 
         $stages = $factory->getModel('stage')->getRepository()->getSimpleList();

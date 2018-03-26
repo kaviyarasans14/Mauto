@@ -233,6 +233,24 @@ class FormFieldHelper extends AbstractFormFieldHelper
     }
 
     /**
+     * Symfony deprecated and changed Symfony\Component\Form\Extension\Core\Type\TimezoneType::getTimezones to private
+     * in 3.0 - so duplicated code here.
+     *
+     * @return array
+     */
+    public static function getCustomTimezones()
+    {
+        $timezonesJson     = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/timezone.json');
+        $timezones         = json_decode($timezonesJson);
+        $timezonesnameJson = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/timezonename.json');
+        $timezonesname     = json_decode($timezonesnameJson);
+
+        $choices = array_combine($timezonesname, $timezones);
+
+        return $choices;
+    }
+
+    /**
      * Get locale choices.
      *
      * @return array

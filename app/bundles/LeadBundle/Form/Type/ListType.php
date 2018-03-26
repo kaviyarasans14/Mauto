@@ -70,7 +70,7 @@ class ListType extends AbstractType
         $this->fieldChoices = $listModel->getChoiceFields();
 
         // Locales
-        $this->timezoneChoices = FormFieldHelper::getTimezonesChoices();
+        $this->timezoneChoices = FormFieldHelper::getCustomTimezones();
         $this->countryChoices  = FormFieldHelper::getCountryChoices();
         $this->regionChoices   = FormFieldHelper::getRegionChoices();
         $this->localeChoices   = FormFieldHelper::getLocaleChoices();
