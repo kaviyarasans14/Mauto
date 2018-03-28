@@ -119,10 +119,10 @@ class KYCController extends FormController
             $signuprepository=$this->get('le.core.repository.signup');
             $signuprepository->updateSignupInfo($accountdata, $data, $userdata);
             $model->saveEntity($account);
+            $loginsession = $this->get('session');
+            $loginsession->set('isLogin', false);
 
-            $redirectUrl = $this->generateUrl('mautic_kyc_action', ['objectAction' => 'kyc']);
-
-            return new RedirectResponse($redirectUrl);
+            return $this->delegateRedirect($this->generateUrl('mautic_dashboard_index'));
         }
 
         return $this->delegateView(
