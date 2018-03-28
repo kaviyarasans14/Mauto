@@ -212,7 +212,7 @@ class KYCController extends FormController
                     'kycform'    => $kycform->createView(),
                     'form'       => $form->createView(),
                     'headerTitle'=> 'KYC | Leadsengage',
-                    'actionRoute'=> 'mautic_dashboard_action',
+                    'actionRoute'=> 'mautic_kyc_action',
                     'typePrefix' => 'form',
                 ],
                 'contentTemplate' => 'MauticSubscriptionBundle:Subscription:step2.html.php',

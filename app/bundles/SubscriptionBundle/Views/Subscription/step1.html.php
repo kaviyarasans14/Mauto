@@ -102,8 +102,7 @@
                     <br>
                     <div class="row">
                         <div class="col-md-6">
-                            <?php echo $view['form']->label($form['timezone']); ?>
-                            <?php echo $view['form']->widget($form['timezone']); ?>
+                            <?php echo $view['form']->row($form['timezone']); ?>
                         </div>
                         <div class="col-md-6">
                             <?php echo $view['form']->label($billform['gstnumber']); ?>
@@ -120,5 +119,12 @@
         </form>
     </div>
 </section>
+<script>
+
+    mQuery("body select").not('.multiselect, .not-chosen').each(function() {
+        Mautic.activateChosenSelect(this);
+    });
+
+</script>
 </body>
 </html>
