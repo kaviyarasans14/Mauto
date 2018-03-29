@@ -197,121 +197,58 @@ class DashboardController extends FormController
         $recordUsage    = false;
         $buyCreditRoute =$this->generateUrl('le_plan_index');
 
-        $notifymessage='';
-        $usageMsg     ='';
+        $notifymessage   ='';
+        $usageMsg        ='';
+        $maxEmailUsage   = 85;
+        $maxBounceUsage  =3;
+        $maxEmailValidity=7;
+        $maxRecordUsage  =85;
+        $buyNowButon     = 'Buy Now';
 
         if (!empty($licenseRemDays)) {
             if ($licenseRemDays < 7) {
                 $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]);
             }
         }
-        if (isset($emailUsageCount) && $emailUsageCount > 85) {
+        if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
             $emailUssage=true;
         }
-        if (isset($bounceUsageCount) && $bounceUsageCount > 3) {
+        if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
             $bouceUsage=true;
         }
-        if (isset($emailValidity) && $emailValidity < 7) {
+        if (isset($emailValidity) && $emailValidity < $maxEmailValidity) {
             $emailsValidity=true;
         }
-        if (isset($totalRecordUsage) && $totalRecordUsage > 85) {
+        if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
             $recordUsage=true;
         }
 
-        if ($emailUssage && $bouceUsage && $emailsValidity && $recordUsage) {
-            if ($emailCountExpired == 0 && $emailValidity == 0) {
-                $usageMsg = $this->translator->trans('leadsengage.email.bounce.validity.record.expired.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
-            } elseif ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('leadsengage.email.bounce.record.email.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
-            } elseif ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('leadsengage.email.bounce.validity.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.email.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
-            }
-        } elseif ($emailUssage && $bouceUsage && $emailsValidity) {
-            if ($emailCountExpired == 0 && $emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.email.bounce.validity.iszero.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } elseif ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.email.bounce.validity.email.iszero.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } elseif ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.email.bounce.validity.validity.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.email.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            }
-        } elseif ($bouceUsage && $emailsValidity && $recordUsage) {
-            if ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.bounce.validity.record.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.bounce.validity.record.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            }
-        } elseif ($recordUsage && $emailUssage && $bouceUsage) {
+        if ($emailUssage) {
             if ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.record.email.bounce.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
+                $usageMsg=$this->translator->trans('le.emailusage.count.expired');
             } else {
-                $usageMsg = $this->translator->trans('leadsengage.record.email.bounce.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
+                $usageMsg=$this->translator->trans('le.emailusage.count.exceeds', ['%maxEmailUsage%' => $maxEmailUsage]);
             }
-        } elseif ($emailsValidity && $recordUsage && $emailUssage) {
-            if ($emailCountExpired == 0 && $emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.record.validity.email.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]);
-            } elseif ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.record.validity.email.expired.iszero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]);
-            } elseif ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.record.validity.email.val.zero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.record.validity.email.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate]);
-            }
-        } elseif ($emailUssage && $bouceUsage) {
-            if ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.bounce.email.usage.exceeds.zero', ['%bounceUsageCount%' => $bounceUsageCount, '%url%'=> $buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.bounce.email.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount, '%url%'=> $buyCreditRoute]);
-            }
-        } elseif ($bouceUsage && $emailsValidity) {
+        }
+        if ($emailsValidity) {
             if ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.bounce.validity.expired.zero', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
             } else {
-                $usageMsg = $this->translator->trans('leadsengage.bounce.validity.expired', ['%bounceUsageCount%' => $bounceUsageCount, '%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]);
             }
-        } elseif ($emailsValidity && $recordUsage) {
-            if ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.record.validity.expired.iszero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.record.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%' =>$buyCreditRoute]);
+            if ($usageMsg != '') {
+                $usageMsg .= ' and ';
             }
-        } elseif ($emailUssage && $recordUsage) {
-            if ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.email.record.expired', ['%url%' =>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.email.record.expired', ['%url%' =>$buyCreditRoute]);
-            }
-        } elseif ($bouceUsage && $recordUsage) {
-            $usageMsg = $this->translator->trans('leadsengage.bounce.record.expired', ['%bounceUsageCount%' => $bounceUsageCount]);
-        } elseif ($emailUssage && $emailsValidity) {
-            if ($emailCountExpired == 0 && $emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.email.validity.exceeds.iszero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } elseif ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.email.validity.email.zero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } elseif ($emailValidity == 0) {
-                $usageMsg = $this->translator->trans('le.email.validity.validity.zero', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.email.validity.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=>$buyCreditRoute]);
-            }
-        } elseif ($emailUssage) {
-            if ($emailCountExpired == 0) {
-                $usageMsg = $this->translator->trans('le.email.usage.iszero', ['%url%'=> $buyCreditRoute]);
-            } else {
-                $usageMsg = $this->translator->trans('leadsengage.email.usage.exceeds', ['%url%'=> $buyCreditRoute]);
-            }
-        } elseif ($bouceUsage) {
-            $usageMsg =$this->translator->trans('leadsengage.bounce.usage.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);
-        } elseif ($emailsValidity) {
-            if ($emailValidity == 0) {
-                $usageMsg =$this->translator->trans('le.email.validity.expired.iszero', ['%url%'=> $buyCreditRoute]);
-            } else {
-                $usageMsg =$this->translator->trans('leadsengage.email.validity.expired', ['%emailValidityEndDate%' => $emailValidityEndDate, '%url%'=> $buyCreditRoute]);
-            }
-        } elseif ($recordUsage) {
-            $usageMsg =$this->translator->trans('leadsengage.record.usage.exceeds', ['%licenseRemDate%' => $licenseRemDate, '%url%'=> $buyCreditRoute]);
+            $usageMsg .= $emailMsg;
+        }
+        if ($emailUssage || $emailsValidity) {
+            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
+        }
+        if ($recordUsage) {
+            $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
+        }
+        if ($bouceUsage) {
+            $usageMsg .= $this->translator->trans('le.bounce.count.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);
         }
 
         if ($usageMsg != '') {
