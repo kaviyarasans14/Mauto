@@ -484,8 +484,8 @@ class LicenseInfoHelper
         } else {
             if ($validityDays > 0) {
                 return $validityDays;
-            } else {
-                return false;
+            } elseif ($validityDays == 0) {
+                return 0;
             }
         }
     }
@@ -540,7 +540,9 @@ class LicenseInfoHelper
             $entity = new LicenseInfo();
         }
 
-        $licenseEndDate = $entity->getLicenseEnd();
+        $licenseDate   = $entity->getLicenseEnd();
+        $convertDate   = strtotime($licenseDate);
+        $licenseEndDate= date('d-M-Y', $convertDate);
 
         return $licenseEndDate;
     }
@@ -557,8 +559,10 @@ class LicenseInfoHelper
         }
 
         $emailValidityEndDate = $entity->getEmailValidity();
+        $convertDate          = strtotime($emailValidityEndDate);
+        $validityEndDate      = date('d-M-Y', $convertDate);
 
-        return $emailValidityEndDate;
+        return $validityEndDate;
     }
 
     public function getTotalRecordUsage()
@@ -586,34 +590,6 @@ class LicenseInfoHelper
         }
     }
 
-    public function recordCountExpired()
-    {
-        $data=$this->licenseinfo->findAll();
-
-        if (sizeof($data) > 0 && $data != null) {
-            $entity = $data[0];
-        }
-        if (!$data) {
-            $entity = new LicenseInfo();
-        }
-
-        $totalRecordCount  = $entity->getTotalRecordCount();
-        $actualRecordCount = $entity->getActualRecordCount();
-
-        if ($totalRecordCount == 'UL') {
-            return $totalRecordCount;
-        } else {
-            if ($actualRecordCount > 0) {
-                $recordCountExpired = $totalRecordCount - $actualRecordCount;
-                if ($recordCountExpired == 0) {
-                    return  true;
-                } else {
-                    return  false;
-                }
-            }
-        }
-    }
-
     public function emailCountExpired()
     {
         $data=$this->licenseinfo->findAll();
@@ -634,9 +610,9 @@ class LicenseInfoHelper
             if ($actualEmailCount > 0) {
                 $emailCountExpired = $totalEmailCount - $actualEmailCount;
                 if ($emailCountExpired == 0) {
-                    return  true;
+                    return  0;
                 } else {
-                    return  false;
+                    return $emailCountExpired;
                 }
             }
         }

@@ -17,7 +17,9 @@ else:
     $view->extend('MauticUserBundle:Security:ajax.html.php');
 endif;
 ?>
-
+<?php if (!empty($msg)): ?>
+<span class="login-notifiation" ><?php echo $view['translator']->trans($msg); ?> </span>
+<?php endif; ?>
 <form class="form-group login-form" name="login" data-toggle="ajax" role="form" action="<?php echo $view['router']->path('mautic_user_logincheck') ?>" method="post">
     <div class="input-group mb-md">
 
