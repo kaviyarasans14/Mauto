@@ -176,11 +176,25 @@ class SubscriptionController extends CommonController
 
     public function getCurrencyType()
     {
-        $clientip        = $this->request->getClientIp();
-        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
-        $countrycode     =$dataArray->{'geoplugin_countryCode'};
+//        $clientip        = $this->request->getClientIp();
+//        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
+//        $countrycode     =$dataArray->{'geoplugin_countryCode'};
+//        $isIndianCurrency=false;
+//        if ($countrycode == '' || $isIndianCurrency == 'IN') {
+//            $isIndianCurrency=true;
+//        }
+        /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
+        $billingmodel  = $this->getModel('core.billinginfo');
+        $billingrepo   = $billingmodel->getRepository();
+        $billingentity = $billingrepo->findAll();
+        if (sizeof($billingentity) > 0) {
+            $billing = $billingentity[0]; //$model->getEntity(1);
+        } else {
+            $billing = new Billing();
+        }
+        $country         =$billing->getCountry();
         $isIndianCurrency=false;
-        if ($countrycode == '' || $countrycode == 'IN') {
+        if (empty($country) || $country == 'India') {
             $isIndianCurrency=true;
         }
 

@@ -85,6 +85,11 @@ $extraMenu = $view['menu']->render('extra');
                 </li>
             </ul>
             <!--/ end: left nav -->
+            <ul class="nav sidebar-credits-info-holder">
+                <li >
+                    <a href="javascript:void(0)" style="pointer-events:none"><span class="pull-left text email-credits"></span><span class="pull-left text email-validity"></span></a>
+                </li>
+            </ul>
 
         </nav>
         <!--/ end: navigation -->

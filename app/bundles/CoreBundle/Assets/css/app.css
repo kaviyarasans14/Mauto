@@ -1617,6 +1617,7 @@ label.list-group-item:focus {
 }
 .dropdown-menu > li > a .fa {
   min-width: 15px;
+  margin-right: 3px;
 }
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {

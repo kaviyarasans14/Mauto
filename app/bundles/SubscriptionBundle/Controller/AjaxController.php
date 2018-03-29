@@ -165,11 +165,13 @@ class AjaxController extends CommonAjaxController
         if ($plancurrency == '₹') {
             $provider = 'razorpay';
         }
-        $username              =$this->user->getName();
-        $useremail             =$this->user->getEmail();
-        $dataArray['username'] =$username;
-        $dataArray['useremail']=$useremail;
-        $dataArray['provider'] =$provider;
+        $username               =$this->user->getName();
+        $useremail              =$this->user->getEmail();
+        $usermobile             =$this->user->getMobile();
+        $dataArray['username']  =$username;
+        $dataArray['useremail'] =$useremail;
+        $dataArray['usermobile']=$usermobile;
+        $dataArray['provider']  =$provider;
         if ($provider == 'razorpay') {
             $apikey              =$this->coreParametersHelper->getParameter('razoparpay_apikey');
             $dataArray['apikey'] =$apikey;
@@ -268,6 +270,20 @@ class AjaxController extends CommonAjaxController
             $dataArray['success']  =false;
             $dataArray['errormsg'] ='Payment Error:'.$ex->getMessage();
         }
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function validityinfoAction(Request $request)
+    {
+        $dataArray['success']  =true;
+        $credits               = $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
+        $validity              = $this->get('mautic.helper.licenseinfo')->getEmailValidity();
+        if (!empty($validity)) {
+            $validity = date('d-M-y', strtotime($validity));
+        }
+        $dataArray['credits']   =$credits;
+        $dataArray['validity']  =$validity;
 
         return $this->sendJsonResponse($dataArray);
     }

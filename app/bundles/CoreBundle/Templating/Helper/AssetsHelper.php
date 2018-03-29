@@ -760,4 +760,9 @@ class AssetsHelper
     {
         return $this->getUrl('media/sample/Sample_Contact.csv');
     }
+
+    public function getHelpDeskIconPath()
+    {
+        return $this->getUrl('media/images/helpdesk-icon.png');
+    }
 }

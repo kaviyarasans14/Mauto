@@ -641,4 +641,12 @@ class LicenseInfoHelper
             }
         }
     }
+
+    public function getEmailValidity()
+    {
+        $entity           = $this->licenseinfo->findAll()[0];
+        $validity         = $entity->getEmailValidity();
+
+        return $validity;
+    }
 }

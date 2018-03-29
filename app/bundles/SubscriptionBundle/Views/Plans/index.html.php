@@ -22,7 +22,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
             </h5>
         </div>
 
-        <div id="sectionOne" class="collapse show in" role="tabpanel" aria-labelledby="headingOne">
+        <div id="sectionOne" class="collapse in" role="tabpanel" aria-labelledby="headingOne">
             <div class="section-block">
                 <?php if ($plans) : ?>
                     <div class="row">

@@ -44,22 +44,28 @@ $isAdmin=$view['security']->isAdmin();
 
 			<div class="form-group mb-0">
 			    <div class="row">
+                    <div class="col-sm-6<?php echo (count($form['mobile']->vars['errors'])) ? ' has-error' : ''; ?>">
+                        <label class="control-label mb-xs"><?php echo $view['form']->label($form['mobile']); ?></label>
+                        <?php echo $view['form']->widget($form['mobile'], ['attr' => ['placeholder' => $form['mobile']->vars['label']]]); ?>
+                        <?php echo $view['form']->errors($form['mobile']); ?>
+                    </div>
 			        <div class="col-sm-6<?php echo (count($form['role']->vars['errors'])) ? ' has-error' : ''; ?>">
 			        	<label class="control-label mb-xs"><?php echo $view['form']->label($form['role']); ?></label>
 			            <?php echo $view['form']->widget($form['role'], ['attr' => ['placeholder' => $form['role']->vars['label']]]); ?>
                         <?php echo $view['form']->errors($form['role']); ?>
 			        </div>
-			        <div class="col-sm-6<?php echo (count($form['position']->vars['errors'])) ? ' has-error' : ''; ?>">
-				    	<label class="control-label mb-xs"><?php echo $view['form']->label($form['position']); ?></label>
-			            <?php echo $view['form']->widget($form['position'], ['attr' => ['placeholder' => $form['position']->vars['label']]]); ?>
-                        <?php echo $view['form']->errors($form['position']); ?>
-			        </div>
+
 			    </div>
 			</div>
 			<hr class="mnr-md mnl-md">
 
             <div class="form-group mb-0">
                 <div class="row">
+                    <div class="col-sm-6<?php echo (count($form['position']->vars['errors'])) ? ' has-error' : ''; ?>">
+                        <label class="control-label mb-xs"><?php echo $view['form']->label($form['position']); ?></label>
+                        <?php echo $view['form']->widget($form['position'], ['attr' => ['placeholder' => $form['position']->vars['label']]]); ?>
+                        <?php echo $view['form']->errors($form['position']); ?>
+                    </div>
                     <div class="col-sm-6<?php echo (count($form['signature']->vars['errors'])) ? ' has-error' : ''; ?>">
                         <label class="control-label mb-xs"><?php echo $view['form']->label($form['signature']); ?></label>
                         <?php echo $view['form']->widget($form['signature'], ['attr' => ['placeholder' => $form['signature']->vars['label']]]); ?>

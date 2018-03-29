@@ -65,7 +65,15 @@ $isAdmin=$view['security']->isAdmin();
                     'class'      => 'visible-md visible-lg col-user-email',
                 ]
             );
-
+            echo $view->render(
+                'MauticCoreBundle:Helper:tableheader.html.php',
+                [
+                    'sessionVar' => 'user',
+                    'orderBy'    => 'u.mobile',
+                    'text'       => 'mautic.core.type.mobile',
+                    'class'      => 'visible-md visible-lg col-user-mobile',
+                ]
+            );
             echo $view->render(
                 'MauticCoreBundle:Helper:tableheader.html.php',
                 [
@@ -131,6 +139,7 @@ $isAdmin=$view['security']->isAdmin();
                 <td class="visible-md visible-lg">
                     <a href="mailto: <?php echo $item->getEmail(); ?>"><?php echo $item->getEmail(); ?></a>
                 </td>
+                <td class="visible-md visible-lg"><?php echo $item->getMobile(); ?></td>
                 <td class="visible-md visible-lg"><?php echo $item->getRole()->getName(); ?></td>
                 <?php if ($isAdmin) : ?>
                 <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>

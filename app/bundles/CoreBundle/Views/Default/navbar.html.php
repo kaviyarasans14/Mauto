@@ -45,6 +45,10 @@ $isCustomAdmin= $view['security']->isCustomAdmin();
             </li>
         <?php endif; ?>
     </ul>
+    <!-- start: right nav -->
+    <ul class="nav navbar-nav navbar-right">
+        <?php echo $view->render('MauticCoreBundle:Menu:support.html.php'); ?>
+    </ul>
     <div class="navbar-toolbar pull-right mt-15 mr-10">
     <?php
     echo $view['buttons']->reset($app->getRequest(), \Mautic\CoreBundle\Templating\Helper\ButtonHelper::LOCATION_NAVBAR)

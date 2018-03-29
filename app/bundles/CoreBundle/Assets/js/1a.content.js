@@ -666,6 +666,18 @@ Mautic.onPageLoad = function (container, response, inModal) {
         if (inModal || typeof Mautic.loadedContent[contentSpecific] == 'undefined') {
             Mautic.loadedContent[contentSpecific] = true;
             Mautic[contentSpecific + "OnLoad"](container, response);
+            Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
+                if (response.success) {
+                    if(response.credits != "" && response.validity != ""){
+                        mQuery('.sidebar-credits-info-holder').show();
+                        mQuery('.sidebar-credits-info-holder .email-credits').html("Available Credits : "+response.credits);
+                        mQuery('.sidebar-credits-info-holder .email-validity').html("Expiry Date : "+response.validity);
+                    }else{
+                        mQuery('.sidebar-credits-info-holder').hide();
+                    }
+
+                }
+            });
         }
     }
 

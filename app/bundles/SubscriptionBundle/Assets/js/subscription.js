@@ -131,7 +131,7 @@ Mautic.invokeRazorPay = function(response,username,useremail,useraddress,plannam
         "subscription_id": subscriptionid,
         "name": "LeadsEngage",
         "description": planname+" plan upgradtion",
-        "image": "https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png",
+        "image": "https://s3.amazonaws.com/leadsroll.com/Razer-Pay-Icon.png",
         "handler": function (response){
             var paymentid=response.razorpay_payment_id;
             var subscriptionid=response.razorpay_subscription_id;

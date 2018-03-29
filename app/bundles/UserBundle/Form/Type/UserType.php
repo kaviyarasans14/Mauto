@@ -248,7 +248,18 @@ class UserType extends AbstractType
                 'data' => $defaultSignature,
             ]
         );
-
+        $builder->add(
+            'mobile',
+            'text',
+            [
+                'label'      => 'mautic.core.type.mobile',
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'class'    => 'form-control',
+                    'preaddon' => 'fa fa-mobile',
+                ],
+            ]
+        );
         if (empty($options['in_profile'])) {
             $builder->add(
                 $builder->create(
