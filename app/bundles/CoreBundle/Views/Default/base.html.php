@@ -31,17 +31,8 @@
 
     <!-- start: app-header -->
    <header id="app-header" class="navbar">
-       <?php  if (!empty($message)) : ?>
-           <?php if (!empty($usageMsg)) : ?>
-               <?php  $message = "$message $usageMsg" ?>
-           <?php else : ?>
-               <?php  $message = $message  ?>
-           <?php endif; ?>
-           <span class="license-notifiation" id="licenseclosebutton"><?php echo $message ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()"  width="10" height="10"> </span>
-       <?php else: ?>
-           <?php if (!empty($usageMsg)) : ?>
-               <span class="license-notifiation" id="licenseclosebutton"><?php echo $usageMsg ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
-           <?php endif; ?>
+       <?php if (!empty($notifymessage)) : ?>
+           <span class="license-notifiation" id="licenseclosebutton"><?php echo $notifymessage ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
        <?php endif; ?>
 
         <?php echo $view->render('MauticCoreBundle:Default:navbar.html.php'); ?>
