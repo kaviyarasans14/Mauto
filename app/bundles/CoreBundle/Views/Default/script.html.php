@@ -26,6 +26,7 @@ $mauticContent = $view['slots']->get(
     var leClientID        = '<?php echo $view['assets']->getAppid(); ?>';
     var mauticLang        = <?php echo $view['translator']->getJsLang(); ?>;
     document.addEventListener("contextmenu", function(e){
+        alert("Right Click Restricted");
         e.preventDefault();
     }, false);
 </script>
