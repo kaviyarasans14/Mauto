@@ -631,6 +631,7 @@ return [
                     'mautic.lead.model.dnc',
                     'mautic.message.search.contact',
                     'mautic.email.repository.stat',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.email.transport_type' => [

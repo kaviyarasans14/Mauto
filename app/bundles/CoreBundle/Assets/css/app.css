@@ -4806,7 +4806,17 @@ figcaption {
   padding: 5px;
   max-height: inherit;
   display: block;
-  font-weight: bold;
+  color : #000000;
+}
+.login-notifiation {
+  background-color: #f9edbe;
+  width: 100%;
+  text-align: center;
+  padding: 8px;
+  max-height: inherit;
+  display: block;
+  color : #000000;
+  margin-bottom: 10px;
 }
 .button-notification{
   position: absolute;

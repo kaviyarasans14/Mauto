@@ -84,7 +84,7 @@ class SecurityController extends CommonController
             $error = $session->get(Security::AUTHENTICATION_ERROR);
             $session->remove(Security::AUTHENTICATION_ERROR);
         }
-
+        $msg='';
         if (!empty($error)) {
             if (($error instanceof Exception\BadCredentialsException)) {
                 $msg = 'mautic.user.auth.error.invalidlogin';
@@ -96,7 +96,7 @@ class SecurityController extends CommonController
                 $msg = $error;
             }
 
-            $this->addFlash($msg, [], 'error', null, false);
+            //$this->addFlash($msg, [], 'error', null, false);
         }
         $this->request->query->set('tmpl', 'login');
 
@@ -108,6 +108,7 @@ class SecurityController extends CommonController
             'viewParameters' => [
                 'last_username' => $session->get(Security::LAST_USERNAME),
                 'integrations'  => $integrations,
+                'msg'           => $msg,
             ],
             'contentTemplate' => 'MauticUserBundle:Security:login.html.php',
             'passthroughVars' => [

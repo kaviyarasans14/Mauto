@@ -3,6 +3,7 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
+use Mautic\CoreBundle\Entity\Billing;
 use PayPal\Api\Agreement;
 use PayPal\Api\Payment;
 use PayPal\Api\PaymentExecution;

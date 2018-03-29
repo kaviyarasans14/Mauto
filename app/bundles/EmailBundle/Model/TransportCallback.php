@@ -12,6 +12,7 @@
 namespace Mautic\EmailBundle\Model;
 
 use Mautic\CoreBundle\Helper\DateTimeHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\EmailBundle\Entity\Stat;
 use Mautic\EmailBundle\Entity\StatRepository;
 use Mautic\EmailBundle\MonitoredEmail\Search\ContactFinder;
@@ -36,17 +37,24 @@ class TransportCallback
     private $statRepository;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    private $licenseInfoHelper;
+
+    /**
      * TransportCallback constructor.
      *
-     * @param DoNotContact   $dncModel
-     * @param ContactFinder  $finder
-     * @param StatRepository $statRepository
+     * @param DoNotContact      $dncModel
+     * @param ContactFinder     $finder
+     * @param StatRepository    $statRepository
+     * @param LicenseInfoHelper $licenseInfoHelper
      */
-    public function __construct(DoNotContact $dncModel, ContactFinder $finder, StatRepository $statRepository)
+    public function __construct(DoNotContact $dncModel, ContactFinder $finder, StatRepository $statRepository, LicenseInfoHelper $licenseInfoHelper)
     {
-        $this->dncModel       = $dncModel;
-        $this->finder         = $finder;
-        $this->statRepository = $statRepository;
+        $this->dncModel          = $dncModel;
+        $this->finder            = $finder;
+        $this->statRepository    = $statRepository;
+        $this->licenseInfoHelper = $licenseInfoHelper;
     }
 
     /**
@@ -86,7 +94,9 @@ class TransportCallback
                 if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null && $stat->getLead() != null && $stat->getLead()->getId() != null && $stat->getLead()->getId() == $contact->getId()) {
                     $channel = ['email' => $stat->getEmail()->getId()];
                 } else {
+                    $this->updateStatDetails($stat, $comments, $dncReason);
                     $channel = ($channelId) ? ['email' => $channelId] : 'email';
+                    $this->licenseInfoHelper->intBounceCount('1');
                 }
                 $this->dncModel->addDncForContact($contact->getId(), $channel, $dncReason, $comments);
             }
@@ -94,6 +104,7 @@ class TransportCallback
         if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null) {
             $this->updateStatDetails($stat, $comments, $dncReason);
             $this->statRepository->updateBouneorUnsubscribecount($stat->getEmail()->getId(), $dncReason);
+            $this->licenseInfoHelper->intBounceCount('1');
         }
     }
 
