@@ -97,5 +97,12 @@
         </form>
     </div>
 </section>
+<script>
+
+    mQuery("body select").not('.multiselect, .not-chosen').each(function() {
+        Mautic.activateChosenSelect(this);
+    });
+
+</script>
 </body>
 </html>

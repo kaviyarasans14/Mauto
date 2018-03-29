@@ -34,7 +34,7 @@
                             <img style="
     width: 200px;
     margin-bottom: 25px;
-    margin-top: 25px;
+    margin-top: 40px;
     margin-left: 10px;
     margin-right: 10px;
 " src="<?php echo $view['assets']->getUrl('media/images/leadsengage-logo.png') ?>"></div>

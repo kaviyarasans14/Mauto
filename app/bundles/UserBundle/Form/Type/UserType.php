@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\LanguageHelper;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\UserBundle\Model\UserModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -196,11 +197,12 @@ class UserType extends AbstractType
                 'error_bubbling'  => false,
             ]
         );
-
+        $choices = FormFieldHelper::getCustomTimezones();
         $builder->add(
             'timezone',
-            'timezone',
+            'choice',
             [
+                'choices'    => $choices,
                 'label'      => 'mautic.core.timezone',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
@@ -265,6 +267,7 @@ class UserType extends AbstractType
                             if ($this->model->getCurrentUserEntity()->isAdmin()) {
                                 $rolefilter='r.isPublished = true';
                             }
+
                             return $er->createQueryBuilder('r')
                                 ->where($rolefilter)
                                 ->orderBy('r.name', 'ASC');

@@ -29,32 +29,29 @@
                 </p>
                 <div id="terms">
 
-                    <h4><b>What is SPAM?</b></h4>
-                    <p>Spam is any email you send to someone who hasn’t given you their direct permission to contact them on the topic of the email.</p>
-                    <p>When you send an email to someone you don't know, that's an "unsolicited" email. Sending one unsolicited message to someone is obviously not spam. But when you send an unsolicited email to an entire list of people you don't know, that's spam.</p>
-
-                    <h4><b>What kind of email addresses are OK to send to with Leadsengage?</b></h4>
-                    <p>To send email to anyone, you need to have their permission. This could be done through:</p>
+                    <h4><b>LeadsEngage Anti Spam Policy</b></h4>
+                    <p>LeadsEngage is against spam. We don't allow customers to send unsolicited emails from our platform.</p>
+                    <br>
+                    <p>We are OK if you send emails as mentioned below.</p>
+                    <br>
                     <ul>
-                        <li>An email newsletter subscribe form on your web site.</li>
-                        <li>An opt-in checkbox on a form. This checkbox must not be checked by default, the person completing the form must willingly select the checkbox to indicate they want to hear from you.</li>
-                        <li>If someone completes an offline form like a survey or enters a competition, you can only contact them if it was explained to them that they would be contacted by email AND they ticked a box indicating they would like to be contacted.</li>
-                        <li>Customers who have purchased from you within the last 2 years.</li>
+                        <li>Email newsletter subscriber</li>
+                        <li>Email collected from website or optin forms</li>
+                        <li>Your existing customers, leads, contacts.</li>
+                        <li>Contacts collected through offline events such as expo.</li>
+                        <li>Contact database that are verified, bounce free, spam free.</li>
                     </ul>
-
-                    <h4><b>What kind of email address ARE NOT OK to send to with Leadsengage?</b></h4>
-                    <p>You can't import or send to any email address which:</p>
+                    <br>
+                    <p>We are NOT OK if you send email as mentioned below.</p>
+                    <br>
                     <ul>
-                        <li>You do not have explicit, provable permission to contact in relation to the topic of the email you’re sending.</li>
-                        <li>You bought, loaned, rented or in any way acquired from a third party, no matter what they claim about quality or permission. You need to obtain permission yourself.</li>
-                        <li>You haven’t contacted them via email in the last 2 years. Permission doesn’t age well and these people have either changed email address or won’t remember giving their permission in the first place.</li>
-                        <li>You scraped or copy and pasted from the web. Just because people publish their email address doesn’t mean they want to hear from you.</li>
+                        <li>Emailing to purchased 3rd party databases</li>
+                        <li>Mass mailing contacts that are more than 1 year old and are not verified</li>
                     </ul>
-
-                    <h4><b>What content MUST I include in my email?</b></h4>
-                    <p>Every email you send using Leadsengage must include a single-click unsubscribe link that instantly removes the subscriber from your list. Once they unsubscribe, you can never email them again.</p>
+                    <br>
                     <h4><b>Account Suspension</b></h4>
-                    <p>We reserve the right to suspend your account immediately and start investigating your activity if your campaigns have high percentage of spam complaints (more than 0.2%), bounces (more than 5%), unsubscribes (more then 1%) or very small open rate (less than 3%). If it turns out that you were sending emails without permission - we will terminate your account. We can ask you to prove that you have permission from your recipients and we can close your account if you do not have such proof. Otherwise, we will activate your account and you will be able to use the service again. </p>
+                    <p>We reserve the right to suspend your account immediately and start investigating your activity if your campaigns have high percentage of spam complaints (more than 0.2%), bounces (more than 5%), unsubscribes (more then 1%) or very small open rate (less than 3%). If it turns out that you were sending emails without permission - we will terminate your account. We can ask you to prove that you have permission from your recipients and we can close your account if you do not have such proof. Otherwise, we will activate your account and you will be able to use the service again.</p>
+
                     <h4><b>Multiple account abuse</b></h4>
                     <p>Creating multiple accounts with overlapping uses (similar email content, same links or same FROM email) or in order to evade the permanent suspension of a separate account is strictly forbidden.</p>
 

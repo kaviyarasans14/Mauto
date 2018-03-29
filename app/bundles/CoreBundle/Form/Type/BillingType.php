@@ -97,7 +97,7 @@ class BillingType extends AbstractType
 
         $builder->add(
             'companyaddress',
-            'textarea',
+            'text',
             [
                 'label'       => 'mautic.billing.companyaddress',
                 'label_attr'  => ['class' => 'control-label'],

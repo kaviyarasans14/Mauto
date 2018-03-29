@@ -15,6 +15,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\LanguageHelper;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\ReportBundle\Model\ReportModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -148,11 +149,12 @@ class AccountType extends AbstractType
                 'required'    => false,
             ]
         );
-
+        $timezones = FormFieldHelper::getCustomTimezones();
         $builder->add(
             'timezone',
-            'timezone',
+            'choice',
             [
+                'choices'    => $timezones,
                 'label'      => 'mautic.core.accounttimezone',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [

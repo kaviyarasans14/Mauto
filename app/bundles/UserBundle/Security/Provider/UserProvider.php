@@ -152,7 +152,7 @@ class UserProvider implements UserProviderInterface
                 throw new AuthenticationException();
             }
         } else {
-            $this->session->set(Security::AUTHENTICATION_ERROR, 'Account Suspended Please Contact Support Team');
+            $this->session->set(Security::AUTHENTICATION_ERROR, 'Your Account Suspended. Please Contact Support');
             throw new AuthenticationException();
         }
     }

@@ -102,3 +102,15 @@ if ($showvideo) {
         ]);
 }
 ?>
+
+<?php
+if ($showsetup) {
+    echo $view->render('MauticSubscriptionBundle:Subscription:basic.html.php',
+        [
+            'typePrefix' => 'email',
+            'form'       => $accountform,
+            'billform'   => $billingform,
+            'userform'   => $userform,
+        ]);
+}
+?>

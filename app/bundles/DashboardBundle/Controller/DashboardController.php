@@ -12,6 +12,8 @@
 namespace Mautic\DashboardBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController;
+use Mautic\CoreBundle\Entity\Account;
+use Mautic\CoreBundle\Entity\Billing;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\DashboardBundle\Entity\Widget;
 use Mautic\SubscriptionBundle\Entity\UserPreference;
@@ -33,30 +35,72 @@ class DashboardController extends FormController
         $videoarg     = $this->request->get('login');
         $loginsession = $this->get('session');
         $loginarg     = $loginsession->get('isLogin');
-        $dbhost       =$this->coreParametersHelper->getParameter('db_host');
-        if ($dbhost != 'localhost') {
-            /** @var \Mautic\SubscriptionBundle\Model\KYCModel $kycmodel */
-            $kycmodel  = $this->getModel('subscription.kycinfo');
-            $kycrepo   = $kycmodel->getRepository();
-            $kycentity = $kycrepo->findAll();
-            if (empty($kycentity)) {
-                return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
-            } elseif (sizeof($kycentity) > 0) {
-                $kyc = $kycentity[0];
-                if (!$kyc->getConditionsagree()) {
-                    return $this->delegateRedirect($this->generateUrl('mautic_kyc_action', ['objectAction' => 'signup']));
-                }
+        $dbhost       = $this->coreParametersHelper->getParameter('db_host');
+        $showsetup    = false;
+        $billformview = '';
+        $accformview  = '';
+        $userformview = '';
+        if ($dbhost != 'localhost' && $loginarg) {
+            /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
+            $usermodel     = $this->getModel('user.user');
+            $userentity    = $usermodel->getCurrentUserEntity();
+
+            $userform = $usermodel->createForm($userentity, $this->get('form.factory'));
+
+            /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
+            $billingmodel  = $this->getModel('core.billinginfo');
+            $billingrepo   = $billingmodel->getRepository();
+            $billingentity = $billingrepo->findAll();
+            if (sizeof($billingentity) > 0) {
+                $billing = $billingentity[0]; //$model->getEntity(1);
+            } else {
+                $showsetup = true;
+                $billing   = new Billing();
             }
+            $countryname = $this->getCountryName();
+            $timezone    = '';
+            if ($countryname == 'India') {
+                $timezone = 'Asia/Kolkata';
+            }
+            $billing->setCountry($countryname);
+            $repository  =$this->get('le.core.repository.subscription');
+            $signupinfo  =$repository->getSignupInfo($userentity->getEmail());
+            if (!empty($signupinfo)) {
+                $billing->setCompanyname($signupinfo[0]['f2']);
+                $billing->setAccountingemail($userentity->getEmail());
+            }
+
+            $billform = $billingmodel->createForm($billing, $this->get('form.factory'), [], ['isBilling' => false]);
+
+            /** @var \Mautic\CoreBundle\Model\AccountInfoModel $model */
+            $model         = $this->getModel('core.accountinfo');
+            $accrepo       = $model->getRepository();
+            $accountentity = $accrepo->findAll();
+            if (sizeof($accountentity) > 0) {
+                $account = $accountentity[0]; //$model->getEntity(1);
+            } else {
+                $account = new Account();
+            }
+            if (!empty($signupinfo)) {
+                $account->setPhonenumber($signupinfo[0]['f11']);
+            }
+            $account->setTimezone($timezone);
+            $accform = $model->createForm($account, $this->get('form.factory'));
         }
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
         $model   = $this->getModel('dashboard');
         $widgets = $model->getWidgets();
         $loginsession->set('isLogin', false);
 
-        $licenseRemDays   = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $emailUsageCount  = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
-        $bounceUsageCount = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
-        $emailValidity    = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $licenseRemDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $emailUsageCount      = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount     = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
+        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $recordCountExpired   = $this->get('mautic.helper.licenseinfo')->recordCountExpired();
+        $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -101,29 +145,49 @@ class DashboardController extends FormController
         $userprefmodel  = $this->getModel('subscription.userpreference');
         $userprefrepo   = $userprefmodel->getRepository();
         $userprefentity = $userprefrepo->findOneBy(['userid' => $currentuser->getId()]);
-        $videoURL       = $this->coreParametersHelper->getParameter('video_url');
-        $showvideo      = 0;
-        if ($userprefentity == null && $loginarg) {
-            $showvideo = 1;
+        $videoURL       = ''; //$this->coreParametersHelper->getParameter('video_url');
+        $repository     = $this->get('le.core.repository.subscription');
+        $videoconfig    = $repository->getVideoURL();
+        if (!empty($videoconfig)) {
+            $videoURL = $videoconfig[0]['video_url'];
         }
+        $showvideo      = 0;
+        //if ($userprefentity == null && $loginarg) {
+        //    $showvideo = 1;
+        //}
         if ($videoarg == 'dont_show_again') {
             $userprefentity = new UserPreference();
             $userprefentity->setProperty('Dont Show Video again');
             $userprefentity->setUserid($currentuser->getId());
             $userprefmodel->saveEntity($userprefentity);
         }
+        if ($showsetup) {
+            $billformview = $billform->createView();
+            $accformview  = $accform->createView();
+            $userformview = $userform->createView();
+        }
 
         return $this->delegateView([
             'viewParameters' => [
-                'security'         => $this->get('mautic.security'),
-                'widgets'          => $widgets,
-                'dateRangeForm'    => $dateRangeForm->createView(),
-                'licenseRemCount'  => $licenseRemDays,
-                'emailUsageCount'  => $emailUsageCount,
-                'bounceUsageCount' => $bounceUsageCount,
-                'emailValidity'    => $emailValidity,
-                'showvideo'        => $showvideo,
-                'videoURL'         => $videoURL,
+                'security'            => $this->get('mautic.security'),
+                'widgets'             => $widgets,
+                'dateRangeForm'       => $dateRangeForm->createView(),
+                'licenseRemCount'     => $licenseRemDays,
+                'licenseRemDate'      => $licenseRemDate,
+                'emailUsageCount'     => $emailUsageCount,
+                'bounceUsageCount'    => $bounceUsageCount,
+                'emailValidity'       => $emailValidity,
+                'totalRecordUsage'    => $totalRecordUsage,
+                'recordCountExpired'  => $recordCountExpired,
+                'emailCountExpired'   => $emailCountExpired,
+                'showvideo'           => $showvideo,
+                'videoURL'            => $videoURL,
+                'emailValidityEndDate'=> $emailValidityEndDate,
+                'route'               => $this->generateUrl('le_plan_index'),
+                'showsetup'           => $showsetup,
+                'billingform'         => $billformview,
+                'accountform'         => $accformview,
+                'userform'            => $userformview,
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [
@@ -577,5 +641,14 @@ class DashboardController extends FormController
                 ],
             ]
         );
+    }
+
+    public function getCountryName()
+    {
+        $clientip        = $this->request->getClientIp();
+        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
+        $countrycode     =$dataArray->{'geoplugin_countryName'};
+
+        return $countrycode;
     }
 }

@@ -507,7 +507,7 @@ class LicenseInfoHelper
         if ($actualEmailCount > 0) {
             $bounceUsageCount = ($bouncedEmailCount / $actualEmailCount) * 100;
 
-            return $bounceUsageCount;
+            return round($bounceUsageCount);
         }
     }
 
@@ -527,5 +527,118 @@ class LicenseInfoHelper
         }
 
         return $availablecredits;
+    }
+
+    public function getLicenseEndDate()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $licenseEndDate = $entity->getLicenseEnd();
+
+        return $licenseEndDate;
+    }
+
+    public function getEmailValidityEndDate()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $emailValidityEndDate = $entity->getEmailValidity();
+
+        return $emailValidityEndDate;
+    }
+
+    public function getTotalRecordUsage()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return $totalRecordCount;
+        } else {
+            if ($actualRecordCount > 0) {
+                $totalRecordUsage = ($actualRecordCount / $totalRecordCount) * 100;
+
+                return $totalRecordUsage;
+            }
+        }
+    }
+
+    public function recordCountExpired()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return $totalRecordCount;
+        } else {
+            if ($actualRecordCount > 0) {
+                $recordCountExpired = $totalRecordCount - $actualRecordCount;
+                if ($recordCountExpired == 0) {
+                    return  true;
+                } else {
+                    return  false;
+                }
+            }
+        }
+    }
+
+    public function emailCountExpired()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalEmailCount  = $entity->getTotalEmailCount();
+        $actualEmailCount = $entity->getActualEmailCount();
+
+        if ($totalEmailCount == 'UL') {
+            return $totalEmailCount;
+        } else {
+            if ($actualEmailCount > 0) {
+                $emailCountExpired = $totalEmailCount - $actualEmailCount;
+                if ($emailCountExpired == 0) {
+                    return  true;
+                } else {
+                    return  false;
+                }
+            }
+        }
     }
 }

@@ -69,6 +69,16 @@ class SubscriptionRepository
         return $qb->execute()->fetchAll();
     }
 
+    public function getVideoURL()
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+
+        $qb->select('v.video_url')
+            ->from(MAUTIC_TABLE_PREFIX.'video_config', 'v');
+
+        return $qb->execute()->fetchAll();
+    }
+
     public function getAllPrepaidPlans()
     {
         $qb = $this->getConnection()->createQueryBuilder();
