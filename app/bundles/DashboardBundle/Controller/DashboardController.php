@@ -241,6 +241,7 @@ class DashboardController extends FormController
             }
             $usageMsg .= $emailMsg;
         }
+
         if ($emailUssage || $emailsValidity) {
             $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
         }
