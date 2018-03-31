@@ -39,18 +39,23 @@
         <?php echo $view->render('MauticCoreBundle:Notification:flashes.html.php'); ?>
     </header>
     <!--/ end: app-header -->
-
+    <?php $anitSpamUrl    ='https://leadsengage.com/anti-spam-policy/'; ?>
+    <?php $privacyUrl     ='https://leadsengage.com/privacy-policy/'; ?>
+    <?php $termsAndCondUrl='https://leadsengage.com/terms-of-service/'; ?>
     <!-- start: app-footer(need to put on top of #app-content)-->
     <footer id="app-footer">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-xs-6 text-muted"><?php echo $view['translator']->trans('mautic.core.copyright', ['%date%' => date('Y')]); ?></div>
-                <!--<div class="col-xs-6 text-muted text-right small">v<?php
+            <div class="col-lg-12">
+                <div class="pull-left">
+                    <?php echo $view['translator']->trans('mautic.core.copyright.anti.spam', ['%anitSpamUrl%' => $anitSpamUrl, '%privacyUrl%' => $privacyUrl, '%termsAndCondUrl%' => $termsAndCondUrl]); ?>
+                </div>
+                <div class="pull-right">
+                    <?php echo $view['translator']->trans('mautic.core.copyright', ['%date%' => date('Y')]); ?></div><?php
                 /** @var \Mautic\CoreBundle\Templating\Helper\VersionHelper $version */
                 $version = $view['version'];
-                echo $version->getVersion(); ?>
-                        </div>-->
+                $version->getVersion(); ?>
             </div>
+        </div>
         </div>
     </footer>
     <!--/ end: app-content -->

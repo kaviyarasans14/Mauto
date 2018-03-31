@@ -35,7 +35,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.accountinf
                         <?php echo $view['translator']->trans('mautic.accountinfo.tab.paymenthistory'); ?>
                     </a>
                 </li>
-                <li role="presentation" class="list-group-item">
+                <li role="presentation" class="list-group-item hide">
                     <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" aria-controls="cancelsubscription" role="tab" data-toggle="tab">
                         <?php echo $view['translator']->trans('mautic.accountinfo.tab.cancelsubs'); ?>
                     </a>

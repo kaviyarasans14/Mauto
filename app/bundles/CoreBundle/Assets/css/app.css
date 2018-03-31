@@ -1309,7 +1309,7 @@ blockquote > p:after {
   outline: 0;
 }
 .btn .fa {
-  min-width: 13px;
+  min-width: 11px;
 }
 .btn > .caret {
   margin-top: -1px;
@@ -1325,6 +1325,19 @@ blockquote > p:after {
   padding-right: 0;
   border-radius: 50%;
 }
+.buycredits{
+  margin-top: 17px;
+  font-weight: 700;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1.456;
+  border-radius: 2px;
+  color: #fff;
+  margin-left: 3px;
+  background-color: #4e5d9d;
+  border-color: #4e5d9d;
+}
+
 .btn.btn-circle.btn-lg {
   width: 43px;
 }

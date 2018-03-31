@@ -187,6 +187,7 @@ class AccountType extends AbstractType
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => ['class' => 'form-control'],
                 'disabled'   => 1,
+                'data'       => true,
             ]
         );
 

@@ -70,10 +70,7 @@ class PointSubscriber extends CommonSubscriber
             'formType'    => 'pointaction_pagehit',
         ];
 
-        if ($this->security->hasEntityAccess('page:pages:viewown', 'page:pages:viewother')
-            || $this->security->hasEntityAccess('page:preference_center:viewown', 'page:preference_center:viewother')) {
-            $event->addAction('page.hit', $action);
-        }
+        $event->addAction('page.hit', $action);
 
         $action = [
             'group'       => 'mautic.page.point.action',
@@ -84,10 +81,7 @@ class PointSubscriber extends CommonSubscriber
             'formTheme'   => 'MauticPageBundle:FormTheme\Point',
         ];
 
-        if ($this->security->hasEntityAccess('page:pages:viewown', 'page:pages:viewother')
-            || $this->security->hasEntityAccess('page:preference_center:viewown', 'page:preference_center:viewother')) {
-            $event->addAction('url.hit', $action);
-        }
+        $event->addAction('url.hit', $action);
     }
 
     /**

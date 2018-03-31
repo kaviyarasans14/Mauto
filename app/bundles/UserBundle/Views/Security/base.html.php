@@ -37,7 +37,7 @@
     margin-top: 40px;
     margin-left: 10px;
     margin-right: 10px;
-" src="<?php echo $view['assets']->getUrl('media/images/leadsengage-logo.png') ?>"></div>
+" src="<?php echo $view['assets']->getUrl('media/images/leadsengage_logo-black.png') ?>"></div>
                         <!--<div class="mautic-logo img-circle mb-md text-center">
                             <svg version="1.1" class="mautic-logo-figure" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" enable-background="new 0 0 128 128" xml:space="preserve">
                             <path class="circle" d="M64,119.843c-30.937,0-56.108-25.17-56.108-56.108C7.893,32.799,33.063,7.629,64,7.629

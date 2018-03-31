@@ -35,7 +35,7 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
                         <?php echo $view['translator']->trans('mautic.accountinfo.tab.paymenthistory'); ?>
                     </a>
                 </li>
-                <li role="presentation" class="list-group-item">
+                <li role="presentation" class="list-group-item hide">
                     <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" aria-controls="cancelsubscription" role="tab" data-toggle="tab">
                         <?php echo $view['translator']->trans('mautic.accountinfo.tab.cancelsubs'); ?>
                     </a>
@@ -85,12 +85,12 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
                                 <?php echo $view['form']->widget($form['timezone']); ?>
                             </div></div></div>
 
-                            <div class="col-md-6"><div class="row"><div class="form-group col-xs-12 ">
+                            <div class="col-md-6 hide"><div class="row"><div class="form-group col-xs-12 ">
                                 <?php echo $view['form']->label($form['accountid']); ?>
                                 <?php echo $view['form']->widget($form['accountid']); ?>
                             </div></div></div>
 
-                            <div class="col-md-6"><div class="row"><div class="form-group col-xs-12 ">
+                            <div class="col-md-6 hide"><div class="row"><div class="form-group col-xs-12 ">
                                 <?php echo $view['form']->label($form['needpoweredby']); ?>
                                 <?php echo $view['form']->widget($form['needpoweredby']); ?>
                             </div></div></div>
