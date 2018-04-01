@@ -68,6 +68,13 @@ return [
                     'mautic.factory',
                 ],
             ],
+            'le.subscription.repository.payment' => [
+                'class'     => \Doctrine\ORM\EntityRepository::class,
+                'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
+                'arguments' => [
+                    \Mautic\SubscriptionBundle\Entity\PaymentHistory::class,
+                ],
+            ],
         ],
         'models'    => [
             'mautic.subscription.model.kycinfo' => [
@@ -84,7 +91,7 @@ return [
         'razoparpay_apisecret'             => '',
         'paypal_clientid'                  => '',
         'paypal_clientsecret'              => '',
-        'paypal_mode'                      => 'sandbox',
+        'paypal_mode'                      => 'sandbox', //live
         'paypal_rootpath'                  => '%kernel.root_dir%/paypal',
         'paypal_logpath'                   => '%kernel.root_dir%/paypal/log',
         'paypal_cachepath'                 => '%kernel.root_dir%/paypal/cache', // for determining paypal cache directory

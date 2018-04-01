@@ -31,6 +31,8 @@ Mautic.prepaidplansOnLoad = function (container) {
                 paymentcontinue.attr("planamount", planamount);
                 paymentcontinue.attr("plancurrency", plancurrency);
                 paymentcontinue.attr("plancredits", plancredits);
+                paymentcontinue.attr("beforecredits", availablecredits);
+                paymentcontinue.attr("aftercredits", totalcredits);
                 mQuery('a[aria-controls="sectionTwo"]').trigger('click');
             }
         });
@@ -44,6 +46,8 @@ Mautic.prepaidplansOnLoad = function (container) {
         var planamount=paymentcontinue.attr("planamount");
         var plancurrency=paymentcontinue.attr("plancurrency");
         var plancredits=paymentcontinue.attr("plancredits");
+        var beforecredits=paymentcontinue.attr("beforecredits");
+        var aftercredits=paymentcontinue.attr("aftercredits");
         var planpricing = mQuery('#sectionThree #plan-pricing');
         var taxheaderlabel = mQuery('#sectionThree #tax-label');
         var taxamountlabel = mQuery('#sectionThree #tax-amount');
@@ -76,6 +80,8 @@ Mautic.prepaidplansOnLoad = function (container) {
         makepayment.attr("planname",planname);
         makepayment.attr("plancurrency",plancurrency);
         makepayment.attr("plancredits",plancredits);
+        makepayment.attr("aftercredits",aftercredits);
+        makepayment.attr("beforecredits",beforecredits);
         makepayment.attr("totalamt",totalamount);
         mQuery('a[aria-controls="sectionThree"]').trigger('click');
     });
@@ -86,10 +92,12 @@ Mautic.prepaidplansOnLoad = function (container) {
         var planname=makepayment.attr("planname");
         var plancurrency=makepayment.attr("plancurrency");
         var plancredits=makepayment.attr("plancredits");
+        var beforecredits=makepayment.attr("beforecredits");
+        var aftercredits=makepayment.attr("aftercredits");
         var totalamount=makepayment.attr("totalamt");
 
         Mautic.activateBackdrop();
-        Mautic.ajaxActionRequest('subscription:purchaseplan', {plancurrency:plancurrency,planamount:totalamount,planname:planname,plankey:plankey}, function(response) {
+        Mautic.ajaxActionRequest('subscription:purchaseplan', {plancurrency:plancurrency,planamount:totalamount,planname:planname,plankey:plankey,plancredits:plancredits,beforecredits:beforecredits,aftercredits:aftercredits}, function(response) {
             Mautic.deactivateBackgroup();
           if (response.success) {
               if(response.provider == "razorpay"){
@@ -151,4 +159,19 @@ Mautic.invokePaypalPay_Prepaid = function(response) {
 
 Mautic.getFormattedNumber = function(number) {
   return number.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
+};
+Mautic.loadLicenseUsageInfo = function() {
+    Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
+        if (response.success) {
+            if(response.credits != "" && response.validity != ""){
+                mQuery('.sidebar-credits-info-holder').show();
+                mQuery('.sidebar-credits-info-holder .email-credits').html("Available Credits : "+response.credits);
+                mQuery('.sidebar-credits-info-holder .email-validity').html("Expiry Date : "+response.validity);
+                mQuery('.sidebar-credits-info-holder .email-days-available').html("Days Available : "+response.daysavailable);
+            }else{
+                mQuery('.sidebar-credits-info-holder').hide();
+            }
+
+        }
+    });
 };

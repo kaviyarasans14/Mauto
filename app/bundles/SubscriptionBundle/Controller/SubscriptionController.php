@@ -97,17 +97,15 @@ class SubscriptionController extends CommonController
 
     public function paymentstatusAction()
     {
-        $paymentid       ='';
-        $orderid         ='';
         $provider        = $this->request->get('provider');
         $status          = $this->request->get('status');
         if ($provider == 'paypal') {
             if ($status) {
                 $paymenthelper     =$this->get('le.helper.payment');
                 $apiContext        =$paymenthelper->getPayPalApiContext();
-                $paymentid         = $this->request->get('paymentId');
-                $payerid           = $this->request->get('PayerID');
-                $payment           = Payment::get($paymentid, $apiContext);
+                $paymentid         =$this->request->get('paymentId');
+                $payerid           =$this->request->get('PayerID');
+                $payment           =Payment::get($paymentid, $apiContext);
                 $paymentstate      =$payment->getState();
                 $transactions      =$payment->getTransactions();
                 $transaction       =$transactions[0];
@@ -157,14 +155,22 @@ class SubscriptionController extends CommonController
             $paymentid        = $this->request->get('paymentid');
             $orderid          = $this->request->get('orderid');
         }
+        if ($status) {
+            $paymentrepository  =$this->get('le.subscription.repository.payment');
+            $paymenthistory     = $paymentrepository->findBy(['orderid' => $orderid]);
+            if (count($paymenthistory) > 0) {
+                $payment=$paymenthistory[0];
+                $payment->setPaymentID($paymentid);
+                $payment->setPaymentStatus('Paid');
+                $paymentrepository->saveEntity($payment);
+            }
+        }
 
         return $this->delegateView([
             'viewParameters' => [
                 'security'       => $this->get('mautic.security'),
                 'contentOnly'    => 0,
-                'paymentid'      => $paymentid,
-                'orderid'        => $orderid,
-                'status'         => $status,
+                'paymentdetails' => $payment,
             ],
             'contentTemplate' => 'MauticSubscriptionBundle:Plans:status.html.php',
             'passthroughVars' => [

@@ -480,7 +480,7 @@ class LicenseInfoHelper
         $validityDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
 
         if ($totalEmailCount == 'UL') {
-            return true;
+            return 'UL';
         } else {
             if ($validityDays > 0) {
                 return $validityDays;

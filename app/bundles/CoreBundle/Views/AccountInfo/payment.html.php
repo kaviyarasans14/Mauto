@@ -58,7 +58,9 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.accountinf
                         <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.payment.history.title'); ?></h3>
                         </div>
                         <div class="panel-body">
-                        <p style="text-align: center;font-family: 'Open Sans', Helvetica, Arial, sans-serif;font-size:13px;">No history to Show</p>
+                            <?php echo $view->render('MauticCoreBundle:AccountInfo:payment_history.html.php', [
+                                'payments'         => $payments,
+                            ]); ?>
                     </div>
                 </div>
                 </div>

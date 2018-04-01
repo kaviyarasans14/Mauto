@@ -12,6 +12,7 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\AjaxController as CommonAjaxController;
+use Mautic\SubscriptionBundle\Entity\PaymentHistory;
 use PayPal\Api\Agreement;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
@@ -156,12 +157,17 @@ class AjaxController extends CommonAjaxController
 
     public function purchaseplanAction(Request $request)
     {
-        $dataArray    = ['success' => true];
-        $plancurrency = $request->request->get('plancurrency');
-        $planamount   = $request->request->get('planamount');
-        $planame      = $request->request->get('planname');
-        $plankey      = $request->request->get('plankey');
-        $provider     ='paypal';
+        $dataArray        = ['success' => true];
+        $plancurrency     = $request->request->get('plancurrency');
+        $planamount       = $request->request->get('planamount');
+        $planame          = $request->request->get('planname');
+        $plankey          = $request->request->get('plankey');
+        $plancredits      = $request->request->get('plancredits');
+        $beforecredits    = $request->request->get('beforecredits');
+        $aftercredits     = $request->request->get('aftercredits');
+        $orderid          =uniqid();
+        $paymentstatus    ='Initiated';
+        $provider         ='paypal';
         if ($plancurrency == '₹') {
             $provider = 'razorpay';
         }
@@ -175,7 +181,7 @@ class AjaxController extends CommonAjaxController
         if ($provider == 'razorpay') {
             $apikey              =$this->coreParametersHelper->getParameter('razoparpay_apikey');
             $dataArray['apikey'] =$apikey;
-            $dataArray['orderid']=uniqid();
+            $dataArray['orderid']=$orderid;
         } else {
             $clienthost          =$request->getHost();
             $clientprotocal      =$request->getScheme();
@@ -201,7 +207,7 @@ class AjaxController extends CommonAjaxController
             $transaction->setAmount($amount)
                 ->setItemList($itemList)
                 ->setDescription($planame.' Plan Purchase')
-                ->setInvoiceNumber(uniqid());
+                ->setInvoiceNumber($orderid);
             $successparameters   =['provider' => 'paypal', 'status' => true];
             $returnUrl           = $this->generateUrl('le_payment_status', $successparameters);
             $returnUrl           =$clientprotocal.'://'.$clienthost.$returnUrl;
@@ -226,6 +232,36 @@ class AjaxController extends CommonAjaxController
                 $dataArray['success']  =false;
                 $dataArray['errormsg'] ='Payment Error:'.$ex->getMessage();
             }
+        }
+        if ($dataArray['success']) {
+            $userhelper   =$this->get('mautic.helper.user');
+            $user         =$userhelper->getUser();
+            $createdby    ='';
+            $createdbyuser='';
+            $createdon    ='';
+            if ($user != null) {
+                $createdby    =$user->getId();
+                $createdbyuser=$user->getName();
+            }
+            $scprepository      =$this->get('le.core.repository.subscription');
+            $validitytill       =$scprepository->getPlanValidity($plankey);
+            $paymentrepository  =$this->get('le.subscription.repository.payment');
+            $paymenthistory     =new PaymentHistory();
+            $paymenthistory->setOrderID($orderid);
+            $paymenthistory->setPaymentStatus($paymentstatus);
+            $paymenthistory->setProvider($provider);
+            $paymenthistory->setCurrency($plancurrency);
+            $paymenthistory->setAmount($planamount);
+            $paymenthistory->setBeforeCredits($beforecredits);
+            $paymenthistory->setAddedCredits($plancredits);
+            $paymenthistory->setAfterCredits($aftercredits);
+            $paymenthistory->setValidityTill($validitytill);
+            $paymenthistory->setPlanName($plankey);
+            $paymenthistory->setPlanLabel($planame);
+            $paymenthistory->setcreatedBy($createdby);
+            $paymenthistory->setcreatedByUser($createdbyuser);
+            $paymenthistory->setcreatedOn(new \DateTime());
+            $paymentrepository->saveEntity($paymenthistory);
         }
 
         return $this->sendJsonResponse($dataArray);
@@ -279,11 +315,13 @@ class AjaxController extends CommonAjaxController
         $dataArray['success']  =true;
         $credits               = $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
         $validity              = $this->get('mautic.helper.licenseinfo')->getEmailValidity();
+        $daysavailable         = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
         if (!empty($validity)) {
             $validity = date('d-M-y', strtotime($validity));
         }
-        $dataArray['credits']   =$credits;
-        $dataArray['validity']  =$validity;
+        $dataArray['credits']        =$credits;
+        $dataArray['validity']       =$validity;
+        $dataArray['daysavailable']  =$daysavailable;
 
         return $this->sendJsonResponse($dataArray);
     }

@@ -171,7 +171,21 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
-        $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $paymentalias       =$paymentrepository->getTableAlias();
+//        $filter = [
+//            'force'  => [
+//                ['column' => $paymentalias.'.orderid', 'expr' => 'eq', 'value' => $orderid],
+//            ],
+//        ];
+        $args= [
+         //   'filter'         => $filter,
+            'orderBy'        => $paymentalias.'.id',
+            'orderByDir'     => 'ASC',
+         //   'ignore_paginator' => true,
+        ];
+        $payments=$paymentrepository->getEntities($args);
 
         return $this->delegateView([
             'viewParameters' => [
@@ -179,6 +193,7 @@ class AccountController extends FormController
                 'security'           => $this->get('mautic.security'),
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
+                'payments'           => $payments,
             ],
             'contentTemplate' => 'MauticCoreBundle:AccountInfo:payment.html.php',
             'passthroughVars' => [

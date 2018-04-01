@@ -216,7 +216,7 @@ class DashboardController extends FormController
         if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
             $bouceUsage=true;
         }
-        if (isset($emailValidity) && $emailValidity < $maxEmailValidity) {
+        if (isset($emailValidity) && $emailValidity != 'UL' && $emailValidity < $maxEmailValidity) {
             $emailsValidity=true;
         }
         if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {

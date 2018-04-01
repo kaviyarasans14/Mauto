@@ -85,12 +85,29 @@ $extraMenu = $view['menu']->render('extra');
                 </li>
             </ul>
             <!--/ end: left nav -->
-            <ul class="nav sidebar-credits-info-holder">
-                <li >
-                    <a href="javascript:void(0)" style="pointer-events:none"><span class="pull-left text email-credits"></span><span class="pull-left text email-validity"></span></a>
-                </li>
+            <ul class="nav mt-10 sidebar-credits-info-holder" data-toggle="menu">
+            <li class="nav-group open">
+                <a href="javascript:void(0);" data-target="#le_usage_info" data-toggle="submenu" data-parent=".nav" data-menu-link="le_usage_root_info" id="le_usage_root_info">
+                    <span class="arrow pull-right text-right"></span>
+                    <span class="icon pull-left fa fa-envelope"></span><span class="nav-item-name text pull-left">Email Credits</span></a>
+                <ul class="nav-submenu collapse in" id="le_usage_info" style="height: auto;">
+                    <li class="first nav-group">
+                        <a style="pointer-events:none"><span class="nav-item-name text email-credits">Loading...</span></a>
+                    </li>
+                    <li class="nav-group">
+                        <a style="pointer-events:none"><span class="nav-item-name text email-validity">Loading...</span></a>
+                    </li>
+                    <li class="nav-group">
+                        <a style="pointer-events:none"><span class="nav-item-name text email-days-available">Loading...</span></a>
+                    </li>
+                    <li class="nav-group">
+                        <a style="text-decoration: underline;" href="<?php echo $view['router']->path('le_plan_index'); ?>">
+                            <span class="nav-item-name text"><?php echo $view['translator']->trans('le.plans.buycredits'); ?></span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             </ul>
-
         </nav>
         <!--/ end: navigation -->
     </div>

@@ -112,4 +112,26 @@ class SubscriptionRepository
             }
         }
     }
+
+    public function getPlanValidity($plankey)
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('pp.*')
+            ->from(MAUTIC_TABLE_PREFIX.'prepaidplans', 'pp');
+        $qb->andWhere('pp.name = :name')
+            ->setParameter('name', $plankey);
+        $plans   =$qb->execute()->fetchAll();
+        $validity='';
+        if (sizeof($plans) > 0) {
+            $plan           =$plans[0];
+            $months         =$plan['months'];
+            $licentity      =$this->licenseinforepo->findAll()[0];
+            $totalemailcount=$licentity->getTotalEmailCount();
+            if (is_numeric($totalemailcount)) {
+                $validity=date('Y-m-d', strtotime("+$months months"));
+            }
+        }
+
+        return $validity;
+    }
 }
