@@ -546,7 +546,7 @@ class PublicController extends CommonFormController
 
             //actually append the element
             $body->appendChild($divelement);
-            $content = $doc->saveHTML();
+            $content  = $doc->saveHTML();
         }
         if (empty($content) && !empty($BCcontent)) {
             $template = $emailEntity->getTemplate();
