@@ -298,14 +298,14 @@ class LicenseInfoHelper
         if (!$data) {
             $entity = new LicenseInfo();
         }
-        $licenseStart  = $entity->getLicenseStart();
+        $currentDate   =date('Y-m-d');
         $licenseEnd    = $entity->getLicenseEnd();
         $licenseRemDays= $entity->getLicensedDays();
 
         if ($licenseRemDays == 'UL') {
             $licenseremdays = 7300;
         } else {
-            $licenseremdays = round((strtotime($licenseEnd) - strtotime($licenseStart)) / 86400);
+            $licenseremdays = round((strtotime($licenseEnd) - strtotime($currentDate)) / 86400);
         }
 
         return $licenseremdays;

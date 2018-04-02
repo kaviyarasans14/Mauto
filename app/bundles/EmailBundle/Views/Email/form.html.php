@@ -218,8 +218,10 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp) && $isbasiceditor ? 'h
                 <?php if ($isVariant): ?>
                     <?php echo $view['form']->row($form['variantSettings']); ?>
                     <?php echo $view['form']->row($form['isPublished']); ?>
-                    <?php echo $view['form']->row($form['publishUp']); ?>
-                    <?php echo $view['form']->row($form['publishDown']); ?>
+                    <?php if ($isAdmin): ?>
+                       <?php echo $view['form']->row($form['publishUp']); ?>
+                       <?php echo $view['form']->row($form['publishDown']); ?>
+                    <?php endif; ?>
                 <?php else: ?>
                     <div id="leadList"<?php echo ($emailType == 'template') ? ' class="hide"' : ''; ?>>
                         <?php echo $view['form']->row($form['lists']); ?>

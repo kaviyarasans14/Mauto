@@ -11,7 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticFormBundle:Form:index.html.php');
 }
-
+$isAdmin=$view['security']->isAdmin();
 ?>
 <?php if (count($items)): ?>
     <div class="table-responsive">
@@ -78,7 +78,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-form-submissions',
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -88,6 +88,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-form-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -187,7 +188,9 @@ if ($tmpl == 'index') {
                             ); ?>
                         </a>
                     </td>
+                    <?php if ($isAdmin):?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>
