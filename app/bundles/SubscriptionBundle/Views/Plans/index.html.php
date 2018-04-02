@@ -41,11 +41,11 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
                                         <h4 class="plan-header"><?php echo $label; ?></h4>
                                         <div class="price">
                                             <span><?php echo $isIndianCurrency ? '₹' : '$'; ?></span>
-                                            <span><?php echo $isIndianCurrency ? $rupees : $doller; ?></span>
+                                            <span><?php echo $isIndianCurrency ? number_format($rupees) : $doller; ?></span>
                                         </div>
                                             <div class="details-list">
 
-                                                    <span><?php echo $credits.' Email Credits'; ?></span>
+                                                    <span><?php echo number_format($credits).' Email Credits'; ?></span>
 
                                                 <span><?php echo $months > 1 ? $months.' Months Validity' : $months.' Month Validity' ?></span>
                                             </div>
