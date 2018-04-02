@@ -526,8 +526,28 @@ class PublicController extends CommonFormController
         //bogus ID
         $idHash = 'xxxxxxxxxxxxxx';
 
-        $BCcontent = $emailEntity->getContent();
-        $content   = $emailEntity->getCustomHtml();
+        $BCcontent                = $emailEntity->getContent();
+        $content                  = $emailEntity->getCustomHtml();
+        $doc                      = new \DOMDocument();
+        $doc->strictErrorChecking = false;
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($content);
+        // Get body tag.
+        $body = $doc->getElementsByTagName('body');
+        if ($body and $body->length > 0) {
+            $body = $body->item(0);
+            //create the div element to append to body element
+            $divelement = $doc->createElement('div');
+            $divelement->setAttribute('style', 'margin-top:30px;background-color:#ffffff;border-top:1px solid #d0d0d0;font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+            font-weight: normal;');
+            $ptag1      = $doc->createElement('span', '{footer_text}');
+            $ptag1->setAttribute('style', 'display:block;padding-top:20px;');
+            $divelement->appendChild($ptag1);
+
+            //actually append the element
+            $body->appendChild($divelement);
+            $content = $doc->saveHTML();
+        }
         if (empty($content) && !empty($BCcontent)) {
             $template = $emailEntity->getTemplate();
             $slots    = $this->factory->getTheme($template)->getSlots('email');

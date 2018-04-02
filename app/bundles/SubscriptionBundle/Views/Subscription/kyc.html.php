@@ -17,6 +17,9 @@ if ($showSetup && $showVideo) {
 } elseif (!$showSetup && $showVideo) {
     $style     = 'width:80%;display:none';
     $videostyle='width:55%;display:block';
+} elseif ($showSetup && !$showVideo) {
+    $style     = 'width:80%;display:block';
+    $videostyle='width:55%;display:none';
 }
 ?>
 <div class="type-modal-backdrop" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.9; z-index: 1500"></div>

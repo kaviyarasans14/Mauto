@@ -17,11 +17,11 @@ return [
                 'controller' => 'MauticEmailBundle:Email:index',
             ],
             'mautic_email_campaign_index' => [
-                'path'       => '/emailcampaigns/{page}',
+                'path'       => '/broadcasts/{page}',
                 'controller' => 'MauticEmailBundle:EmailCampaign:index',
             ],
             'mautic_email_campaign_action' => [
-                'path'       => '/emailcampaigns/{objectAction}/{objectId}',
+                'path'       => '/broadcasts/{objectAction}/{objectId}',
                 'controller' => 'MauticEmailBundle:EmailCampaign:execute',
             ],
             'mautic_email_action' => [
