@@ -85,7 +85,7 @@ $extraMenu = $view['menu']->render('extra');
                 </li>
             </ul>
             <!--/ end: left nav -->
-            <ul class="nav mt-10 sidebar-credits-info-holder" data-toggle="menu">
+            <ul class="nav sidebar-credits-info-holder" data-toggle="menu">
             <li class="nav-group open">
                 <a href="javascript:void(0);" data-target="#le_usage_info" data-toggle="submenu" data-parent=".nav" data-menu-link="le_usage_root_info" id="le_usage_root_info">
                     <span class="arrow pull-right text-right"></span>

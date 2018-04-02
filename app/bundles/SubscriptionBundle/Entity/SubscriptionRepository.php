@@ -103,8 +103,15 @@ class SubscriptionRepository
             $months         =$plan['months'];
             $licentity      =$this->licenseinforepo->findAll()[0];
             $totalemailcount=$licentity->getTotalEmailCount();
+            $licenseddays   =$licentity->getLicensedDays();
             if (is_numeric($totalemailcount)) {
                 $validity       =date('Y-m-d', strtotime("+$months months"));
+                if ($licenseddays != 'UL') {
+                    $licensestart=date('Y-m-d');
+                    $licenseend  =date('Y-m-d', strtotime($validity.' + 14 days'));
+                    $licentity->setLicenseStart($licensestart);
+                    $licentity->setLicenseEnd($licenseend);
+                }
                 $totalemailcount=$totalemailcount + $credits;
                 $licentity->setTotalEmailCount($totalemailcount);
                 $licentity->setEmailValidity($validity);

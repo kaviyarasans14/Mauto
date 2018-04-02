@@ -29,7 +29,7 @@
          <span class="data"><?php echo $view['date']->toFull($payment->getcreatedOn()); ?><span>
            </td>
            <td>
-         <span class="data"><?php echo $payment->getCurrency().$payment->getAmount()?><span>
+         <span class="data"><?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getAmount()) : $payment->getAmount())?><span>
            </td>
            <td>
          <span class="data"><?php echo $payment->getPaymentStatus()?><span>

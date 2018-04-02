@@ -19071,10 +19071,11 @@ margin-left: -3px;
 }
 .payment-history .header{
   text-transform: uppercase;
+  padding:5px;
 }
 
 .payment-history .data{
-
+padding:5px;
 }
 
 .exitlogout {
