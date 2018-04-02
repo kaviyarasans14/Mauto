@@ -132,6 +132,14 @@ class SecurityHelper extends Helper
     }
 
     /**
+     * @return bool
+     */
+    public function isLoginUserID($userid)
+    {
+        return $this->security->isLoginUserID($userid);
+    }
+
+    /**
      * Returns CSRF token string for an intention.
      *
      * @param string $intention
