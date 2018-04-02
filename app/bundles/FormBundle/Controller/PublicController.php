@@ -12,11 +12,11 @@
 namespace Mautic\FormBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController as CommonFormController;
-use Mautic\CoreBundle\Entity\Account;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\FormBundle\Event\SubmissionEvent;
 use Mautic\FormBundle\Model\FormModel;
 use Mautic\LeadBundle\Helper\TokenHelper;
+use Mautic\SubscriptionBundle\Entity\Account;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -333,8 +333,8 @@ class PublicController extends CommonFormController
         $form              = $model->getEntity($objectId);
         $customStylesheets = (!empty($css)) ? explode(',', $css) : [];
         $template          = null;
-        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
-        $accmodel        = $this->getModel('core.accountinfo');
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('subscription.accountinfo');
         $accrepo         = $accmodel->getRepository();
         $accountentity   = $accrepo->findAll();
         if (sizeof($accountentity) > 0) {
@@ -407,8 +407,8 @@ class PublicController extends CommonFormController
         $model = $this->getModel('form.form');
         $form  = $model->getEntity($formId);
         $js    = '';
-        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
-        $accmodel        = $this->getModel('core.accountinfo');
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('subscription.accountinfo');
         $accrepo         = $accmodel->getRepository();
         $accountentity   = $accrepo->findAll();
         if (sizeof($accountentity) > 0) {

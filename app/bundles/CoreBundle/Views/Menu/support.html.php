@@ -1,5 +1,5 @@
 <li class="dropdown">
-    <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="margin-top: 17px;font-weight: 700;padding: 5px 10px;font-size: 11px;line-height: 1.456;border-radius: 2px;color: #fff;background-color: #4e5d9d;border-color: #4e5d9d;" data-toggle="dropdown" href="#">
+    <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="margin-top: 17px;font-weight: 700;padding: 5px 10px;font-size: 11px;line-height: 1.456;border-radius: 2px;color: #fff;background-color: #375695;border-color: #375695;" data-toggle="dropdown" href="#">
         <span><i class="fa fa-question-circle"></i> <span>Help</span></span>
     </a>
     <ul class="dropdown-menu dropdown-menu-right">

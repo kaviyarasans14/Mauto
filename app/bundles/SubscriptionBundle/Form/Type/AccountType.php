@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Form\Type;
+namespace Mautic\SubscriptionBundle\Form\Type;
 
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
@@ -78,30 +78,17 @@ class AccountType extends AbstractType
         $builder->addEventSubscriber(new CleanFormSubscriber());
         $builder->addEventSubscriber(new FormExitSubscriber('user.user', $options));
 
-        $currencyChoices = [
-            'rupee'            => 'Rupee',
-            'usdollar'         => 'United States dollar',
-            'euro'             => 'Euro',
-            'pound'            => 'Pound Sterling',
-            'autraliandollar'  => 'Australian dollar',
-            'newdollar'        => 'New Zealand dollar',
-            'norwegiankrone'   => 'Norwegian krone',
-            'swedishkrona'     => 'Swedish krona',
-            'swissfrancs'      => 'Swiss Francs',
-            'canadiandollar'   => 'Canadian dollar',
-        ];
-
         $builder->add(
             'accountname',
             'text',
             [
-                'label'      => 'mautic.core.accountname',
+                'label'      => 'leadsengage.subs.accountname',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class'        => 'form-control',
                     'autocomplete' => 'off',
                 ],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -109,7 +96,7 @@ class AccountType extends AbstractType
             'domainname',
             'text',
             [
-                'label'       => 'mautic.core.domainname',
+                'label'       => 'leadsengage.subs.domainname',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => true,
@@ -117,13 +104,27 @@ class AccountType extends AbstractType
         );
 
         $builder->add(
+            'website',
+            'text',
+            [
+                'label'      => 'leadsengage.subs.website',
+                'label_attr' => ['class' => 'control-label required'],
+                'attr'       => [
+                    'class'        => 'form-control',
+                    'autocomplete' => 'off',
+                ],
+                'required'    => false,
+            ]
+        );
+
+        $builder->add(
             'email',
             'email',
             [
-                'label'       => 'mautic.core.accountemail',
+                'label'       => 'leadsengage.subs.accountemail',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -131,10 +132,10 @@ class AccountType extends AbstractType
             'phonenumber',
             'text',
             [
-                'label'       => 'mautic.core.accountmobile',
-                'label_attr'  => ['class' => 'control-label'],
+                'label'       => 'leadsengage.subs.accountmobile',
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -143,7 +144,7 @@ class AccountType extends AbstractType
             'text',
             [
                 //'choices'    => $currencyChoices,
-                'label'       => 'mautic.core.accountcurrency',
+                'label'       => 'leadsengage.subs.accountcurrency',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => false,
@@ -155,16 +156,16 @@ class AccountType extends AbstractType
             'choice',
             [
                 'choices'    => $timezones,
-                'label'      => 'mautic.core.accounttimezone',
-                'label_attr' => ['class' => 'control-label'],
+                'label'      => 'leadsengage.subs.accounttimezone',
+                'label_attr' => ['class' => 'control-label required'],
                 'attr'       => [
                     'class'   => 'form-control accountTimezone',
                     'tooltip' => 'mautic.core.config.form.default.timezone.tooltip',
                 ],
                 'multiple'    => false,
                 'empty_value' => '',
-                'data'        => $options['data']->getTimezone(),
-                'required'    => true,
+                'data'        => 'mautic.user.user.form.defaulttimezone',
+                'required'    => false,
             ]
         );
 
@@ -172,7 +173,7 @@ class AccountType extends AbstractType
             'accountid',
             'text',
             [
-                'label'       => 'mautic.core.accountid',
+                'label'       => 'leadsengage.subs.accountid',
                 'label_attr'  => ['class' => 'control-label'],
                 'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => false,
@@ -183,7 +184,7 @@ class AccountType extends AbstractType
             'needpoweredby',
             'yesno_button_group',
             [
-                'label'      => 'mautic.core.accountpowered',
+                'label'      => 'leadsengage.subs.accountpowered',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => ['class' => 'form-control'],
                 'disabled'   => 1,

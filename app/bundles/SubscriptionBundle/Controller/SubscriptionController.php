@@ -3,7 +3,7 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\CommonController;
-use Mautic\CoreBundle\Entity\Billing;
+use Mautic\SubscriptionBundle\Entity\Billing;
 use PayPal\Api\Agreement;
 use PayPal\Api\Payment;
 use PayPal\Api\PaymentExecution;
@@ -190,8 +190,8 @@ class SubscriptionController extends CommonController
 //        if ($countrycode == '' || $isIndianCurrency == 'IN') {
 //            $isIndianCurrency=true;
 //        }
-        /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
-        $billingmodel  = $this->getModel('core.billinginfo');
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+        $billingmodel  = $this->getModel('subscription.billinginfo');
         $billingrepo   = $billingmodel->getRepository();
         $billingentity = $billingrepo->findAll();
         if (sizeof($billingentity) > 0) {

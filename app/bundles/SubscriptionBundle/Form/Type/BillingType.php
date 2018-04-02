@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Form\Type;
+namespace Mautic\SubscriptionBundle\Form\Type;
 
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
@@ -85,13 +85,13 @@ class BillingType extends AbstractType
             'companyname',
             'text',
             [
-                'label'      => 'mautic.billing.companyname',
-                'label_attr' => ['class' => 'control-label'],
+                'label'      => 'leadsengage.billing.companyname',
+                'label_attr' => ['class' => 'control-label required'],
                 'attr'       => [
                     'class'        => 'form-control',
                     'autocomplete' => 'off',
                 ],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -99,10 +99,10 @@ class BillingType extends AbstractType
             'companyaddress',
             'text',
             [
-                'label'       => 'mautic.billing.companyaddress',
-                'label_attr'  => ['class' => 'control-label'],
+                'label'       => 'leadsengage.billing.companyaddress',
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -111,9 +111,9 @@ class BillingType extends AbstractType
             'number',
             [
                 'label'       => 'leadsengage.billing.postalcode',
-                'label_attr'  => ['class' => 'control-label'],
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -122,9 +122,9 @@ class BillingType extends AbstractType
             'text',
             [
                 'label'       => 'leadsengage.billing.city',
-                'label_attr'  => ['class' => 'control-label'],
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => ['class' => 'form-control'],
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -134,12 +134,12 @@ class BillingType extends AbstractType
             [
                 'choices'     => $choices,
                 'label'       => 'leadsengage.billing.state',
-                'label_attr'  => ['class' => 'control-label'],
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => ['class' => 'form-control'],
                 'empty_value' => '',
                 'data'        => '',
                 'data'        => $options['data']->getState(),
-                'required'    => true,
+                'required'    => false,
             ]
         );
 
@@ -149,17 +149,21 @@ class BillingType extends AbstractType
             [
                 'choices'     => FormFieldHelper::getCountryChoices(),
                 'label'       => 'leadsengage.billing.country',
-                'label_attr'  => ['class' => 'control-label'],
+                'label_attr'  => ['class' => 'control-label required'],
                 'attr'        => [
                     'class'    => 'form-control',
                     'onchange' => 'Mautic.showGSTNumber(this.value);',
                 ],
                 'empty_value' => '',
                 'data'        => $options['data']->getCountry(),
-                'required'    => true,
+                'required'    => false,
             ]
         );
-
+        $country = $options['data']->getCountry();
+        $style = "display:none;";
+        if($country != "" && $country == "India"){
+            $style = "display:block;";
+        }
         $builder->add(
             'gstnumber',
             'text',
@@ -168,9 +172,9 @@ class BillingType extends AbstractType
                 'label_attr'  => [
                     'class' => 'control-label',
                     'id'    => 'gstnumber_info',
-                    'style' => 'display:none;',
+                    'style' => $style,
                 ],
-                'attr'        => ['class' => 'form-control', 'style' => 'display:none;'],
+                'attr'        => ['class' => 'form-control', 'style' => $style],
                 'required'    => false,
             ]
         );
@@ -180,7 +184,7 @@ class BillingType extends AbstractType
                 'accountingemail',
                 'email',
                 [
-                    'label'      => 'mautic.billing.accountingemail',
+                    'label'      => 'leadsengage.billing.accountingemail',
                     'label_attr' => ['class' => 'control-label'],
                     'attr'       => ['class' => 'form-control'],
                     'required'   => true,
@@ -216,7 +220,7 @@ class BillingType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class'  => 'Mautic\CoreBundle\Entity\Billing',
+                'data_class'  => 'Mautic\SubscriptionBundle\Entity\Billing',
                 'isBilling'   => false,
             ]
         );

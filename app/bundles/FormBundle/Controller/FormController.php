@@ -12,11 +12,11 @@
 namespace Mautic\FormBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController as CommonFormController;
-use Mautic\CoreBundle\Entity\Account;
 use Mautic\FormBundle\Entity\Field;
 use Mautic\FormBundle\Entity\Form;
 use Mautic\FormBundle\Exception\ValidationException;
 use Mautic\FormBundle\Model\FormModel;
+use Mautic\SubscriptionBundle\Entity\Account;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -907,8 +907,8 @@ class FormController extends CommonFormController
         /** @var FormModel $model */
         $model = $this->getModel('form.form');
         $form  = $model->getEntity($objectId);
-        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $accmodel */
-        $accmodel      = $this->getModel('core.accountinfo');
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $accmodel */
+        $accmodel      = $this->getModel('subscription.accountinfo');
         $accrepo       = $accmodel->getRepository();
         $accountentity = $accrepo->findAll();
         if (sizeof($accountentity) > 0) {

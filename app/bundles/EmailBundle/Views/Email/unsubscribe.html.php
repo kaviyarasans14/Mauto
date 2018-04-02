@@ -105,7 +105,7 @@
                     </form>
                 </div>
                 <div class="footnote">
-                    <p>Powered by <a href="https://leadsengage.com/marketing-automation-pricing/">Leadsengage</a></p>
+                    <p>Powered by <a href="https://leadsengage.com/?utm_source=app_unsubscribe_page">LeadsEngage</a></p>
                 </div>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <p class="messageContainer"><?php echo $message?></p>
 
             <div class="footnotes">
-                <p>Powered by <a href="https://leadsengage.com/marketing-automation-pricing/">Leadsengage</a></p>
+                <p>Powered by <a href="https://leadsengage.com/?utm_source=app_unsubscribe_page">LeadsEngage</a></p>
             </div>
         </div>
     </div>

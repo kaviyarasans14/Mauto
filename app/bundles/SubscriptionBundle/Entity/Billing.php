@@ -9,10 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Entity;
+namespace Mautic\SubscriptionBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
+use Mautic\CoreBundle\Entity\FormEntity;
 
 /**
  * Class Billing.
@@ -71,7 +72,7 @@ class Billing extends FormEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
         $builder->setTable('billinginfo')
-                ->setCustomRepositoryClass('Mautic\CoreBundle\Entity\BillingRepository');
+                ->setCustomRepositoryClass('Mautic\SubscriptionBundle\Entity\BillingRepository');
 
         $builder->createField('id', 'integer')
             ->isPrimaryKey()

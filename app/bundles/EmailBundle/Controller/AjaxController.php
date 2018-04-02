@@ -264,11 +264,13 @@ class AjaxController extends CommonAjaxController
                             $trackingcode = $settings['trackingcode'];
                             $mailbody     = $translator->trans('mautic.email.website_tracking.body');
                             $mailbody     = str_replace('|FROM_EMAIL|', $settings['from_email'], nl2br($mailbody));
+                            $mailbody     = str_replace('|Tracking|', $trackingcode, nl2br($mailbody));
                             if ($settings['additionalinfo'] != '') {
                                 $additioninfo = $settings['additionalinfo'];
-                                $mailbody .= "$additioninfo<br>";
+                                $mailbody     = str_replace('|USER_CONTENT|', $additioninfo, nl2br($mailbody));
+                                //$mailbody .= "$additioninfo<br>";
                             }
-                            $mailbody .= "<br><pre style='font-size:12px;'>$trackingcode</pre></body></html>";
+                            $mailbody .= '</body></html>';
 
                             $message = \Swift_Message::newInstance()
                                 ->setSubject($translator->trans('mautic.email.config.mailer.transport.tracking_send.subject'));

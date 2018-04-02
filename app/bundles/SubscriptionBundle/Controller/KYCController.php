@@ -12,8 +12,8 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController;
-use Mautic\CoreBundle\Entity\Account;
-use Mautic\CoreBundle\Entity\Billing;
+use Mautic\SubscriptionBundle\Entity\Account;
+use Mautic\SubscriptionBundle\Entity\Billing;
 use Mautic\SubscriptionBundle\Entity\KYC;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -34,8 +34,8 @@ class KYCController extends FormController
 
         $userform = $usermodel->createForm($userentity, $this->get('form.factory'));
 
-        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $model */
-        $model         = $this->getModel('core.accountinfo');
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
         $accrepo       = $model->getRepository();
         $accountentity = $accrepo->findAll();
         if (sizeof($accountentity) > 0) {
@@ -53,8 +53,8 @@ class KYCController extends FormController
         }
         $form = $model->createForm($account, $this->get('form.factory'));
 
-        /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
-        $billingmodel  = $this->getModel('core.billinginfo');
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+        $billingmodel  = $this->getModel('subscription.billinginfo');
         $billingrepo   = $billingmodel->getRepository();
         $billingentity = $billingrepo->findAll();
         if (sizeof($billingentity) > 0) {

@@ -9,9 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Model;
+namespace Mautic\SubscriptionBundle\Model;
 
-use Mautic\CoreBundle\Entity\Account;
+use Mautic\SubscriptionBundle\Entity\Account;
+use Mautic\CoreBundle\Model\FormModel;
 
 /**
  * Class AccountInfoModel.
@@ -21,11 +22,11 @@ class AccountInfoModel extends FormModel
     /**
      * {@inheritdoc}
      *
-     * @return \Mautic\CoreBundle\Entity\AccountRepository
+     * @return \Mautic\SubscriptionBundle\Entity\AccountRepository
      */
     public function getRepository()
     {
-        return $this->em->getRepository('MauticCoreBundle:Account');
+        return $this->em->getRepository('MauticSubscriptionBundle:Account');
     }
 
     /**

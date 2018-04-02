@@ -19076,3 +19076,26 @@ margin-left: -3px;
 .payment-history .data{
 
 }
+
+.exitlogout {
+  float: right;
+  font-size: 19.5px;
+  font-weight: normal;
+  line-height: 1;
+}
+.exitlogout:hover,
+.exitlogout:focus {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.signup_next .exit_logout{
+  padding:12px;
+}
+
+.exit_logout:hover,
+.exit_logout:focus{
+  text-decoration: none;
+  cursor: pointer;
+  color: #ffffff;
+}

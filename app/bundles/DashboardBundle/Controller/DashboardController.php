@@ -12,10 +12,10 @@
 namespace Mautic\DashboardBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController;
-use Mautic\CoreBundle\Entity\Account;
-use Mautic\CoreBundle\Entity\Billing;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\DashboardBundle\Entity\Widget;
+use Mautic\SubscriptionBundle\Entity\Account;
+use Mautic\SubscriptionBundle\Entity\Billing;
 use Mautic\SubscriptionBundle\Entity\UserPreference;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,15 +40,15 @@ class DashboardController extends FormController
         $billformview = '';
         $accformview  = '';
         $userformview = '';
-        if ($dbhost != 'localhost' && $loginarg) {
+        if ($dbhost != 'localhost111' && $loginarg) {
             /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
             $usermodel     = $this->getModel('user.user');
             $userentity    = $usermodel->getCurrentUserEntity();
 
             $userform = $usermodel->createForm($userentity, $this->get('form.factory'));
 
-            /** @var \Mautic\CoreBundle\Model\BillingModel $billingmodel */
-            $billingmodel  = $this->getModel('core.billinginfo');
+            /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+            $billingmodel  = $this->getModel('subscription.billinginfo');
             $billingrepo   = $billingmodel->getRepository();
             $billingentity = $billingrepo->findAll();
             if (sizeof($billingentity) > 0) {
@@ -72,8 +72,8 @@ class DashboardController extends FormController
 
             $billform = $billingmodel->createForm($billing, $this->get('form.factory'), [], ['isBilling' => false]);
 
-            /** @var \Mautic\CoreBundle\Model\AccountInfoModel $model */
-            $model         = $this->getModel('core.accountinfo');
+            /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+            $model         = $this->getModel('subscription.accountinfo');
             $accrepo       = $model->getRepository();
             $accountentity = $accrepo->findAll();
             if (sizeof($accountentity) > 0) {
@@ -90,7 +90,7 @@ class DashboardController extends FormController
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
         $model   = $this->getModel('dashboard');
         $widgets = $model->getWidgets();
-        $loginsession->set('isLogin', false);
+        //$loginsession->set('isLogin', false);
 
         // Apply the default dashboard if no widget exists
         if (!count($widgets) && $this->user->getId()) {
@@ -141,10 +141,10 @@ class DashboardController extends FormController
         if (!empty($videoconfig)) {
             $videoURL = $videoconfig[0]['video_url'];
         }
-        $showvideo      = 0;
-        //if ($userprefentity == null && $loginarg) {
-        //    $showvideo = 1;
-        //}
+        $showvideo      = false;
+        if ($userprefentity == null && $loginarg) {
+            $showvideo = true;
+        }
         if ($videoarg == 'dont_show_again') {
             $userprefentity = new UserPreference();
             $userprefentity->setProperty('Dont Show Video again');
@@ -155,6 +155,8 @@ class DashboardController extends FormController
             $billformview = $billform->createView();
             $accformview  = $accform->createView();
             $userformview = $userform->createView();
+        } else {
+            $loginsession->set('isLogin', false);
         }
 
         return $this->delegateView([

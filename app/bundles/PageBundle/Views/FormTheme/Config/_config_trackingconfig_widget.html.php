@@ -39,7 +39,7 @@ $isAdmin    =$view['security']->isAdmin();
             <a id="copy_to_clipboard_atag" onclick="Mautic.copytoClipboardforms('copy_to_clipboard');">
                 <i aria-hidden="true" class="fa fa-clipboard"></i>
                 <?php echo $view['translator']->trans(
-                    'leadsengage.core.clicktocopy'
+                    'leadsengage.subs.clicktocopy'
                 ); ?>
             </a>
 

@@ -9,10 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Controller;
+namespace Mautic\SubscriptionBundle\Controller;
 
-use Mautic\CoreBundle\Entity\Account;
-use Mautic\CoreBundle\Entity\Billing;
+use Mautic\SubscriptionBundle\Entity\Account;
+use Mautic\SubscriptionBundle\Entity\Billing;
+use Mautic\CoreBundle\Controller\FormController;
 
 /**
  * Class AccountController.
@@ -28,8 +29,8 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
-        /** @var \Mautic\CoreBundle\Model\AccountInfoModel $model */
-        $model         = $this->getModel('core.accountinfo');
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
         $action        = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'edit']);
         $accrepo       = $model->getRepository();
         $accountentity = $accrepo->findAll();
@@ -92,7 +93,7 @@ class AccountController extends FormController
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
             ],
-            'contentTemplate' => 'MauticCoreBundle:AccountInfo:form.html.php',
+            'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:form.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',
                 'mauticContent' => 'accountinfo',
@@ -110,8 +111,8 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
-        /** @var \Mautic\CoreBundle\Model\BillingModel $model */
-        $model         = $this->getModel('core.billinginfo');
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $model */
+        $model         = $this->getModel('subscription.billinginfo');
         $action        = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'billing']);
         $billingrepo   = $model->getRepository();
         $billingentity = $billingrepo->findAll();
@@ -153,7 +154,7 @@ class AccountController extends FormController
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
             ],
-            'contentTemplate' => 'MauticCoreBundle:AccountInfo:billing.html.php',
+            'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:billing.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',
                 'mauticContent' => 'accountinfo',
@@ -195,7 +196,7 @@ class AccountController extends FormController
                 'typePrefix'         => 'form',
                 'payments'           => $payments,
             ],
-            'contentTemplate' => 'MauticCoreBundle:AccountInfo:payment.html.php',
+            'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:payment.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',
                 'mauticContent' => 'accountinfo',
@@ -213,8 +214,8 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
-        /** @var \Mautic\CoreBundle\Model\BillingModel $model */
-        $model   = $this->getModel('core.billinginfo');
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $model */
+        $model   = $this->getModel('subscription.billinginfo');
         $action  = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'cancel']);
         $billing = $model->getEntity(1);
         //$form = $model->createForm($billing, $this->get('form.factory'), $action);
@@ -250,7 +251,7 @@ class AccountController extends FormController
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
             ],
-            'contentTemplate' => 'MauticCoreBundle:AccountInfo:cancel.html.php',
+            'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cancel.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',
                 'mauticContent' => 'accountinfo',

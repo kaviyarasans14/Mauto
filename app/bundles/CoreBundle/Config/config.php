@@ -43,10 +43,6 @@ return [
                 'path'       => '/themes/{objectAction}/{objectId}',
                 'controller' => 'MauticCoreBundle:Theme:execute',
             ],
-            'mautic_accountinfo_action' => [
-                'path'       => '/accountinfo/{objectAction}/{objectId}',
-                'controller' => 'MauticCoreBundle:Account:execute',
-            ],
         ],
         'public' => [
             'mautic_js' => [
@@ -146,17 +142,6 @@ return [
                 'id'        => 'mautic_themes_index',
                 //'access'    => 'core:themes:view',
                 'access'    => 'admin',
-            ],
-            'mautic.core.account.menu.index' => [
-                'route'           => 'mautic_accountinfo_action',
-                'id'              => 'mautic_accountinfo_index',
-                'routeParameters' => ['objectAction' => 'edit'],
-                'iconClass'       => 'fa-exchange',
-                'checks'          => [
-                    'parameters' => [
-                        'accountinfo_disabled' => false,
-                    ],
-                ],
             ],
         ],
         'extra' => [
@@ -422,26 +407,6 @@ return [
                     'translator',
                     'database_connection',
                     'router',
-                ],
-            ],
-            'mautic.form.type.accountinfo' => [
-                'class'     => 'Mautic\CoreBundle\Form\Type\AccountType',
-                'alias'     => 'accountinfo',
-                'arguments' => [
-                    'mautic.report.model.report',
-                    'translator',
-                    'mautic.helper.language',
-                    'mautic.helper.core_parameters',
-                ],
-            ],
-            'mautic.form.type.billinginfo' => [
-                'class'     => 'Mautic\CoreBundle\Form\Type\BillingType',
-                'alias'     => 'billinginfo',
-                'arguments' => [
-                    'mautic.report.model.report',
-                    'translator',
-                    'mautic.helper.language',
-                    'mautic.helper.core_parameters',
                 ],
             ],
         ],
@@ -946,12 +911,6 @@ return [
             ],
             'mautic.core.model.form' => [
                 'class' => 'Mautic\CoreBundle\Model\FormModel',
-            ],
-            'mautic.core.model.accountinfo' => [
-                'class' => 'Mautic\CoreBundle\Model\AccountInfoModel',
-            ],
-            'mautic.core.model.billinginfo' => [
-                'class' => 'Mautic\CoreBundle\Model\BillingModel',
             ],
             /* @deprecated - 2.4 to be removed in 3.0; use mautic.channel.model.queue instead */
             'mautic.core.model.messagequeue' => [

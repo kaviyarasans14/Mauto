@@ -9,12 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Entity;
+namespace Mautic\SubscriptionBundle\Entity;
 
+use Mautic\CoreBundle\Entity\CommonRepository;
 /**
- * Class BillingRepository.
+ * Class AccountRepository.
  */
-class BillingRepository extends CommonRepository
+class AccountRepository extends CommonRepository
 {
     /**
      * {@inhertidoc}.
@@ -26,8 +27,8 @@ class BillingRepository extends CommonRepository
     public function getEntities(array $args = [])
     {
         $q = $this
-            ->createQueryBuilder('b')
-            ->select('b');
+            ->createQueryBuilder('a')
+            ->select('a');
         $args['qb'] = $q;
 
         return parent::getEntities($args);
@@ -40,6 +41,6 @@ class BillingRepository extends CommonRepository
      */
     public function getTableAlias()
     {
-        return 'b';
+        return 'a';
     }
 }

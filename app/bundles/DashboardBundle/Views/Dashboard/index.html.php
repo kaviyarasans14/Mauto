@@ -60,6 +60,18 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
     'langVar'       => 'dashboard',
     'customButtons' => $buttons,
 ]));
+if ($showvideo || $showsetup) {
+    echo $view->render('MauticSubscriptionBundle:Subscription:kyc.html.php',
+        [
+            'typePrefix' => 'email',
+            'form'       => $accountform,
+            'billform'   => $billingform,
+            'userform'   => $userform,
+            'videoURL'   => $videoURL,
+            'showSetup'  => $showsetup,
+            'showVideo'  => $showvideo,
+        ]);
+}
 ?>
 <div class="row pt-md pl-md">
     <div class="col-sm-6">
@@ -93,24 +105,4 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
         </div>
     </div>
 <?php endif; ?>
-<?php
-if ($showvideo) {
-    echo $view->render('MauticSubscriptionBundle:Subscription:video.html.php',
-        [
-            'typePrefix' => 'email',
-            'videoURL'   => $videoURL,
-        ]);
-}
-?>
 
-<?php
-if ($showsetup) {
-    echo $view->render('MauticSubscriptionBundle:Subscription:basic.html.php',
-        [
-            'typePrefix' => 'email',
-            'form'       => $accountform,
-            'billform'   => $billingform,
-            'userform'   => $userform,
-        ]);
-}
-?>

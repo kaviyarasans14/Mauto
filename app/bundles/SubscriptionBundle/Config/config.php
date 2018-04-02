@@ -23,13 +23,29 @@ return [
                 'path'       => '/kyc/{objectAction}/{objectId}',
                 'controller' => 'MauticSubscriptionBundle:KYC:execute',
             ],
+            'mautic_accountinfo_action' => [
+                'path'       => '/accountinfo/{objectAction}/{objectId}',
+                'controller' => 'MauticSubscriptionBundle:Account:execute',
+            ],
         ],
         'public' => [],
         'api'    => [],
     ],
     'menu' => [
         'main'    => [],
-        'admin'   => [],
+        'admin'   => [
+            'leadsengage.subs.account.menu.index' => [
+                'route'           => 'mautic_accountinfo_action',
+                'id'              => 'mautic_accountinfo_index',
+                'routeParameters' => ['objectAction' => 'edit'],
+                'iconClass'       => 'fa-users',
+                'checks'          => [
+                    'parameters' => [
+                        'accountinfo_disabled' => false,
+                    ],
+                ],
+            ],
+        ],
         'extra'   => [],
         'profile' => [],
     ],
@@ -39,6 +55,26 @@ return [
             'mautic.form.type.kycinfo' => [
                 'class'     => 'Mautic\SubscriptionBundle\Form\Type\KYCType',
                 'alias'     => 'kycinfo',
+                'arguments' => [
+                    'mautic.report.model.report',
+                    'translator',
+                    'mautic.helper.language',
+                    'mautic.helper.core_parameters',
+                ],
+            ],
+            'mautic.form.type.accountinfo' => [
+                'class'     => 'Mautic\SubscriptionBundle\Form\Type\AccountType',
+                'alias'     => 'accountinfo',
+                'arguments' => [
+                    'mautic.report.model.report',
+                    'translator',
+                    'mautic.helper.language',
+                    'mautic.helper.core_parameters',
+                ],
+            ],
+            'mautic.form.type.billinginfo' => [
+                'class'     => 'Mautic\SubscriptionBundle\Form\Type\BillingType',
+                'alias'     => 'billinginfo',
                 'arguments' => [
                     'mautic.report.model.report',
                     'translator',
@@ -82,6 +118,12 @@ return [
             ],
             'mautic.subscription.model.userpreference' => [
                 'class' => 'Mautic\SubscriptionBundle\Model\UserPreferenceModel',
+            ],
+            'mautic.subscription.model.accountinfo' => [
+                'class' => 'Mautic\SubscriptionBundle\Model\AccountInfoModel',
+            ],
+            'mautic.subscription.model.billinginfo' => [
+                'class' => 'Mautic\SubscriptionBundle\Model\BillingModel',
             ],
         ],
         'validator' => [],

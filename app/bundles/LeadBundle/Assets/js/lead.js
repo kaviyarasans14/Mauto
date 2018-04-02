@@ -1469,16 +1469,16 @@ Mautic.showMarketingOthersField = function (selectedval){
 
 Mautic.showGSTNumber = function (selectedval){
     if(selectedval == "India"){
-        mQuery('.accountTimezone').val('Asia/Kolkata');
+        //mQuery('.accountTimezone').val('Asia/Kolkata');
         mQuery('#gstnumber_info').addClass('required');
         mQuery('#gstnumber_info').css("display", "block");
         mQuery('#billinginfo_gstnumber').css("display", "block");
-        mQuery('#billinginfo_gstnumber').prop('required',true);
+        //mQuery('#billinginfo_gstnumber').prop('required',true);
     } else {
-        mQuery('.accountTimezone').val('');
+        //mQuery('.accountTimezone').val('');
         mQuery('#gstnumber_info').removeClass('required');
         mQuery('#gstnumber_info').css("display", "none");
         mQuery('#billinginfo_gstnumber').css("display", "none");
-        mQuery('#billinginfo_gstnumber').prop('required',false);
+        //mQuery('#billinginfo_gstnumber').prop('required',false);
     }
 }

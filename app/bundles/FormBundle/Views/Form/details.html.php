@@ -323,7 +323,7 @@ $isadmin     =$view['security']->isAdmin();
                     <a id="javascipt_textarea_atag" onclick="Mautic.copytoClipboardforms('javascipt_textarea');">
                         <i aria-hidden="true" class="fa fa-clipboard"></i>
                         <?php echo $view['translator']->trans(
-                            'leadsengage.core.clicktocopy'
+                            'leadsengage.subs.clicktocopy'
                         ); ?>
                     </a>
                     <h3 class="pt-lg"><?php echo $view['translator']->trans(
@@ -335,7 +335,7 @@ $isadmin     =$view['security']->isAdmin();
                         ); ?>" width="300" height="300"&gt;&lt;p&gt;Your browser does not support iframes.&lt;/p&gt;&lt;/iframe&gt;</textarea>
                     <a id="iframe_textarea_atag" onclick="Mautic.copytoClipboardforms('iframe_textarea');"><i aria-hidden="true" class="fa fa-clipboard"></i>
                         <?php echo $view['translator']->trans(
-                            'leadsengage.core.clicktocopy'
+                            'leadsengage.subs.clicktocopy'
                         ); ?></a>
                     <br>
                     <br>

@@ -12,6 +12,8 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\AjaxController as CommonAjaxController;
+use Mautic\SubscriptionBundle\Entity\Account;
+use Mautic\SubscriptionBundle\Entity\Billing;
 use Mautic\SubscriptionBundle\Entity\PaymentHistory;
 use PayPal\Api\Agreement;
 use PayPal\Api\Amount;
@@ -131,6 +133,91 @@ class AjaxController extends CommonAjaxController
             $dataArray['success']  =false;
             $dataArray['errormsg'] ='Payment Error: Oops! Technical Error Found.Please contact support';
         }
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function updateKYCAction(Request $request)
+    {
+        $data = $request->request->all();
+
+        /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
+        $usermodel     = $this->getModel('user.user');
+        $userentity    = $usermodel->getCurrentUserEntity();
+
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
+        $accrepo       = $model->getRepository();
+        $accountentity = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0]; //$model->getEntity(1);
+        } else {
+            $account = new Account();
+        }
+
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+        $billingmodel  = $this->getModel('subscription.billinginfo');
+        $billingrepo   = $billingmodel->getRepository();
+        $billingentity = $billingrepo->findAll();
+        if (sizeof($billingentity) > 0) {
+            $billing = $billingentity[0]; //$model->getEntity(1);
+        } else {
+            $billing = new Billing();
+        }
+
+        $firstName      = $data['firstName'];
+        $lastName       = $data['lastName'];
+        $email          = $data['email'];
+        $userentity->setEmail($email);
+        $userentity->setFirstName($firstName);
+        $userentity->setLastName($lastName);
+        $usermodel->saveEntity($userentity);
+
+        $companyname    = $data['companyname'];
+        $companyaddress = $data['companyaddress'];
+        $postalcode     = $data['postalcode'];
+        $state          = $data['state'];
+        $city           = $data['city'];
+        $country        = $data['country'];
+        $gstnumber      = $data['gstnumber'];
+        $billing->setCompanyname($companyname);
+        $billing->setAccountingemail($email);
+        $billing->setCompanyaddress($companyaddress);
+        $billing->setPostalcode($postalcode);
+        $billing->setState($state);
+        $billing->setCity($city);
+        $billing->setCountry($country);
+        $billing->setGstnumber($gstnumber);
+        $billingmodel->saveEntity($billing);
+
+        $phonenumber    = $data['phonenumber'];
+        $timezone       = $data['timezone'];
+        $website        = $data['website'];
+        $account->setTimezone($timezone);
+        $account->setPhonenumber($phonenumber);
+        $account->setWebsite($website);
+        $account->setEmail($email);
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator = $this->get('mautic.configurator');
+        $isWritabale  = $configurator->isFileWritable();
+        if ($isWritabale) {
+            if ($timezone != '') {
+                $configurator->mergeParameters(['default_timezone' => $timezone]);
+                $configurator->write();
+            }
+            if ($companyaddress != '') {
+                $address = $companyaddress.','.$postalcode.','.$city.','.$state.','.$country;
+                $configurator->mergeParameters(['postal_address' => $address]);
+                $configurator->write();
+            }
+        }
+        $signuprepository=$this->get('le.core.repository.signup');
+        $signuprepository->updateSignupInfo($data, $data, $data);
+        $model->saveEntity($account);
+        $loginsession = $this->get('session');
+        $loginsession->set('isLogin', false);
+
+        $dataArray = ['success' => true];
 
         return $this->sendJsonResponse($dataArray);
     }

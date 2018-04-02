@@ -9,10 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Entity;
+namespace Mautic\SubscriptionBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
+use Mautic\CoreBundle\Entity\FormEntity;
 
 /**
  * Class Account.
@@ -65,13 +66,18 @@ class Account extends FormEntity
     private $needpoweredby = 0;
 
     /**
+     * @var
+     */
+    private $website;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
         $builder->setTable('accountinfo')
-                ->setCustomRepositoryClass('Mautic\CoreBundle\Entity\AccountRepository');
+                ->setCustomRepositoryClass('Mautic\SubscriptionBundle\Entity\AccountRepository');
 
         $builder->createField('id', 'integer')
             ->isPrimaryKey()
@@ -115,6 +121,11 @@ class Account extends FormEntity
 
         $builder->createField('needpoweredby', 'integer')
             ->columnName('needpoweredby')
+            ->nullable()
+            ->build();
+
+        $builder->createField('website', 'string')
+            ->columnName('website')
             ->nullable()
             ->build();
     }
@@ -285,6 +296,26 @@ class Account extends FormEntity
     public function setNeedpoweredby($needpoweredby)
     {
         $this->needpoweredby = $needpoweredby;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWebsite()
+    {
+        return $this->website;
+    }
+
+    /**
+     * @param mixed $website
+     *
+     * @return Account
+     */
+    public function setWebsite($website)
+    {
+        $this->website = $website;
 
         return $this;
     }

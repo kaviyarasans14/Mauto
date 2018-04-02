@@ -1479,4 +1479,5 @@ solid #adc2eb}.payment-status-holder
 h4{text-align:center;font-size:20px;text-transform:uppercase;margin-bottom:10px;font-weight:700;border-bottom:1px solid #adc2eb;padding-bottom:10px;color:#2952a3}.payment-status-holder .payment-status-lbl-left{text-transform:capitalize;font-weight:700;font-size:12px;margin-right:2px}.payment-status-holder .payment-status-header{display:block;text-transform:uppercase;font-weight:700;font-size:14px;border-bottom:1px solid #adc2eb;width:200px;padding-bottom:5px;color:#2952a3}.payment-status-holder .transaction-details{padding-left:20%}.payment-status-holder
 span{margin-bottom:8px}.payment-history{width:100%}.payment-history
 .header{text-transform:uppercase}.payment-history
-.data{}
+.data{}.exitlogout{float:right;font-size:19.5px;font-weight:normal;line-height:1}.exitlogout:hover,.exitlogout:focus{text-decoration:none;cursor:pointer}.signup_next
+.exit_logout{padding:12px}.exit_logout:hover,.exit_logout:focus{text-decoration:none;cursor:pointer;color:#fff}

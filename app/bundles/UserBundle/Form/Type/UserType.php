@@ -234,20 +234,21 @@ class UserType extends AbstractType
         } elseif (isset($options['data'])) {
             $defaultSignature = $options['data']->getSignature();
         }
-
-        $builder->add(
-            'signature',
-            'textarea',
-            [
-                'label'      => 'mautic.email.token.signature',
-                'label_attr' => ['class' => 'control-label'],
-                'required'   => false,
-                'attr'       => [
-                    'class' => 'form-control',
-                ],
-                'data' => $defaultSignature,
-            ]
-        );
+        if ($this->model->getCurrentUserEntity()->isAdmin()) {
+            $builder->add(
+                'signature',
+                'textarea',
+                [
+                    'label'      => 'mautic.email.token.signature',
+                    'label_attr' => ['class' => 'control-label'],
+                    'required'   => false,
+                    'attr'       => [
+                        'class' => 'form-control',
+                    ],
+                    'data' => $defaultSignature,
+                ]
+            );
+        }
         $builder->add(
             'mobile',
             'text',

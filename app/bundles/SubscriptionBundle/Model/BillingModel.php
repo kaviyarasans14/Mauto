@@ -9,9 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\CoreBundle\Model;
+namespace Mautic\SubscriptionBundle\Model;
 
-use Mautic\CoreBundle\Entity\Billing;
+use Mautic\SubscriptionBundle\Entity\Billing;
+use Mautic\CoreBundle\Model\FormModel;
 
 /**
  * Class BillingModel.
@@ -21,11 +22,11 @@ class BillingModel extends FormModel
     /**
      * {@inheritdoc}
      *
-     * @return \Mautic\CoreBundle\Entity\BillingRepository
+     * @return \Mautic\SubscriptionBundle\Entity\BillingRepository
      */
     public function getRepository()
     {
-        return $this->em->getRepository('MauticCoreBundle:Billing');
+        return $this->em->getRepository('MauticSubscriptionBundle:Billing');
     }
 
     /**
