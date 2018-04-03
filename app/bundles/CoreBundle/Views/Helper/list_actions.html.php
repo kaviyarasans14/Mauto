@@ -80,7 +80,7 @@ if (is_array($item)) {
                         'confirm' => [
                             'btnClass'      => false,
                             'btnText'       => $view['translator']->trans('mautic.core.form.delete'),
-                            'message'       => $view['translator']->trans($translationBase.'.form.confirmdelete', ['%name%' => $name.' ('.$id.')']),
+                            'message'       => $view['translator']->trans($translationBase.'.form.confirmdelete', ['%name%' => $name]),
                             'confirmAction' => $view['router']->path(
                                 $actionRoute,
                                 array_merge(['objectAction' => 'delete', 'objectId' => $id], $query)

@@ -199,8 +199,10 @@ if (!isset($inBuilder)) {
             echo $view['form']->row($form['publishDown']);
             echo $view['form']->row($form['inKioskMode']);
             echo $view['form']->row($form['renderStyle']);
-            echo $view['form']->row($form['template']);
             ?>
+        </div>
+        <div class="pr-lg pl-lg pt-md pb-m <?php echo $isadmin ? '' : 'hide' ?>">
+         <?php echo $view['form']->row($form['template']); ?>
         </div>
     </div>
 </div>
