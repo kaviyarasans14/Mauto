@@ -112,10 +112,8 @@ class SolutionInfinityApi extends AbstractSmsApi
             $content = urlencode($content);
             $sendurl = $this->url;
             $baseurl = $sendurl.'?method=sms&api_key='.$this->username.'&sender='.$this->senderid;
-            $baseurl = $baseurl.'?uid='.$this->username.'&pin='.$this->password.'&sender='.$this->senderid.'&route=0';
             $sendurl =$baseurl.'&to='.$number.'&message='.$content;
-            file_put_contents('/var/www/mauto/app/cache/log.txt', 'Message Content: '.$sendurl."\n", FILE_APPEND);
-            $handle = curl_init($sendurl);
+            $handle  = curl_init($sendurl);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($handle);
             //curl_close($handle);

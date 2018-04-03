@@ -64,7 +64,7 @@ if ($showSetup && $showVideo) {
                             <?php echo $view['form']->label($userform['email']); ?>
                             <?php echo $view['form']->widget(
                                 $userform['email'],
-                                ['attr' => ['style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']]
+                                ['attr' => ['tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;']]
                             ); ?>
                             <div class="help-block"></div>
                         </div>
@@ -174,22 +174,27 @@ if ($showSetup && $showVideo) {
     <div class="modal-dialog otp_verifications" style="display:none;" role="document">
         <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" data-ng-click="cancel()"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Validate your account</h4>
         </div>
 
-        <form method="post" name="smsVerify" data-ng-submit="verifySms(smsVerify)" novalidate>
+        <form method="post" name="smsVerify" novalidate>
 
             <div class="modal-body">
 
                 <!-- begin .row -->
                 <div class="row">
+                    <div class="alert alert-danger alert-dismissable alertmsg" style="display:none;margin-left: 10px;margin-right: 10px;">
+                        <a type="button" class="close" onclick ="Mautic.closeAlertMSG();" aria-hidden="true">×</a>
+                        <i class="fa fa-exclamation-triangle"></i>
+                        Invalid Code
+                    </div>
                     <div class="col-md-10 col-md-offset-1 text-center">
-                        <p>A code was just sent to your mobile phone : <b>{{form.profile_office_telephone}}</b></p>
+                        <p id="kyc_otpverification">A code was just sent to your mobile number : <b>{{form.profile_office_telephone}}</b></p>
                         <p>Please enter the code that was sent to your phone in this field.</p>
                     </div>
-                    <div class="form-group col-md-6 col-md-offset-3 text-center" data-ng-class="{'has-error':smsVerify.sms_code.$invalid && smsCodeSubmitted}">
+                    <div class="form-group col-md-6 col-md-offset-3 text-center sms_code_div" >
                         <input class="form-control" required type="text" data-ng-model="sms_code" name="sms_code" id="sms_code" />
+                        <input class="form-control" required type="text" style="display:none;" name="sms_number" id="sms_number" />
                     </div>
                     <div class="col-md-10 col-md-offset-1 spacer-top-xs text-muted">
                         <small><b>In an effort to protect our users from abuse</b>, we ask users to prove they are not a robot before they are able to create an account. Having this additional confirmation via phone is an effective way to keep spammers from abusing our system. Thanks for your help!</small>
@@ -200,9 +205,9 @@ if ($showSetup && $showVideo) {
             </div>
 
             <div class="modal-footer">
-                <a id="verify" onclick="Mautic.LoadKYCDetails();" type="submit" class="btn btn-primary"><i data-ng-show="smsLoader" class="fa fa-circle-o-notch" data-ng-class="{'fa-spin':smsLoader}"></i> Back</a>
-                <button id="send_sms" type="button" data-ng-click="send_sms()" class="btn btn-default disabled" disabled="true"><i class="fa fa-repeat"></i> Resend code</button>
-                <button id="verify"  type="submit" class="btn btn-primary"><i data-ng-show="smsLoader" class="fa fa-circle-o-notch" data-ng-class="{'fa-spin':smsLoader}"></i> Validate</button>
+                <a id="otpBack" onclick="Mautic.LoadKYCDetails();" type="submit" class="btn btn-primary">Back</a>
+                <a id="send_sms" onclick="Mautic.reSendOTP();" type="button" data-ng-click="send_sms()" class="btn btn-default disabled" disabled="true"><i class="fa fa-repeat"></i> Resend code</a>
+                <a id="verify" onclick="Mautic.verifyOTP()" type="submit" class="btn btn-primary">Validate</a>
             </div>
 
         </form>

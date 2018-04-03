@@ -98,7 +98,7 @@ class AccountType extends AbstractType
             [
                 'label'       => 'leadsengage.subs.domainname',
                 'label_attr'  => ['class' => 'control-label'],
-                'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
+                'attr'        => ['class' => 'form-control', 'tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => true,
             ]
         );
@@ -146,7 +146,7 @@ class AccountType extends AbstractType
                 //'choices'    => $currencyChoices,
                 'label'       => 'leadsengage.subs.accountcurrency',
                 'label_attr'  => ['class' => 'control-label'],
-                'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
+                'attr'        => ['class' => 'form-control', 'tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => false,
             ]
         );
@@ -164,7 +164,7 @@ class AccountType extends AbstractType
                 ],
                 'multiple'    => false,
                 'empty_value' => '',
-                'data'        => 'mautic.user.user.form.defaulttimezone',
+                'data'        => $options['data']->getTimezone(),
                 'required'    => false,
             ]
         );
@@ -175,7 +175,7 @@ class AccountType extends AbstractType
             [
                 'label'       => 'leadsengage.subs.accountid',
                 'label_attr'  => ['class' => 'control-label'],
-                'attr'        => ['class' => 'form-control', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
+                'attr'        => ['class' => 'form-control', 'tabindex' => '-1', 'style' => 'pointer-events: none;background-color: #ebedf0;opacity: 1;'],
                 'required'    => false,
             ]
         );

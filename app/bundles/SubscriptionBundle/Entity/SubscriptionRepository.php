@@ -89,6 +89,17 @@ class SubscriptionRepository
         return $qb->execute()->fetchAll();
     }
 
+    public function getSMSConfig()
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('s.*')
+            ->from(MAUTIC_TABLE_PREFIX.'smsconfig', 's');
+        $qb->andWhere('s.isdefault = :isdefault')
+            ->setParameter('isdefault', 1);
+
+        return $qb->execute()->fetchAll();
+    }
+
     public function updateEmailCredits($plankey)
     {
         $qb = $this->getConnection()->createQueryBuilder();

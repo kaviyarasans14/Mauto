@@ -61,8 +61,8 @@ class DashboardController extends FormController
             $timezone    = '';
             if ($countryname == 'India') {
                 $timezone = 'Asia/Kolkata';
+                $billing->setCountry($countryname);
             }
-            $billing->setCountry($countryname);
             $repository  =$this->get('le.core.repository.subscription');
             $signupinfo  =$repository->getSignupInfo($userentity->getEmail());
             if (!empty($signupinfo)) {
@@ -78,13 +78,19 @@ class DashboardController extends FormController
             $accountentity = $accrepo->findAll();
             if (sizeof($accountentity) > 0) {
                 $account = $accountentity[0]; //$model->getEntity(1);
+                if (!$account->getMobileverified()) {
+                    $showsetup = true;
+                }
             } else {
-                $account = new Account();
+                $showsetup = true;
+                $account   = new Account();
             }
             if (!empty($signupinfo)) {
                 $account->setPhonenumber($signupinfo[0]['f11']);
             }
-            $account->setTimezone($timezone);
+            if ($timezone != '') {
+                $account->setTimezone($timezone);
+            }
             $accform = $model->createForm($account, $this->get('form.factory'));
         }
         /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */

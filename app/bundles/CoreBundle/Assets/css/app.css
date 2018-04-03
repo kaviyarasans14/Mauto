@@ -5044,3 +5044,15 @@ figcaption {
 .label_control_error{
   color:#a94442;
 }
+.alert-dismissable, .alert-dismissible {
+  padding-right: 35px;
+}
+
+.alert .alert-danger{
+  color: #fff;
+  background-color: #d64d3f;
+  border-color: #d64d3f;
+}
+#otpBack{
+  float:left;
+}

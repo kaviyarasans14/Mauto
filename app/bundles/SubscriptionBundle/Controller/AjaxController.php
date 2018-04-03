@@ -168,10 +168,6 @@ class AjaxController extends CommonAjaxController
         $firstName      = $data['firstName'];
         $lastName       = $data['lastName'];
         $email          = $data['email'];
-        $userentity->setEmail($email);
-        $userentity->setFirstName($firstName);
-        $userentity->setLastName($lastName);
-        $usermodel->saveEntity($userentity);
 
         $companyname    = $data['companyname'];
         $companyaddress = $data['companyaddress'];
@@ -193,6 +189,12 @@ class AjaxController extends CommonAjaxController
         $phonenumber    = $data['phonenumber'];
         $timezone       = $data['timezone'];
         $website        = $data['website'];
+        $repository     =$this->get('le.core.repository.subscription');
+        $signupinfo     =$repository->getSignupInfo($userentity->getEmail());
+        if (!empty($signupinfo)) {
+            $account->setDomainname($signupinfo[0]['f5']);
+            $account->setAccountname($signupinfo[0]['f2']);
+        }
         $account->setTimezone($timezone);
         $account->setPhonenumber($phonenumber);
         $account->setWebsite($website);
@@ -214,9 +216,91 @@ class AjaxController extends CommonAjaxController
         $signuprepository=$this->get('le.core.repository.signup');
         $signuprepository->updateSignupInfo($data, $data, $data);
         $model->saveEntity($account);
+
+        $userentity->setEmail($email);
+        $userentity->setFirstName($firstName);
+        $userentity->setLastName($lastName);
+        $userentity->setMobile($phonenumber);
+        $userentity->setTimezone($timezone);
+        $usermodel->saveEntity($userentity);
+        $repository     = $this->get('le.core.repository.subscription');
+        $otpsend        = false;
+        $otp            = '';
+        $smsconfig      = $repository->getSMSConfig();
+        if (!empty($smsconfig) && $country == 'India') {
+            $url      = $smsconfig[0]['url'];
+            $username = $smsconfig[0]['username'];
+            $password = $smsconfig[0]['password'];
+            $senderid = $smsconfig[0]['senderid'];
+
+            if (isset($data['otp'])) {
+                $otp = $data['otp'];
+            } else {
+                $otp = rand(100000, 999999);
+            }
+            $content  = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
+            $metadata = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
+            if ($metadata) {
+                $otpsend = true;
+            }
+        }
+        if (!$otpsend) {
+            $loginsession = $this->get('session');
+            $loginsession->set('isLogin', false);
+            $account->setMobileverified(1);
+            $model->saveEntity($account);
+        }
+        $dataArray            = ['success' => true];
+        $dataArray['otp']     = $otp;
+        $dataArray['otpsend'] = $otpsend;
+        $dataArray['mobile']  = $phonenumber;
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function resendOTPAction(Request $request)
+    {
+        $data = $request->request->all();
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+        $billingmodel   = $this->getModel('subscription.billinginfo');
+        $phonenumber    = $data['phonenumber'];
+        $repository     = $this->get('le.core.repository.subscription');
+        $otpsend        = false;
+        $smsconfig      = $repository->getSMSConfig();
+        if (!empty($smsconfig)) {
+            $url      = $smsconfig[0]['url'];
+            $username = $smsconfig[0]['username'];
+            $password = $smsconfig[0]['password'];
+            $senderid = $smsconfig[0]['senderid'];
+            $otp      = $data['otp'];
+            $content  = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
+            $metadata = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
+            if ($metadata) {
+                $otpsend = true;
+            }
+        }
+        $dataArray            = ['success' => true];
+        $dataArray['otp']     = $otp;
+        $dataArray['otpsend'] = $otpsend;
+        $dataArray['mobile']  = $phonenumber;
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function OTPVerifiedAction(Request $request)
+    {
         $loginsession = $this->get('session');
         $loginsession->set('isLogin', false);
-
+        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
+        $accrepo       = $model->getRepository();
+        $accountentity = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0]; //$model->getEntity(1);
+        }
+        $account->setMobileverified(1);
+        $model->saveEntity($account);
         $dataArray = ['success' => true];
 
         return $this->sendJsonResponse($dataArray);
@@ -411,5 +495,38 @@ class AjaxController extends CommonAjaxController
         $dataArray['daysavailable']  =$daysavailable;
 
         return $this->sendJsonResponse($dataArray);
+    }
+
+    public function sendSms($url, $number, $content, $username, $password, $senderID)
+    {
+        try {
+            $url     = $url;
+            $content = urlencode($content);
+            $sendurl = $url;
+            $baseurl = $sendurl.'?method=sms&api_key='.$username.'&sender='.$senderID;
+            $sendurl =$baseurl.'&to='.$number.'&message='.$content;
+            $handle  = curl_init($sendurl);
+            curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($handle);
+            $response = json_decode($response);
+            $status   =$response->{'status'};
+            $message  =$response->{'message'};
+            if ($status == 'OK') {
+                return true;
+            } else {
+                $this->logger->addWarning(
+                    $message
+                );
+
+                return false;
+            }
+        } catch (NumberParseException $e) {
+            $this->logger->addWarning(
+                $e->getMessage(),
+                ['exception' => $e]
+            );
+
+            return $e->getMessage();
+        }
     }
 }

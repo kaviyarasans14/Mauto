@@ -12,7 +12,6 @@ $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'accountinfo');
 $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accountinfo.header.title'));
 $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
-$style      =  ['attr' => ['tabindex' => '-1']]
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -67,7 +66,7 @@ $style      =  ['attr' => ['tabindex' => '-1']]
                             </div></div></div>
                             <div class="col-md-6"><div class="row"><div class="form-group col-xs-12 ">
                                 <?php echo $view['form']->label($form['domainname']); ?>
-                                <?php echo $view['form']->widget($form['domainname'], $style); ?>
+                                <?php echo $view['form']->widget($form['domainname']); ?>
                             </div></div></div>
                             <div class="col-md-6"><div class="row"><div class="form-group col-xs-12 ">
                                 <?php echo $view['form']->label($form['email']); ?>
@@ -88,7 +87,7 @@ $style      =  ['attr' => ['tabindex' => '-1']]
 
                             <div class="col-md-6 hide"><div class="row"><div class="form-group col-xs-12 ">
                                 <?php echo $view['form']->label($form['accountid']); ?>
-                                <?php echo $view['form']->widget($form['accountid'], $style); ?>
+                                <?php echo $view['form']->widget($form['accountid']); ?>
                             </div></div></div>
 
                             <div class="col-md-6"><div class="row"><div class="form-group col-xs-12 ">

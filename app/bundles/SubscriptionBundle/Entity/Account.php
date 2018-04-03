@@ -28,12 +28,12 @@ class Account extends FormEntity
     /**
      * @var string
      */
-    private $accountname = 0;
+    private $accountname;
 
     /**
      * @var string
      */
-    private $domainname = [];
+    private $domainname;
 
     /**
      * @var
@@ -69,6 +69,11 @@ class Account extends FormEntity
      * @var
      */
     private $website;
+
+    /**
+     * @var
+     */
+    private $mobileverified = 0;
 
     /**
      * @param ORM\ClassMetadata $metadata
@@ -126,6 +131,10 @@ class Account extends FormEntity
 
         $builder->createField('website', 'string')
             ->columnName('website')
+            ->nullable()
+            ->build();
+        $builder->createField('mobileverified', 'integer')
+            ->columnName('mobileverified')
             ->nullable()
             ->build();
     }
@@ -316,6 +325,26 @@ class Account extends FormEntity
     public function setWebsite($website)
     {
         $this->website = $website;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMobileverified()
+    {
+        return $this->mobileverified;
+    }
+
+    /**
+     * @param mixed $mobileverified
+     *
+     * @return Billing
+     */
+    public function setMobileverified($mobileverified)
+    {
+        $this->mobileverified = $mobileverified;
 
         return $this;
     }
