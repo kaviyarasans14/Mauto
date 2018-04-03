@@ -234,8 +234,8 @@ class UserType extends AbstractType
         } elseif (isset($options['data'])) {
             $defaultSignature = $options['data']->getSignature();
         }
-        if ($this->model->getCurrentUserEntity()->isAdmin()) {
-            $builder->add(
+
+        $builder->add(
                 'signature',
                 'textarea',
                 [
@@ -248,7 +248,7 @@ class UserType extends AbstractType
                     'data' => $defaultSignature,
                 ]
             );
-        }
+
         $builder->add(
             'mobile',
             'text',

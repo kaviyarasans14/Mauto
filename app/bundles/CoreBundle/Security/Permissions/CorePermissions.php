@@ -225,6 +225,18 @@ class CorePermissions
     }
 
     /**
+     * @return bool
+     */
+    public function isLoginUserID($userid)
+    {
+        if ($userid == null || empty($userid)) {
+            return false;
+        }
+
+        return $this->userHelper->getUser()->getId() == $userid;
+    }
+
+    /**
      * Determines if the user has permission to access the given area.
      *
      * @param array|string $requestedPermission
