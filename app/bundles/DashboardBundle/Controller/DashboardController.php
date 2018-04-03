@@ -40,7 +40,7 @@ class DashboardController extends FormController
         $billformview = '';
         $accformview  = '';
         $userformview = '';
-        if ($dbhost != 'localhost111' && $loginarg) {
+        if ($dbhost != 'localhost' && $loginarg) {
             /** @var \Mautic\UserBundle\Model\UserModel $usermodel */
             $usermodel     = $this->getModel('user.user');
             $userentity    = $usermodel->getCurrentUserEntity();
