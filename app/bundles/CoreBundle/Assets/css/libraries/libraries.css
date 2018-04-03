@@ -19100,3 +19100,19 @@ padding:5px;
   cursor: pointer;
   color: #ffffff;
 }
+
+.sidebar-credits-info-holder  .sidebar-buycredits{
+  background: #ff9933;
+  padding-left: 10px !important;
+  text-align: center;
+  width: 120px;
+  font-weight: 700;
+  font-size: 11px;
+  border: 1px solid #ff9933;
+}
+.sidebar-credits-info-holder  .sidebar-buycredits:hover{
+  font-weight: 700;
+  background: #fff;
+  color: #ff9933 !important;
+  border: 1px solid #ff9933;
+}

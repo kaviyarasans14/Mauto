@@ -1334,10 +1334,15 @@ blockquote > p:after {
   border-radius: 2px;
   color: #fff;
   margin-left: 3px;
-  background-color: #375695;
-  border-color: #375695;
+  background-color: #ff9933;
+  border-color: #ff9933;
 }
-
+.buycredits:hover{
+  background-color: #fff;
+  border-color: #ff9933;
+  color: #ff9933;
+  font-weight: 700;
+}
 .btn.btn-circle.btn-lg {
   width: 43px;
 }

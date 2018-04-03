@@ -101,7 +101,8 @@ $extraMenu = $view['menu']->render('extra');
                         <a style="pointer-events:none"><span class="nav-item-name text email-days-available">Loading...</span></a>
                     </li>
                     <li class="nav-group">
-                        <a style="text-decoration: underline;" href="<?php echo $view['router']->path('le_plan_index'); ?>">
+                        <a  class="sidebar-buycredits" href="<?php echo $view['router']->path('le_plan_index'); ?>">
+                            <i class="fa fa-plus-circle fs-14"></i>
                             <span class="nav-item-name text"><?php echo $view['translator']->trans('le.plans.buycredits'); ?></span>
                         </a>
                     </li>

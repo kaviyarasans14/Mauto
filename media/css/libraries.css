@@ -1480,4 +1480,6 @@ h4{text-align:center;font-size:20px;text-transform:uppercase;margin-bottom:10px;
 span{margin-bottom:8px}.payment-history{width:100%}.payment-history
 .header{text-transform:uppercase;padding:5px}.payment-history
 .data{padding:5px}.exitlogout{float:right;font-size:19.5px;font-weight:normal;line-height:1}.exitlogout:hover,.exitlogout:focus{text-decoration:none;cursor:pointer}.signup_next
-.exit_logout{padding:12px}.exit_logout:hover,.exit_logout:focus{text-decoration:none;cursor:pointer;color:#fff}
+.exit_logout{padding:12px}.exit_logout:hover,.exit_logout:focus{text-decoration:none;cursor:pointer;color:#fff}.sidebar-credits-info-holder  .sidebar-buycredits{background:#f93;padding-left:10px !important;text-align:center;width:120px;font-weight:700;font-size:11px;border:1px
+solid #f93}.sidebar-credits-info-holder  .sidebar-buycredits:hover{font-weight:700;background:#fff;color:#f93 !important;border:1px
+solid #f93}
