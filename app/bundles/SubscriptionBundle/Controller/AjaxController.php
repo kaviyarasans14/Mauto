@@ -195,6 +195,7 @@ class AjaxController extends CommonAjaxController
             $account->setDomainname($signupinfo[0]['f5']);
             $account->setAccountname($signupinfo[0]['f2']);
         }
+        $account->setAccountname($companyname);
         $account->setTimezone($timezone);
         $account->setPhonenumber($phonenumber);
         $account->setWebsite($website);
@@ -208,7 +209,7 @@ class AjaxController extends CommonAjaxController
                 $configurator->write();
             }
             if ($companyaddress != '') {
-                $address = $companyaddress.','.$postalcode.','.$city.','.$state.','.$country;
+                $address = $companyname.', '.$companyaddress.', '.$postalcode.', '.$city.', '.$state.', '.$country;
                 $configurator->mergeParameters(['postal_address' => $address]);
                 $configurator->write();
             }
@@ -238,8 +239,9 @@ class AjaxController extends CommonAjaxController
             } else {
                 $otp = rand(100000, 999999);
             }
-            $content  = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
-            $metadata = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
+            $phonenumber = substr($phonenumber, -10);
+            $content     = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
+            $metadata    = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
             if ($metadata) {
                 $otpsend = true;
             }
@@ -268,13 +270,14 @@ class AjaxController extends CommonAjaxController
         $otpsend        = false;
         $smsconfig      = $repository->getSMSConfig();
         if (!empty($smsconfig)) {
-            $url      = $smsconfig[0]['url'];
-            $username = $smsconfig[0]['username'];
-            $password = $smsconfig[0]['password'];
-            $senderid = $smsconfig[0]['senderid'];
-            $otp      = $data['otp'];
-            $content  = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
-            $metadata = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
+            $url         = $smsconfig[0]['url'];
+            $username    = $smsconfig[0]['username'];
+            $password    = $smsconfig[0]['password'];
+            $senderid    = $smsconfig[0]['senderid'];
+            $otp         = $data['otp'];
+            $phonenumber = substr($phonenumber, -10);
+            $content     = str_replace('|OTP|', $otp, $this->translator->trans('le.send.otp.sms'));
+            $metadata    = $this->sendSms($url, $phonenumber, $content, $username, $password, $senderid);
             if ($metadata) {
                 $otpsend = true;
             }

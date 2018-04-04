@@ -185,8 +185,7 @@ Mautic.validateKYCForm = function() {
         mQuery('#account_Mobile .help-block').html("Mobile can't be empty");
         isvalid = false;
     } else if(phonenumber != ""){
-        var mob = /^[1-9]{1}[0-9]{9}$/;
-        if (!mob.test(phonenumber)){
+        if (phonenumber.length < 10){
             mQuery('#account_Mobile').removeClass('has-success has-error').addClass(theClass);
             mQuery('#account_Mobile .help-block').html("Mobile doesn't look right. Use the Valid one");
             isvalid = false;

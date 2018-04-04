@@ -66,10 +66,17 @@ class ConfigType extends AbstractType
                         'data-token-callback'  => 'email:getBuilderTokens',
                         'data-token-activator' => '{',
                     ],
-                    'required' => false,
+                    'required' => true,
                     'data'     => (array_key_exists('footer_text', $options['data']) && !empty($options['data']['footer_text']))
                         ? $options['data']['footer_text']
                         : '',
+                    'constraints' => [
+                        new NotBlank(
+                            [
+                                'message' => 'le.email.config.default.footer',
+                            ]
+                        ),
+                    ],
                 ]
             )
         );

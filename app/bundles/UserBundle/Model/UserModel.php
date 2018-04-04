@@ -94,6 +94,7 @@ class UserModel extends FormModel
     {
         $currentuser=$this->userHelper->getUser();
         $this->getRepository()->setCurrentUser($currentuser);
+
         return $this->getRepository()->getUserList($search, $limit, $start, $permissionLimiter);
     }
 
@@ -221,7 +222,7 @@ class UserModel extends FormModel
             case 'user':
                 $currentuser=$this->userHelper->getUser();
                 $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
-                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit,0,[]);
+                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit, 0, []);
                 break;
             case 'position':
                 $results = $this->em->getRepository('MauticUserBundle:User')->getPositionList($filter, $limit);
@@ -285,16 +286,57 @@ class UserModel extends FormModel
         $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken], true);
 
         $mailer->setTo([$user->getEmail() => $user->getName()]);
+        $mailer->setFrom(['support@leadsengage.com' => 'LeadsEngage']);
         $mailer->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));
-        $text = $this->translator->trans(
+        /*$text = $this->translator->trans(
             'mautic.user.user.passwordreset.email.body',
             ['%name%' => $user->getFirstName(), '%resetlink%' => '<a href="'.$resetLink.'">'.$resetLink.'</a>']
         );
-        $text = str_replace('\\n', "\n", $text);
-        $html = nl2br($text);
+        $text = str_replace('\\n', "\n", $text);*/
+        $name = $user->getFirstName();
+        $text = "<!DOCTYPE html>
+<html>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 
-        $mailer->setBody($html);
-        $mailer->setPlainText(strip_tags($text));
+	<head>
+		<title></title>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css'>
+	</head>
+	<body aria-disabled='false' style='min-height: 300px;margin:0px;'>
+		<div style='background-color:#eff2f7'>
+			<div style='padding-top: 55px;'>
+				<div class='marle' style='margin: 0% 11.5%;background-color:#fff;padding: 50px 50px 50px 50px;border-bottom:5px solid #0071ff;'>
+
+					<p style='text-align:center;'><img src='https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png' class='fr-fic fr-dii' height='40'></p>
+					<br>
+					<div style='text-align:center;width:100%;'>
+						<div style='display:inline-block;width: 80%;'>
+
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi $name,</p>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>This email is in your inbox because you requested to reset your password. Here is the link to do just that</p><a href=\"$resetLink\" class='butle' style='text-align:center;text-decoration:none;font-family: Montserrat,sans-serif;transition: all .1s ease;color: #fff;font-weight: 400;font-size: 18px;margin-top: 10px;font-family: Montserrat,sans-serif;display: inline-block;letter-spacing: .6px;padding: 15px 30px;box-shadow: 0 1px 2px rgba(0,0,0,.36);white-space: nowrap;border-radius: 35px;background-color: #0071ff;border: #0071ff;'>Reset Your Password</a>
+							<br>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>If you did not request a password reset please reply to this email and let us know. We can investigate if the request was unauthorized.</p>
+							<br>
+
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thanks,
+								<br>LeadsEngage Support</p>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+	</body>
+</html>";
+        //$html = nl2br($text);
+
+        $mailer->setBody($text);
+        //$mailer->setPlainText(strip_tags($text));
 
         $mailer->send();
     }
@@ -367,7 +409,8 @@ class UserModel extends FormModel
         return $this->getRepository()->getOwnerListChoices($this);
     }
 
-    public function getCurrentUserEntity(){
+    public function getCurrentUserEntity()
+    {
         return $this->userHelper->getUser();
     }
 }

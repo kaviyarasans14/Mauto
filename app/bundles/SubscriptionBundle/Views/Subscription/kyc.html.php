@@ -171,49 +171,7 @@ if ($showSetup && $showVideo) {
         </form>
         <?php endif; ?>
     </div>
-    <div class="modal-dialog otp_verifications" style="display:none;" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title">Validate your account</h4>
-        </div>
 
-        <form method="post" name="smsVerify" novalidate>
-
-            <div class="modal-body">
-
-                <!-- begin .row -->
-                <div class="row">
-                    <div class="alert alert-danger alert-dismissable alertmsg" style="display:none;margin-left: 10px;margin-right: 10px;">
-                        <a type="button" class="close" onclick ="Mautic.closeAlertMSG();" aria-hidden="true">×</a>
-                        <i class="fa fa-exclamation-triangle"></i>
-                        Invalid Code
-                    </div>
-                    <div class="col-md-10 col-md-offset-1 text-center">
-                        <p id="kyc_otpverification">A code was just sent to your mobile number : <b>{{form.profile_office_telephone}}</b></p>
-                        <p>Please enter the code that was sent to your phone in this field.</p>
-                    </div>
-                    <div class="form-group col-md-6 col-md-offset-3 text-center sms_code_div" >
-                        <input class="form-control" required type="text" data-ng-model="sms_code" name="sms_code" id="sms_code" />
-                        <input class="form-control" required type="text" style="display:none;" name="sms_number" id="sms_number" />
-                    </div>
-                    <div class="col-md-10 col-md-offset-1 spacer-top-xs text-muted">
-                        <small><b>In an effort to protect our users from abuse</b>, we ask users to prove they are not a robot before they are able to create an account. Having this additional confirmation via phone is an effective way to keep spammers from abusing our system. Thanks for your help!</small>
-                    </div>
-                </div>
-                <!-- end .row -->
-
-            </div>
-
-            <div class="modal-footer">
-                <a id="otpBack" onclick="Mautic.LoadKYCDetails();" type="submit" class="btn btn-primary">Back</a>
-                <a id="send_sms" onclick="Mautic.reSendOTP();" type="button" data-ng-click="send_sms()" class="btn btn-default disabled" disabled="true"><i class="fa fa-repeat"></i> Resend code</a>
-                <a id="verify" onclick="Mautic.verifyOTP()" type="submit" class="btn btn-primary">Validate</a>
-            </div>
-
-        </form>
-
-        </div>
-    </div>
     <div class="modal-dialog video_page" style="<?php echo $videostyle; ?>" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -230,6 +188,50 @@ if ($showSetup && $showVideo) {
             </div>
         </div>
     </div>
+    </div>
+<div class="modal otp_verifications" style="display: none;z-index: 1500;overflow-y:hidden;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Validate your account</h4>
+            </div>
+
+            <form method="post" name="smsVerify" novalidate>
+
+                <div class="modal-body">
+
+                    <!-- begin .row -->
+                    <div class="row">
+                        <div class="alert alert-danger alert-dismissable alertmsg" style="display:none;margin-left: 10px;margin-right: 10px;">
+                            <a type="button" class="close" onclick ="Mautic.closeAlertMSG();" aria-hidden="true">×</a>
+                            <i class="fa fa-exclamation-triangle"></i>
+                            Invalid Code
+                        </div>
+                        <div class="col-md-10 col-md-offset-1 text-center">
+                            <p id="kyc_otpverification">A code was just sent to your mobile number : <b>{{form.profile_office_telephone}}</b></p>
+                            <p>Please enter the code that was sent to your phone in this field.</p>
+                        </div>
+                        <div class="form-group col-md-6 col-md-offset-3 text-center sms_code_div" >
+                            <input class="form-control" required type="text" data-ng-model="sms_code" name="sms_code" id="sms_code" />
+                            <input class="form-control" required type="text" style="display:none;" name="sms_number" id="sms_number" />
+                        </div>
+                        <div class="col-md-10 col-md-offset-1 spacer-top-xs text-muted">
+                            <small><b>In an effort to protect our users from abuse</b>, we ask users to prove they are not a robot before they are able to create an account. Having this additional confirmation via phone is an effective way to keep spammers from abusing our system. Thanks for your help!</small>
+                        </div>
+                    </div>
+                    <!-- end .row -->
+
+                </div>
+
+                <div class="modal-footer">
+                    <a id="otpBack" onclick="Mautic.LoadKYCDetails();" type="submit" class="btn btn-primary">Back</a>
+                    <a id="send_sms" onclick="Mautic.reSendOTP();" type="button" data-ng-click="send_sms()" class="btn btn-default disabled" disabled="true"><i class="fa fa-repeat"></i> Resend code</a>
+                    <a id="verify" onclick="Mautic.verifyOTP()" type="submit" class="btn btn-primary">Validate</a>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 </div>
 
