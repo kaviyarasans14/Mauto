@@ -116,10 +116,18 @@ class SolutionInfinityApi extends AbstractSmsApi
             $handle  = curl_init($sendurl);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($handle);
-            //curl_close($handle);
-            //echo $sendurl;
-            //file_put_contents("/var/www/mauto/app/cache/log.txt","Phone Number to Send Message: ".$content."\n",FILE_APPEND);
-            return true;
+            $response = json_decode($response);
+            $status   =$response->{'status'};
+            $message  =$response->{'message'};
+            if ($status == 'OK') {
+                return true;
+            } else {
+                $this->logger->addWarning(
+                    $message
+                );
+
+                return false;
+            }
         } catch (NumberParseException $e) {
             $this->logger->addWarning(
                 $e->getMessage(),
