@@ -74,6 +74,7 @@
       mergeContents: mergeContents,
       onSave: function(jsonFile, htmlFile) {
           mQuery('.builder-html').val(Mautic.domToString(htmlFile));
+          jsonFile=jsonFile.replace(/&quot;/g, "'");
           mQuery('.bee-editor-json').val(jsonFile);
           Mautic.closeBeeEditor(function(){
               var bgApplyBtn = mQuery('.btn-apply');
@@ -195,8 +196,13 @@
                           bee = beePluginInstance;
                           var themejson = mQuery('textarea.bee-editor-json').val();
                           if(themejson != null && themejson != ""){
-                             // save('template1.json', themejson);
-                              bee.start(mQuery.parseJSON(themejson));
+                            // save('template1.json', themejson);
+                            //  try {
+                                  bee.start(mQuery.parseJSON(themejson));
+                            //  } catch(e) {
+                                  //alert(e); // error in the above string (in this case, yes)!
+                             // }
+
                           }else{
                               request(
                                   'GET',
