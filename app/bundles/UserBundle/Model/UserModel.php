@@ -284,7 +284,7 @@ class UserModel extends FormModel
 
         $resetToken = $this->getResetToken($user);
         $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken], true);
-
+        $mailer->setFrom(['support@leadsengage.com' => 'LeadsEngage']);
         $mailer->setTo([$user->getEmail() => $user->getName()]);
         $mailer->setFrom(['support@leadsengage.com' => 'LeadsEngage']);
         $mailer->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));

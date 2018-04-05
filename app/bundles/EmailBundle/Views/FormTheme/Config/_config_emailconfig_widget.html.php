@@ -17,7 +17,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
 ?>
 
 <?php if (count(array_intersect($fieldKeys, ['mailer_from_name', 'mailer_from_email', 'mailer_transport', 'mailer_spool_type']))): ?>
-    <div class="panel panel-primary">
+    <div class="panel panel-primary emailconfig">
         <div class="panel-heading">
             <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.header.mail'); ?></h3>
         </div>

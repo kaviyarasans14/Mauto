@@ -9,7 +9,7 @@
             </a>
         </li>
         <li>
-            <a href="https://leadsengage.com/"  target="_blank">
+            <a href="https://leadsengage.com/video-tutorials/"  target="_blank">
                 <i class="fa fa-video-camera fs-14"></i><span><?php echo $view['translator']->trans('le.user.account.videotutorials'); ?></span>
             </a>
         </li>
