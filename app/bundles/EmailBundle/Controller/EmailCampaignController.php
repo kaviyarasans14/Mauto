@@ -1136,7 +1136,7 @@ class EmailCampaignController extends FormController
             $clone->setVariantParent($entity);
         }
 
-        return $this->newAction($clone, false);
+        return $this->newAction($clone, true);
     }
 
     /**
