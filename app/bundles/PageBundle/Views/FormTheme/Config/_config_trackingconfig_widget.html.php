@@ -12,7 +12,7 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
 $isAdmin    =$view['security']->isAdmin();
 ?>
 
-<div class="panel panel-primary">
+<div class="panel panel-primary trackingconfig">
     <div class="panel-heading">
         <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.config.tab.pagetracking'); ?></h3>
     </div>
@@ -55,7 +55,7 @@ $isAdmin    =$view['security']->isAdmin();
                 }
             endforeach; ?>
         </div>
-        <div class="row" style="margin:0;">
+        <div class="row emailinstructions" style="margin:0;">
                 <?php echo $view['form']->row($form['emailInstructionsto']); ?>
         </div>
         <div class="row" style="margin:0;">

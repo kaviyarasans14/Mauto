@@ -303,7 +303,9 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
                 'groups'     => ['CheckPassword'],
             ]
         ));
-
+        $metadata->addPropertyConstraint('mobile', new Assert\NotBlank(
+            ['message' => 'mautic.user.user.mobile.notblank']
+        ));
         $metadata->setGroupSequence(['User', 'SecondPass', 'CheckPassword']);
     }
 

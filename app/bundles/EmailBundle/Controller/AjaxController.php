@@ -199,7 +199,7 @@ class AjaxController extends CommonAjaxController
      */
     protected function testEmailServerConnectionAction(Request $request)
     {
-        $dataArray = ['success' => 0, 'message' => ''];
+        $dataArray = ['success' => 0, 'message' => '', 'to_address_empty'=>false];
         $user      = $this->get('mautic.helper.user')->getUser();
 
         if ($user->isAdmin() || $user->isCustomAdmin()) {
@@ -293,14 +293,15 @@ class AjaxController extends CommonAjaxController
                             $message->setTo([$user->getEmail() => $userFullName]);
                         }
                         $mailer->send($message);
-
                         $dataArray['success'] = 1;
                         $dataArray['message'] = $translator->trans('mautic.core.success');
                     } else {
-                        $dataArray['success'] = 1;
-                        $dataArray['message'] = $translator->trans('mautic.core.failed');
+                        $dataArray['success']         = 0;
+                        $dataArray['to_address_empty']=true;
+                        $dataArray['message']         = $translator->trans('mautic.core.failed');
                     }
                 } catch (\Exception $e) {
+                    $dataArray['success'] = 0;
                     $dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
                 }
             }
