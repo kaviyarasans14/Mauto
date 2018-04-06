@@ -333,7 +333,7 @@
   };
 
   $.FE.RegisterCommand('html', {
-    title: 'Code View',
+    title: 'Html View',
     undo: false,
     focus: false,
     forcedRefresh: true,
