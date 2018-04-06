@@ -24,8 +24,8 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 
 /**
  * InstallController.
@@ -461,23 +461,25 @@ class InstallController extends CommonController
 
         return true;
     }
+
     public function validateAction(Request $request)
     {
-        $url      = $request->getRequestUri();
-        $urlParts = parse_url($url);
-        $code="404";
-        $status_text="Domain Invalid";
-        $contenttemplate="MauticCoreBundle:Error:domain.html.php";
-        $basetemplate='MauticCoreBundle:Default:slim.html.php';
+        $url            = $request->getRequestUri();
+        $urlParts       = parse_url($url);
+        $code           ='404';
+        $status_text    ='Domain Invalid';
+        $contenttemplate='MauticCoreBundle:Error:domain.html.php';
+        $basetemplate   ='MauticCoreBundle:Default:slim.html.php';
+
         return $this->delegateView(
             [
                 'viewParameters' => [
                     'baseTemplate'   => $basetemplate,
                     'status_code'    => $code,
-                    'status_text'    =>  $status_text,
-                    'exception'      => "",
+                    'status_text'    => $status_text,
+                    'exception'      => '',
                     'logger'         => null,
-                    'currentContent' => "",
+                    'currentContent' => '',
                     'isPublicPage'   => true,
                 ],
                 'contentTemplate' => $contenttemplate,
@@ -485,10 +487,11 @@ class InstallController extends CommonController
                     'error' => [
                         'code'      => $code,
                         'text'      => $status_text,
-                        'exception' =>'',
+                        'exception' => '',
                         'trace'     => '',
                     ],
-                    'route' => $urlParts['path'],
+                    'mauticContent' => 'invalidDomain',
+                    'route'         => $urlParts['path'],
                 ],
                 'responseCode' => $code,
             ]

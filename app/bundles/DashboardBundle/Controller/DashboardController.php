@@ -139,6 +139,14 @@ class DashboardController extends FormController
 
         /** @var \Mautic\SubscriptionBundle\Model\UserPreferenceModel $userprefmodel */
         $userprefmodel  = $this->getModel('subscription.userpreference');
+        if ($videoarg == 'dont_show_again') {
+            $userprefentity = new UserPreference();
+            $userprefentity->setProperty('Dont Show Video again');
+            $userprefentity->setUserid($currentuser->getId());
+            $userprefmodel->saveEntity($userprefentity);
+            //$this->addFlash('Video will be available in Help.');
+            return $this->redirect($this->generateUrl('mautic_dashboard_index'));
+        }
         $userprefrepo   = $userprefmodel->getRepository();
         $userprefentity = $userprefrepo->findOneBy(['userid' => $currentuser->getId()]);
         $videoURL       = ''; //$this->coreParametersHelper->getParameter('video_url');
@@ -148,15 +156,10 @@ class DashboardController extends FormController
             $videoURL = $videoconfig[0]['video_url'];
         }
         $showvideo      = false;
-        if ($userprefentity == null && $loginarg) {
+        if ($userprefentity == null) {
             $showvideo = true;
         }
-        if ($videoarg == 'dont_show_again') {
-            $userprefentity = new UserPreference();
-            $userprefentity->setProperty('Dont Show Video again');
-            $userprefentity->setUserid($currentuser->getId());
-            $userprefmodel->saveEntity($userprefentity);
-        }
+        $ismobile = $this->isMobile();
         if ($showsetup) {
             $billformview = $billform->createView();
             $accformview  = $accform->createView();
@@ -167,17 +170,18 @@ class DashboardController extends FormController
 
         return $this->delegateView([
             'viewParameters' => [
-                'security'            => $this->get('mautic.security'),
-                'widgets'             => $widgets,
-                'dateRangeForm'       => $dateRangeForm->createView(),
-                'notifymessage'       => $this->getLicenseNotifyMessage(),
-                'showvideo'           => $showvideo,
-                'videoURL'            => $videoURL,
-                'route'               => $this->generateUrl('le_plan_index'),
-                'showsetup'           => $showsetup,
-                'billingform'         => $billformview,
-                'accountform'         => $accformview,
-                'userform'            => $userformview,
+                'security'             => $this->get('mautic.security'),
+                'widgets'              => $widgets,
+                'dateRangeForm'        => $dateRangeForm->createView(),
+                'notifymessage'        => $this->getLicenseNotifyMessage(),
+                'showvideo'            => $showvideo,
+                'videoURL'             => $videoURL,
+                'route'                => $this->generateUrl('le_plan_index'),
+                'showsetup'            => $showsetup,
+                'billingform'          => $billformview,
+                'accountform'          => $accformview,
+                'userform'             => $userformview,
+                'isMobile'             => $ismobile,
             ],
             'contentTemplate' => 'MauticDashboardBundle:Dashboard:index.html.php',
             'passthroughVars' => [
@@ -719,5 +723,10 @@ class DashboardController extends FormController
         $countrycode     =$dataArray->{'geoplugin_countryName'};
 
         return $countrycode;
+    }
+
+    public function isMobile()
+    {
+        return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER['HTTP_USER_AGENT']);
     }
 }

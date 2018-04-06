@@ -137,6 +137,22 @@ class BuildJsSubscriber extends CommonSubscriber
 
             m.beforeFirstDeliveryMade = true;
         }
+        if(document.cookie.indexOf("trackingct") > -1){
+            var name = "trackingct=";
+            var value = "";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    value = c.substring(name.length, c.length);
+                }
+            }
+            params['ct'] = value;
+        }
     if(document.cookie.indexOf("IsTrackingEnabled") > -1){
         MauticJS.makeCORSRequest('POST', m.pageTrackingCORSUrl, params,
             function(response) {

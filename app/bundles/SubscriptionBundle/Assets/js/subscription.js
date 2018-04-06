@@ -249,16 +249,17 @@ Mautic.validateKYCForm = function() {
         mQuery('#billing_GST .help-block').html("GST Number can't be empty");
         isvalid = false;
     }
-    if(!mQuery('#conditionAgree').prop('checked')){
-        mQuery('#condition_Agree').removeClass('label_control_error').addClass('label_control_error');
-        isvalid = false;
-    }
+    //if(!mQuery('#conditionAgree').prop('checked')){
+    //    mQuery('#condition_Agree').removeClass('label_control_error').addClass('label_control_error');
+    //    isvalid = false;
+    //}
     if(!mQuery('#spamAgree').prop('checked')){
         mQuery('#spam_Agree').removeClass('label_control_error').addClass("label_control_error");
         isvalid = false;
     }
     return isvalid;
 };
+var timeInterval = 0;
 
 Mautic.SendOTPConnection = function() {
     var firstName = mQuery('#user_firstName').val();
@@ -305,7 +306,7 @@ Mautic.SendOTPConnection = function() {
         if(otp != ""){
             data['otp'] = otp;
         }
-
+        
         mQuery('#kycSubmit .fa-spinner').removeClass('hide');
 
         Mautic.ajaxActionRequest('subscription:updateKYC', data, function (response) {
@@ -320,10 +321,21 @@ Mautic.SendOTPConnection = function() {
                     mQuery('#sms_code').val('');
                     mQuery(".otp_verifications").fadeIn("slow");
                     mQuery(".steps").css("display", "none");
-                    setTimeout(function(){
-                        mQuery('#send_sms').removeAttr('disabled');
-                        mQuery('#send_sms').removeClass('disabled');
-                    }, 2000);
+                    //setTimeout(function(){
+                    //    mQuery('#send_sms').removeAttr('disabled');
+                    //    mQuery('#send_sms').removeClass('disabled');
+                    //}, 90000);
+                    maxLimit = 61;
+                    timeInterval = setInterval(function(){
+                        maxLimit = parseInt(maxLimit) - 1;
+                        mQuery('#send_sms').html('<i class="fa fa-repeat"></i> Resend Code('+maxLimit+')s');
+                        if (maxLimit == 0) {
+                            mQuery('#send_sms').removeClass('disabled').attr('disabled', false);
+                            mQuery('#send_sms').html('<i class="fa fa-repeat"></i> Resend Code');
+                            mQuery('#send_sms').removeClass('disabled');
+                            clearInterval(timeInterval);
+                        }
+                    },1000);
                     var mobile = response.mobile;
                     mQuery('#sms_number').val(mobile);
                     document.cookie = "MobileVerificationOTP=" + otp + "; path=/";
@@ -333,7 +345,7 @@ Mautic.SendOTPConnection = function() {
                     //mQuery(".video_page").css("display","block");
                     mQuery(".video_page").fadeIn("slow");
 
-                }
+                }c
             }
 
         });
@@ -341,6 +353,7 @@ Mautic.SendOTPConnection = function() {
 };
 
 Mautic.LoadKYCDetails = function() {
+    clearInterval(timeInterval);
     mQuery(".otp_verifications").css("display","none");
     ///mQuery(".steps").css("display","block");
     mQuery(".steps").fadeIn("slow");
@@ -350,6 +363,8 @@ Mautic.LoadKYCDetails = function() {
 };
 
 Mautic.reSendOTP = function() {
+    mQuery('#send_sms').attr('disabled');
+    mQuery('#send_sms').addClass('disabled');
     var phonenumber = mQuery('#sms_number').val();
     var otp = Mautic.getCookie('MobileVerificationOTP');
     mQuery(".alertmsg").css("display","none");
@@ -362,6 +377,21 @@ Mautic.reSendOTP = function() {
     Mautic.ajaxActionRequest('subscription:resendOTP', data, function (response) {
         if(response.success){
             mQuery('#send_sms .fa').removeClass('fa-spinner fa-spin').addClass('fa-repeat');
+            //setTimeout(function(){
+            //    mQuery('#send_sms').removeAttr('disabled');
+            //    mQuery('#send_sms').removeClass('disabled');
+            //}, 90000);
+            maxLimit = 61;
+            timeInterval = setInterval(function(){
+                maxLimit = parseInt(maxLimit) - 1;
+                mQuery('#send_sms').html('<i class="fa fa-repeat"></i> Resend Code('+maxLimit+')s');
+                if (maxLimit == 0) {
+                    mQuery('#send_sms').removeClass('disabled').attr('disabled', false);
+                    mQuery('#send_sms').html('<i class="fa fa-repeat"></i> Resend Code');
+                    mQuery('#send_sms').removeClass('disabled');
+                    clearInterval(timeInterval);
+                }
+            },1000);
             var otp = response.otp;
             var mobile = response.mobile;
             document.cookie = "MobileVerificationOTP="+otp+"; path=/";
@@ -384,8 +414,9 @@ Mautic.verifyOTP = function() {
     if(otp != "" && otp == otpcode){
         Mautic.ajaxActionRequest('subscription:OTPVerified', data, function (response) {
             if(response.success){
-                mQuery(".otp_verifications").css("display","none");
-                mQuery(".video_page").fadeIn("slow");
+                //mQuery(".otp_verifications").css("display","none");
+                //mQuery(".video_page").fadeIn("slow");
+                Mautic.RedirectToGivenURL(response.redirecturl);
                 //mQuery(".video_page").css("display","block");
             }
         });

@@ -209,10 +209,13 @@ class AjaxController extends CommonAjaxController
                 $configurator->write();
             }
             if ($companyaddress != '') {
-                $address = $companyname.', '.$companyaddress.', '.$postalcode.', '.$city.', '.$state.', '.$country;
+                $address = $companyname.', '.$companyaddress.', '.$city.', '.$postalcode.'. '.$state.', '.$country.'.';
                 $configurator->mergeParameters(['postal_address' => $address]);
                 $configurator->write();
             }
+            /** @var \Mautic\CoreBundle\Helper\CacheHelper $cacheHelper */
+            $cacheHelper = $this->get('mautic.helper.cache');
+            $cacheHelper->clearContainerFile();
         }
         $signuprepository=$this->get('le.core.repository.signup');
         $signuprepository->updateSignupInfo($data, $data, $data);
@@ -304,7 +307,9 @@ class AjaxController extends CommonAjaxController
         }
         $account->setMobileverified(1);
         $model->saveEntity($account);
-        $dataArray = ['success' => true];
+        $dataArray                = ['success' => true];
+        $url                      = $this->generateUrl('mautic_dashboard_index');
+        $dataArray['redirecturl'] = $url;
 
         return $this->sendJsonResponse($dataArray);
     }

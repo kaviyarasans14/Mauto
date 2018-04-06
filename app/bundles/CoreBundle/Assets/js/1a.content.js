@@ -713,7 +713,9 @@ Mautic.onPageLoad = function (container, response, inModal) {
     if ((response && typeof response.stopPageLoading != 'undefined' && response.stopPageLoading) || container == '#app-content' || container == '.page-list') {
         Mautic.stopPageLoadingBar();
     }
-    Mautic.loadLicenseUsageInfo();
+    if (contentSpecific != "invalidDomain") {
+        Mautic.loadLicenseUsageInfo();
+    }
 };
 
 /**
