@@ -287,7 +287,7 @@ class BuilderSubscriber extends CommonSubscriber
         $event->addToken('{subject}', EmojiHelper::toHtml($event->getSubject()));
 
         $postal_address = $this->coreParametersHelper->getParameter('postal_address');
-        if ($postal_address != '' && $postal_address != '') {
+        if ($postal_address != '') {
             $event->addToken('{postal_address}', EmojiHelper::toHtml($postal_address));
         }
 
@@ -313,7 +313,7 @@ class BuilderSubscriber extends CommonSubscriber
                 $footerText  = str_replace('{from_email}', $fromAddress, $footerText);
             }
             $postal_address = $this->coreParametersHelper->getParameter('postal_address');
-            if ($postal_address != '' && $postal_address != '') {
+            if ($postal_address != '') {
                 $footerText = str_replace('{postal_address}', $postal_address, $footerText);
             }
             $event->addToken('{footer_text}', EmojiHelper::toHtml($footerText));

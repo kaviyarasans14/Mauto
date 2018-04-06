@@ -60,7 +60,7 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
     'langVar'       => 'dashboard',
     'customButtons' => $buttons,
 ]));
-if ($showvideo || $showsetup) {
+if ($showsetup) {
     echo $view->render('MauticSubscriptionBundle:Subscription:kyc.html.php',
         [
             'typePrefix' => 'email',
@@ -70,6 +70,7 @@ if ($showvideo || $showsetup) {
             'videoURL'   => $videoURL,
             'showSetup'  => $showsetup,
             'showVideo'  => $showvideo,
+            'isMobile'   => $isMobile,
         ]);
 }
 ?>

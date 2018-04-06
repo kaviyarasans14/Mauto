@@ -21,6 +21,29 @@ endif;
 
 <?php if (!$modalView): ?>
 <div class="content-body">
+    <?php if ($view['slots']->get('mauticContent', '') == 'dashboard' && $showvideo): ?>
+        <div id="dashboard-widgets" class="dashboard-widgets cards">
+            <div class="card-flex widget" style="width:100%;" role="document">
+                <div class="card" style="height:550px;">
+                    <div class="card-header">
+                        <p style="padding:10px 15px;font-size:16px;">
+                            <?php echo $view['translator']->trans('leadsengage.kyc.video_header'); ?>
+                        </p>
+                        <div class="dropdown">
+                            <a href="javascript: void(0);" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'dont_show_again']); ?>');" class="dont_show_again" ><span><i class="fa fa-eye-slash"></i><span style="padding:4px;"><?php echo $view['translator']->trans('leadsengage.kyc.dont_show'); ?></span></span></a>
+                        </div>
+
+                    </div>
+                    <br>
+                    <div class="card-body" style="margin-left:12%;">
+                        <iframe width="87%" height="450px"
+                                src="<?php echo $videoURL; ?>">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <?php echo $view->render('MauticCoreBundle:Default:pageheader.html.php'); ?>
 	<?php $view['slots']->output('_content'); ?>
 </div>

@@ -21,10 +21,21 @@ if ($showSetup && $showVideo) {
     $style     = 'width:80%;display:block';
     $videostyle='width:55%;display:none';
 }
+
+$buttonstyle = '';
+$popupstyle  = '';
+$spinstyle   = '';
+$exitstyle   = '';
+if ($isMobile) {
+    $buttonstyle = 'margin-right:30%;margin-top:10%;';
+    $popupstyle  = 'overflow-y:auto;margin-left:10%;';
+    $spinstyle   = 'margin-top:18%;margin-right:5%;';
+    $exitstyle   = 'margin-left:15%;';
+}
 ?>
 <div class="type-modal-backdrop" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #000000; opacity: 0.9; z-index: 1500"></div>
 
-<div class="modal fade in " style="display: block;z-index: 1500;">
+<div class="modal fade in kyc" style="display: block;z-index: 1500; <?php echo $popupstyle; ?>">
     <div class="modal-dialog steps" style="<?php echo $style; ?>" role="document">
         <?php if ($showSetup): ?>
         <form class="form-group login-form" name="terms_condition" data-toggle="ajax" role="form" onsubmit="return Mautic.SendOTPConnection();" method="post">
@@ -131,7 +142,7 @@ if ($showSetup && $showVideo) {
                         </div>
                     </div>
                         <br>
-                        <div class="col-md-12" id="condition_Agree">
+                        <div class="col-md-12" id="condition_Agree" style="display:none;">
                             <label class="control control-checkbox">
                             <?php echo $view['translator']->trans('le.kyc.conditionAgree'); ?>
                             <input type="checkbox" id="conditionAgree" name="kycinfo[leadsengage_conditionsagree]"/>
@@ -155,10 +166,10 @@ if ($showSetup && $showVideo) {
                         <br>
                         <div class="modal-footer">
                             <div class="button_container" id="kycSubmit">
-                                <a class="signup_next exit_logout" style="padding:12px;" href="<?php echo $view['router']->path('mautic_user_logout'); ?>" class="exitlogout" ><span aria-hidden="true">Exit and Logout</span></a>
-                                <button class="signup_next" type="submit" value="Next"><?php echo $view['translator']->trans('leadsengage.kyc.submit'); ?></button>
+                                <a class="signup_next exit_logout" style="padding:12px;float:left;<?php echo $exitstyle; ?>" href="<?php echo $view['router']->path('mautic_user_logout'); ?>" class="exitlogout" ><span aria-hidden="true">Exit and Logout</span></a>
+                                <button class="signup_next" type="submit" style="float:right;<?php echo $buttonstyle; ?>" value="Next"><?php echo $view['translator']->trans('leadsengage.kyc.submit'); ?></button>
 
-                            <span class="fa fa-spinner fa-spin hide"></span>
+                                <span class="fa fa-spinner fa-spin hide" style="padding:15px;<?php echo $spinstyle; ?>"></span>
                             </div>
                         </div>
                     </div>
@@ -225,7 +236,7 @@ if ($showSetup && $showVideo) {
 
                 <div class="modal-footer">
                     <a id="otpBack" onclick="Mautic.LoadKYCDetails();" type="submit" class="btn btn-primary">Back</a>
-                    <a id="send_sms" onclick="Mautic.reSendOTP();" type="button" data-ng-click="send_sms()" class="btn btn-default disabled" disabled="true"><i class="fa fa-repeat"></i> Resend code</a>
+                    <a id="send_sms" onclick="Mautic.reSendOTP();" type="submit" class="btn btn-default disabled resendsms" disabled="true"><i class="fa fa-repeat"></i> Resend code</a>
                     <a id="verify" onclick="Mautic.verifyOTP()" type="submit" class="btn btn-primary">Validate</a>
                 </div>
 
