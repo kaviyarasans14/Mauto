@@ -116,7 +116,7 @@
             return editor.opts.tokenDefaultSelection;
         },
         displaySelectionWidth: 120,
-        title: 'Insert token',
+        title: 'Insert Token',
         callback: function (cmd, val) {
             this.token.apply(val);
         },
