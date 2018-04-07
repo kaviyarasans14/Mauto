@@ -130,7 +130,7 @@ class AccountType extends AbstractType
 
         $builder->add(
             'phonenumber',
-            'text',
+            'number',
             [
                 'label'       => 'leadsengage.subs.accountmobile',
                 'label_attr'  => ['class' => 'control-label required'],
