@@ -139,4 +139,23 @@ class SignupRepository
                 ->execute();
         }
     }
+
+    public function updateCustomerStatus($status, $stage, $email)
+    {
+        $qb       = $this->getConnection()->createQueryBuilder();
+        $recordid = $this->checkisRecordAvailable($email);
+        if (!$recordid) {
+        } else {
+            $qb->update(MAUTIC_TABLE_PREFIX.'leads')
+                ->set('lead_status', ':status')
+                ->set('lead_stage', ':stage')
+                ->setParameter('status', $status)
+                ->setParameter('stage', $stage)
+                ->where(
+                    $qb->expr()->in('id', $recordid)
+                )
+                ->execute();
+        }
+        file_put_contents('/var/www/log.txt', $qb."\n", FILE_APPEND);
+    }
 }

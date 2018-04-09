@@ -244,11 +244,11 @@ Mautic.validateKYCForm = function() {
         mQuery('#account_timezone .help-block').html("Timezone can't be empty");
         isvalid = false;
     }
-    if((mQuery('#billinginfo_gstnumber').css('display') !== 'none') && gstnumber == ""){
-        mQuery('#billing_GST').removeClass('has-success has-error').addClass(theClass);
-        mQuery('#billing_GST .help-block').html("GST Number can't be empty");
-        isvalid = false;
-    }
+    //if((mQuery('#billinginfo_gstnumber').css('display') !== 'none') && gstnumber == ""){
+    //    mQuery('#billing_GST').removeClass('has-success has-error').addClass(theClass);
+    //    mQuery('#billing_GST .help-block').html("GST Number can't be empty");
+    //    isvalid = false;
+    //}
     //if(!mQuery('#conditionAgree').prop('checked')){
     //    mQuery('#condition_Agree').removeClass('label_control_error').addClass('label_control_error');
     //    isvalid = false;
@@ -341,11 +341,12 @@ Mautic.SendOTPConnection = function() {
                     document.cookie = "MobileVerificationOTP=" + otp + "; path=/";
                     mQuery('#kyc_otpverification').html('A code was just sent to your mobile phone : <b>' + mobile + '</b>')
                 } else {
-                    mQuery(".steps").css("display","none");
+                    Mautic.RedirectToGivenURL(response.redirecturl);
+                    //mQuery(".steps").css("display","none");
                     //mQuery(".video_page").css("display","block");
-                    mQuery(".video_page").fadeIn("slow");
+                    //mQuery(".video_page").fadeIn("slow");
 
-                }c
+                }
             }
 
         });

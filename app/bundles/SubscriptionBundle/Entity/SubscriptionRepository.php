@@ -129,6 +129,18 @@ class SubscriptionRepository
                 $this->licenseinforepo->saveEntity($licentity);
             }
         }
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
+        $accrepo       = $model->getRepository();
+        $accountentity = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0]; //$model->getEntity(1);
+            $email   = $account->getEmail();
+            if ($email != '') {
+                $signuprepository = $this->get('le.core.repository.signup');
+                $signuprepository->updateCustomerStatus('Active', 'Customer', $email);
+            }
+        }
     }
 
     public function getPlanValidity($plankey)

@@ -5026,7 +5026,7 @@ figcaption {
   right: 10px;
   color:#FFFFFF;
   font-weight:bold;
-  padding: 5px 10px 5px 10px;
+
 }
 .close_button {
   position:relative;
@@ -5055,4 +5055,8 @@ figcaption {
 }
 #otpBack{
   float:left;
+}
+.btn.btn-primary.send-btn{
+  border-radius: 0px;
+  border-radius: 3px;
 }

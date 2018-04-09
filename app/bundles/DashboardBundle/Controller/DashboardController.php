@@ -136,6 +136,12 @@ class DashboardController extends FormController
 
         $usermodel  =$this->getModel('user.user');
         $currentuser= $usermodel->getCurrentUserEntity();
+        if ($videoarg == 'CloseVideo') {
+            $loginsession->set('CloseVideo', true);
+
+            return $this->redirect($this->generateUrl('mautic_dashboard_index'));
+        }
+        $close     = $loginsession->get('CloseVideo');
 
         /** @var \Mautic\SubscriptionBundle\Model\UserPreferenceModel $userprefmodel */
         $userprefmodel  = $this->getModel('subscription.userpreference');
@@ -156,7 +162,7 @@ class DashboardController extends FormController
             $videoURL = $videoconfig[0]['video_url'];
         }
         $showvideo      = false;
-        if ($userprefentity == null) {
+        if ($userprefentity == null && $close == '') {
             $showvideo = true;
         }
         $ismobile = $this->isMobile();

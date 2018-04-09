@@ -26,11 +26,22 @@ endif;
             <div class="card-flex widget" style="width:100%;" role="document">
                 <div class="card" style="height:550px;">
                     <div class="card-header">
+                        <a href="javascript: void(0);" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'CloseVideo']); ?>');" class="dont_show_again close_button" style="padding: 8px 10px 8px 10px;margin-top:0.6%;"><span><i class="fa fa-close"></i><span style="padding:4px;">Close</span></span></a>
                         <p style="padding:10px 15px;font-size:16px;">
                             <?php echo $view['translator']->trans('leadsengage.kyc.video_header'); ?>
                         </p>
-                        <div class="dropdown">
-                            <a href="javascript: void(0);" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'dont_show_again']); ?>');" class="dont_show_again" ><span><i class="fa fa-eye-slash"></i><span style="padding:4px;"><?php echo $view['translator']->trans('leadsengage.kyc.dont_show'); ?></span></span></a>
+                        <div class="dropdown" style="margin-right: 7%;">
+                            <span class="dont_show_again">
+                                <?php echo $view->render('MauticCoreBundle:Helper:confirm.html.php', [
+                                    'message'         => $view['translator']->trans('le.video.confirm.message'),
+                                    'iconClass'       => 'fa fa-eye-slash',
+                                    'confirmText'     => $view['translator']->trans('leadsengage.kyc.dont_show'),
+                                    'confirmAction'   => $view['router']->path('mautic_dashboard_index', ['login' => 'dont_show_again']),
+                                    'btnText'         => $view['translator']->trans('leadsengage.kyc.dont_show'),
+                                    'btnClass'        => 'btn btn-primary btn-send',
+                                ]);
+                                ?>
+                            </span>
                         </div>
 
                     </div>

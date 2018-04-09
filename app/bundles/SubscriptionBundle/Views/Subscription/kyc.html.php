@@ -166,7 +166,7 @@ if ($isMobile) {
                         <br>
                         <div class="modal-footer">
                             <div class="button_container" id="kycSubmit">
-                                <a class="signup_next exit_logout" style="padding:12px;float:left;<?php echo $exitstyle; ?>" href="<?php echo $view['router']->path('mautic_user_logout'); ?>" class="exitlogout" ><span aria-hidden="true">Exit and Logout</span></a>
+                                <a class="signup_next exit_logout" style="padding:12px;float:left;<?php echo $exitstyle; ?>" href="<?php echo $view['router']->path('mautic_user_logout'); ?>" class="exitlogout" ><span aria-hidden="true"><?php echo $view['translator']->trans('mautic.core.form.cancel'); ?></span></a>
                                 <button class="signup_next" type="submit" style="float:right;<?php echo $buttonstyle; ?>" value="Next"><?php echo $view['translator']->trans('leadsengage.kyc.submit'); ?></button>
 
                                 <span class="fa fa-spinner fa-spin hide" style="padding:15px;<?php echo $spinstyle; ?>"></span>

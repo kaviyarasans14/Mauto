@@ -231,7 +231,7 @@ class AjaxController extends CommonAjaxController
         $otpsend        = false;
         $otp            = '';
         $smsconfig      = $repository->getSMSConfig();
-        if (!empty($smsconfig) && $country == 'India') {
+        if (!empty($smsconfig) && $country == '') {
             $url      = $smsconfig[0]['url'];
             $username = $smsconfig[0]['username'];
             $password = $smsconfig[0]['password'];
@@ -255,10 +255,16 @@ class AjaxController extends CommonAjaxController
             $account->setMobileverified(1);
             $model->saveEntity($account);
         }
-        $dataArray            = ['success' => true];
-        $dataArray['otp']     = $otp;
-        $dataArray['otpsend'] = $otpsend;
-        $dataArray['mobile']  = $phonenumber;
+        if ($email != '') {
+            $signuprepository = $this->get('le.core.repository.signup');
+            $signuprepository->updateCustomerStatus('Active', 'Trial', $email);
+        }
+        $dataArray                = ['success' => true];
+        $dataArray['otp']         = $otp;
+        $dataArray['otpsend']     = $otpsend;
+        $dataArray['mobile']      = $phonenumber;
+        $url                      = $this->generateUrl('mautic_dashboard_index');
+        $dataArray['redirecturl'] = $url;
 
         return $this->sendJsonResponse($dataArray);
     }
@@ -297,7 +303,6 @@ class AjaxController extends CommonAjaxController
     {
         $loginsession = $this->get('session');
         $loginsession->set('isLogin', false);
-        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $billingmodel */
         /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
         $model         = $this->getModel('subscription.accountinfo');
         $accrepo       = $model->getRepository();
@@ -307,6 +312,11 @@ class AjaxController extends CommonAjaxController
         }
         $account->setMobileverified(1);
         $model->saveEntity($account);
+        $email = $account->getEmail();
+        if ($email != '') {
+            $signuprepository = $this->get('le.core.repository.signup');
+            $signuprepository->updateCustomerStatus('Active', 'Trial', $email);
+        }
         $dataArray                = ['success' => true];
         $url                      = $this->generateUrl('mautic_dashboard_index');
         $dataArray['redirecturl'] = $url;
