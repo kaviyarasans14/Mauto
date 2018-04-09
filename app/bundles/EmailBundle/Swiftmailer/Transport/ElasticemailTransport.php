@@ -71,6 +71,7 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
             $message->getHeaders()->addTextHeader('IsTransactional', 'True');
         }
         $bodyContent=$this->alterElasticEmailBodyContent($message->getBody());
+        $message->setSender(['mailer@leadsengage.net'=>'LeadsEngage Mailer']);
         $message->setBody($bodyContent);
         parent::send($message, $failedRecipients);
     }
