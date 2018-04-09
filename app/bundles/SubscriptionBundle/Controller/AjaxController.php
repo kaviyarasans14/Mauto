@@ -217,6 +217,7 @@ class AjaxController extends CommonAjaxController
             $cacheHelper = $this->get('mautic.helper.cache');
             $cacheHelper->clearContainerFile();
         }
+
         $signuprepository=$this->get('le.core.repository.signup');
         $signuprepository->updateSignupInfo($data, $data, $data);
         $model->saveEntity($account);
