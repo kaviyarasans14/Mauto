@@ -196,11 +196,12 @@
                           bee = beePluginInstance;
                           var themejson = mQuery('textarea.bee-editor-json').val();
                           if(themejson != null && themejson != ""){
-                            // save('template1.json', themejson);
-                            //  try {
+                         //   save('template1.json', themejson);
+                             // try {
+                                  themejson=themejson.trim();
                                   bee.start(mQuery.parseJSON(themejson));
-                            //  } catch(e) {
-                                  //alert(e); // error in the above string (in this case, yes)!
+                            // } catch(e) {
+                              //    alert(e); // error in the above string (in this case, yes)!
                              // }
 
                           }else{

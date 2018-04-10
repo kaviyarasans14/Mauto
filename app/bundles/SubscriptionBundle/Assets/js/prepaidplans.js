@@ -119,11 +119,12 @@ Mautic.invokeRazorPay_Prepaid = function(response,plankey,planname,totalamount) 
     var useremail=response.useremail;
     var usermobile=response.usermobile;
     var captureamount=(totalamount * 100); // convert to paise
+    var orderid=response.orderid;
     var options = {
         "key": apikey,
         "amount": captureamount,
         "name": planname,
-        "description": "Order ID:"+response.orderid,
+        "description": "Order ID:"+orderid,
         "image": "https://s3.amazonaws.com/leadsroll.com/Razer-Pay-Icon.png",
         "handler": function (response){
             Mautic.activateBackdrop();
@@ -152,7 +153,8 @@ Mautic.invokeRazorPay_Prepaid = function(response,plankey,planname,totalamount) 
         },
         "modal": {
             "ondismiss":  function (response){
-              //  alert("onDismiss Calling....");
+                Mautic.ajaxActionRequest('subscription:cancelpayment', {orderid: orderid}, function(response) {
+                });
             }
         }
     };

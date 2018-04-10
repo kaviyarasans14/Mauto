@@ -4,6 +4,7 @@ namespace Mautic\SubscriptionBundle\Entity;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\Entity\LicenseInfoRepository;
+use Mautic\SubscriptionBundle\Model\AccountInfoModel;
 
 class SubscriptionRepository
 {
@@ -17,12 +18,24 @@ class SubscriptionRepository
     private $licenseinforepo;
 
     /**
+     * @var SignupRepository
+     */
+    private $signuprepo;
+
+    /**
+     * @var AccountInfoModel
+     */
+    private $accmodel;
+
+    /**
      * @param EntityManager $entityManager
      */
-    public function __construct(EntityManager $commondbentityManager, LicenseInfoRepository $licenseinforepo)
+    public function __construct(EntityManager $commondbentityManager, LicenseInfoRepository $licenseinforepo, SignupRepository $signuprepo, AccountInfoModel $accmodel)
     {
         $this->commondbentityManager = $commondbentityManager;
         $this->licenseinforepo       =$licenseinforepo;
+        $this->signuprepo            =$signuprepo;
+        $this->accmodel              =$accmodel;
     }
 
     /**
@@ -129,16 +142,13 @@ class SubscriptionRepository
                 $this->licenseinforepo->saveEntity($licentity);
             }
         }
-        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
-        $model         = $this->getModel('subscription.accountinfo');
-        $accrepo       = $model->getRepository();
+        $accrepo       = $this->accmodel->getRepository();
         $accountentity = $accrepo->findAll();
         if (sizeof($accountentity) > 0) {
             $account = $accountentity[0]; //$model->getEntity(1);
             $email   = $account->getEmail();
             if ($email != '') {
-                $signuprepository = $this->get('le.core.repository.signup');
-                $signuprepository->updateCustomerStatus('Active', 'Customer', $email);
+                $this->signuprepo->updateCustomerStatus('Active', 'Customer', $email);
             }
         }
     }

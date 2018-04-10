@@ -11,9 +11,9 @@
 
 namespace Mautic\SubscriptionBundle\Controller;
 
+use Mautic\CoreBundle\Controller\FormController;
 use Mautic\SubscriptionBundle\Entity\Account;
 use Mautic\SubscriptionBundle\Entity\Billing;
-use Mautic\CoreBundle\Controller\FormController;
 
 /**
  * Class AccountController.
@@ -175,15 +175,15 @@ class AccountController extends FormController
         $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
         $paymentrepository  =$this->get('le.subscription.repository.payment');
         $paymentalias       =$paymentrepository->getTableAlias();
-//        $filter = [
-//            'force'  => [
-//                ['column' => $paymentalias.'.orderid', 'expr' => 'eq', 'value' => $orderid],
-//            ],
-//        ];
+        $filter             = [
+            'force'  => [
+                ['column' => $paymentalias.'.paymentstatus', 'expr' => 'neq', 'value' => 'Initiated'],
+            ],
+        ];
         $args= [
-         //   'filter'         => $filter,
+            'filter'         => $filter,
             'orderBy'        => $paymentalias.'.id',
-            'orderByDir'     => 'ASC',
+            'orderByDir'     => 'DESC',
          //   'ignore_paginator' => true,
         ];
         $payments=$paymentrepository->getEntities($args);

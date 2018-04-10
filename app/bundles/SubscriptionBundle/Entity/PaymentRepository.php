@@ -27,4 +27,15 @@ class PaymentRepository extends CommonRepository
     {
         return 'ph';
     }
+
+    public function updatePaymentStatus($orderid, $paymentid, $status)
+    {
+        $paymenthistory     = $this->findBy(['orderid' => $orderid]);
+        if (count($paymenthistory) > 0) {
+            $payment=$paymenthistory[0];
+            $payment->setPaymentID($paymentid);
+            $payment->setPaymentStatus($status);
+            $this->saveEntity($payment);
+        }
+    }
 }

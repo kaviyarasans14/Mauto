@@ -89,7 +89,7 @@ return [
             'le.core.repository.subscription' => [
                 'class'     => 'Mautic\SubscriptionBundle\Entity\SubscriptionRepository',
                 'arguments' => [
-                    'doctrine.orm.commondb_entity_manager', 'mautic.email.repository.licenseinfo',
+                    'doctrine.orm.commondb_entity_manager', 'mautic.email.repository.licenseinfo', 'le.core.repository.signup', 'mautic.subscription.model.accountinfo',
                 ],
             ],
             'le.core.repository.signup' => [
