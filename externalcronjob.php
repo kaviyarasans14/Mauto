@@ -105,12 +105,13 @@ try {
         for ($di=0; $di < sizeof($domainlist); ++$di) {
             $domain      =$domainlist[$di][0];
             $currentdate = date('Y-m-d');
-            $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and createdtime like '$currentdate%'";
+            $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and operation = '$operation' and createdtime like '$currentdate%'";
             $errorinfo   = getResultArray($con, $sql);
             if ($errorinfo[0][0] > 5) {
                 displayCronlog('general', "This operation ($operation) for ($domain) is failing repeatedly.");
                 continue;
             }
+            echo $domain."\n";
             $command="php app/console $arguments --domain=$domain";
             displayCronlog($domain, 'Command Invoked:'.$command);
             $output = shell_exec($command);
