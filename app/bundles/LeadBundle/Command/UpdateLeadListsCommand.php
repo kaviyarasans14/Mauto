@@ -40,57 +40,63 @@ class UpdateLeadListsCommand extends ModeratedCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container  = $this->getContainer();
-        $translator = $container->get('translator');
+        try {
+            $container  = $this->getContainer();
+            $translator = $container->get('translator');
 
-        /** @var \Mautic\LeadBundle\Model\ListModel $listModel */
-        $listModel = $container->get('mautic.lead.model.list');
+            /** @var \Mautic\LeadBundle\Model\ListModel $listModel */
+            $listModel = $container->get('mautic.lead.model.list');
 
-        $id    = $input->getOption('list-id');
-        $batch = $input->getOption('batch-limit');
-        $max   = $input->getOption('max-contacts');
+            $id    = $input->getOption('list-id');
+            $batch = $input->getOption('batch-limit');
+            $max   = $input->getOption('max-contacts');
 
-        if (!$this->checkRunStatus($input, $output, $id)) {
-            return 0;
-        }
+            if (!$this->checkRunStatus($input, $output, $id)) {
+                return 0;
+            }
 
-        if ($id) {
-            $list = $listModel->getEntity($id);
-            if ($list !== null) {
-                $output->writeln('<info>'.$translator->trans('mautic.lead.list.rebuild.rebuilding', ['%id%' => $id]).'</info>');
-                $processed = $listModel->rebuildListLeads($list, $batch, $max, $output);
-                $output->writeln(
+            if ($id) {
+                $list = $listModel->getEntity($id);
+                if ($list !== null) {
+                    $output->writeln('<info>'.$translator->trans('mautic.lead.list.rebuild.rebuilding', ['%id%' => $id]).'</info>');
+                    $processed = $listModel->rebuildListLeads($list, $batch, $max, $output);
+                    $output->writeln(
                     '<comment>'.$translator->trans('mautic.lead.list.rebuild.leads_affected', ['%leads%' => $processed]).'</comment>'
                 );
+                } else {
+                    $output->writeln('<error>'.$translator->trans('mautic.lead.list.rebuild.not_found', ['%id%' => $id]).'</error>');
+                }
             } else {
-                $output->writeln('<error>'.$translator->trans('mautic.lead.list.rebuild.not_found', ['%id%' => $id]).'</error>');
-            }
-        } else {
-            $lists = $listModel->getEntities(
+                $lists = $listModel->getEntities(
                 [
                     'iterator_mode' => true,
                 ]
             );
 
-            while (($l = $lists->next()) !== false) {
-                // Get first item; using reset as the key will be the ID and not 0
-                $l = reset($l);
+                while (($l = $lists->next()) !== false) {
+                    // Get first item; using reset as the key will be the ID and not 0
+                    $l = reset($l);
 
-                $output->writeln('<info>'.$translator->trans('mautic.lead.list.rebuild.rebuilding', ['%id%' => $l->getId()]).'</info>');
+                    $output->writeln('<info>'.$translator->trans('mautic.lead.list.rebuild.rebuilding', ['%id%' => $l->getId()]).'</info>');
 
-                $processed = $listModel->rebuildListLeads($l, $batch, $max, $output);
-                $output->writeln(
+                    $processed = $listModel->rebuildListLeads($l, $batch, $max, $output);
+                    $output->writeln(
                     '<comment>'.$translator->trans('mautic.lead.list.rebuild.leads_affected', ['%leads%' => $processed]).'</comment>'."\n"
                 );
 
-                unset($l);
+                    unset($l);
+                }
+
+                unset($lists);
             }
 
-            unset($lists);
+            $this->completeRun();
+
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
         }
-
-        $this->completeRun();
-
-        return 0;
     }
 }

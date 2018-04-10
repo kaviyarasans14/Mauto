@@ -40,61 +40,67 @@ class UpdateLeadCampaignsCommand extends ModeratedCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container  = $this->getContainer();
-        $translator = $container->get('translator');
-        $em         = $container->get('doctrine')->getManager();
+        try {
+            $container  = $this->getContainer();
+            $translator = $container->get('translator');
+            $em         = $container->get('doctrine')->getManager();
 
-        /** @var \Mautic\CampaignBundle\Model\CampaignModel $campaignModel */
-        $campaignModel = $container->get('mautic.campaign.model.campaign');
+            /** @var \Mautic\CampaignBundle\Model\CampaignModel $campaignModel */
+            $campaignModel = $container->get('mautic.campaign.model.campaign');
 
-        $id    = $input->getOption('campaign-id');
-        $batch = $input->getOption('batch-limit');
-        $max   = $input->getOption('max-contacts');
+            $id    = $input->getOption('campaign-id');
+            $batch = $input->getOption('batch-limit');
+            $max   = $input->getOption('max-contacts');
 
-        if (!$this->checkRunStatus($input, $output, $id)) {
-            return 0;
-        }
+            if (!$this->checkRunStatus($input, $output, $id)) {
+                return 0;
+            }
 
-        if ($id) {
-            $campaign = $campaignModel->getEntity($id);
-            if ($campaign !== null) {
-                $output->writeln('<info>'.$translator->trans('mautic.campaign.rebuild.rebuilding', ['%id%' => $id]).'</info>');
-                $processed = $campaignModel->rebuildCampaignLeads($campaign, $batch, $max, $output);
-                $output->writeln(
+            if ($id) {
+                $campaign = $campaignModel->getEntity($id);
+                if ($campaign !== null) {
+                    $output->writeln('<info>'.$translator->trans('mautic.campaign.rebuild.rebuilding', ['%id%' => $id]).'</info>');
+                    $processed = $campaignModel->rebuildCampaignLeads($campaign, $batch, $max, $output);
+                    $output->writeln(
                     '<comment>'.$translator->trans('mautic.campaign.rebuild.leads_affected', ['%leads%' => $processed]).'</comment>'."\n"
                 );
+                } else {
+                    $output->writeln('<error>'.$translator->trans('mautic.campaign.rebuild.not_found', ['%id%' => $id]).'</error>');
+                }
             } else {
-                $output->writeln('<error>'.$translator->trans('mautic.campaign.rebuild.not_found', ['%id%' => $id]).'</error>');
-            }
-        } else {
-            $campaigns = $campaignModel->getEntities(
+                $campaigns = $campaignModel->getEntities(
                 [
                     'iterator_mode' => true,
                 ]
             );
 
-            while (($c = $campaigns->next()) !== false) {
-                // Get first item; using reset as the key will be the ID and not 0
-                $c = reset($c);
+                while (($c = $campaigns->next()) !== false) {
+                    // Get first item; using reset as the key will be the ID and not 0
+                    $c = reset($c);
 
-                if ($c->isPublished()) {
-                    $output->writeln('<info>'.$translator->trans('mautic.campaign.rebuild.rebuilding', ['%id%' => $c->getId()]).'</info>');
+                    if ($c->isPublished()) {
+                        $output->writeln('<info>'.$translator->trans('mautic.campaign.rebuild.rebuilding', ['%id%' => $c->getId()]).'</info>');
 
-                    $processed = $campaignModel->rebuildCampaignLeads($c, $batch, $max, $output);
-                    $output->writeln(
+                        $processed = $campaignModel->rebuildCampaignLeads($c, $batch, $max, $output);
+                        $output->writeln(
                         '<comment>'.$translator->trans('mautic.campaign.rebuild.leads_affected', ['%leads%' => $processed]).'</comment>'."\n"
                     );
+                    }
+
+                    $em->detach($c);
+                    unset($c);
                 }
 
-                $em->detach($c);
-                unset($c);
+                unset($campaigns);
             }
 
-            unset($campaigns);
+            $this->completeRun();
+
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
         }
-
-        $this->completeRun();
-
-        return 0;
     }
 }

@@ -46,37 +46,38 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $start = microtime(true);
+        try {
+            $start = microtime(true);
 
-        /** @var \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator */
-        $translator = $this->getContainer()->get('translator');
+            /** @var \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator */
+            $translator = $this->getContainer()->get('translator');
 
-        /** @var \Mautic\LeadBundle\Model\ImportModel $model */
-        $model = $this->getContainer()->get('mautic.lead.model.import');
+            /** @var \Mautic\LeadBundle\Model\ImportModel $model */
+            $model = $this->getContainer()->get('mautic.lead.model.import');
 
-        $progress = new Progress($output);
-        $id       = (int) $input->getOption('id');
-        $limit    = (int) $input->getOption('limit');
+            $progress = new Progress($output);
+            $id       = (int) $input->getOption('id');
+            $limit    = (int) $input->getOption('limit');
 
-        if ($id) {
-            $import = $model->getEntity($id);
+            if ($id) {
+                $import = $model->getEntity($id);
 
-            // This specific import was not found
-            if (!$import) {
-                $output->writeln('<error>'.$translator->trans('mautic.core.error.notfound', [], 'flashes').'</error>');
+                // This specific import was not found
+                if (!$import) {
+                    $output->writeln('<error>'.$translator->trans('mautic.core.error.notfound', [], 'flashes').'</error>');
 
-                return 1;
+                    return 1;
+                }
+            } else {
+                $import = $model->getImportToProcess();
+
+                // No import waiting in the queue. Finish silently.
+                if ($import === null) {
+                    return 0;
+                }
             }
-        } else {
-            $import = $model->getImportToProcess();
 
-            // No import waiting in the queue. Finish silently.
-            if ($import === null) {
-                return 0;
-            }
-        }
-
-        $output->writeln('<info>'.$translator->trans(
+            $output->writeln('<info>'.$translator->trans(
                 'mautic.lead.import.is.starting',
                 [
                     '%id%'    => $import->getId(),
@@ -84,32 +85,32 @@ EOT
                 ]
             ).'</info>');
 
-        $success = $model->startImport($import, $progress, $limit);
+            $success = $model->startImport($import, $progress, $limit);
 
-        // Import was delayed
-        if ($import->getStatus() === $import::DELAYED) {
-            $output->writeln('<info>'.$translator->trans(
+            // Import was delayed
+            if ($import->getStatus() === $import::DELAYED) {
+                $output->writeln('<info>'.$translator->trans(
                     'mautic.lead.import.delayed',
                     [
                         '%reason%' => $import->getStatusInfo(),
                     ]
                 ).'</info>');
-        }
+            }
 
-        // Import failed
-        if (!$success) {
-            $output->writeln('<error>'.$translator->trans(
+            // Import failed
+            if (!$success) {
+                $output->writeln('<error>'.$translator->trans(
                     'mautic.lead.import.failed',
                     [
                         '%reason%' => $import->getStatusInfo(),
                     ]
                 ).'</error>');
 
-            return 1;
-        }
+                return 1;
+            }
 
-        // Success
-        $output->writeln('<info>'.$translator->trans(
+            // Success
+            $output->writeln('<info>'.$translator->trans(
                 'mautic.lead.import.result',
                 [
                     '%lines%'   => $import->getProcessedRows(),
@@ -120,6 +121,11 @@ EOT
                 ]
             ).'</info>');
 
-        return 0;
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
+        }
     }
 }

@@ -79,18 +79,24 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $limit     = $input->getOption('message-limit');
-        $mailboxes = $this->parametersHelper->getParameter('monitored_email');
-        unset($mailboxes['general']);
-        $mailboxes = array_keys($mailboxes);
+        try {
+            $limit     = $input->getOption('message-limit');
+            $mailboxes = $this->parametersHelper->getParameter('monitored_email');
+            unset($mailboxes['general']);
+            $mailboxes = array_keys($mailboxes);
 
-        $this->fetcher->setMailboxes($mailboxes)
+            $this->fetcher->setMailboxes($mailboxes)
             ->fetch($limit);
 
-        foreach ($this->fetcher->getLog() as $log) {
-            $output->writeln($log);
-        }
+            foreach ($this->fetcher->getLog() as $log) {
+                $output->writeln($log);
+            }
 
-        return 0;
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
+        }
     }
 }

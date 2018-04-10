@@ -49,7 +49,6 @@ class ExportSchedulerCommand extends Command
             ->setDescription('Processes scheduler for report\'s export')
             ->addOption('--report', 'report', InputOption::VALUE_OPTIONAL, 'ID of report. Process all reports if not set.')
             ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '');
-
     }
 
     /**
@@ -57,24 +56,30 @@ class ExportSchedulerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $report = $input->getOption('report');
-
         try {
-            $exportOption = new ExportOption($report);
-        } catch (\InvalidArgumentException $e) {
-            $output->writeln('<error>'.$this->translator->trans('mautic.report.schedule.command.invalid_parameter').'</error>');
+            $report = $input->getOption('report');
 
-            return;
-        }
+            try {
+                $exportOption = new ExportOption($report);
+            } catch (\InvalidArgumentException $e) {
+                $output->writeln('<error>'.$this->translator->trans('mautic.report.schedule.command.invalid_parameter').'</error>');
 
-        try {
-            $this->reportExporter->processExport($exportOption);
+                return;
+            }
 
-            $output->writeln('<info>'.$this->translator->trans('mautic.report.schedule.command.finished').'</info>');
-        } catch (FileIOException $e) {
-            $output->writeln('<error>'.$e->getMessage().'</error>');
+            try {
+                $this->reportExporter->processExport($exportOption);
 
-            return;
+                $output->writeln('<info>'.$this->translator->trans('mautic.report.schedule.command.finished').'</info>');
+            } catch (FileIOException $e) {
+                $output->writeln('<error>'.$e->getMessage().'</error>');
+
+                return;
+            }
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
         }
     }
 }

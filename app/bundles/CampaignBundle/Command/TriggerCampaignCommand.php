@@ -65,134 +65,140 @@ class TriggerCampaignCommand extends ModeratedCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->getContainer();
+        try {
+            $container = $this->getContainer();
 
-        /** @var \Mautic\CampaignBundle\Model\EventModel $model */
-        $model = $container->get('mautic.campaign.model.event');
-        /** @var \Mautic\CampaignBundle\Model\CampaignModel $campaignModel */
-        $campaignModel    = $container->get('mautic.campaign.model.campaign');
-        $this->dispatcher = $container->get('event_dispatcher');
-        $translator       = $container->get('translator');
-        $em               = $container->get('doctrine')->getManager();
-        $id               = $input->getOption('campaign-id');
-        $scheduleOnly     = $input->getOption('scheduled-only');
-        $negativeOnly     = $input->getOption('negative-only');
-        $batch            = $input->getOption('batch-limit');
-        $max              = $input->getOption('max-events');
+            /** @var \Mautic\CampaignBundle\Model\EventModel $model */
+            $model = $container->get('mautic.campaign.model.event');
+            /** @var \Mautic\CampaignBundle\Model\CampaignModel $campaignModel */
+            $campaignModel    = $container->get('mautic.campaign.model.campaign');
+            $this->dispatcher = $container->get('event_dispatcher');
+            $translator       = $container->get('translator');
+            $em               = $container->get('doctrine')->getManager();
+            $id               = $input->getOption('campaign-id');
+            $scheduleOnly     = $input->getOption('scheduled-only');
+            $negativeOnly     = $input->getOption('negative-only');
+            $batch            = $input->getOption('batch-limit');
+            $max              = $input->getOption('max-events');
 
-        if (!$this->checkRunStatus($input, $output, $id)) {
-            return 0;
-        }
+            if (!$this->checkRunStatus($input, $output, $id)) {
+                return 0;
+            }
 
-        if ($id) {
-            /** @var \Mautic\CampaignBundle\Entity\Campaign $campaign */
-            $campaign = $campaignModel->getEntity($id);
+            if ($id) {
+                /** @var \Mautic\CampaignBundle\Entity\Campaign $campaign */
+                $campaign = $campaignModel->getEntity($id);
 
-            if ($campaign !== null && $campaign->isPublished()) {
-                if (!$this->dispatchTriggerEvent($campaign)) {
-                    return 0;
-                }
+                if ($campaign !== null && $campaign->isPublished()) {
+                    if (!$this->dispatchTriggerEvent($campaign)) {
+                        return 0;
+                    }
 
-                $totalProcessed = 0;
-                $output->writeln('<info>'.$translator->trans('mautic.campaign.trigger.triggering', ['%id%' => $id]).'</info>');
+                    $totalProcessed = 0;
+                    $output->writeln('<info>'.$translator->trans('mautic.campaign.trigger.triggering', ['%id%' => $id]).'</info>');
 
-                if (!$negativeOnly && !$scheduleOnly) {
-                    //trigger starting action events for newly added contacts
-                    $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.starting').'</comment>');
-                    $processed = $model->triggerStartingEvents($campaign, $totalProcessed, $batch, $max, $output);
-                    $output->writeln(
+                    if (!$negativeOnly && !$scheduleOnly) {
+                        //trigger starting action events for newly added contacts
+                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.starting').'</comment>');
+                        $processed = $model->triggerStartingEvents($campaign, $totalProcessed, $batch, $max, $output);
+                        $output->writeln(
                         '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'."\n"
                     );
-                }
+                    }
 
-                if ((!$max || $totalProcessed < $max) && !$negativeOnly) {
-                    //trigger scheduled events
-                    $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.scheduled').'</comment>');
-                    $processed = $model->triggerScheduledEvents($campaign, $totalProcessed, $batch, $max, $output);
-                    $output->writeln(
+                    if ((!$max || $totalProcessed < $max) && !$negativeOnly) {
+                        //trigger scheduled events
+                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.scheduled').'</comment>');
+                        $processed = $model->triggerScheduledEvents($campaign, $totalProcessed, $batch, $max, $output);
+                        $output->writeln(
                         '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'."\n"
                     );
-                }
+                    }
 
-                if ((!$max || $totalProcessed < $max) && !$scheduleOnly) {
-                    //find and trigger "no" path events
-                    $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.negative').'</comment>');
-                    $processed = $model->triggerNegativeEvents($campaign, $totalProcessed, $batch, $max, $output);
-                    $output->writeln(
+                    if ((!$max || $totalProcessed < $max) && !$scheduleOnly) {
+                        //find and trigger "no" path events
+                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.negative').'</comment>');
+                        $processed = $model->triggerNegativeEvents($campaign, $totalProcessed, $batch, $max, $output);
+                        $output->writeln(
                         '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'."\n"
                     );
+                    }
+                } else {
+                    $output->writeln('<error>'.$translator->trans('mautic.campaign.rebuild.not_found', ['%id%' => $id]).'</error>');
                 }
             } else {
-                $output->writeln('<error>'.$translator->trans('mautic.campaign.rebuild.not_found', ['%id%' => $id]).'</error>');
-            }
-        } else {
-            $campaigns = $campaignModel->getEntities(
+                $campaigns = $campaignModel->getEntities(
                 [
                     'iterator_mode' => true,
                 ]
             );
 
-            while (($c = $campaigns->next()) !== false) {
-                $totalProcessed = 0;
+                while (($c = $campaigns->next()) !== false) {
+                    $totalProcessed = 0;
 
-                // Key is ID and not 0
-                $c = reset($c);
+                    // Key is ID and not 0
+                    $c = reset($c);
 
-                if ($c->isPublished()) {
-                    if (!$this->dispatchTriggerEvent($c)) {
-                        continue;
-                    }
+                    if ($c->isPublished()) {
+                        if (!$this->dispatchTriggerEvent($c)) {
+                            continue;
+                        }
 
-                    $output->writeln('<info>'.$translator->trans('mautic.campaign.trigger.triggering', ['%id%' => $c->getId()]).'</info>');
-                    if (!$negativeOnly && !$scheduleOnly) {
-                        //trigger starting action events for newly added contacts
-                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.starting').'</comment>');
-                        $processed = $model->triggerStartingEvents($c, $totalProcessed, $batch, $max, $output);
-                        $output->writeln(
+                        $output->writeln('<info>'.$translator->trans('mautic.campaign.trigger.triggering', ['%id%' => $c->getId()]).'</info>');
+                        if (!$negativeOnly && !$scheduleOnly) {
+                            //trigger starting action events for newly added contacts
+                            $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.starting').'</comment>');
+                            $processed = $model->triggerStartingEvents($c, $totalProcessed, $batch, $max, $output);
+                            $output->writeln(
                             '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'
                             ."\n"
                         );
-                    }
+                        }
 
-                    if ($max && $totalProcessed >= $max) {
-                        continue;
-                    }
+                        if ($max && $totalProcessed >= $max) {
+                            continue;
+                        }
 
-                    if (!$negativeOnly) {
-                        //trigger scheduled events
-                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.scheduled').'</comment>');
-                        $processed = $model->triggerScheduledEvents($c, $totalProcessed, $batch, $max, $output);
-                        $output->writeln(
+                        if (!$negativeOnly) {
+                            //trigger scheduled events
+                            $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.scheduled').'</comment>');
+                            $processed = $model->triggerScheduledEvents($c, $totalProcessed, $batch, $max, $output);
+                            $output->writeln(
                             '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'
                             ."\n"
                         );
-                    }
+                        }
 
-                    if ($max && $totalProcessed >= $max) {
-                        continue;
-                    }
+                        if ($max && $totalProcessed >= $max) {
+                            continue;
+                        }
 
-                    if (!$scheduleOnly) {
-                        //find and trigger "no" path events
-                        $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.negative').'</comment>');
-                        $processed = $model->triggerNegativeEvents($c, $totalProcessed, $batch, $max, $output);
-                        $output->writeln(
+                        if (!$scheduleOnly) {
+                            //find and trigger "no" path events
+                            $output->writeln('<comment>'.$translator->trans('mautic.campaign.trigger.negative').'</comment>');
+                            $processed = $model->triggerNegativeEvents($c, $totalProcessed, $batch, $max, $output);
+                            $output->writeln(
                             '<comment>'.$translator->trans('mautic.campaign.trigger.events_executed', ['%events%' => $processed]).'</comment>'
                             ."\n"
                         );
+                        }
                     }
+
+                    $em->detach($c);
+                    unset($c);
                 }
 
-                $em->detach($c);
-                unset($c);
+                unset($campaigns);
             }
 
-            unset($campaigns);
+            $this->completeRun();
+
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
         }
-
-        $this->completeRun();
-
-        return 0;
     }
 
     /**
