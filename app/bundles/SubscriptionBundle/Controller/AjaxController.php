@@ -356,6 +356,8 @@ class AjaxController extends CommonAjaxController
         $beforecredits    = $request->request->get('beforecredits');
         $aftercredits     = $request->request->get('aftercredits');
         $orderid          =uniqid();
+        $session          = $this->get('session');
+        $session->set('le.payment.orderid', $orderid);
         $paymentstatus    ='Initiated';
         $provider         ='paypal';
         if ($plancurrency == '₹') {
@@ -547,5 +549,17 @@ class AjaxController extends CommonAjaxController
 
             return $e->getMessage();
         }
+    }
+
+    public function cancelpaymentAction(Request $request)
+    {
+        $dataArray['success']  =true;
+        $orderid               = $request->request->get('orderid');
+        if ($orderid != '') {
+            $paymentrepository  =$this->get('le.subscription.repository.payment');
+            $paymentrepository->updatePaymentStatus($orderid, '', 'Cancelled');
+        }
+
+        return $this->sendJsonResponse($dataArray);
     }
 }

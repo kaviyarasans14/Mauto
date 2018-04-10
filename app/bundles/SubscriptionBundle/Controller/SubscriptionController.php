@@ -131,8 +131,12 @@ class SubscriptionController extends CommonController
                     }
                 }
             } else {
-                $repository=$this->get('le.core.repository.subscription');
-                $planinfo  =$repository->getAllPrepaidPlans();
+                $repository         =$this->get('le.core.repository.subscription');
+                $planinfo           =$repository->getAllPrepaidPlans();
+                $session            = $this->get('session');
+                $orderid            =$session->get('le.payment.orderid', '');
+                $paymentrepository  =$this->get('le.subscription.repository.payment');
+                $paymentrepository->updatePaymentStatus($orderid, '', 'Cancelled');
 
                 return $this->postActionRedirect(
                     [
@@ -155,15 +159,12 @@ class SubscriptionController extends CommonController
             $paymentid        = $this->request->get('paymentid');
             $orderid          = $this->request->get('orderid');
         }
+
         if ($status) {
             $paymentrepository  =$this->get('le.subscription.repository.payment');
+            $paymentrepository->updatePaymentStatus($orderid, $paymentid, 'Paid');
             $paymenthistory     = $paymentrepository->findBy(['orderid' => $orderid]);
-            if (count($paymenthistory) > 0) {
-                $payment=$paymenthistory[0];
-                $payment->setPaymentID($paymentid);
-                $payment->setPaymentStatus('Paid');
-                $paymentrepository->saveEntity($payment);
-            }
+            $payment            =$paymenthistory[0];
         }
 
         return $this->delegateView([

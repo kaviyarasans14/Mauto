@@ -156,6 +156,5 @@ class SignupRepository
                 )
                 ->execute();
         }
-        file_put_contents('/var/www/log.txt', $qb."\n", FILE_APPEND);
     }
 }
