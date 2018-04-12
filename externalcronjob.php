@@ -79,7 +79,7 @@ try {
         } else {
             die('Please Configure Valid Parameter');
         }
-        $sql  = "select skiplimit from cronmonitorinfo where operation='$operation'";
+        $sql  = "select skiplimit from cronmonitorinfo where command='$operation'";
         displayCronlog('general', 'SQL QUERY:'.$sql);
         $monitorinfo = getResultArray($con, $sql);
         if (sizeof($monitorinfo) > 0) {
@@ -113,15 +113,14 @@ try {
                 displayCronlog('general', "This operation ($operation) for ($domain) is failing repeatedly.");
                 continue;
             }
-
-            if ($errormsg != '') {
-                updatecronFailedstatus($con, $domain, $operation, $errormsg);
-            }
             $command="php app/console $arguments --domain=$domain";
             displayCronlog($domain, 'Command Invoked:'.$command);
             $output = shell_exec($command);
             if (strpos($output, 'exception->') !== false) {
                 $errormsg = $output;
+            }
+            if ($errormsg != '') {
+                updatecronFailedstatus($con, $domain, $operation, $errormsg);
             }
             displayCronlog($domain, 'Command Results:'.$output);
         }
@@ -142,7 +141,7 @@ try {
 
 function cleanCronStatus($con, $command, $domain)
 {
-    $sql = "delete from cronmonitorinfo where  operation='$command'";
+    $sql = "delete from cronmonitorinfo where  command='$command'";
     displayCronlog('general', 'SQL QUERY:'.$sql);
     $result = execSQL($con, $sql);
 }
