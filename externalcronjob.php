@@ -46,7 +46,6 @@ for ($index=1; $index < sizeof($argv); ++$index) {
     $arguments .= ' '.$arguement;
 }
 try {
-    $errormsg = '';
     if (!$domainattrfound) {
         $pdoconn = new PDOConnection('');
         if ($pdoconn) {
@@ -102,7 +101,9 @@ try {
         $sql        ='select f5 from applicationlist where '.$fcolname.'=\'1\'';
         $domainlist = getResultArray($con, $sql);
         //$SKIP_MAX_LIMIT=5;
+        $errormsg = '';
         for ($di=0; $di < sizeof($domainlist); ++$di) {
+            $errormsg    = '';
             $domain      =$domainlist[$di][0];
             $currentdate = date('Y-m-d');
             $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and operation = '$operation' and createdtime like '$currentdate%'";
@@ -111,7 +112,9 @@ try {
                 displayCronlog('general', "This operation ($operation) for ($domain) is failing repeatedly.");
                 continue;
             }
-            echo $domain."\n";
+            if ($errormsg != '') {
+                updatecronFailedstatus($con, $domain, $operation, $errormsg);
+            }
             $command="php app/console $arguments --domain=$domain";
             displayCronlog($domain, 'Command Invoked:'.$command);
             $output = shell_exec($command);
@@ -121,9 +124,6 @@ try {
             displayCronlog($domain, 'Command Results:'.$output);
         }
         cleanCronStatus($con, $operation, '');
-        if ($errormsg != '') {
-            updatecronFailedstatus($con, $domain, $operation, $errormsg);
-        }
     } else {
         $command="php app/console $arguments ";
         displayCronlog('general', 'Command Invoked:'.$command);
