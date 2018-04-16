@@ -17,6 +17,12 @@ if (!$request->isXmlHttpRequest() && !$modalView):
     $template = ($contentOnly) ? 'slim' : 'base';
     $view->extend("MauticCoreBundle:Default:$template.html.php");
 endif;
+$videostyle = 'margin-right: 7%;';
+$closestyle = 'padding: 8px 10px 8px 10px;margin-top:0.6%;';
+if (isset($isMobile) && $isMobile) {
+    $videostyle = 'margin-right: 48%;';
+    $closestyle = 'padding: 8px 10px 8px 10px;margin-top:1.8%;';
+}
 ?>
 
 <?php if (!$modalView): ?>
@@ -26,11 +32,13 @@ endif;
             <div class="card-flex widget" style="width:100%;" role="document">
                 <div class="card" style="height:550px;">
                     <div class="card-header">
-                        <a href="javascript: void(0);" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'CloseVideo']); ?>');" class="dont_show_again close_button" style="padding: 8px 10px 8px 10px;margin-top:0.6%;"><span><i class="fa fa-close"></i><span style="padding:4px;">Close</span></span></a>
+                        <a href="javascript: void(0);" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'CloseVideo']); ?>');" class="dont_show_again close_button" style="<?php echo $closestyle; ?>"><span><i class="fa fa-close"></i><span style="padding:4px;">Close</span></span></a>
                         <p style="padding:10px 15px;font-size:16px;">
-                            <?php echo $view['translator']->trans('leadsengage.kyc.video_header'); ?>
+                            <?php if (!$isMobile) {
+    echo $view['translator']->trans('leadsengage.kyc.video_header');
+}?>
                         </p>
-                        <div class="dropdown" style="margin-right: 7%;">
+                        <div class="dropdown" style="<?php echo $videostyle; ?>">
                             <span class="dont_show_again">
                                 <?php echo $view->render('MauticCoreBundle:Helper:confirm.html.php', [
                                     'message'         => $view['translator']->trans('le.video.confirm.message'),

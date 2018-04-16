@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-if (!$app->getRequest()->isXmlHttpRequest()):
+//if (!$app->getRequest()->isXmlHttpRequest()):
     //load base template
     $view->extend('MauticUserBundle:Security:base.html.php');
     $view['slots']->set('header', $view['translator']->trans('mautic.user.auth.header'));
-else:
-    $view->extend('MauticUserBundle:Security:ajax.html.php');
-endif;
+//else:
+  //  $view->extend('MauticUserBundle:Security:ajax.html.php');
+//endif;
 ?>
 <?php if (!empty($msg)): ?>
 <span class="login-notifiation" ><?php echo $view['translator']->trans($msg); ?> </span>

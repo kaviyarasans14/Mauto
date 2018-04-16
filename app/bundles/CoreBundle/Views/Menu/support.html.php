@@ -1,5 +1,5 @@
 <li class="dropdown">
-    <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="margin-top: 17px;font-weight: 700;padding: 5px 10px;font-size: 11px;line-height: 1.456;border-radius: 2px;color: #fff;background-color: #375695;border-color: #375695;" data-toggle="dropdown" href="#">
+    <a class="btn btn-nospin btn-primary btn-sm" style="margin-top: 17px;font-weight: 700;padding: 5px 10px;font-size: 11px;line-height: 1.456;border-radius: 2px;color: #fff;background-color: #375695;border-color: #375695;" data-toggle="dropdown" href="#">
         <span><i class="fa fa-question-circle"style="font-size: 13px;" ></i> <span>Help</span></span>
     </a>
     <ul class="dropdown-menu dropdown-menu-right">
@@ -20,7 +20,7 @@
         </li>
     </ul>
 </li>
-<a class="btn btn-nospin btn-primary btn-sm hidden-xs buycredits"
+<a class="btn btn-nospin btn-primary btn-sm buycredits"
    href="<?php echo $view['router']->path('le_plan_index'); ?>">
     <i class="fa fa-plus-circle fs-14"></i>
     <span><?php echo $view['translator']->trans('le.plans.buycredits'); ?></span>

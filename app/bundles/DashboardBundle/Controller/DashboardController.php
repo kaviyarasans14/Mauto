@@ -165,7 +165,7 @@ class DashboardController extends FormController
         if ($userprefentity == null && $close == '') {
             $showvideo = true;
         }
-        $ismobile = $this->isMobile();
+        $ismobile = InputHelper::isMobile();
         if ($showsetup) {
             $billformview = $billform->createView();
             $accformview  = $accform->createView();
@@ -729,10 +729,5 @@ class DashboardController extends FormController
         $countrycode     =$dataArray->{'geoplugin_countryName'};
 
         return $countrycode;
-    }
-
-    public function isMobile()
-    {
-        return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER['HTTP_USER_AGENT']);
     }
 }
