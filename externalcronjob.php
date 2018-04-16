@@ -2,11 +2,11 @@
 
 //ini_set ( "display_errors", "1" );
 //error_reporting ( E_ALL );
-chdir('/var/www/mauto');
+chdir('/var/www/leadsengage');
 
-include '../mautosaas/lib/process/config.php';
-include '../mautosaas/lib/process/field.php';
-include '../mautosaas/lib/util.php';
+include '../leadsengagesaas/lib/process/config.php';
+include '../leadsengagesaas/lib/process/field.php';
+include '../leadsengagesaas/lib/util.php';
 
 function displayCronlog($domain, $msg)
 {
@@ -33,9 +33,9 @@ function displayCronlog($domain, $msg)
     error_log($remoteaddr.' : '.$currenttime." : $msg\n", 3, $logfile);
 }
 
-    if (sizeof($argv) < 2) {
-        exit('No Arguments Provided!');
-    }
+if (sizeof($argv) < 2) {
+    exit('No Arguments Provided!');
+}
 $arguments      ='';
 $domainattrfound=false;
 for ($index=1; $index < sizeof($argv); ++$index) {
@@ -46,7 +46,6 @@ for ($index=1; $index < sizeof($argv); ++$index) {
     $arguments .= ' '.$arguement;
 }
 try {
-    $errormsg = '';
     if (!$domainattrfound) {
         $pdoconn = new PDOConnection('');
         if ($pdoconn) {
@@ -80,8 +79,8 @@ try {
         } else {
             die('Please Configure Valid Parameter');
         }
-        $sql  = "select skiplimit from cronmonitorinfo where operation='$operation'";
-        displayCronlog('general', 'SQL QUERY:'.$sql);
+        $sql  = "select skiplimit from cronmonitorinfo where command='$operation'";
+//        displayCronlog('general', 'SQL QUERY:'.$sql);
         $monitorinfo = getResultArray($con, $sql);
         if (sizeof($monitorinfo) > 0) {
             /* $skiplimit=$monitorinfo[0][0];
@@ -102,28 +101,34 @@ try {
         $sql        ='select f5 from applicationlist where '.$fcolname.'=\'1\'';
         $domainlist = getResultArray($con, $sql);
         //$SKIP_MAX_LIMIT=5;
+        $errormsg = '';
+
+        displayCronlog('general', 'Sizeof Domains :  '.sizeof($domainlist));
         for ($di=0; $di < sizeof($domainlist); ++$di) {
+            $errormsg    = '';
             $domain      =$domainlist[$di][0];
             $currentdate = date('Y-m-d');
             $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and operation = '$operation' and createdtime like '$currentdate%'";
             $errorinfo   = getResultArray($con, $sql);
-            if ($errorinfo[0][0] > 5) {
+            if (sizeof($errorinfo) != 0 && $errorinfo[0][0] > 5) {
                 displayCronlog('general', "This operation ($operation) for ($domain) is failing repeatedly.");
                 continue;
             }
-            echo $domain."\n";
             $command="php app/console $arguments --domain=$domain";
             displayCronlog($domain, 'Command Invoked:'.$command);
             $output = shell_exec($command);
             if (strpos($output, 'exception->') !== false) {
                 $errormsg = $output;
             }
+            //	    displayCronlog('general', $domain.'errorinfo:  '.$errormsg);
+            if ($errormsg != '') {
+                displayCronlog('general', 'errorinfo:  '.$errormsg);
+                updatecronFailedstatus($con, $domain, $operation, $errormsg);
+            }
+            displayCronlog('general', $domain.' : '.$command);
             displayCronlog($domain, 'Command Results:'.$output);
         }
         cleanCronStatus($con, $operation, '');
-        if ($errormsg != '') {
-            updatecronFailedstatus($con, $domain, $operation, $errormsg);
-        }
     } else {
         $command="php app/console $arguments ";
         displayCronlog('general', 'Command Invoked:'.$command);
@@ -133,14 +138,14 @@ try {
         }
         displayCronlog('general', 'Command Results:'.$output);
     }
-} catch (\Swift_TransportException $ex) {
+} catch (Exception $ex) {
     $msg = $ex->getMessage();
     displayCronlog('general', 'Exception Occur:'.$msg);
 }
 
 function cleanCronStatus($con, $command, $domain)
 {
-    $sql = "delete from cronmonitorinfo where  operation='$command'";
+    $sql = "delete from cronmonitorinfo where  command='$command'";
     displayCronlog('general', 'SQL QUERY:'.$sql);
     $result = execSQL($con, $sql);
 }
@@ -149,5 +154,6 @@ function updatecronFailedstatus($con, $domain, $operation, $errorinfo)
 {
     $currentdate = date('Y-m-d H:i:s');
     $sql         = "insert into cronerrorinfo values ('$domain','$operation','$currentdate','$errorinfo')";
+    displayCronlog('general', 'SQL QUERY:'.$sql);
     $result      = execSQL($con, $sql);
 }

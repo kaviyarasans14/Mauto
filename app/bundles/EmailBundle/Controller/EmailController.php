@@ -525,7 +525,7 @@ class EmailController extends FormController
         } elseif (true) {
             $entity->setEmailType('template'); //list
         }
-
+        $ismobile = InputHelper::isMobile();
         //create the form
         $form = $model->createForm($entity, $this->get('form.factory'), $action, ['update_select' => $updateSelect, 'isEmailTemplate' => true]);
 
@@ -659,6 +659,7 @@ class EmailController extends FormController
                     'updateSelect'       => $updateSelect,
                     'permissions'        => $permissions,
                     'isClone'            => $isClone,
+                    'isMobile'           => $ismobile,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [

@@ -46,7 +46,7 @@
     <footer id="app-footer">
         <div class="container-fluid">
             <div class="col-lg-12">
-                <div class="pull-left">
+                <div class="pull-left hidden-xs">
                     <?php echo $view['translator']->trans('mautic.core.copyright.anti.spam', ['%anitSpamUrl%' => $anitSpamUrl, '%privacyUrl%' => $privacyUrl, '%termsAndCondUrl%' => $termsAndCondUrl]); ?>
                 </div>
                 <div class="pull-right">

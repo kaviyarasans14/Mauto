@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Form\DataTransformer\IdToEntityModelTransformer;
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Form\Type\DynamicContentTrait;
+use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -489,27 +490,30 @@ class EmailType extends AbstractType
 
         $builder->add('sessionId', 'hidden');
         $builder->add('emailType', 'hidden');
-
-        $customButtons = [//builder disabled due to bee editor
-//            [
-//                'name'  => 'builder',
-//                'label' => 'mautic.core.builder',
-//                'attr'  => [
-//                    'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-builder',
-//                    'icon'    => 'fa fa-cube',
-//                    'onclick' => "Mautic.launchBuilder('emailform', 'email');",
-//                ],
-//            ],
-            [
-                'name'  => 'beeeditor',
-                'label' => 'mautic.core.beeeditor',
-                'attr'  => [
-                    'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-beeditor',
-                    'icon'    => 'fa fa-cube',
-                    'onclick' => "Mautic.launchBeeEditor('emailform', 'email');",
+        if (!InputHelper::isMobile()) {
+            $customButtons = [//builder disabled due to bee editor
+//          [
+//              'name'  => 'builder',
+//              'label' => 'mautic.core.builder',
+//              'attr'  => [
+//                  'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-builder',
+//                  'icon'    => 'fa fa-cube',
+//                  'onclick' => "Mautic.launchBuilder('emailform', 'email');",
+//              ],
+//          ],
+                [
+                    'name'  => 'beeeditor',
+                    'label' => 'mautic.core.beeeditor',
+                    'attr'  => [
+                        'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-beeditor',
+                        'icon'    => 'fa fa-cube',
+                        'onclick' => "Mautic.launchBeeEditor('emailform', 'email');",
+                    ],
                 ],
-            ],
-        ];
+            ];
+        } else {
+            $customButtons = [];
+        }
 
         $builder->add(
             'buttons',

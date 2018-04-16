@@ -63,10 +63,10 @@ $isAdmin              =$view['security']->isAdmin();
 $isCodeMode           = ($email->getTemplate() === 'mautic_code_mode');
 $isbasiceditor        =$email->getBeeJSON() == null || $email->getBeeJSON() == '';
 $formcontainserror    =$view['form']->containsErrors($form);
-$activatebasiceditor  =($formcontainserror || $isCloneOp) && $isbasiceditor ? 'active' : '';
-$activateadvanceeditor=($formcontainserror || $isCloneOp) && !$isbasiceditor ? 'active' : '';
-$hidebasiceditor      =($formcontainserror || $isCloneOp) && !$isbasiceditor ? 'hide' : '';
-$hideadvanceeditor    =($formcontainserror || $isCloneOp) && $isbasiceditor ? 'hide' : '';
+$activatebasiceditor  =($formcontainserror || $isCloneOp || $isMobile) && $isbasiceditor ? 'active' : '';
+$activateadvanceeditor=($formcontainserror || $isCloneOp || !$isMobile) && !$isbasiceditor ? 'active' : '';
+$hidebasiceditor      =($formcontainserror || $isCloneOp || !$isMobile) && !$isbasiceditor ? 'hide' : '';
+$hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbasiceditor ? 'hide' : '';
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
     <div class="box-layout">
@@ -343,7 +343,7 @@ endif;
 ?>
 <?php
 $type    = $email->getEmailType();
-if (empty($updateSelect) && !$isCloneOp && !$isExisting && !$formcontainserror && !$variantParent):
+if (empty($updateSelect) && !$isCloneOp && !$isExisting && !$formcontainserror && !$variantParent && !$isMobile):
     echo $view->render('MauticCoreBundle:Helper:form_selecttype.html.php',
         [
             'item'               => $email,

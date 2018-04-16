@@ -75,7 +75,7 @@ $isAdmin    =$view['security']->isAdmin();
                 <div class="small"><?php echo $item->getSecondaryIdentifier(); ?></div>
             </a>
         </td>
-        <td class="visible-md visible-lg"><?php echo $fields['core']['company_new']['value']; ?></td>
+        <td><?php echo $fields['core']['company_new']['value']; ?></td>
         <td class="visible-md visible-lg"><?php echo $fields['core']['email']['value']; ?></td>
         <td class="visible-md visible-lg"><?php echo $fields['core']['mobile']['value']; ?></td>
         <td class="visible-md visible-lg">
