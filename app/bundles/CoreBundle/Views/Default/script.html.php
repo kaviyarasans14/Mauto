@@ -38,19 +38,24 @@ if ($mauticContent == 'subscription' || $mauticContent == 'prepaidplans') {
     echo '<script src="https://checkout.razorpay.com/v1/checkout.js"></script>';
 }
 ?>
-<!--Start of Tawk.to Script-->
+<?php
+if ($mauticContent != 'user') {
+    echo '<!--Start of Tawk.to Script-->
 <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
     (function(){
         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
         s1.async=true;
-        s1.src='https://embed.tawk.to/5acda3a2d7591465c7096324/default';
-        s1.charset='UTF-8';
-        s1.setAttribute('crossorigin','*');
+        s1.src=\'https://embed.tawk.to/5acda3a2d7591465c7096324/default\';
+        s1.charset=\'UTF-8\';
+        s1.setAttribute(\'crossorigin\',\'*\');
         s0.parentNode.insertBefore(s1,s0);
     })();
 </script>
 <!--End of Tawk.to Script-->
 <!-- Start of Support Hero Script-->
 <script async data-cfasync="false" src="https://d29l98y0pmei9d.cloudfront.net/js/widget.min.js?k=Y2xpZW50SWQ9MTgyOSZob3N0TmFtZT1sZWFkc2VuZ2FnZS5zdXBwb3J0aGVyby5pbw=="></script>
-<!-- End of Support Hero Script-->
+<!-- End of Support Hero Script-->';
+}
+?>
+
