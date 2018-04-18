@@ -355,6 +355,8 @@ class AjaxController extends CommonAjaxController
         $plancredits      = $request->request->get('plancredits');
         $beforecredits    = $request->request->get('beforecredits');
         $aftercredits     = $request->request->get('aftercredits');
+        $taxamount        = $request->request->get('taxamount');
+        $netamount        = $request->request->get('netamount');
         $orderid          =uniqid();
         $session          = $this->get('session');
         $session->set('le.payment.orderid', $orderid);
@@ -453,6 +455,8 @@ class AjaxController extends CommonAjaxController
             $paymenthistory->setcreatedBy($createdby);
             $paymenthistory->setcreatedByUser($createdbyuser);
             $paymenthistory->setcreatedOn(new \DateTime());
+            $paymenthistory->setNetamount($netamount);
+            $paymenthistory->setTaxamount($taxamount);
             $paymentrepository->saveEntity($paymenthistory);
         }
 

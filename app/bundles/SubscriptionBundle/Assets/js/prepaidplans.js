@@ -83,6 +83,8 @@ Mautic.prepaidplansOnLoad = function (container) {
         makepayment.attr("aftercredits",aftercredits);
         makepayment.attr("beforecredits",beforecredits);
         makepayment.attr("totalamt",totalamount);
+        makepayment.attr("netamount",planamount);
+        makepayment.attr("taxamount",taxamount);
         mQuery('a[aria-controls="sectionThree"]').trigger('click');
     });
     mQuery('#makepayment-btn').click(function(e) {
@@ -95,9 +97,11 @@ Mautic.prepaidplansOnLoad = function (container) {
         var beforecredits=makepayment.attr("beforecredits");
         var aftercredits=makepayment.attr("aftercredits");
         var totalamount=makepayment.attr("totalamt");
+        var netamount=makepayment.attr("netamount");
+        var taxamount=makepayment.attr("taxamount");
 
         Mautic.activateBackdrop();
-        Mautic.ajaxActionRequest('subscription:purchaseplan', {plancurrency:plancurrency,planamount:totalamount,planname:planname,plankey:plankey,plancredits:plancredits,beforecredits:beforecredits,aftercredits:aftercredits}, function(response) {
+        Mautic.ajaxActionRequest('subscription:purchaseplan', {plancurrency:plancurrency,planamount:totalamount,planname:planname,plankey:plankey,plancredits:plancredits,beforecredits:beforecredits,aftercredits:aftercredits,taxamount:taxamount,netamount:netamount}, function(response) {
             Mautic.deactivateBackgroup();
           if (response.success) {
               if(response.provider == "razorpay"){

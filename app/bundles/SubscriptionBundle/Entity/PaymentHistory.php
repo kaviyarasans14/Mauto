@@ -100,6 +100,16 @@ class PaymentHistory
     private $createdOn;
 
     /**
+     * @var string
+     */
+    private $netamount;
+
+    /**
+     * @var string
+     */
+    private $taxamount;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
@@ -180,6 +190,14 @@ class PaymentHistory
             ->build();
         $builder->createField('createdOn', 'datetime')
             ->columnName('createdOn')
+            ->nullable()
+            ->build();
+        $builder->createField('netamount', 'string')
+            ->columnName('netamount')
+            ->nullable()
+            ->build();
+        $builder->createField('taxamount', 'string')
+            ->columnName('taxamount')
             ->nullable()
             ->build();
     }
@@ -476,5 +494,45 @@ class PaymentHistory
         $this->createdBy = $createdby;
 
         return $this;
+    }
+
+    /**
+     * @param string $netamount
+     *
+     * @return PaymentHistory
+     */
+    public function setNetamount($netamount)
+    {
+        $this->netamount = $netamount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNetamount()
+    {
+        return $this->netamount;
+    }
+
+    /**
+     * @param string $taxamount
+     *
+     * @return PaymentHistory
+     */
+    public function setTaxamount($taxamount)
+    {
+        $this->taxamount = $taxamount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTaxamount()
+    {
+        return $this->taxamount;
     }
 }

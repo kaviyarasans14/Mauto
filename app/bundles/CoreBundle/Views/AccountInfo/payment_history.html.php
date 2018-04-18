@@ -17,6 +17,9 @@
     <th>
          <span class="header">Status<span>
     </th>
+    <th>
+         <span class="header"><span>
+    </th>
 </tr>
        </thead>
        <tbody>
@@ -33,6 +36,9 @@
            </td>
            <td>
          <span class="data"><?php echo $payment->getPaymentStatus()?><span>
+           </td>
+           <td>
+         <a class="data <?php echo ($payment->getPaymentStatus() == 'Paid') ? '' : 'hide'; ?>" href="<?php echo $view['router']->generate('mautic_viewinvoice_action', ['id' => $payment->getId()]); ?>">View Invoice</a>
            </td>
        </tr>
        <?php endforeach; ?>

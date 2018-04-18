@@ -28,7 +28,12 @@ return [
                 'controller' => 'MauticSubscriptionBundle:Account:execute',
             ],
         ],
-        'public' => [],
+        'public' => [
+            'mautic_viewinvoice_action' => [
+                'path'       => '/viewinvoice/{id}',
+                'controller' => 'MauticSubscriptionBundle:Public:viewinvoice',
+            ],
+        ],
         'api'    => [],
     ],
     'menu' => [
