@@ -1230,6 +1230,7 @@ class EmailCampaignController extends FormController
         $totalEmailCount       = $this->get('mautic.helper.licenseinfo')->getTotalEmailCount();
         $actualEmailCount      = $this->get('mautic.helper.licenseinfo')->getActualEmailCount();
         $isHavingEmailValidity = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
+        $accountStatus         = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_campaign_index', ['page' => $page]);
@@ -1316,47 +1317,48 @@ class EmailCampaignController extends FormController
         $complete      = $this->request->request->get('complete', false);
         $remainingCount= $pending + $actualEmailCount;
 
-        if ((($totalEmailCount >= $remainingCount) && ($isHavingEmailValidity)) || $totalEmailCount == 'UL') {
-            if ($this->request->getMethod() == 'POST' && ($complete || $this->isFormValid($form))) {
-                if (!$complete) {
-                    $progress = [0, (int) $pending];
-                    $session->set('mautic.email.send.progress', $progress);
+        if (!$accountStatus) {
+            if ((($totalEmailCount >= $remainingCount) && ($isHavingEmailValidity)) || $totalEmailCount == 'UL') {
+                if ($this->request->getMethod() == 'POST' && ($complete || $this->isFormValid($form))) {
+                    if (!$complete) {
+                        $progress = [0, (int) $pending];
+                        $session->set('mautic.email.send.progress', $progress);
 
-                    $stats = ['sent' => 0, 'failed' => 0, 'failedRecipients' => []];
-                    $session->set('mautic.email.send.stats', $stats);
+                        $stats = ['sent' => 0, 'failed' => 0, 'failedRecipients' => []];
+                        $session->set('mautic.email.send.stats', $stats);
 
-                    $status     = 'inprogress';
-                    $batchlimit = $form['batchlimit']->getData();
+                        $status     = 'inprogress';
+                        $batchlimit = $form['batchlimit']->getData();
 
-                    $session->set('mautic.email.send.active', false);
-                } else {
-                    $stats      = $session->get('mautic.email.send.stats');
-                    $progress   = $session->get('mautic.email.send.progress');
-                    $batchlimit = 100;
-                    $status     = (!empty($stats['failed'])) ? 'with_errors' : 'success';
-                }
+                        $session->set('mautic.email.send.active', false);
+                    } else {
+                        $stats      = $session->get('mautic.email.send.stats');
+                        $progress   = $session->get('mautic.email.send.progress');
+                        $batchlimit = 100;
+                        $status     = (!empty($stats['failed'])) ? 'with_errors' : 'success';
+                    }
 
-                $contentTemplate = 'MauticEmailBundle:Send:progress.html.php';
-                $viewParameters  = [
+                    $contentTemplate = 'MauticEmailBundle:Send:progress.html.php';
+                    $viewParameters  = [
                 'progress'   => $progress,
                 'stats'      => $stats,
                 'status'     => $status,
                 'email'      => $entity,
                 'batchlimit' => $batchlimit,
             ];
-            } else {
-                //process and send
-                $contentTemplate = 'MauticEmailBundle:Send:form.html.php';
-                $viewParameters  = [
+                } else {
+                    //process and send
+                    $contentTemplate = 'MauticEmailBundle:Send:form.html.php';
+                    $viewParameters  = [
                 'form'       => $form->createView(),
                 'email'      => $entity,
                 'pending'    => $pending,
                 'actionRoute'=> 'mautic_email_campaign_action',
                 'indexRoute' => 'mautic_email_campaign_index',
             ];
-            }
+                }
 
-            return $this->delegateView(
+                return $this->delegateView(
                 [
                     'viewParameters'  => $viewParameters,
                     'contentTemplate' => $contentTemplate,
@@ -1366,18 +1368,27 @@ class EmailCampaignController extends FormController
                     ],
                 ]
             );
-        } else {
-            if (!$isHavingEmailValidity) {
-                $this->addFlash('mautic.email.validity.expired');
             } else {
-                $this->addFlash('mautic.email.count.exceeds');
-            }
+                if (!$isHavingEmailValidity) {
+                    $this->addFlash('mautic.email.validity.expired');
+                } else {
+                    $this->addFlash('mautic.email.count.exceeds');
+                }
 
-            return $this->postActionRedirect(
+                return $this->postActionRedirect(
                 [
                     'returnUrl'=> $this->generateUrl('mautic_email_campaign_index'),
                 ]
             );
+            }
+        } else {
+            $this->addFlash('mautic.account.suspend');
+
+            return $this->postActionRedirect(
+               [
+                   'returnUrl'=> $this->generateUrl('mautic_email_campaign_index'),
+               ]
+           );
         }
     }
 

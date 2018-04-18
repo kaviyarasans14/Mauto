@@ -208,6 +208,7 @@ class DashboardController extends FormController
         $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
         $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
         $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
 
         $emailUssage    = false;
         $bouceUsage     = false;
@@ -215,14 +216,18 @@ class DashboardController extends FormController
         $recordUsage    = false;
         $buyCreditRoute =$this->generateUrl('le_plan_index');
 
-        $notifymessage   ='';
-        $usageMsg        ='';
-        $maxEmailUsage   = 85;
-        $maxBounceUsage  =3;
-        $maxEmailValidity=7;
-        $maxRecordUsage  =85;
-        $buyNowButon     = 'Buy Now';
+        $accountsuspendmsg='';
+        $notifymessage    ='';
+        $usageMsg         ='';
+        $maxEmailUsage    = 85;
+        $maxBounceUsage   =3;
+        $maxEmailValidity =7;
+        $maxRecordUsage   =85;
+        $buyNowButon      = 'Buy Now';
 
+        if ($accountStatus) {
+            $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
+        }
         if (!empty($licenseRemDays)) {
             if ($licenseRemDays < 7) {
                 $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]);
@@ -234,7 +239,7 @@ class DashboardController extends FormController
         if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
             $bouceUsage=true;
         }
-        if (isset($emailValidity) && $emailValidity != 'UL' && $emailValidity < $maxEmailValidity) {
+        if (isset($emailValidity) && $emailValidity !== 'UL' && $emailValidity < $maxEmailValidity) {
             $emailsValidity=true;
         }
         if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
@@ -258,6 +263,14 @@ class DashboardController extends FormController
                 $usageMsg .= ' and ';
             }
             $usageMsg .= $emailMsg;
+
+            if ($emailCountExpired == 0 && $emailValidity == 0) {
+                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
+            } elseif ($emailCountExpired == 0 && $emailsValidity) {
+                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
+            } elseif ($emailValidity == 0 && $emailUssage) {
+                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
+            }
         }
 
         if ($emailUssage || $emailsValidity) {
@@ -273,8 +286,11 @@ class DashboardController extends FormController
         if ($usageMsg != '') {
             $notifymessage .= ' '.$usageMsg;
         }
-
-        return $notifymessage;
+        if ($accountsuspendmsg != '') {
+            return $accountsuspendmsg;
+        } else {
+            return $notifymessage;
+        }
     }
 
     /**

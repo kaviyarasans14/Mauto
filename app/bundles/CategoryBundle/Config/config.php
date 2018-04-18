@@ -38,12 +38,13 @@ return [
     ],
 
     'menu' => [
-        'admin' => [
+        'main' => [
             'mautic.category.menu.index' => [
                 'route'     => 'mautic_category_index',
                 'access'    => 'category:categories:view',
-                'iconClass' => 'fa-folder',
                 'id'        => 'mautic_category_index',
+                'parent'    => 'mautic.core.components',
+                'priority'  => 50,
             ],
         ],
     ],

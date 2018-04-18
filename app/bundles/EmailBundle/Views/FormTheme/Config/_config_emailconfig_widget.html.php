@@ -28,7 +28,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
             </div>
             <div class="row" >
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_return_path', $isadmin ? $template : $hidefield); ?>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_is_owner', $template); ?>
+                <?php echo $view['form']->rowIfExists($fields, 'mailer_is_owner', $isadmin ? $template : $hidefield); ?>
             </div>
 
             <?php if (isset($fields['mailer_from_name']) || isset($fields['mailer_from_email'])): ?>

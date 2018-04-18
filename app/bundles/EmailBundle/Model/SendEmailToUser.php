@@ -46,8 +46,8 @@ class SendEmailToUser
 
         $isValidEmailCount     = $this->licenseInfoHelper->isValidEmailCount();
         $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
-
-        $email = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
+        $accountStatus         = $this->licenseInfoHelper->getAccountStatus();
+        $email                 = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
 
         if (!$email || !$email->isPublished()) {
             throw new EmailCouldNotBeSentException('Email not found or published');
@@ -63,17 +63,20 @@ class SendEmailToUser
         $users = $emailToUserAccessor->getUserIdsToSend($owner);
 
         $idHash = UserHash::getFakeUserHash();
+        if (!$accountStatus) {
+            if ($isValidEmailCount && $isHavingEmailValidity) {
+                $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
+                $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
+                $this->licenseInfoHelper->intEmailCount('1');
 
-        if ($isValidEmailCount && $isHavingEmailValidity) {
-            $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
-            $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
-            $this->licenseInfoHelper->intEmailCount('1');
-
-            if ($errors) {
-                throw new EmailCouldNotBeSentException(implode(', ', $errors));
+                if ($errors) {
+                    throw new EmailCouldNotBeSentException(implode(', ', $errors));
+                }
+            } else {
+                throw new EmailCouldNotBeSentException('InSufficient Email Count Please Contact Support');
             }
         } else {
-            throw new EmailCouldNotBeSentException('InSufficient Email Count Please Contact Support');
+            throw new EmailCouldNotBeSentException('Your Account Has Been Kept on REVIEW and You Can\'t Send Emails for Now. Please Contact Support Team.');
         }
     }
 }

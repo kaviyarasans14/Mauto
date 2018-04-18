@@ -185,8 +185,8 @@
         var initOnTextarea = $.proxy(function () {
             this.$box = $('<div>');
             this.$oel.before(this.$box).hide();
-
-            this._original_html = this.$oel.val();
+            var oelval=this.$oel.val();
+            this._original_html = ( oelval == "false" || oelval == "true") ? "" : oelval ;
 
             // Before submit textarea do a sync.
             this.$oel.parents('form').on('submit.' + this.id, $.proxy(function () {

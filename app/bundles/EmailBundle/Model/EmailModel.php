@@ -826,6 +826,18 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     }
 
     /**
+     * Get an array of tracked links.
+     *
+     * @param $emailId
+     *
+     * @return array
+     */
+    public function getEmailClickCount($emailId)
+    {
+        return $this->pageTrackableModel->getTrackableCount('email', $emailId);
+    }
+
+    /**
      * Get the number of leads this email will be sent to.
      *
      * @param Email $email
@@ -1157,6 +1169,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         $isValidEmailCount     =$this->licenseInfoHelper->isValidEmailCount();
         $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
+        $accountStatus         = $this->licenseInfoHelper->getAccountStatus();
 
         if (empty($channel)) {
             $channel = (isset($options['source'])) ? $options['source'] : [];
@@ -1292,18 +1305,23 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
                 foreach ($contacts as $contact) {
                     try {
-                        if ($isValidEmailCount && $isHavingEmailValidity) {
-                            $this->sendModel->setContact($contact, $tokens)
+                        if (!$accountStatus) {
+                            if ($isValidEmailCount && $isHavingEmailValidity) {
+                                $this->sendModel->setContact($contact, $tokens)
                                 ->send();
-                            // Update $emailSetting so campaign a/b tests are handled correctly
-                            ++$emailSettings[$parentId]['sentCount'];
+                                // Update $emailSetting so campaign a/b tests are handled correctly
+                                ++$emailSettings[$parentId]['sentCount'];
 
-                            if (!empty($emailSettings[$parentId]['isVariant'])) {
-                                ++$emailSettings[$parentId]['variantCount'];
+                                if (!empty($emailSettings[$parentId]['isVariant'])) {
+                                    ++$emailSettings[$parentId]['variantCount'];
+                                }
+                            } else {
+                                $this->sendModel->reset();
+                                throw new FailedToSendToContactException();
                             }
                         } else {
-                            throw new FailedToSendToContactException();
                             $this->sendModel->reset();
+                            throw new FailedToSendToContactException();
                         }
                     } catch (FailedToSendToContactException $exception) {
                         // move along to the next contact

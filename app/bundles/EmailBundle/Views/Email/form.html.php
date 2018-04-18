@@ -73,6 +73,30 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbas
         <div class="col-md-9 height-auto bg-white">
             <div class="row">
                 <div class="col-xs-12">
+                    <table style="width: 100%">
+                      <tr>
+                        <td style="width: 80%"><div class="form-group col-xs-12" >
+                              <?php echo $view['form']->label($form['subject']); ?>
+                              <div>
+                                <?php echo $view['form']->widget($form['subject']); ?>
+                              </div>
+                                </div>
+                        </td>
+                        <td style="width: 20%">
+                              <li class="dropdown" style="display: block;">
+                                 <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="margin-top: 10px;font-size: 13px;" data-toggle="dropdown" href="#">
+                                        <span>Insert Token</span> </span><span><i class="caret" ></i>
+                                 </a>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                 <li>
+                                  <div class="insert-tokens" style="background-color: whitesmoke;width: 350px;overflow-y: scroll;max-height: 154px;">
+                              </div
+                            </li>
+                               </ul>
+                              </li>
+                            </td>
+                        </tr>
+                    </table>
                     <!-- tabs controls -->
                     <ul class="bg-auto nav nav-tabs pr-md pl-md">
                         <!--builder disabled due to bee editor-->
@@ -213,7 +237,7 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbas
         </div>
         <div class="col-md-3 bg-white height-auto bdr-l">
             <div class="pr-lg pl-lg pt-md pb-md">
-                <?php echo $view['form']->row($form['subject']); ?>
+
                 <?php echo $view['form']->row($form['name']); ?>
                 <?php if ($isVariant): ?>
                     <?php echo $view['form']->row($form['variantSettings']); ?>

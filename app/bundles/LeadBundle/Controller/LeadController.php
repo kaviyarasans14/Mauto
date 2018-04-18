@@ -1413,6 +1413,7 @@ class LeadController extends FormController
         $lead                  = $model->getEntity($objectId);
         $isValidEmailCount     = $this->get('mautic.helper.licenseinfo')->isValidEmailCount();
         $isHavingEmailValidity = $this->get('mautic.helper.licenseinfo')->isHavingEmailValidity();
+        $accountStatus         = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
 
         if ($lead === null
             || !$this->get('mautic.security')->hasEntityAccess(
@@ -1490,26 +1491,27 @@ class LeadController extends FormController
                                 }
                             }
                         }
-                        if ($isValidEmailCount && $isHavingEmailValidity) {
-                            if ($mailer->send(true, false, false)) {
-                                $mailer->createEmailStat();
-                                $this->get('mautic.helper.licenseinfo')->intEmailCount('1');
-                                $this->addFlash(
+                        if (!$accountStatus) {
+                            if ($isValidEmailCount && $isHavingEmailValidity) {
+                                if ($mailer->send(true, false, false)) {
+                                    $mailer->createEmailStat();
+                                    $this->get('mautic.helper.licenseinfo')->intEmailCount('1');
+                                    $this->addFlash(
                                 'mautic.lead.email.notice.sent',
                                 [
                                     '%subject%' => $subject,
                                     '%email%'   => $leadEmail,
                                 ]
                             );
-                            } else {
-                                $errors = $mailer->getErrors();
+                                } else {
+                                    $errors = $mailer->getErrors();
 
-                                // Unset the array of failed email addresses
-                                if (isset($errors['failures'])) {
-                                    unset($errors['failures']);
-                                }
+                                    // Unset the array of failed email addresses
+                                    if (isset($errors['failures'])) {
+                                        unset($errors['failures']);
+                                    }
 
-                                $form->addError(
+                                    $form->addError(
                                 new FormError(
                                     $this->get('translator')->trans(
                                         'mautic.lead.email.error.failed',
@@ -1522,14 +1524,17 @@ class LeadController extends FormController
                                     )
                                 )
                             );
-                                $valid = false;
+                                    $valid = false;
+                                }
+                            } else {
+                                if (!$isHavingEmailValidity) {
+                                    $this->addFlash('mautic.email.validity.expired');
+                                } else {
+                                    $this->addFlash('mautic.email.count.exceeds');
+                                }
                             }
                         } else {
-                            if (!$isHavingEmailValidity) {
-                                $this->addFlash('mautic.email.validity.expired');
-                            } else {
-                                $this->addFlash('mautic.email.count.exceeds');
-                            }
+                            $this->addFlash('mautic.account.suspend');
                         }
                     } else {
                         $form['body']->addError(

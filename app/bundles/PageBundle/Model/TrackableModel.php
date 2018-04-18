@@ -209,6 +209,19 @@ class TrackableModel extends AbstractCommonModel
     }
 
     /**
+     * Get a list of URLs that are tracked by a specific channel.
+     *
+     * @param $channel
+     * @param $channelId
+     *
+     * @return mixed
+     */
+    public function getTrackableCount($channel, $channelId)
+    {
+        return $this->getRepository()->findCountByChannel($channel, $channelId);
+    }
+
+    /**
      * Returns a list of tokens and/or URLs that should not be converted to trackables.
      *
      * @param null $content

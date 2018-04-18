@@ -116,7 +116,9 @@ class ConfigController extends FormController
                             if (empty($params['secret_key'])) {
                                 $configurator->mergeParameters(['secret_key' => EncryptionHelper::generateKey()]);
                             }
+                            $emailProvider=$this->translator->trans($params['mailer_transport']);
 
+                            $this->container->get('mautic.helper.licenseinfo')->intEmailProvider($emailProvider);
                             $configurator->write();
 
                             $this->addFlash('mautic.config.config.notice.updated');

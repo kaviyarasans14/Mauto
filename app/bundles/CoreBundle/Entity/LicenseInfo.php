@@ -97,6 +97,11 @@ class LicenseInfo
     private $emailvalidity;
 
     /**
+     * @var string
+     */
+    private $emailprovider;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
@@ -182,6 +187,11 @@ class LicenseInfo
 
         $builder->createField('emailvalidity', 'string')
             ->columnName('email_validity')
+            ->nullable()
+            ->build();
+
+        $builder->createField('emailprovider', 'string')
+            ->columnName('email_provider')
             ->nullable()
             ->build();
     }
@@ -446,5 +456,21 @@ class LicenseInfo
     public function setEmailValidity($emailvalidity)
     {
         $this->emailvalidity = $emailvalidity;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmailProvider()
+    {
+        return $this->emailprovider;
+    }
+
+    /**
+     * @param mixed $emailprovider
+     */
+    public function setEmailProvider($emailprovider)
+    {
+        $this->emailprovider = $emailprovider;
     }
 }

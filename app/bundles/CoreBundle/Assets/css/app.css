@@ -979,6 +979,23 @@ a:hover,
 a:focus {
   text-decoration: none;
 }
+.email-subject-token:hover {
+  font-weight:bold;
+  color: black;
+  text-decoration:underline;
+}
+.email-subject-token{
+  color: black;
+  padding-left: 10px;
+}
+.email-subject-table{
+  border-color:rgba(251, 255, 245, 0);
+  width: 100%;
+}
+.email-subject-table-border{
+  height: 30px;
+  border-color: #FFFFFA;
+}
 h1,
 h2,
 h3,

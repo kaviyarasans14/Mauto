@@ -321,8 +321,41 @@ class AjaxController extends CommonAjaxController
         $data = [];
         if ($id = $request->get('id')) {
             if ($email = $model->getEntity($id)) {
-                $pending = $model->getPendingLeads($email, null, true);
-                $queued  = $model->getQueuedCounts($email);
+                $pending     = $model->getPendingLeads($email, null, true);
+                $queued      = $model->getQueuedCounts($email);
+                $sentCount   =$email->getSentCount(true);
+                $failureCount= $email->getFailureCount(true);
+                $unsubCount  = $email->getUnsubscribeCount(true);
+                $bounceCount =$email->getBounceCount(true);
+                $totalCount  = $pending + $sentCount;
+
+                $clickCount = $model->getEmailClickCount($email->getId());
+                if ($sentCount > 0 || $totalCount > 0) {
+                    $totalSentPec = round($sentCount / $totalCount * 100);
+                } else {
+                    $totalSentPec = 0;
+                }
+                if ($failureCount > 0 || $totalCount > 0) {
+                    $failurePercentage = round($failureCount / $totalCount * 100);
+                } else {
+                    $failurePercentage = 0;
+                }
+                if ($unsubCount > 0 || $totalCount > 0) {
+                    $unSubPercentage = round($unsubCount / $sentCount * 100);
+                } else {
+                    $unSubPercentage = 0;
+                }
+                if ($bounceCount > 0 || $sentCount > 0) {
+                    $bouncePercentage = round($bounceCount / $sentCount * 100);
+                } else {
+                    $bouncePercentage = 0;
+                }
+                if ($clickCount > 0 || $sentCount > 0) {
+                    $clickCountPercentage = round($clickCount / $sentCount * 100);
+                } else {
+                    $clickCountPercentage = 0;
+                    $clickCount           =0;
+                }
 
                 $data = [
                     'success' => 1,
@@ -331,12 +364,12 @@ class AjaxController extends CommonAjaxController
                         ['%count%' => $pending]
                     ) : 0,
                     'queued'           => ($queued) ? $this->translator->trans('mautic.email.stat.queued', ['%count%' => $queued]) : 0,
-                    'sentCount'        => $this->translator->trans('mautic.email.stat.sentcount', ['%count%' => $email->getSentCount(true)]),
-                    'readCount'        => $this->translator->trans('mautic.email.stat.readcount', ['%count%' => $email->getReadCount(true)]),
-                    'readPercent'      => $this->translator->trans('mautic.email.stat.readpercent', ['%count%' => $email->getReadPercentage(true)]),
-                    'failureCount'     => $this->translator->trans('mautic.email.stat.failurecount', ['%count%' => $email->getFailureCount(true)]),
-                    'unsubscribeCount' => $this->translator->trans('mautic.email.stat.unsubscribecount', ['%count%' => $email->getUnsubscribeCount(true)]),
-                    'bounceCount'      => $this->translator->trans('mautic.email.stat.bouncecount', ['%count%' => $email->getBounceCount(true)]),
+                    'sentCount'        => $this->translator->trans('mautic.email.stat.sentcount', ['%count%' =>$sentCount, '%percentage%'=>$totalSentPec]),
+                    'readCount'        => $this->translator->trans('mautic.email.stat.readcount', ['%count%' => $email->getReadCount(true), '%percentage%' => round($email->getReadPercentage(true))]),
+                    'readPercent'      => $this->translator->trans('mautic.email.stat.readpercent', ['%count%' => $clickCount, '%percentage%'=>$clickCountPercentage]),
+                    'failureCount'     => $this->translator->trans('mautic.email.stat.failurecount', ['%count%' => $failureCount, '%percentage%'=>$failurePercentage]),
+                    'unsubscribeCount' => $this->translator->trans('mautic.email.stat.unsubscribecount', ['%count%' =>$unsubCount, '%percentage%'=>$unSubPercentage]),
+                    'bounceCount'      => $this->translator->trans('mautic.email.stat.bouncecount', ['%count%' => $bounceCount, '%percentage%' => $bouncePercentage]),
                 ];
             }
         }

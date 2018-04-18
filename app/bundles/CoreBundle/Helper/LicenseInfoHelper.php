@@ -298,7 +298,7 @@ class LicenseInfoHelper
         if (!$data) {
             $entity = new LicenseInfo();
         }
-        $currentDate   =date('Y-m-d');
+        $currentDate   =date('Y-m-d', strtotime('- 1 day'));
         $licenseEnd    = $entity->getLicenseEnd();
         $licenseRemDays= $entity->getLicensedDays();
 
@@ -482,10 +482,10 @@ class LicenseInfoHelper
         if ($totalEmailCount == 'UL') {
             return 'UL';
         } else {
-            if ($validityDays > 0) {
-                return $validityDays;
-            } elseif ($validityDays == 0) {
+            if ($validityDays == 0 || $validityDays < 0) {
                 return 0;
+            } else {
+                return $validityDays;
             }
         }
     }
@@ -609,7 +609,7 @@ class LicenseInfoHelper
         } else {
             if ($actualEmailCount > 0) {
                 $emailCountExpired = $totalEmailCount - $actualEmailCount;
-                if ($emailCountExpired == 0) {
+                if ($emailCountExpired == 0 || $emailCountExpired < 0) {
                     return  0;
                 } else {
                     return $emailCountExpired;
@@ -624,5 +624,43 @@ class LicenseInfoHelper
         $validity         = $entity->getEmailValidity();
 
         return $validity;
+    }
+
+    public function getAccountStatus()
+    {
+        $entity           = $this->licenseinfo->findAll()[0];
+        $accountStatus    = $entity->getAppStatus();
+
+        if ($accountStatus == 'Suspended') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getEmailProvider()
+    {
+        $entity           = $this->licenseinfo->findAll()[0];
+        $accountStatus    =  $entity->getEmailProvider();
+
+        return $accountStatus;
+    }
+
+    public function intEmailProvider($emailProvider)
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($emailProvider)) {
+            $emailProvider = '';
+        }
+
+        $entity->setEmailProvider($emailProvider);
+        $this->licenseinfo->saveEntity($entity);
     }
 }

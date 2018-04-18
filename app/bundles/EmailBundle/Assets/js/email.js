@@ -62,6 +62,54 @@ Mautic.emailOnLoad = function (container, response) {
 
         });
     }
+
+    Mautic.getTokens('email:getBuilderTokens', function(tokens) {
+        mQuery.each(tokens, function(k,v){
+            if (k.match(/assetlink=/i) && v.match(/a:/)){
+                delete tokens[k];
+            } else if (k.match(/pagelink=/i) && v.match(/a:/)){
+                delete tokens[k];
+            }
+        });
+        var k, keys = [];
+        for (k in tokens) {
+            if (tokens.hasOwnProperty(k)) {
+                keys.push(k);
+            }
+        }
+        keys.sort();
+        var tborder= "<table border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
+        for (var i = 0; i < keys.length; i++) {
+            var val = keys[i];
+            var title = tokens[val];
+                if(i % 3 == 0 && i  !=0 ){
+                    tborder+= "</tr><tr>";
+                }
+                var value= '<td class="email-subject-table-border"><a class="email-subject-token" id="insert-value" data-cmd="inserttoken" data-email-token="' + val + '" title="' + title + '">' + title +'</a></td>';
+                tborder+= value;
+            }
+        tborder+= "</tr></tbody></table>";
+
+
+        mQuery('.insert-tokens').html(tborder);
+        mQuery('[data-email-token]').click(function(e) {
+            e.preventDefault();
+            var currentLink = mQuery(this);
+            var value = currentLink.attr('data-email-token');
+            var subValue= mQuery('#emailform_subject').val();
+           if(subValue == ''){
+               mQuery("#emailform_subject").val(value);
+           } else {
+               if(subValue.includes(value)){
+
+               } else {
+                   subValue+=value;
+                   mQuery("#emailform_subject").val(subValue);
+               }
+
+           }
+        });
+    });
 };
 
 Mautic.emailOnUnload = function(id) {

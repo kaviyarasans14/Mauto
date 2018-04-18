@@ -213,7 +213,7 @@ $isAdmin=$view['security']->isAdmin();
                                 'mautic_contact_index',
                                 ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_read').':'.$item->getId()]
                             ); ?>" data-toggle="tooltip"
-                               title="<?php echo $view['translator']->trans('mautic.email.stat.read.percentage.tooltip'); ?>">
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.click.percentage.tooltip'); ?>">
                                 <div style="width: 50px;">
                                     <i class="fa fa-spin fa-spinner"></i>
                                 </div>
