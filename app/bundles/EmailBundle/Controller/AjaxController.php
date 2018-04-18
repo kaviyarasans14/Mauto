@@ -330,27 +330,27 @@ class AjaxController extends CommonAjaxController
                 $totalCount  = $pending + $sentCount;
 
                 $clickCount = $model->getEmailClickCount($email->getId());
-                if ($sentCount > 0 || $totalCount > 0) {
+                if ($sentCount > 0 && $totalCount > 0) {
                     $totalSentPec = round($sentCount / $totalCount * 100);
                 } else {
                     $totalSentPec = 0;
                 }
-                if ($failureCount > 0 || $totalCount > 0) {
+                if ($failureCount > 0 && $totalCount > 0) {
                     $failurePercentage = round($failureCount / $totalCount * 100);
                 } else {
                     $failurePercentage = 0;
                 }
-                if ($unsubCount > 0 || $totalCount > 0) {
+                if ($unsubCount > 0 && $totalCount > 0) {
                     $unSubPercentage = round($unsubCount / $sentCount * 100);
                 } else {
                     $unSubPercentage = 0;
                 }
-                if ($bounceCount > 0 || $sentCount > 0) {
+                if ($bounceCount > 0 && $sentCount > 0) {
                     $bouncePercentage = round($bounceCount / $sentCount * 100);
                 } else {
                     $bouncePercentage = 0;
                 }
-                if ($clickCount > 0 || $sentCount > 0) {
+                if ($clickCount > 0 && $sentCount > 0) {
                     $clickCountPercentage = round($clickCount / $sentCount * 100);
                 } else {
                     $clickCountPercentage = 0;
