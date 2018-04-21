@@ -127,23 +127,7 @@ try {
                 displayCronlog('general', 'errorinfo:  '.$errormsg);
                 updatecronFailedstatus($con, $domain, $operation, $errormsg);
                 if ($operation == 'mautic:emails:send' && strpos($errormsg, 'Failed to authenticate on SMTP server with') !== false) {
-                    require_once getcwd()."/app/config/$domain/local.php";
-                    $mailer = $parameters['mailer_transport'];
-                    $status = true;
-                    if ($mailer == 'mautic.transport.elasticemail') {
-                        $apikey = $parameters['mailer_password'];
-                        if ($apikey != '') {
-                            $status = checkStatusofElastic($apikey);
-                        }
-                    } elseif ($mailer == 'mautic.transport.sendgrid_api') {
-                        $subusername = $parameters['mailer_user'];
-                        if ($subusername != '') {
-                            $status = checkStatus($subusername);
-                        }
-                    }
-                    if (!$status) {
-                        updateEmailAccountStatus($con, $domain);
-                    }
+                    CheckESPStatus($con, $domain);
                 }
             }
             displayCronlog('general', $domain.' : '.$command);
@@ -177,6 +161,27 @@ function updatecronFailedstatus($con, $domain, $operation, $errorinfo)
     $sql         = "insert into cronerrorinfo values ('$domain','$operation','$currentdate','$errorinfo')";
     displayCronlog('general', 'SQL QUERY:'.$sql);
     $result      = execSQL($con, $sql);
+}
+
+function CheckESPStatus($con, $domain)
+{
+    require_once "app/config/$domain/local.php";
+    $mailer = $parameters['mailer_transport'];
+    $status = true;
+    if ($mailer == 'mautic.transport.elasticemail') {
+        $apikey = $parameters['mailer_password'];
+        if ($apikey != '') {
+            $status = checkStatusofElastic($apikey);
+        }
+    } elseif ($mailer == 'mautic.transport.sendgrid_api') {
+        $subusername = $parameters['mailer_user'];
+        if ($subusername != '') {
+            $status = checkStatus($subusername);
+        }
+    }
+    if (!$status) {
+        updateEmailAccountStatus($con, $domain);
+    }
 }
 
 function updateEmailAccountStatus($con, $domain)
