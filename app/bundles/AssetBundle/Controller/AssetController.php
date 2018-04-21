@@ -50,6 +50,14 @@ class AssetController extends FormController
         if ($this->request->getMethod() == 'POST') {
             $this->setListFilters();
         }
+        $listFilters = [
+            'filters' => [
+                'placeholder' => $this->get('translator')->trans('mautic.category.filter.placeholder'),
+                'multiple'    => true,
+            ],
+        ];
+        // Reset available groups
+        $listFilters['filters']['groups'] = [];
 
         //set limits
         $limit = $this->get('session')->get('mautic.asset.limit', $this->get('mautic.helper.core_parameters')->getParameter('default_assetlimit'));
@@ -66,6 +74,59 @@ class AssetController extends FormController
         if (!$permissions['asset:assets:viewother']) {
             $filter['force'][] =
                 ['column' => 'a.createdBy', 'expr' => 'eq', 'value' => $this->user->getId()];
+        }
+
+        $listFilters['filters']['groups']['mautic.core.filter.category'] = [
+            'options' => $this->getModel('category.category')->getLookupResults('asset'),
+            'prefix'  => 'category',
+        ];
+
+        $updatedFilters = $this->request->get('filters', false);
+
+        if ($updatedFilters) {
+            // Filters have been updated
+
+            // Parse the selected values
+            $newFilters     = [];
+            $updatedFilters = json_decode($updatedFilters, true);
+
+            if ($updatedFilters) {
+                foreach ($updatedFilters as $updatedFilter) {
+                    list($clmn, $fltr) = explode(':', $updatedFilter);
+
+                    $newFilters[$clmn][] = $fltr;
+                }
+
+                $currentFilters = $newFilters;
+            } else {
+                $currentFilters = [];
+            }
+        }
+        $this->get('session')->set('mautic.form.filter', []);
+
+        if (!empty($currentFilters)) {
+            $catIds = [];
+            foreach ($currentFilters as $type => $typeFilters) {
+                switch ($type) {
+                    case 'category':
+                        $key = 'categories';
+                        break;
+                }
+
+                $listFilters['filters']['groups']['mautic.core.filter.'.$key]['values'] = $typeFilters;
+
+                foreach ($typeFilters as $fltr) {
+                    switch ($type) {
+                        case 'category':
+                            $catIds[] = (int) $fltr;
+                            break;
+                    }
+                }
+            }
+
+            if (!empty($catIds)) {
+                $filter['force'][] = ['column' => 'c.id', 'expr' => 'in', 'value' => $catIds];
+            }
         }
 
         $orderBy    = $this->get('session')->get('mautic.asset.orderby', 'a.title');
@@ -114,6 +175,7 @@ class AssetController extends FormController
         return $this->delegateView([
             'viewParameters' => [
                 'searchValue' => $search,
+                'filters'     => $listFilters,
                 'items'       => $assets,
                 'categories'  => $categories,
                 'limit'       => $limit,

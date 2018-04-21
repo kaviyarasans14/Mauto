@@ -98,6 +98,7 @@ class FormRepository extends CommonRepository
         return $this->addStandardCatchAllWhereClause($q, $filter, [
             'f.name',
             'f.description',
+            'c.title',
         ]);
     }
 

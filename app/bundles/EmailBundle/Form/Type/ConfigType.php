@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Form\Type;
 
+use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\EmailBundle\Model\TransportType;
 use Symfony\Component\Form\AbstractType;
@@ -35,16 +36,22 @@ class ConfigType extends AbstractType
      */
     private $transportType;
 
+    private $licenseHelper   = [];
+    private $currentUser     = [];
+
     /**
      * ConfigType constructor.
      *
      * @param TranslatorInterface $translator
      * @param TransportType       $transportType
+     * @param MauticFactory       $factory
      */
-    public function __construct(TranslatorInterface $translator, TransportType $transportType)
+    public function __construct(TranslatorInterface $translator, TransportType $transportType, MauticFactory $factory)
     {
         $this->translator    = $translator;
         $this->transportType = $transportType;
+        $this->licenseHelper = $factory->getHelper('licenseinfo');
+        $this->currentUser   = $factory->getUser();
     }
 
     /**
@@ -54,6 +61,17 @@ class ConfigType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addEventSubscriber(new CleanFormSubscriber(['footer_text' => 'html']));
+
+        $emailProvider = $this->licenseHelper->getEmailProvider();
+        $currentUser   = $this->currentUser->isAdmin();
+        $disabled      = false;
+
+        if (!$currentUser) {
+            if ($emailProvider == 'Sparkpost') {
+                $disabled = true;
+            }
+        }
+
         $builder->add(
             $builder->create(
                 'footer_text',
@@ -190,8 +208,9 @@ class ConfigType extends AbstractType
                 'label'      => 'mautic.email.config.mailer.from.name',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
-                    'class'   => 'form-control',
-                    'tooltip' => 'mautic.email.config.mailer.from.name.tooltip',
+                    'class'    => 'form-control',
+                    'tooltip'  => 'mautic.email.config.mailer.from.name.tooltip',
+                    'disabled' => $disabled,
                 ],
                 'constraints' => [
                     new NotBlank(
@@ -210,8 +229,9 @@ class ConfigType extends AbstractType
                 'label'      => 'mautic.email.config.mailer.from.email',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
-                    'class'   => 'form-control',
-                    'tooltip' => 'mautic.email.config.mailer.from.email.tooltip',
+                    'class'    => 'form-control',
+                    'tooltip'  => 'mautic.email.config.mailer.from.email.tooltip',
+                    'disabled' => $disabled,
                 ],
                 'constraints' => [
                     new NotBlank(

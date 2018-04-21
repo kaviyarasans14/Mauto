@@ -415,6 +415,7 @@ class EmailRepository extends CommonRepository
         return $this->addStandardCatchAllWhereClause($q, $filter, [
             'e.name',
             'e.subject',
+            'c.title',
         ]);
     }
 

@@ -87,6 +87,7 @@ class AssetRepository extends CommonRepository
         return $this->addStandardCatchAllWhereClause($q, $filter, [
             'a.title',
             'a.alias',
+            'c.title',
         ]);
     }
 
