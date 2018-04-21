@@ -215,6 +215,7 @@ return [
                     'mautic.lead.model.lead',
                     'mautic.lead.model.list',
                     'mautic.form.model.form',
+                    'mautic.category.model.category',
                 ],
             ],
             'mautic.campaign.model.event' => [

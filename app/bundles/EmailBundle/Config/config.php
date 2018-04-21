@@ -321,6 +321,7 @@ return [
                 'arguments' => [
                     'translator',
                     'mautic.email.transport_type',
+                    'mautic.factory',
                 ],
                 'alias'     => 'emailconfig',
             ],

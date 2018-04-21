@@ -69,7 +69,7 @@ class EmailController extends FormController
 
         $listFilters = [
             'filters' => [
-                'placeholder' => $this->get('translator')->trans('mautic.email.filter.placeholder'),
+                'placeholder' => $this->get('translator')->trans('mautic.category.filter.placeholder'),
                 'multiple'    => true,
             ],
         ];
@@ -101,9 +101,14 @@ class EmailController extends FormController
         }
 
         //retrieve a list of Lead Lists
-        $listFilters['filters']['groups']['mautic.core.filter.lists'] = [
-            'options' => $this->getModel('lead.list')->getUserLists(),
-            'prefix'  => 'list',
+        //$listFilters['filters']['groups']['mautic.core.filter.lists'] = [
+        //   'options' => $this->getModel('lead.list')->getUserLists(),
+        //  'prefix'  => 'list',
+        // ];
+
+        $listFilters['filters']['groups']['mautic.core.filter.category'] = [
+            'options' => $this->getModel('category.category')->getLookupResults('email'),
+            'prefix'  => 'category',
         ];
 
         //retrieve a list of themes
@@ -227,7 +232,7 @@ class EmailController extends FormController
             [
                 'viewParameters' => [
                     'searchValue'     => $search,
-                    'filters'         => '',
+                    'filters'         => $listFilters,
                     'items'           => $emails,
                     'totalItems'      => $count,
                     'page'            => $page,
@@ -509,6 +514,15 @@ class EmailController extends FormController
         if (!$this->get('mautic.security')->isGranted('email:emails:create')) {
             return $this->accessDenied();
         }
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator= $this->get('mautic.configurator');
+
+        $params     = $configurator->getParameters();
+        $fromname   = $params['mailer_from_name'];
+        $fromadress = $params['mailer_from_email'];
+
+        $entity->setFromName($fromname);
+        $entity->setFromAddress($fromadress);
 
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
@@ -692,6 +706,15 @@ class EmailController extends FormController
         $lastname   =$entity->getName();
         $session    = $this->get('session');
         $page       = $this->get('session')->get('mautic.email.page', 1);
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator= $this->get('mautic.configurator');
+
+        $params     = $configurator->getParameters();
+        $fromname   = $params['mailer_from_name'];
+        $fromadress = $params['mailer_from_email'];
+
+        $entity->setFromName($fromname);
+        $entity->setFromAddress($fromadress);
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_index', ['page' => $page]);

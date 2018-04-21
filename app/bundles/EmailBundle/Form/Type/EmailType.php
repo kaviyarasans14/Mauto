@@ -44,23 +44,25 @@ class EmailType extends AbstractType
     private $timezoneChoices = [];
     private $stageChoices    = [];
     private $localeChoices   = [];
+    private $licenseHelper   = [];
+    private $currentUser     = [];
 
     /**
      * @param MauticFactory $factory
      */
     public function __construct(MauticFactory $factory)
     {
-        $this->translator   = $factory->getTranslator();
-        $this->defaultTheme = $factory->getParameter('theme');
-        $this->em           = $factory->getEntityManager();
-        $this->request      = $factory->getRequest();
-
+        $this->translator      = $factory->getTranslator();
+        $this->defaultTheme    = $factory->getParameter('theme');
+        $this->em              = $factory->getEntityManager();
+        $this->request         = $factory->getRequest();
         $this->countryChoices  = FormFieldHelper::getCountryChoices();
         $this->regionChoices   = FormFieldHelper::getRegionChoices();
         $this->timezoneChoices = FormFieldHelper::getCustomTimezones();
         $this->localeChoices   = FormFieldHelper::getLocaleChoices();
-
-        $stages = $factory->getModel('stage')->getRepository()->getSimpleList();
+        $this->licenseHelper   = $factory->getHelper('licenseinfo');
+        $this->currentUser     = $factory->getUser();
+        $stages                = $factory->getModel('stage')->getRepository()->getSimpleList();
 
         foreach ($stages as $stage) {
             $this->stageChoices[$stage['value']] = $stage['label'];
@@ -75,6 +77,15 @@ class EmailType extends AbstractType
     {
         $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html', 'beeJSON' => 'raw']));
         $builder->addEventSubscriber(new FormExitSubscriber('email.email', $options));
+        $emailProvider = $this->licenseHelper->getEmailProvider();
+        $currentUser   = $this->currentUser->isAdmin();
+        $disabled      = false;
+
+        if (!$currentUser) {
+            if ($emailProvider == 'Sparkpost') {
+                $disabled = true;
+            }
+        }
 
         $name = 'leadsengage.email.form.template.name';
         if (!$options['isEmailTemplate']) {
@@ -114,6 +125,7 @@ class EmailType extends AbstractType
                     'class'    => 'form-control',
                     'preaddon' => 'fa fa-user',
                     'tooltip'  => 'mautic.email.from_name.tooltip',
+                    'disabled' => $disabled,
                 ],
                 'required' => false,
             ]
@@ -129,7 +141,8 @@ class EmailType extends AbstractType
                     'class'    => 'form-control',
                     'preaddon' => 'fa fa-envelope',
                     'tooltip'  => 'mautic.email.from_email.tooltip',
-                ],
+                    'disabled' => $disabled,
+                 ],
                 'required' => false,
             ]
         );

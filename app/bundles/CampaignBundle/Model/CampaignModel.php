@@ -17,6 +17,7 @@ use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\CampaignBundle\Entity\Event;
 use Mautic\CampaignBundle\Entity\Lead as CampaignLead;
 use Mautic\CampaignBundle\Event as Events;
+use Mautic\CategoryBundle\Model\CategoryModel;
 use Mautic\CoreBundle\Helper\Chart\ChartQuery;
 use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
@@ -64,6 +65,11 @@ class CampaignModel extends CommonFormModel
     protected $formModel;
 
     /**
+     * @var CategoryModel
+     */
+    protected $categoryModel;
+
+    /**
      * @var
      */
     protected static $events;
@@ -75,14 +81,16 @@ class CampaignModel extends CommonFormModel
      * @param LeadModel            $leadModel
      * @param ListModel            $leadListModel
      * @param FormModel            $formModel
+     * @param CategoryModel        $categoryModel
      */
-    public function __construct(CoreParametersHelper $coreParametersHelper, LeadModel $leadModel, ListModel $leadListModel, FormModel $formModel)
+    public function __construct(CoreParametersHelper $coreParametersHelper, LeadModel $leadModel, ListModel $leadListModel, FormModel $formModel, CategoryModel $categoryModel)
     {
         $this->leadModel              = $leadModel;
         $this->leadListModel          = $leadListModel;
         $this->formModel              = $formModel;
         $this->batchSleepTime         = $coreParametersHelper->getParameter('mautic.batch_sleep_time');
         $this->batchCampaignSleepTime = $coreParametersHelper->getParameter('mautic.batch_campaign_sleep_time');
+        $this->categoryModel          = $categoryModel;
     }
 
     /**
@@ -672,6 +680,19 @@ class CampaignModel extends CommonFormModel
                 if ($forms) {
                     foreach ($forms as $form) {
                         $choices['forms'][$form['id']] = $form['name'];
+                    }
+                }
+
+            case 'category':
+            case null:
+               $choices['category'] = [];
+               $repo                = $this->categoryModel->getRepository();
+               $repo->setCurrentUser($this->userHelper->getUser());
+               $categories = $this->categoryModel->getLookupResults('campaign');
+
+                if ($categories) {
+                    foreach ($categories as $cat) {
+                        $choices['category'][$cat['id']] = $cat['title'];
                     }
                 }
         }

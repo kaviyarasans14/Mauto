@@ -36,6 +36,7 @@ $view['slots']->set(
             'searchHelp'  => 'mautic.form.form.help.searchcommands',
             'searchId'    => 'form-search',
             'action'      => $currentRoute,
+            'filters'     => $filters,
         ]
     ); ?>
 

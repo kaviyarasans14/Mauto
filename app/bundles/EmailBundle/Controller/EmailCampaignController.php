@@ -69,7 +69,7 @@ class EmailCampaignController extends FormController
 
         $listFilters = [
             'filters' => [
-                'placeholder' => $this->get('translator')->trans('mautic.email.filter.placeholder'),
+                'placeholder' => $this->get('translator')->trans('mautic.email.filter.segment.category.placeholder'),
                 'multiple'    => true,
             ],
         ];
@@ -106,6 +106,11 @@ class EmailCampaignController extends FormController
             'prefix'  => 'list',
         ];
 
+        //retrieve a titles of Category
+        $listFilters['filters']['groups']['mautic.core.filter.category'] = [
+            'options' => $this->getModel('category.category')->getLookupResults('email'),
+            'prefix'  => 'category',
+        ];
         //retrieve a list of themes
         //$listFilters['filters']['groups']['mautic.core.filter.themes'] = [
         //    'options' => $this->factory->getInstalledThemes('email'),
@@ -508,6 +513,15 @@ class EmailCampaignController extends FormController
             return $this->accessDenied();
         }
 
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator= $this->get('mautic.configurator');
+
+        $params     = $configurator->getParameters();
+        $fromname   = $params['mailer_from_name'];
+        $fromadress = $params['mailer_from_email'];
+
+        $entity->setFromName($fromname);
+        $entity->setFromAddress($fromadress);
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
         $action       = $this->generateUrl('mautic_email_campaign_action', ['objectAction' => 'new']);
@@ -690,6 +704,16 @@ class EmailCampaignController extends FormController
         $lastname   =$entity->getName();
         $session    = $this->get('session');
         $page       = $this->get('session')->get('mautic.email.page', 1);
+
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator= $this->get('mautic.configurator');
+
+        $params     = $configurator->getParameters();
+        $fromname   = $params['mailer_from_name'];
+        $fromadress = $params['mailer_from_email'];
+
+        $entity->setFromName($fromname);
+        $entity->setFromAddress($fromadress);
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_campaign_index', ['page' => $page]);
