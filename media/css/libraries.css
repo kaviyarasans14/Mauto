@@ -1482,4 +1482,11 @@ span{margin-bottom:8px}.payment-history{width:100%}.payment-history
 .data{padding:5px}.exitlogout{float:right;font-size:19.5px;font-weight:normal;line-height:1}.exitlogout:hover,.exitlogout:focus{text-decoration:none;cursor:pointer}.signup_next
 .exit_logout{padding:12px}.exit_logout:hover,.exit_logout:focus{text-decoration:none;cursor:pointer;color:#fff}.sidebar-credits-info-holder  .sidebar-buycredits{background:#f93;padding-left:10px !important;text-align:center;width:120px;font-weight:700;font-size:11px;border:1px
 solid #f93}.sidebar-credits-info-holder  .sidebar-buycredits:hover{font-weight:700;background:#fff;color:#f93 !important;border:1px
-solid #f93}
+solid #f93}.payment-status-holder
+.email_stat_col_1{width:25%;float:left;padding-left:10px}.payment-status-holder
+.email_stat_col_2{width:25%;float:left;text-align:right;padding-right:20px}.payment-status-holder
+.email_stat_col_3{width:25%;float:left;padding-left:20px}.payment-status-holder
+.email_stat_col_4{width:25%;float:left;text-align:right;padding-right:10px}.payment-status-holder
+.email_stat_header_1{width:50%;float:left;padding-left:10px;padding-bottom:10px;border-bottom:1px solid}.payment-status-holder
+.email_stat_header_2{width:50%;float:right;text-align:right;padding-right:10px;padding-bottom:10px;border-bottom:1px solid}.payment-status-holder.emailusage{width:80%;margin-left:10%}.meter-bar{width:17%;height:10px;background:transparent;border:1px
+solid #e9ecef;border-radius:4px;float:left;margin-left:43%}.meter-bar-fill{height:8px;border-radius:4px}.meter-bar-fill.is-below-25{background:#b71c1c}.meter-bar-fill.is-below-50{background:#f90}.meter-bar-fill.is-above-50{background:#18c96e}

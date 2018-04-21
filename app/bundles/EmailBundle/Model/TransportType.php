@@ -45,6 +45,7 @@ class TransportType
                 "mautic.transport.elasticemail",
                 "mautic.transport.amazon",
                 "mautic.transport.postmark",
+                "mautic.transport.sendgrid_api",
                 "gmail"';
     }
 
@@ -52,8 +53,7 @@ class TransportType
     {
         return '"mail",
                 "sendmail",
-                "mautic.transport.sparkpost",
-                "mautic.transport.sendgrid_api"';
+                "mautic.transport.sparkpost"';
     }
 
     public function getServiceRequiresPassword()

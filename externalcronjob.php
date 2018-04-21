@@ -2,11 +2,13 @@
 
 //ini_set ( "display_errors", "1" );
 //error_reporting ( E_ALL );
-chdir('/var/www/leadsengage');
+chdir('/var/www/mauto');
 
-include '../leadsengagesaas/lib/process/config.php';
-include '../leadsengagesaas/lib/process/field.php';
-include '../leadsengagesaas/lib/util.php';
+include '../mautosaas/lib/process/config.php';
+include '../mautosaas/lib/process/field.php';
+include '../mautosaas/lib/util.php';
+include '../mautosaas/lib/process/createElasticEmailSubAccount.php';
+include '../mautosaas/lib/process/createSendGridAccount.php';
 
 function displayCronlog($domain, $msg)
 {
@@ -124,6 +126,25 @@ try {
             if ($errormsg != '') {
                 displayCronlog('general', 'errorinfo:  '.$errormsg);
                 updatecronFailedstatus($con, $domain, $operation, $errormsg);
+                if ($operation == 'mautic:emails:send' && strpos($errormsg, 'Failed to authenticate on SMTP server with') !== false) {
+                    require_once getcwd()."/app/config/$domain/local.php";
+                    $mailer = $parameters['mailer_transport'];
+                    $status = true;
+                    if ($mailer == 'mautic.transport.elasticemail') {
+                        $apikey = $parameters['mailer_password'];
+                        if ($apikey != '') {
+                            $status = checkStatusofElastic($apikey);
+                        }
+                    } elseif ($mailer == 'mautic.transport.sendgrid_api') {
+                        $subusername = $parameters['mailer_user'];
+                        if ($subusername != '') {
+                            $status = checkStatus($subusername);
+                        }
+                    }
+                    if (!$status) {
+                        updateEmailAccountStatus($con, $domain);
+                    }
+                }
             }
             displayCronlog('general', $domain.' : '.$command);
             displayCronlog($domain, 'Command Results:'.$output);
@@ -155,5 +176,17 @@ function updatecronFailedstatus($con, $domain, $operation, $errorinfo)
     $currentdate = date('Y-m-d H:i:s');
     $sql         = "insert into cronerrorinfo values ('$domain','$operation','$currentdate','$errorinfo')";
     displayCronlog('general', 'SQL QUERY:'.$sql);
+    $result      = execSQL($con, $sql);
+}
+
+function updateEmailAccountStatus($con, $domain)
+{
+    $sql         = "select appid from applicationlist where f5 = '$domain';";
+    $appidarr    = getResultArray($con, $sql);
+    $appid       = $appidarr[0][0];
+    $licenseinfo = $appid.'.licenseinfo';
+    $sql         = "update $licenseinfo set app_status = 'Suspended'";
+    $result      = execSQL($con, $sql);
+    $sql         = "update applicationlist set f21 = 0 where f5 = '$domain'";
     $result      = execSQL($con, $sql);
 }

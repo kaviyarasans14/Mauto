@@ -209,6 +209,7 @@ class DashboardController extends FormController
         $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
         $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
         $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
+        $mailertransport      = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
 
         $emailUssage    = false;
         $bouceUsage     = false;
@@ -227,6 +228,13 @@ class DashboardController extends FormController
 
         if ($accountStatus) {
             $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
+        }
+        if ($mailertransport == $this->translator->trans('mautic.transport.elasticemail') || $mailertransport == $this->translator->trans('mautic.transport.sendgrid_api')) {
+            $accountusagelink  = $this->translator->trans('le.emailusage.link');
+            $accountusagelink  = str_replace('|URL|', $this->generateUrl('mautic_email_usage'), $accountusagelink);
+            $accountsuspendmsg = str_replace('%ATAG%', $accountusagelink, $accountsuspendmsg);
+        } else {
+            $accountsuspendmsg = str_replace('%ATAG%', '', $accountsuspendmsg);
         }
         if (!empty($licenseRemDays)) {
             if ($licenseRemDays < 7) {

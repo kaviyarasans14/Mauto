@@ -32,6 +32,10 @@ return [
                 'path'       => '/emails/contacts/{objectId}',
                 'controller' => 'MauticEmailBundle:Email:contacts',
             ],
+            'mautic_email_usage' => [
+                'path'       => '/emailsusage',
+                'controller' => 'MauticEmailBundle:EmailUsage:emailstat',
+            ],
         ],
         'api' => [
             'mautic_api_emailstandard' => [
