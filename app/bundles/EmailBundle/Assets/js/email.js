@@ -276,6 +276,11 @@ Mautic.selectEmailEditor = function(editorType) {
         textarea.val("");
         basic.trigger('click');
     } else {
+        var templateJSON = mQuery('textarea.bee-editor-json');
+        // Populate default content
+        if (!templateJSON.length || !templateJSON.val().length) {
+            Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+        }
         basic.addClass('hide');
         advance.trigger('click');
     }

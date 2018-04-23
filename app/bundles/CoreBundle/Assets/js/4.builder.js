@@ -404,21 +404,10 @@ Mautic.initSelectBeeTemplate = function(themeField) {
     Mautic.beeTemplate = themeField.val();
 
     if (isNew) {
-        if(mQuery('.sidebar-content').is(':visible')) {
-            Mautic.showChangeThemeWarning = false;
-            if(mQuery('#email-editor-advance').is(':visible')) {
-                // Populate default content
-                if (!templateJSON.length || !templateJSON.val().length) {
-                    Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
-                }
-            }else{
-                var builderbtn= mQuery('.btn-beeditor');
-                builderbtn.addClass('hide');
-            }
-        }else{
+        Mautic.showChangeThemeWarning = false;
+        if(!mQuery('.sidebar-content').is(':visible')) {
             Mautic.selectEmailEditor("basic");
         }
-
     }else{
         if (!templateJSON.length || !templateJSON.val().length) {
             Mautic.selectEmailEditor("basic");
@@ -426,7 +415,6 @@ Mautic.initSelectBeeTemplate = function(themeField) {
             Mautic.selectEmailEditor("advance");
         }
     }
-
     if (templateJSON.length) {
          mQuery('[data-beetemplate]').click(function(e) {
             e.preventDefault();
