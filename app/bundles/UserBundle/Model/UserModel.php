@@ -278,16 +278,16 @@ class UserModel extends FormModel
     /**
      * @param User $user
      */
-    public function sendResetEmail(User $user)
+    public function sendResetEmail(User $user, $mailer)
     {
-        $mailer = $this->mailHelper->getMailer();
-
+        $mailer->start();
         $resetToken = $this->getResetToken($user);
         $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken], true);
-        $mailer->setFrom(['support@leadsengage.com' => 'LeadsEngage']);
-        $mailer->setTo([$user->getEmail() => $user->getName()]);
-        $mailer->setFrom(['support@leadsengage.com' => 'LeadsEngage']);
-        $mailer->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));
+        $message    = \Swift_Message::newInstance()
+            ->setSubject(['support@leadsengage.com' => 'LeadsEngage']);
+        $message->setTo([$user->getEmail() => $user->getName()]);
+        $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));
         /*$text = $this->translator->trans(
             'mautic.user.user.passwordreset.email.body',
             ['%name%' => $user->getFirstName(), '%resetlink%' => '<a href="'.$resetLink.'">'.$resetLink.'</a>']
@@ -335,10 +335,10 @@ class UserModel extends FormModel
 </html>";
         //$html = nl2br($text);
 
-        $mailer->setBody($text);
+        $message->setBody($text, 'text/html');
         //$mailer->setPlainText(strip_tags($text));
 
-        $mailer->send();
+        $mailer->send($message);
     }
 
     /**

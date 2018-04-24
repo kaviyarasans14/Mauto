@@ -455,7 +455,7 @@ class LicenseInfoHelper
         if ($totalEmailCount == 'UL') {
             return true;
         } else {
-            if ($remDays > 0) {
+            if ($remDays >= 0) {
                 return true;
             } else {
                 return false;

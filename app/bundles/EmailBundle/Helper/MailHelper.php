@@ -497,7 +497,7 @@ class MailHelper
         $doc                      = new \DOMDocument();
         $doc->strictErrorChecking = false;
         libxml_use_internal_errors(true);
-        $doc->loadHTML($bodyContent);
+        $doc->loadHTML('<?xml encoding="UTF-8">'.$bodyContent);
         // Get body tag.
         $body = $doc->getElementsByTagName('body');
         if ($body and $body->length > 0) {

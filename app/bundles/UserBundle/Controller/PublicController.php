@@ -38,7 +38,8 @@ class PublicController extends FormController
                 if ($user == null) {
                     $form['identifier']->addError(new FormError($this->translator->trans('mautic.user.user.passwordreset.nouserfound', [], 'validators')));
                 } else {
-                    $model->sendResetEmail($user);
+                    $mailer = $this->container->get('mautic.transport.elasticemail.transactions');
+                    $model->sendResetEmail($user, $mailer);
 
                     $this->addFlash('mautic.user.user.notice.passwordreset', [], 'notice', null, false);
 
