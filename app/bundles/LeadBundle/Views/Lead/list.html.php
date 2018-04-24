@@ -111,13 +111,13 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.company_new',
                     'text'       => 'mautic.core.company',
-                    'class'      => 'col-lead-company',
+                    'class'      => 'col-lead-company visible-md visible-lg',
                 ]);
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.email',
                     'text'       => 'mautic.core.type.email',
-                    'class'      => 'col-lead-email visible-md visible-lg',
+                    'class'      => 'col-lead-email',
                 ]);
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',

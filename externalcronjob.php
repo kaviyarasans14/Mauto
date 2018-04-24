@@ -109,6 +109,9 @@ try {
         for ($di=0; $di < sizeof($domainlist); ++$di) {
             $errormsg    = '';
             $domain      =$domainlist[$di][0];
+            if ($domain == '') {
+                continue;
+            }
             $currentdate = date('Y-m-d');
             $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and operation = '$operation' and createdtime like '$currentdate%'";
             $errorinfo   = getResultArray($con, $sql);
@@ -157,6 +160,7 @@ function cleanCronStatus($con, $command, $domain)
 
 function updatecronFailedstatus($con, $domain, $operation, $errorinfo)
 {
+    $errorinfo   = mysql_escape_string($errorinfo);
     $currentdate = date('Y-m-d H:i:s');
     $sql         = "insert into cronerrorinfo values ('$domain','$operation','$currentdate','$errorinfo')";
     displayCronlog('general', 'SQL QUERY:'.$sql);

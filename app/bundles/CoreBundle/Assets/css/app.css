@@ -1360,6 +1360,24 @@ blockquote > p:after {
   color: #ff9933;
   font-weight: 700;
 }
+.btn-sm.viewinvoice{
+  margin-top: 2px;
+  font-weight: 700;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1.456;
+  border-radius: 2px;
+  color: #fff;
+  margin-left: 3px;
+  background-color: #375695;
+  border-color: #375695;
+}
+.btn-sm.viewinvoice:hover{
+  background-color: #fff;
+  border-color: #375695;
+  color: #375695;
+  font-weight: 700;
+}
 .btn.btn-circle.btn-lg {
   width: 43px;
 }

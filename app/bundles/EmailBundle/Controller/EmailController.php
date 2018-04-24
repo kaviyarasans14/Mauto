@@ -896,7 +896,7 @@ class EmailController extends FormController
             $routeParams['updateSelect'] = $updateSelect;
             $routeParams['contentOnly']  = 1;
         }
-
+        $ismobile = InputHelper::isMobile();
         //set some permissions
         $permissions = $this->get('mautic.security')->isGranted(
             [
@@ -921,6 +921,7 @@ class EmailController extends FormController
                     'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
                     'sectionForm'        => $sectionForm->createView(),
                     'permissions'        => $permissions,
+                    'isMobile'           => $ismobile,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [

@@ -5,16 +5,16 @@
  * Date: 17/4/18
  * Time: 5:18 PM.
  */
-$showcgst  = '';
-$showgst   = '';
+$showcgst  = 'hide';
+$showgst   = 'hide';
 $taxamount = 0;
 if ($billing->getState() == 'Tamil Nadu') {
-    $showcgst  = '';
+    $showcgst  = 'hide';
     $showgst   = 'hide';
     $taxamount = $payment->getTaxamount();
     $taxamount = ($taxamount / 2);
 } else {
-    $showgst   = '';
+    $showgst   = 'hide';
     $showcgst  = 'hide';
     $taxamount = $payment->getTaxamount();
 }
@@ -63,41 +63,49 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
         }
         #leadsengage_info{
             float:left;
+            padding-left:8px;
         }
         #customer_info{
             float:right;
+            max-width: 50%;
+            padding-left:8px;
+            margin-right: 20px;
+            position:relative;
+            bottom:15px;
         }
         #invoice_info {
             float: left;
             width: 100%;
+            padding-left:8px;
         }
         #payment_info{
             width: 100%;
             float:left;
+            padding-left:8px;
         }
         .table_header{
             border-top: 1px solid #dddddd;
             border-bottom: 1px solid #dddddd;
             padding:5px;
         }
-        #description_header{
-            width:75%;
+        .planname_body{
+            width:20%;
             text-align:left;
         }
-        #amount_header{
-            width:25%;
-            text-align:right;
-        }
         .description_body{
-            width:75%;
+            width:32%;
+            text-align:left;
+        }
+        .service_body{
+            width:28%;
             text-align:left;
         }
         .amount_body{
-            width:25%;
+            width:20%;
             text-align:right;
         }
         .gst_body{
-            width:75%;
+            width:25%;
             text-align:right;
         }
         .gstamount_body{
@@ -123,22 +131,27 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
 </head>
 <body class="canvas">
 <div id="pageheader">
+    <div style="text-align: left;float:left; width:50%;">
+        <img style="width: 200px;" src="<?php echo $view['assets']->getUrl('media/images/leadsengage_logo-black.png') ?>">
+    </div>
+    <br>
+    <div style="float:right;text-align:center; width:50%;position: relative;bottom: 15px;">
+        <span style="font-size:25px;"><b>INVOICE</b></span>
+    </div>
+    <br>
     <div id="leadsengage_info">
         <p>
-            <b>From:</b><br>
-            LeadsEngage<br>
-            52/41, New Colony, First Main Road,<br>
-            Chromepet, Chennai - 44, TN, INDIA<br>
-            <b>GST No:</b> 123456<br>
+            <b>LeadsEngage, Inc</b><br>
+            340 S Lemon Ave, Walnut, CA 91789, USA<br>
+            +1-909-742-8682<br>
         </p>
     </div>
     <div id="customer_info">
         <p>
-            <b>To:</b><br>
-            <?php echo $billing->getCompanyname(); ?><br>
+            <b><?php echo $billing->getCompanyname(); ?></b><br>
             <?php echo $billing->getCompanyaddress(); ?><br>
-            <?php echo $billing->getCity().', '.$billing->getPostalcode().', '.$billing->getState().', '.$billing->getCountry(); ?><br>
-            <b style="<?php echo ($billing->getGstnumber() == '') ? 'display:none' : ''; ?>">GST No:</b> <?php $billing->getGstnumber(); ?><br>
+            <span style="word-wrap:break-word;"><?php echo $billing->getCity().', '.$billing->getPostalcode().', '.$billing->getState().', '.$billing->getCountry(); ?></span><br>
+            <b style="<?php echo ($billing->getGstnumber() == '') ? 'display:none' : ''; ?>">TAXID:</b> <?php echo $billing->getGstnumber(); ?><br>
         </p>
     </div>
 
@@ -146,25 +159,37 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
     <br>
     <div id="invoice_info">
         <p>
+            <b>Date:</b> <?php echo $view['date']->toDate($payment->getcreatedOn()); ?><br>
             <b>Invoice #</b>:<?php echo $payment->getOrderID(); ?><br>
-            <b>Date:</b> <?php echo $view['date']->toShort($payment->getcreatedOn()); ?><br>
-            <b>Transaction #:</b> 289011037<br>
+            <b>Transaction ID:</b> <?php echo $payment->getPaymentID(); ?><br>
         </p>
     </div>
     <div id="payment_info">
         <table style="width:100%;padding-right:20px;font: inherit;">
             <thead>
-            <th id="description_header" class="table_header" >
+            <th class="table_header planname_body" >
+                Plan Name
+            </th>
+            <th class="table_header description_body" >
                 Description
             </th>
-            <th id="amount_header" class="table_header" >
-                Amount (INR/USD)
+            <th class="table_header service_body" >
+                Service Period
+            </th>
+            <th class="table_header amount_body" >
+                Amount (USD)
             </th>
             </thead>
             <tbody>
             <tr>
-                <td class="table_body description_body">
+                <td class="table_body planname_body">
                     <?php echo $payment->getPlanLabel(); ?>
+                </td>
+                <td class="table_body description_body">
+                    <span><?php echo number_format($payment->getAddedCredits()).' Email Credits'; ?></span>
+                </td>
+                <td class="table_body service_body">
+                    <?php echo $view['date']->toDate($payment->getcreatedOn()); ?> -<br> <?php echo $view['date']->toDate($payment->getValidityTill()); ?>
                 </td>
                 <td class="table_body amount_body">
                     <?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getNetamount()) : $payment->getNetamount())?>
@@ -193,6 +218,12 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
                 </td>
             </tr>
             <tr>
+                <td class="table_body planname_body">
+
+                </td>
+                <td class="table_body description_body">
+
+                </td>
                 <td class="table_body gst_body">
                     Amount Paid
                 </td>
