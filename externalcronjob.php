@@ -114,6 +114,7 @@ try {
         for ($di=0; $di < sizeof($domainlist); ++$di) {
             $errormsg    = '';
             $domain      =$domainlist[$di][0];
+
             if ($domain == '') {
                 continue;
             }
