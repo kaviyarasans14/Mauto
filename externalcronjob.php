@@ -2,13 +2,18 @@
 
 //ini_set ( "display_errors", "1" );
 //error_reporting ( E_ALL );
-chdir('/var/www/mauto');
+chdir('/var/www/leadsengagesaas');
 
-include '../mautosaas/lib/process/config.php';
-include '../mautosaas/lib/process/field.php';
-include '../mautosaas/lib/util.php';
-include '../mautosaas/lib/process/createElasticEmailSubAccount.php';
-include '../mautosaas/lib/process/createSendGridAccount.php';
+include '../leadsengagesaas/lib/process/config.php';
+include '../leadsengagesaas/lib/process/field.php';
+include '../leadsengagesaas/lib/util.php';
+include '../leadsengagesaas/lib/process/createElasticEmailSubAccount.php';
+include '../leadsengagesaas/lib/process/createSendGridAccount.php';
+
+$loader = require_once __DIR__.'/app/autoload.php';
+
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 function displayCronlog($domain, $msg)
 {
@@ -79,7 +84,7 @@ try {
                 $fcolname = 'f28';
             }
         } else {
-            die('Please Configure Valid Parameter');
+            exit('Please Configure Valid Parameter');
         }
         $sql  = "select skiplimit from cronmonitorinfo where command='$operation'";
 //        displayCronlog('general', 'SQL QUERY:'.$sql);
@@ -119,9 +124,9 @@ try {
                 displayCronlog('general', "This operation ($operation) for ($domain) is failing repeatedly.");
                 continue;
             }
-            $command="php app/console $arguments --domain=$domain";
+            $command="app/console $arguments --domain=$domain";
             displayCronlog($domain, 'Command Invoked:'.$command);
-            $output = shell_exec($command);
+            $output=executeCommand($command);
             if (strpos($output, 'exception->') !== false) {
                 $errormsg = $output;
             }
@@ -140,7 +145,8 @@ try {
     } else {
         $command="php app/console $arguments ";
         displayCronlog('general', 'Command Invoked:'.$command);
-        $output = shell_exec($command);
+        // $output = shell_exec($command);
+        $output=executeCommand($command);
         if (strpos($output, 'exception->') !== false) {
             $errormsg = $output;
         }
@@ -167,6 +173,29 @@ function updatecronFailedstatus($con, $domain, $operation, $errorinfo)
     $result      = execSQL($con, $sql);
 }
 
+function executeCommand($command)
+{
+    $output  ='';
+    $process = new Process($command);
+    try {
+        $process->run();
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        // $output = shell_exec($command);
+        $output=$process->getOutput();
+    } catch (ProcessFailedException $pex) {
+        $output='exception->'.$pex->getMessage();
+    } catch (Exception $pex) {
+        $output='exception->'.$pex->getMessage();
+    } finally {
+        $process->clearOutput();
+        $process->clearErrorOutput();
+    }
+
+    return $output;
+}
 function CheckESPStatus($con, $domain)
 {
     require_once "app/config/$domain/local.php";
