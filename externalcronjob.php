@@ -2,7 +2,7 @@
 
 //ini_set ( "display_errors", "1" );
 //error_reporting ( E_ALL );
-chdir('/var/www/leadsengagesaas');
+chdir('/var/www/leadsengage');
 
 include '../leadsengagesaas/lib/process/config.php';
 include '../leadsengagesaas/lib/process/field.php';
@@ -141,6 +141,7 @@ try {
             }
             displayCronlog('general', $domain.' : '.$command);
             displayCronlog($domain, 'Command Results:'.$output);
+            sleep(5);
         }
         cleanCronStatus($con, $operation, '');
     } else {
