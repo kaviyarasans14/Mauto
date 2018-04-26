@@ -57,12 +57,13 @@ class DashboardController extends FormController
                 $showsetup = true;
                 $billing   = new Billing();
             }
-            $countryname = $this->getCountryName();
-            $timezone    = '';
-            if ($countryname == 'India') {
-                $timezone = 'Asia/Kolkata';
-                $billing->setCountry($countryname);
-            }
+            $countrydetails = $this->getCountryName();
+            $timezone       = $countrydetails['timezone'];
+            $countryname    = $countrydetails['countryname'];
+            //if ($countryname == 'India') {
+            //    $timezone = 'Asia/Calcutta';
+            $billing->setCountry($countryname);
+            //}
             $repository  =$this->get('le.core.repository.subscription');
             $signupinfo  =$repository->getSignupInfo($userentity->getEmail());
             if (!empty($signupinfo)) {
@@ -748,10 +749,31 @@ class DashboardController extends FormController
 
     public function getCountryName()
     {
-        $clientip        = $this->request->getClientIp();
-        $dataArray       = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
-        $countrycode     =$dataArray->{'geoplugin_countryName'};
+        $clientip                      = $this->request->getClientIp();
+        $dataArray                     = json_decode(file_get_contents('http://www.geoplugin.net/json.gp?ip='.$clientip));
+        $countrycode                   = $dataArray->{'geoplugin_countryName'};
+        $lat                           = $dataArray->{'geoplugin_latitude'};
+        $lon                           = $dataArray->{'geoplugin_longitude'};
+        $countrydetails                = [];
+        $countrydetails['countryname'] = $countrycode;
+        $timezone                      = '';
+        if ($lat != null && $lon != null) {
+            $timezone = $this->getTimeZone($lat, $lon);
+        }
+        $countrydetails['timezone']    = $timezone;
 
-        return $countrycode;
+        return $countrydetails;
+    }
+
+    public function getTimeZone($lat, $lon)
+    {
+        $url             = "https://maps.googleapis.com/maps/api/timezone/json?location=$lat,$lon&timestamp=1458000000";
+        $dataArray       = json_decode(file_get_contents($url));
+        $timezone        =$dataArray->{'timeZoneId'};
+        if ($timezone == 'Asia/Kolkata') {
+            $timezone = 'Asia/Calcutta';
+        }
+
+        return $timezone;
     }
 }

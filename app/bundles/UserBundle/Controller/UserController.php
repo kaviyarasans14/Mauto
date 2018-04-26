@@ -165,7 +165,7 @@ class UserController extends FormController
                     //form is valid so process the data
                     $user->setPassword($password);
                     if ($user->getTimezone() == '') {//replace default time zone
-                        $user->setTimezone('Asia/Kolkata');
+                        $user->setTimezone('Asia/Calcutta');
                     }
                     if ($user->getLocale() == '') {//replace default locale
                         $user->setLocale('en_US');
