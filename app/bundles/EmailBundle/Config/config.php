@@ -477,6 +477,18 @@ return [
                     'setPassword' => ['%mautic.mailer_password%'],
                 ],
             ],
+            'mautic.transport.elasticemail.transactions' => [
+                'class'        => 'Mautic\EmailBundle\Swiftmailer\Transport\ElasticemailTransport',
+                'arguments'    => [
+                    'translator',
+                    'monolog.logger.mautic',
+                    'mautic.email.model.transport_callback',
+                ],
+                'methodCalls'  => [
+                    'setUsername' => ['%mautic.mailer_user_transactions%'],
+                    'setPassword' => ['%mautic.mailer_password_transactions%'],
+                ],
+            ],
             'mautic.transport.postmark' => [
                 'class'        => 'Mautic\EmailBundle\Swiftmailer\Transport\PostmarkTransport',
                 'serviceAlias' => 'swiftmailer.mailer.transport.%s',
@@ -676,6 +688,8 @@ return [
         'mailer_port'                  => null,
         'mailer_user'                  => null,
         'mailer_password'              => null,
+        'mailer_user_transactions'     => '',
+        'mailer_password_transactions' => '',
         'mailer_encryption'            => null, //tls or ssl,
         'mailer_auth_mode'             => null, //plain, login or cram-md5
         'mailer_amazon_region'         => 'email-smtp.us-east-1.amazonaws.com',

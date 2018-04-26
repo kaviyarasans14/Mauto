@@ -70,9 +70,14 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
         if ($message->getHeaders()->get('Precedence') != 'Bulk') {
             $message->getHeaders()->addTextHeader('IsTransactional', 'True');
         }
+        $fromAdreess= $message->getFrom();
         $bodyContent=$this->alterElasticEmailBodyContent($message->getBody());
-        $message->setSender(['mailer@leadsengage.net'=>'LeadsEngage Mailer']);
         $message->setBody($bodyContent);
+        if (array_key_exists('support@lemailer3.com', $fromAdreess)) {
+            $message->setSender(['mailer@lemailer3.com'=>'LeadsEngage Mailer']);
+        } else {
+            $message->setSender(['mailer@lemailer2.com'=>'LeadsEngage Mailer']);
+        }
         parent::send($message, $failedRecipients);
     }
 
@@ -122,7 +127,7 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
         $doc                      = new \DOMDocument();
         $doc->strictErrorChecking = false;
         libxml_use_internal_errors(true);
-        $doc->loadHTML($bodyContent);
+        $doc->loadHTML('<?xml encoding="UTF-8">'.$bodyContent);
         // Get body tag.
         $body = $doc->getElementsByTagName('body');
         if ($body and $body->length > 0) {
