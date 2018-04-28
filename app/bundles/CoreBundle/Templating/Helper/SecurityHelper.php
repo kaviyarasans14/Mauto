@@ -11,6 +11,7 @@
 
 namespace Mautic\CoreBundle\Templating\Helper;
 
+use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\UserBundle\Event\AuthenticationContentEvent;
 use Mautic\UserBundle\UserEvents;
@@ -149,5 +150,13 @@ class SecurityHelper extends Helper
     public function getCsrfToken($intention)
     {
         return $this->tokenManager->getToken($intention)->getValue();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMobile()
+    {
+        return InputHelper::isMobile() ? true : false;
     }
 }
