@@ -186,7 +186,7 @@ class SearchStringHelper
                     $filters->{$baseName}[$keyCount]->command = $command;
                     $string                                   = '';
                 }
-            } elseif ($char == ' ') {
+            } elseif ($char == ' ' && false) { //disabled by prabhu
                 //arrived at the end of a single word that is not within a quote or parenthesis so add it as standalone
                 if ($string != ' ') {
                     $string = trim($string);
