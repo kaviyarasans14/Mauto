@@ -88,6 +88,7 @@ class AssetRepository extends CommonRepository
             'a.title',
             'a.alias',
             'c.title',
+            'a.downloadCount',
         ]);
     }
 
