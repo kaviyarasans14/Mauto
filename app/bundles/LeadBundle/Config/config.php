@@ -340,7 +340,7 @@ return [
             ],
         ],
         'admin' => [
-            'priority' => 50,
+            'priority' => 450,
             'items'    => [
                 'mautic.lead.field.menu.index' => [
                     'id'         => 'mautic_lead_field',

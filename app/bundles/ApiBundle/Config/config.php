@@ -85,6 +85,7 @@ return [
                 'mautic.api.client.menu.index' => [
                     'route'     => 'mautic_client_index',
                     'iconClass' => 'fa-puzzle-piece',
+                    'priority'  => 350,
                     'access'    => 'api:clients:view',
                     'checks'    => [
                         'parameters' => [

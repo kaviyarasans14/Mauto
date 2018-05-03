@@ -44,6 +44,7 @@ return [
                 'id'              => 'mautic_accountinfo_index',
                 'routeParameters' => ['objectAction' => 'edit'],
                 'iconClass'       => 'fa-users',
+                'priority'        => 600,
                 'checks'          => [
                     'parameters' => [
                         'accountinfo_disabled' => false,
