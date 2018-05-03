@@ -8,7 +8,7 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-$searchValue    = (empty($searchValue)) ? '' : $searchValue;
+$searchValue    = (empty($searchValue)) ? '' : trim($searchValue, '"');
 $target         = (empty($target)) ? '.page-list' : $target;
 $overlayTarget  = (empty($overlayTarget)) ? $target : $overlayTarget;
 $overlayEnabled = (!empty($overlayDisabled)) ? 'false' : 'true';
