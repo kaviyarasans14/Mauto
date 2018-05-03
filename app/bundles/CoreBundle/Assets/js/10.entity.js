@@ -125,7 +125,14 @@ Mautic.filterList = function (e, elId, route, target, liveCacheVar, action, over
             if (searchName == 'undefined') {
                 searchName = 'search';
             }
-
+if(searchName == 'search' && value.includes(' ')){
+if(!value.startsWith('"')){
+    value='"'+value;
+}
+    if(!value.endsWith('"')){
+        value=value+'"';
+    }
+}
             if (typeof Mautic.liveSearchXhr !== 'undefined') {
                 //ensure current search request is aborted
                 Mautic['liveSearchXhr'].abort();
