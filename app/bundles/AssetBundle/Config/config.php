@@ -51,7 +51,7 @@ return [
                     'route'    => 'mautic_asset_index',
                     'access'   => ['asset:assets:viewown', 'asset:assets:viewother'],
                     'parent'   => 'mautic.core.components',
-                    'priority' => 200,
+                    'priority' => 250,
                 ],
             ],
         ],

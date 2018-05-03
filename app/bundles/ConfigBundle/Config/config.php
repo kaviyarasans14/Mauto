@@ -29,16 +29,18 @@ return [
                 'route'           => 'mautic_config_action',
                 'routeParameters' => ['objectAction' => 'edit'],
                 'iconClass'       => 'fa-cogs',
+                'priority'        => 500,
                 'id'              => 'mautic_config_index',
                 'access'          => ['lead:leads:viewown', 'lead:leads:viewother'],
                 //'access'          => 'admin',
             ],
             'mautic.sysinfo.menu.index' => [
-                'route'     => 'mautic_sysinfo_index',
-                'iconClass' => 'fa-life-ring',
-                'id'        => 'mautic_sysinfo_index',
-                'access'    => 'admin',
-                'checks'    => [
+                'route'           => 'mautic_sysinfo_index',
+                'iconClass'       => 'fa-life-ring',
+                'priority'        => 350,
+                'id'              => 'mautic_sysinfo_index',
+                'access'          => 'admin',
+                'checks'          => [
                     'parameters' => [
                         'sysinfo_disabled' => false,
                     ],

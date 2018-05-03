@@ -70,6 +70,11 @@ Mautic.emailOnLoad = function (container, response) {
             } else if (k.match(/pagelink=/i) && v.match(/a:/)){
                 delete tokens[k];
             }
+            if(tokens[k]=='Title' || tokens[k]=='First Name' || tokens[k]=='Last Name' || tokens[k]=='Company'){
+
+            } else {
+                delete tokens[k];
+            }
         });
         var k, keys = [];
         for (k in tokens) {
@@ -78,17 +83,18 @@ Mautic.emailOnLoad = function (container, response) {
             }
         }
         keys.sort();
-        var tborder= "<table border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
+        //var tborder= "<table border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
+        var tborder= "<div border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
         for (var i = 0; i < keys.length; i++) {
             var val = keys[i];
             var title = tokens[val];
                 if(i % 3 == 0 && i  !=0 ){
                     tborder+= "</tr><tr>";
                 }
-                var value= '<td class="email-subject-table-border"><a class="email-subject-token" id="insert-value" data-cmd="inserttoken" data-email-token="' + val + '" title="' + title + '">' + title +'</a></td>';
+                var value= '<li class="email-subject-table-border"><a class="email-subject-token" id="insert-value" data-cmd="inserttoken" data-email-token="' + val + '" title="' + title + '">' + title +'</a></li>';
                 tborder+= value;
             }
-        tborder+= "</tr></tbody></table>";
+        tborder+= "</div>";
 
 
         mQuery('.insert-tokens').html(tborder);

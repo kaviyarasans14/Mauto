@@ -39,10 +39,11 @@ return [
         'admin' => [
             'items' => [
                 'mautic.webhook.webhooks' => [
-                    'id'        => 'mautic_webhook_root',
-                    'iconClass' => 'fa-exchange',
-                    'access'    => ['webhook:webhooks:viewown', 'webhook:webhooks:viewother'],
-                    'route'     => 'mautic_webhook_index',
+                    'id'              => 'mautic_webhook_root',
+                    'iconClass'       => 'fa-exchange',
+                    'priority'        => 300,
+                    'access'          => ['webhook:webhooks:viewown', 'webhook:webhooks:viewother'],
+                    'route'           => 'mautic_webhook_index',
                 ],
             ],
         ],

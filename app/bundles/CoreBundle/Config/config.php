@@ -139,6 +139,7 @@ return [
             'mautic.theme.menu.index' => [
                 'route'     => 'mautic_themes_index',
                 'iconClass' => 'fa-newspaper-o',
+                'priority'  => 400,
                 'id'        => 'mautic_themes_index',
                 //'access'    => 'core:themes:view',
                 'access'    => 'admin',

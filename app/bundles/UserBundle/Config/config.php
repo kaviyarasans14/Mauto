@@ -13,15 +13,17 @@ return [
     'menu' => [
         'admin' => [
             'mautic.user.users' => [
-                'access'    => 'user:users:view',
-                'route'     => 'mautic_user_index',
-                'iconClass' => 'fa-users',
+                'access'          => 'user:users:view',
+                'route'           => 'mautic_user_index',
+                'iconClass'       => 'fa-users',
+                'priority'        => 550,
             ],
             'mautic.user.roles' => [
                 //    'access'    => 'user:roles:view',
                 'access'    => 'admin',
                 'route'     => 'mautic_role_index',
                 'iconClass' => 'fa-lock',
+                'priority'  => 250,
             ],
         ],
     ],
