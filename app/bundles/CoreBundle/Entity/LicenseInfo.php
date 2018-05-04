@@ -102,6 +102,16 @@ class LicenseInfo
     private $emailprovider;
 
     /**
+     * @var string
+     */
+    private $deletecount;
+
+    /**
+     * @var string
+     */
+    private $deletemonth;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
@@ -192,6 +202,16 @@ class LicenseInfo
 
         $builder->createField('emailprovider', 'string')
             ->columnName('email_provider')
+            ->nullable()
+            ->build();
+
+        $builder->createField('deletecount', 'string')
+            ->columnName('delete_count')
+            ->nullable()
+            ->build();
+
+        $builder->createField('deletemonth', 'string')
+            ->columnName('delete_month')
             ->nullable()
             ->build();
     }
@@ -472,5 +492,37 @@ class LicenseInfo
     public function setEmailProvider($emailprovider)
     {
         $this->emailprovider = $emailprovider;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeleteCount()
+    {
+        return $this->deletecount;
+    }
+
+    /**
+     * @param mixed $deletecount
+     */
+    public function setDeleteCount($deletecount)
+    {
+        $this->deletecount = $deletecount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeleteMonth()
+    {
+        return $this->deletemonth;
+    }
+
+    /**
+     * @param mixed $deletemonth
+     */
+    public function setDeleteMonth($deletemonth)
+    {
+        $this->deletemonth = $deletemonth;
     }
 }

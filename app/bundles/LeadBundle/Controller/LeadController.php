@@ -1167,13 +1167,25 @@ class LeadController extends FormController
             } elseif ($model->isLocked($entity)) {
                 return $this->isLocked($postActionVars, $entity, 'lead.lead');
             } else {
-                $this->get('mautic.helper.licenseinfo')->intRecordCount('1', false);
-                $model->deleteEntity($entity);
+                $falshMsg         ='';
+                $currentMonth     =date('Y-m');
+                $deleteCount      =$this->get('mautic.helper.licenseinfo')->getDeleteCount();
+                $totalRecordCount =$this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+                $totalDeleteCount = $deleteCount + 1;
+                if (($totalRecordCount * 2) >= $totalDeleteCount) {
+                    $model->deleteEntity($entity);
+                    $this->get('mautic.helper.licenseinfo')->intRecordCount('1', false);
+                    $this->get('mautic.helper.licenseinfo')->intDeleteCount('1', true);
+                    $this->get('mautic.helper.licenseinfo')->intDeleteMonth($currentMonth);
+                    $falshMsg= 'mautic.core.notice.deleted';
+                } else {
+                    $falshMsg= 'mautic.core.notice.restrict.deleted';
+                }
 
                 $identifier = $this->get('translator')->trans($entity->getPrimaryIdentifier());
                 $flashes[]  = [
                     'type'    => 'notice',
-                    'msg'     => 'mautic.core.notice.deleted',
+                    'msg'     => $falshMsg,
                     'msgVars' => [
                         '%name%' => $identifier,
                         '%id%'   => $objectId,
@@ -1244,13 +1256,27 @@ class LeadController extends FormController
 
             // Delete everything we are able to
             if (!empty($deleteIds)) {
-                $deleteCount =count($deleteIds);
-                $this->get('mautic.helper.licenseinfo')->intRecordCount($deleteCount, false);
-                $entities = $model->deleteEntities($deleteIds);
+                $flashMsg         = '';
+                $entities         ='';
+                $currentMonth     =date('Y-m');
+                $deleteCounts     =count($deleteIds);
+                $dbDeleteCount    =$this->get('mautic.helper.licenseinfo')->getDeleteCount();
+                $totalRecordCount =$this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+                $pendingDelete    = $dbDeleteCount + $deleteCounts;
+
+                if (($totalRecordCount * 2) >= $pendingDelete) {
+                    $entities = $model->deleteEntities($deleteIds);
+                    $this->get('mautic.helper.licenseinfo')->intRecordCount($deleteCounts, false);
+                    $this->get('mautic.helper.licenseinfo')->intDeleteCount($deleteCounts, true);
+                    $this->get('mautic.helper.licenseinfo')->intDeleteMonth($currentMonth);
+                    $flashMsg= 'mautic.lead.lead.notice.batch_deleted';
+                } else {
+                    $flashMsg= 'mautic.lead.lead.notice.batch_deleted.restrict';
+                }
 
                 $flashes[] = [
                     'type'    => 'notice',
-                    'msg'     => 'mautic.lead.lead.notice.batch_deleted',
+                    'msg'     => $flashMsg,
                     'msgVars' => [
                         '%count%' => count($entities),
                     ],

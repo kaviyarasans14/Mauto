@@ -162,6 +162,66 @@ class LicenseInfoHelper
         $this->licenseinfo->saveEntity($entity);
     }
 
+    public function intDeleteCount($deleteCount, $sum)
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($deleteCount)) {
+            $deleteCount = 0;
+        }
+        $previousValue= $entity->getDeleteCount();
+        if ($sum) {
+            $totalCountValue = $previousValue + $deleteCount;
+        } else {
+            $totalCountValue = $deleteCount;
+        }
+
+        $entity->setDeleteCount($totalCountValue);
+
+        $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function intDeleteMonth($month)
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($month)) {
+            $month ='';
+        }
+
+        $entity->setDeleteMonth($month);
+
+        $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function getDeleteCount()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalDeleteCount= $entity->getDeleteCount();
+
+        return $totalDeleteCount;
+    }
+
     public function getTotalRecordCount()
     {
         $data=$this->em->getRepository('Mautic\CoreBundle\Entity\LicenseInfo')->findAll();
@@ -658,5 +718,17 @@ class LicenseInfoHelper
 
         $entity->setEmailProvider($emailProvider);
         $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function getDeleteCountBasedonMonth($month)
+    {
+        $query = $this->em->getConnection()->createQueryBuilder()
+            ->select('l.delete_count')
+            ->from(MAUTIC_TABLE_PREFIX.'licenseinfo', 'l')
+            ->where('l.delete_month'.'='."'$month'");
+
+        $result = $query->execute()->fetch();
+
+        return $result['delete_count'];
     }
 }
