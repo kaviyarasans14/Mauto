@@ -340,7 +340,7 @@ return [
             ],
         ],
         'admin' => [
-            'priority' => 50,
+            'priority' => 450,
             'items'    => [
                 'mautic.lead.field.menu.index' => [
                     'id'         => 'mautic_lead_field',
@@ -558,7 +558,8 @@ return [
             ],
             'mautic.form.type.lead_quickemail' => [
                 'class'     => \Mautic\LeadBundle\Form\Type\EmailType::class,
-                'arguments' => ['mautic.helper.user'],
+                'arguments' => ['mautic.helper.user',
+                                'mautic.helper.licenseinfo', ],
                 'alias'     => 'lead_quickemail',
             ],
             'mautic.form.type.lead_tags' => [

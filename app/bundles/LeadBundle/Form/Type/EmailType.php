@@ -12,6 +12,7 @@
 namespace Mautic\LeadBundle\Form\Type;
 
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\UserHelper;
 use Mautic\EmailBundle\Form\Validator\Constraints\EmailVerify;
 use Symfony\Component\Form\AbstractType;
@@ -30,11 +31,17 @@ class EmailType extends AbstractType
     private $userHelper;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    private $licenseHelper;
+
+    /**
      * @param UserHelper $userHelper
      */
-    public function __construct(UserHelper $userHelper)
+    public function __construct(UserHelper $userHelper, LicenseInfoHelper $licenseHelper)
     {
-        $this->userHelper = $userHelper;
+        $this->userHelper    = $userHelper;
+        $this->licenseHelper = $licenseHelper;
     }
 
     /**
@@ -44,6 +51,15 @@ class EmailType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addEventSubscriber(new CleanFormSubscriber(['body' => 'html']));
+        $emailProvider = $this->licenseHelper->getEmailProvider();
+        $currentUser   = $this->userHelper->getUser()->isAdmin();
+        $disabled      = false;
+
+        if (!$currentUser) {
+            if ($emailProvider == 'Sparkpost') {
+                $disabled = true;
+            }
+        }
 
         $builder->add(
             'subject',
@@ -65,7 +81,9 @@ class EmailType extends AbstractType
              [
                 'label'      => 'mautic.lead.email.from_name',
                 'label_attr' => ['class' => 'control-label'],
-                'attr'       => ['class' => 'form-control'],
+                'attr'       => ['class'     => 'form-control',
+                                  'disabled' => $disabled,
+                                ],
                 'required'   => false,
                 'data'       => $default,
             ]
@@ -78,7 +96,9 @@ class EmailType extends AbstractType
             [
                 'label'       => 'mautic.lead.email.from_email',
                 'label_attr'  => ['class' => 'control-label'],
-                'attr'        => ['class' => 'form-control'],
+                'attr'        => ['class'   => 'form-control',
+                                 'disabled' => $disabled,
+                ],
                 'required'    => false,
                 'data'        => $default,
                 'constraints' => [

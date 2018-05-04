@@ -159,11 +159,11 @@ class BillingType extends AbstractType
                 'required'    => false,
             ]
         );
-        $country = $options['data']->getCountry();
-        $style = "display:none;";
-        if($country != "" && $country == "India"){
-            $style = "display:block;";
-        }
+        /*  $country = $options['data']->getCountry();
+          $style = "display:none;";
+          if($country != "" && $country == "India"){
+              $style = "display:block;";
+          }*/
         $builder->add(
             'gstnumber',
             'text',
@@ -172,9 +172,8 @@ class BillingType extends AbstractType
                 'label_attr'  => [
                     'class' => 'control-label',
                     'id'    => 'gstnumber_info',
-                    'style' => $style,
                 ],
-                'attr'        => ['class' => 'form-control', 'style' => $style],
+                'attr'        => ['class' => 'form-control'],
                 'required'    => false,
             ]
         );

@@ -482,11 +482,7 @@ class LicenseInfoHelper
         if ($totalEmailCount == 'UL') {
             return 'UL';
         } else {
-            if ($validityDays == 0 || $validityDays < 0) {
-                return 0;
-            } else {
-                return $validityDays;
-            }
+            return $validityDays;
         }
     }
 

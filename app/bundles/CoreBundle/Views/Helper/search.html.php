@@ -8,7 +8,7 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-$searchValue    = (empty($searchValue)) ? '' : $searchValue;
+$searchValue    = (empty($searchValue)) ? '' : trim($searchValue, '"');
 $target         = (empty($target)) ? '.page-list' : $target;
 $overlayTarget  = (empty($overlayTarget)) ? $target : $overlayTarget;
 $overlayEnabled = (!empty($overlayDisabled)) ? 'false' : 'true';
@@ -16,9 +16,10 @@ $id             = (empty($searchId)) ? 'list-search' : $searchId;
 $tmpl           = (empty($tmpl)) ? 'list' : $tmpl;
 $widthstyle     = (empty($merge_search)) ? 'width: 40%;' : 'width: 100;';
 $isAdmin        = $view['security']->isAdmin();
+$isMobile       = $view['security']->isMobile();
 ?>
 
-<div class="input-group" style="<?php echo $widthstyle?>">
+<div class="input-group" style="<?php echo $isMobile ? '50%' : $widthstyle; ?>">
     <?php  if ($isAdmin): ?>
         <?php if (!empty($searchHelp)): ?>
             <div class="input-group-btn">

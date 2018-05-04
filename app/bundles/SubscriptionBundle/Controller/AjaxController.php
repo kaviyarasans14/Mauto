@@ -515,6 +515,9 @@ class AjaxController extends CommonAjaxController
         if (!empty($validity)) {
             $validity = date('d-M-y', strtotime($validity));
         }
+        if ($daysavailable < 0) {
+            $daysavailable=0;
+        }
         $dataArray['credits']        =number_format($credits);
         $dataArray['validity']       =$validity;
         $dataArray['daysavailable']  =$daysavailable;

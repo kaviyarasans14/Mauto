@@ -189,7 +189,7 @@ class UserRepository extends CommonRepository
             );
             $q->andWhere($expr);
         }
-        if($this->currentUser != null && !$this->currentUser->isAdmin()){
+        if ($this->currentUser != null && !$this->currentUser->isAdmin()) {
             $q->andWhere('u.id != 1');
         }
         $q->andWhere('u.isPublished = :true')
@@ -200,6 +200,7 @@ class UserRepository extends CommonRepository
             $q->setFirstResult($start)
                 ->setMaxResults($limit);
         }
+
         return $q->getQuery()->getArrayResult();
     }
 
@@ -210,9 +211,9 @@ class UserRepository extends CommonRepository
      */
     public function getOwnerListChoices($usermodel)
     {
-        $isadmin=$usermodel->getCurrentUserEntity()->isAdmin();
+        $isadmin        =$usermodel->getCurrentUserEntity()->isAdmin();
         $filtercondition='u.isPublished = true and u.id != 1';
-        if($isadmin){
+        if ($isadmin) {
             $filtercondition='u.isPublished = true';
         }
         $q = $this->createQueryBuilder('u');
@@ -277,6 +278,7 @@ class UserRepository extends CommonRepository
                 'u.firstName',
                 'u.lastName',
                 'u.position',
+                'u.mobile',
                 'r.name',
             ]
         );
@@ -288,7 +290,7 @@ class UserRepository extends CommonRepository
     protected function addSearchCommandWhereClause($q, $filter)
     {
         $command                 = $filter->command;
-        $isnot=$filter->not;
+        $isnot                   =$filter->not;
         $unique                  = $this->generateRandomParameterName();
         $returnParameter         = false; //returning a parameter that is not used will lead to a Doctrine error
         list($expr, $parameters) = parent::addSearchCommandWhereClause($q, $filter);
@@ -313,9 +315,9 @@ class UserRepository extends CommonRepository
                 break;
             case $this->translator->trans('mautic.core.searchcommand.email'):
             case $this->translator->trans('mautic.core.searchcommand.email', [], null, 'en_US'):
-                if($isnot){
+                if ($isnot) {
                     $expr            = $q->expr()->notlike('u.email', ':'.$unique);
-                }else{
+                } else {
                     $expr            = $q->expr()->like('u.email', ':'.$unique);
                 }
                 $returnParameter = true;
@@ -327,9 +329,9 @@ class UserRepository extends CommonRepository
                 break;
             case $this->translator->trans('mautic.user.user.searchcommand.username'):
             case $this->translator->trans('mautic.user.user.searchcommand.username', [], null, 'en_US'):
-                if($isnot){
+                if ($isnot) {
                     $expr            = $q->expr()->notlike('u.username', ':'.$unique);
-                }else{
+                } else {
                     $expr            = $q->expr()->like('u.username', ':'.$unique);
                 }
                 $returnParameter = true;

@@ -85,11 +85,11 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbas
                         <td style="width: 20%">
                               <li class="dropdown" style="display: block;">
                                  <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="margin-top: 10px;font-size: 13px;" data-toggle="dropdown" href="#">
-                                        <span>Insert Token</span> </span><span><i class="caret" ></i>
+                                        <span>Personalize</span> </span><span><i class="caret" ></i>
                                  </a>
                               <ul class="dropdown-menu dropdown-menu-right">
                                  <li>
-                                  <div class="insert-tokens" style="background-color: whitesmoke;width: 350px;overflow-y: scroll;max-height: 154px;">
+                                  <div class="insert-tokens" style="background-color: whitesmoke;/*width: 350px;*/overflow-y: scroll;max-height: 154px;">
                               </div
                             </li>
                                </ul>

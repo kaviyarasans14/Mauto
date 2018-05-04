@@ -10787,7 +10787,7 @@
             }
             else {
                 if(info.plugin == "codeView" || info.plugin == "token"){
-                    icon = '<span style="font-size: 13px;font-weight: 400 !important;">' + (editor.language.translate(info.title) || '') + '</span>';
+                    icon = '<span style="font-size: 13px;font-weight: 700 !important;">' + (editor.language.translate(info.title) || '') + '</span>';
                 }else{
                     icon = editor.icon.create(info.icon || command);
 

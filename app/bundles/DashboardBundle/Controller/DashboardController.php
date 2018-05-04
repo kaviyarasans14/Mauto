@@ -264,8 +264,12 @@ class DashboardController extends FormController
             }
         }
         if ($emailsValidity) {
-            if ($emailValidity == 0) {
+            if ($emailValidity < 0) {
                 $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
+            } elseif ($emailValidity == 0) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.today');
+            } elseif ($emailValidity == 1) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.tommorow');
             } else {
                 $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]);
             }
@@ -274,11 +278,11 @@ class DashboardController extends FormController
             }
             $usageMsg .= $emailMsg;
 
-            if ($emailCountExpired == 0 && $emailValidity == 0) {
+            if ($emailCountExpired == 0 && $emailValidity < 0) {
                 $usageMsg = $this->translator->trans('le.emailusage.count.expired');
             } elseif ($emailCountExpired == 0 && $emailsValidity) {
                 $usageMsg =$this->translator->trans('le.emailusage.count.expired');
-            } elseif ($emailValidity == 0 && $emailUssage) {
+            } elseif ($emailValidity < 0 && $emailUssage) {
                 $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
             }
         }
