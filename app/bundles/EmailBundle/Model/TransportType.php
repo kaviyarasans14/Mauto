@@ -32,6 +32,11 @@ class TransportType
         return '"mautic.transport.amazon"';
     }
 
+    public function getLeadsEngageService()
+    {
+        return '"le.transport.vialeadsengage"';
+    }
+
     public function getMailjetService()
     {
         return '"mautic.transport.mailjet"';
@@ -46,6 +51,7 @@ class TransportType
                 "mautic.transport.amazon",
                 "mautic.transport.postmark",
                 "mautic.transport.sendgrid_api",
+                "le.transport.vialeadsengage",
                 "gmail"';
     }
 
@@ -63,6 +69,7 @@ class TransportType
                 "mautic.transport.amazon",
                 "mautic.transport.postmark",
                 "mautic.transport.mailjet",
+                "le.transport.vialeadsengage",
                 "gmail"';
     }
 

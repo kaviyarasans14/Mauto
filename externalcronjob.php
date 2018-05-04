@@ -224,7 +224,7 @@ function updateEmailAccountStatus($con, $domain)
     $sql         = "select appid from applicationlist where f5 = '$domain';";
     $appidarr    = getResultArray($con, $sql);
     $appid       = $appidarr[0][0];
-    $licenseinfo = $appid.'.licenseinfo';
+    $licenseinfo = DBINFO::$COMMONDBNAME.$appid.'.licenseinfo';
     $sql         = "update $licenseinfo set app_status = 'Suspended'";
     $result      = execSQL($con, $sql);
     $sql         = "update applicationlist set f21 = 0 where f5 = '$domain'";

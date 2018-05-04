@@ -608,6 +608,12 @@ return [
                     'translator',
                 ],
             ],
+            'mautic.validator.emailverify' => [
+                'class'     => 'Mautic\EmailBundle\Form\Validator\Constraints\EmailVerifyValidator',
+                'arguments' => ['mautic.factory', 'mautic.validator.email', 'translator'],
+                'tag'       => 'validator.constraint_validator',
+                'alias'     => 'emailses_verify',
+            ],
         ],
         'models' => [
             'mautic.email.model.email' => [

@@ -13,6 +13,7 @@ namespace Mautic\EmailBundle\Form\Type;
 
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
+use Mautic\EmailBundle\Form\Validator\Constraints\EmailVerify;
 use Mautic\EmailBundle\Model\TransportType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -244,6 +245,11 @@ class ConfigType extends AbstractType
                             'message' => 'mautic.core.email.required',
                         ]
                     ),
+                    new EmailVerify(
+                        [
+                            'message' => 'le.email.verification.error',
+                        ]
+                    ),
                 ],
             ]
         );
@@ -262,6 +268,21 @@ class ConfigType extends AbstractType
             ]
         );
 
+        $choices = [
+            'mautic.transport.amazon'     => 'mautic.transport.amazon',
+            'le.transport.vialeadsengage' => 'le.transport.vialeadsengage',
+        ];
+        $transport        = $options['data']['mailer_transport'];
+        $datavalue        = 'mautic.transport.amazon';
+        $disabletransport = true;
+        if ($transport != 'mautic.transport.amazon') {
+            $datavalue        = 'le.transport.vialeadsengage';
+            $disabletransport = false;
+        }
+        if ($currentUser) {
+            $disabletransport = false;
+        }
+
         $builder->add(
             'mailer_transport',
             ChoiceType::class,
@@ -272,7 +293,10 @@ class ConfigType extends AbstractType
                 'attr'     => [
                     'class'   => 'form-control',
                     'tooltip' => 'mautic.email.config.mailer.transport.tooltip',
+                    'onchange'=> 'Mautic.showBounceCallbackURL(this)',
                 ],
+                'data'        => $transport,
+                'disabled'    => $disabletransport,
                 'empty_value' => false,
             ]
         );
@@ -323,7 +347,11 @@ class ConfigType extends AbstractType
         );
 
         $smtpServiceShowConditions  = '{"config_emailconfig_mailer_transport":['.$this->transportType->getSmtpService().']}';
-        $amazonRegionShowConditions = '{"config_emailconfig_mailer_transport":['.$this->transportType->getAmazonService().']}';
+        if ($currentUser) {
+            $amazonRegionShowConditions = '{"config_emailconfig_mailer_transport":['.$this->transportType->getAmazonService().']}';
+        } else {
+            $amazonRegionShowConditions = '{"config_emailconfig_mailer_transport_name":['.$this->transportType->getAmazonService().']}';
+        }
 
         $builder->add(
             'mailer_host',
@@ -337,6 +365,23 @@ class ConfigType extends AbstractType
                     'tooltip'      => 'mautic.email.config.mailer.host.tooltip',
                 ],
                 'required' => false,
+            ]
+        );
+
+        $builder->add(
+            'mailer_transport_name',
+            'choice',
+            [
+                'choices'  => $choices,
+                'label'    => 'le.email.tranport.header',
+                'required' => false,
+                'attr'     => [
+                    'class'        => 'form-control',
+                    'onchange'     => 'Mautic.showBounceCallbackURL(this)',
+                ],
+                'data'        => $datavalue,
+                'disabled'    => $disabletransport,
+                'empty_value' => false,
             ]
         );
 
@@ -395,30 +440,56 @@ class ConfigType extends AbstractType
                 'empty_value' => 'mautic.email.config.mailer_auth_mode.none',
             ]
         );
-
-        $mailerLoginUserShowConditions = '{
+        if ($currentUser || $transport == 'mautic.transport.amazon') {
+            $mailerLoginUserShowConditions = '{
             "config_emailconfig_mailer_auth_mode":[
                 "plain",
                 "login",
                 "cram-md5"
-            ], "config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresLogin().']
-        }';
+            ], "config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresLogin().'],
+            "config_emailconfig_mailer_transport_name":['.$this->transportType->getServiceRequiresPassword().']
+            }';
 
-        $mailerLoginPasswordShowConditions = '{
+            $mailerLoginPasswordShowConditions = '{
             "config_emailconfig_mailer_auth_mode":[
                 "plain",
                 "login",
                 "cram-md5"
-            ], "config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresPassword().']
-        }';
+            ], "config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresPassword().'],
+            "config_emailconfig_mailer_transport_name":['.$this->transportType->getServiceRequiresPassword().']
+            }';
 
-        $mailerLoginUserHideConditions = '{
-         "config_emailconfig_mailer_transport":['.$this->transportType->getServiceDoNotNeedLogin().']
-        }';
+            $mailerLoginUserHideConditions = '{
+            "config_emailconfig_mailer_transport":['.$this->transportType->getServiceDoNotNeedLogin().']
+            }';
 
-        $mailerLoginPasswordHideConditions = '{
-         "config_emailconfig_mailer_transport":['.$this->transportType->getServiceDoNotNeedPassword().']
-        }';
+            $mailerLoginPasswordHideConditions = '{
+            "config_emailconfig_mailer_transport":['.$this->transportType->getServiceDoNotNeedPassword().']
+            }';
+        } else {
+            $mailerLoginUserShowConditions = '{
+            "config_emailconfig_mailer_auth_mode":[
+                "plain",
+                "login",
+                "cram-md5"
+            ], "config_emailconfig_mailer_transport_name":['.$this->transportType->getAmazonService().']
+            }';
+
+            $mailerLoginPasswordShowConditions = '{
+            "config_emailconfig_mailer_auth_mode":[
+                "plain",
+                "login",
+                "cram-md5"
+            ], "config_emailconfig_mailer_transport_name":['.$this->transportType->getAmazonService().']
+            }';
+            $mailerLoginUserHideConditions = '{
+            "config_emailconfig_mailer_transport_name":['.$this->transportType->getLeadsEngageService().']
+            }';
+
+            $mailerLoginPasswordHideConditions = '{
+            "config_emailconfig_mailer_transport_name":['.$this->transportType->getLeadsEngageService().']
+            }';
+        }
 
         $builder->add(
             'mailer_user',
@@ -455,8 +526,11 @@ class ConfigType extends AbstractType
                 'required' => false,
             ]
         );
-
-        $apiKeyShowConditions = '{"config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresApiKey().']}';
+        if ($currentUser) {
+            $apiKeyShowConditions = '{"config_emailconfig_mailer_transport":['.$this->transportType->getServiceRequiresApiKey().']}';
+        } else {
+            $apiKeyShowConditions = '{"config_emailconfig_mailer_transport":[]}';
+        }
         $builder->add(
             'mailer_api_key',
             'password',

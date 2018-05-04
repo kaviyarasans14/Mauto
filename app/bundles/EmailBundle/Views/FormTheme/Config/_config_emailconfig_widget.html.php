@@ -8,11 +8,15 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-$fields     = $form->children;
-$fieldKeys  = array_keys($fields);
-$template   = '<div class="col-md-6">{content}</div>';
-$hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
-$isadmin    =$view['security']->isAdmin();
+$fields       = $form->children;
+$fieldKeys    = array_keys($fields);
+$template     = '<div class="col-md-6">{content}</div>';
+$hidepanel    =$view['security']->isAdmin() ? '' : "style='display: none;'";
+$isadmin      =$view['security']->isAdmin();
+$hideusername = '';
+if ($formConfig['parameters']['mailer_transport'] != 'mautic.transport.amazon') {
+    $hideusername = 'hide';
+}
 $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
 ?>
 
@@ -36,9 +40,13 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
             <?php endif; ?>
 
             <?php if (isset($fields['mailer_transport'])): ?>
-                <div class="row" <?php echo $hidepanel ?>>
+                <div class="row">
                     <div class="col-sm-6">
-                        <?php echo $view['form']->row($fields['mailer_transport']); ?>
+                        <?php if ($isadmin): ?>
+                            <?php echo $view['form']->row($fields['mailer_transport']); ?>
+                        <?php else: ?>
+                            <?php echo $view['form']->row($fields['mailer_transport_name']); ?>
+                        <?php endif; ?>
                     </div>
                     <div class="col-sm-6 pt-lg mt-3" id="mailerTestButtonContainer" data-hide-on='{"config_emailconfig_mailer_transport":["sendmail","mail"]}'>
                         <div class="button_container">
@@ -64,11 +72,49 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_auth_mode', $template); ?>
             </div>
 
-            <div class="row" <?php echo $hidepanel ?>>
+            <div class="row">
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_user', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_password', $template); ?>
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_api_key', $template); ?>
             </div>
+
+            <div class="row transportcallback <?php echo $hideusername; ?>">
+                <div class="col-sm-12">
+                <div class="transportcallback_help" style="width:50%;float:left;">
+                <label class="control-label"><?php echo $view['translator']->trans('le.email.bounce.callback'); ?></label>
+                </div>
+                <div class="transportcallback_help" style="width:50%;float:right;text-align:right;">
+                    <a href="https://leadsengage.com"><?php echo $view['translator']->trans('le.email.amazon.bounce.help'); ?></a>
+                </div>
+                <input type="text" id="transportcallback" class="form-control" readonly value="<?php echo $view['router']->url('mautic_mailer_transport_callback', ['transport' => 'amazon']); ?>" />
+                <a id="transportcallback_atag" onclick="Mautic.copytoClipboardforms('transportcallback');">
+                    <i aria-hidden="true" class="fa fa-clipboard"></i>
+                    <?php echo $view['translator']->trans(
+                        'leadsengage.subs.clicktocopy'
+                    ); ?>
+                </a>
+                </div>
+            </div>
+            <br>
+
+            <div class="row transportcallback <?php echo $hideusername; ?>">
+                <div class="col-sm-12">
+                    <div class="transportcallback_help" style="width:40%;float:left;">
+                        <label class="control-label"><?php echo $view['translator']->trans('le.email.spam.callback'); ?></label>
+                    </div>
+                    <div class="transportcallback_help" style="width:60%;float:right;text-align:right;">
+                        <a href="https://leadsengage.com"><?php echo $view['translator']->trans('le.email.amazon.spam.help'); ?></a>
+                    </div>
+                    <input type="text" id="transportcallback" class="form-control" readonly value="<?php echo $view['router']->url('mautic_mailer_transport_callback', ['transport' => 'amazon']); ?>" />
+                    <a id="transportcallback_atag" onclick="Mautic.copytoClipboardforms('transportcallback');">
+                        <i aria-hidden="true" class="fa fa-clipboard"></i>
+                        <?php echo $view['translator']->trans(
+                            'leadsengage.subs.clicktocopy'
+                        ); ?>
+                    </a>
+                </div>
+            </div>
+            <br>
 
             <?php if (isset($fields['mailer_transport'])): ?>
                 <div class="row">

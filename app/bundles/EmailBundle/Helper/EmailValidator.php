@@ -11,6 +11,8 @@
 
 namespace Mautic\EmailBundle\Helper;
 
+use Aws\Ses\Exception\SesException;
+use Aws\Ses\SesClient;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailValidationEvent;
 use Mautic\EmailBundle\Exception\InvalidEmailException;
@@ -143,6 +145,32 @@ class EmailValidator
                 $address,
                 $event->getInvalidReason()
             );
+        }
+    }
+
+    public function getEmailVerificationStatus($key, $secret, $region, $email)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        $client     = SesClient::factory([
+            'credentials' => ['key' => $key, 'secret' => $secret],
+            'region'      => $regionname,
+        ]);
+        try {
+            $result = $client->getIdentityVerificationAttributes([
+                'Identities' => [
+                    $email,
+                ],
+            ]);
+            if (sizeof($result['VerificationAttributes']) > 0) {
+                if ($result['VerificationAttributes'][$email]['VerificationStatus'] != 'Success') {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        } catch (SesException $e) {
+            return 'Policy not written';
         }
     }
 }

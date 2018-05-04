@@ -13,6 +13,7 @@ namespace Mautic\LeadBundle\Form\Type;
 
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\EmailBundle\Form\Validator\Constraints\EmailVerify;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -87,6 +88,11 @@ class EmailType extends AbstractType
                     new Email([
                         'message' => 'mautic.core.email.required',
                     ]),
+                    new EmailVerify(
+                        [
+                            'message' => 'le.email.verification.error',
+                        ]
+                    ),
                 ],
             ]
         );

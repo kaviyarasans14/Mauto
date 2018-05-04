@@ -117,6 +117,10 @@ class ConfigController extends FormController
                                 $configurator->mergeParameters(['secret_key' => EncryptionHelper::generateKey()]);
                             }
                             $emailProvider=$this->translator->trans($params['mailer_transport']);
+                            if ($emailProvider != $this->translator->trans('mautic.transport.amazon')) {
+                                $emailTransport = $params['mailer_transport_name'];
+                                $configurator->mergeParameters(['mailer_transport' => $emailTransport]);
+                            }
 
                             $this->container->get('mautic.helper.licenseinfo')->intEmailProvider($emailProvider);
                             $configurator->write();

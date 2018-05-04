@@ -125,3 +125,12 @@ Mautic.copytoClipboardforms = function(id) {
         copyTexta.innerHTML = copyTextval;
     }, 1000);
 };
+
+Mautic.showBounceCallbackURL = function(modeEl) {
+    var mode = mQuery(modeEl).val();
+    if(mode != "mautic.transport.amazon") {
+        mQuery('.transportcallback').addClass('hide');
+    } else {
+        mQuery('.transportcallback').removeClass('hide');
+    }
+};

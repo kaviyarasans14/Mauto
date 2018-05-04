@@ -18,6 +18,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Form\Type\DynamicContentTrait;
 use Mautic\CoreBundle\Helper\InputHelper;
+use Mautic\EmailBundle\Form\Validator\Constraints\EmailVerify;
 use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -130,7 +131,10 @@ class EmailType extends AbstractType
                 'required' => false,
             ]
         );
-
+        $tooltip = 'mautic.email.from_email.tooltip';
+        if ($emailProvider == $this->translator->trans('mautic.transport.amazon')) {
+            $tooltip = 'le.email.amazon.fromaddress.tooltip';
+        }
         $builder->add(
             'fromAddress',
             'text',
@@ -140,9 +144,16 @@ class EmailType extends AbstractType
                 'attr'       => [
                     'class'    => 'form-control',
                     'preaddon' => 'fa fa-envelope',
-                    'tooltip'  => 'mautic.email.from_email.tooltip',
+                    'tooltip'  => $tooltip,
                     'disabled' => $disabled,
                  ],
+                'constraints' => [
+                    new EmailVerify(
+                        [
+                            'message' => 'le.email.verification.error',
+                        ]
+                    ),
+                ],
                 'required' => false,
             ]
         );
