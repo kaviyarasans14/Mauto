@@ -118,7 +118,8 @@ class ConfigController extends FormController
                             }
                             $emailProvider=$this->translator->trans($params['mailer_transport']);
                             if ($emailProvider != $this->translator->trans('mautic.transport.amazon')) {
-                                $emailTransport = $params['mailer_transport_name'];
+                                $emailTransport = $formData['emailconfig']['mailer_transport'];
+                                //$emailTransport = $params['mailer_transport_name'];
                                 $configurator->mergeParameters(['mailer_transport' => $emailTransport]);
                             }
 

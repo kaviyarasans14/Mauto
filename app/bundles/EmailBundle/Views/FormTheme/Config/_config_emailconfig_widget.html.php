@@ -58,6 +58,13 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                     </div>
                 </div>
             <?php endif; ?>
+
+            <?php if (!$isadmin): ?>
+            <div class="row <?php echo $hideusername; ?>">
+                <?php echo $view['form']->row($fields['mailer_transport']); ?>
+            </div>
+            <?php endif; ?>
+
             <div class="row">
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_amazon_region', $template); ?>
             </div>

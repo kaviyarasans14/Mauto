@@ -275,7 +275,7 @@ class ConfigType extends AbstractType
         $transport        = $options['data']['mailer_transport'];
         $datavalue        = 'mautic.transport.amazon';
         $disabletransport = true;
-        if ($transport != 'mautic.transport.amazon') {
+        if ($transport != 'mautic.transport.amazon' && !$currentUser) {
             $datavalue        = 'le.transport.vialeadsengage';
             $disabletransport = false;
         }
