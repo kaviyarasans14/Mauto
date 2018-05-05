@@ -22,7 +22,7 @@ class Version20180504190000 extends AbstractMauticMigration
      */
     public function preUp(Schema $schema)
     {
-        if ($schema->getTable(MAUTIC_TABLE_PREFIX.'licenseinfo')->hasColumn('email_provider')) {
+        if ($schema->getTable(MAUTIC_TABLE_PREFIX.'licenseinfo')->hasColumn('delete_count')) {
             throw new SkipMigrationException('Schema includes this migration');
         }
     }
