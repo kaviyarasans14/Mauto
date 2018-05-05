@@ -521,8 +521,12 @@ class EmailController extends FormController
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
 
-        $entity->setFromName($fromname);
-        $entity->setFromAddress($fromadress);
+        if (empty($fromname)) {
+            $entity->setFromName($fromname);
+        }
+        if (empty($fromadress)) {
+            $entity->setFromAddress($fromadress);
+        }
 
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
@@ -712,9 +716,12 @@ class EmailController extends FormController
         $params     = $configurator->getParameters();
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
-
-        $entity->setFromName($fromname);
-        $entity->setFromAddress($fromadress);
+        if (empty($fromname)) {
+            $entity->setFromName($fromname);
+        }
+        if (empty($fromadress)) {
+            $entity->setFromAddress($fromadress);
+        }
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_index', ['page' => $page]);
