@@ -198,7 +198,8 @@ class EmailType extends AbstractType
                     'class'   => 'form-control',
                     'tooltip' => 'mautic.email.utm_tags.tooltip',
                 ],
-                'required' => false,
+                'extra_fields_message'   => 'email',
+                 'required'              => false,
             ]
         );
 

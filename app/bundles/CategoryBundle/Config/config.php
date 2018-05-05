@@ -44,7 +44,7 @@ return [
                 'access'    => 'category:categories:view',
                 'id'        => 'mautic_category_index',
                 'parent'    => 'mautic.core.components',
-                'priority'  => 105,
+                'priority'  => 100,
             ],
         ],
     ],

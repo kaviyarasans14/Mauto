@@ -422,6 +422,20 @@ abstract class AbstractStandardFormController extends AbstractFormController
             if (!$cancelled = $this->isFormCancelled($form)) {
                 if ($valid = $this->isFormValid($form)) {
                     if ($valid = $this->beforeEntitySave($entity, $form, 'edit', $objectId, $isClone)) {
+                        $currentutmtags=$entity->getUtmTags();
+                        $currentname   =$entity->getName();
+                        if ($form->getName() == 'focus') {
+                            if (empty($currentutmtags['utmSource'])) {
+                                $currentutmtags['utmSource']='leadsengage';
+                            }
+                            if (empty($currentutmtags['utmMedium'])) {
+                                $currentutmtags['utmMedium']='focus';
+                            }
+                            if (empty($currentutmtags['utmCampaign'])) {
+                                $currentutmtags['utmCampaign']=$currentname;
+                            }
+                            $entity->setUtmTags($currentutmtags);
+                        }
                         $model->saveEntity($entity, $form->get('buttons')->get('save')->isClicked());
 
                         $this->afterEntitySave($entity, $form, 'edit', $valid);
@@ -1016,6 +1030,20 @@ abstract class AbstractStandardFormController extends AbstractFormController
             if (!$cancelled = $this->isFormCancelled($form)) {
                 if ($valid = $this->isFormValid($form)) {
                     if ($valid = $this->beforeEntitySave($entity, $form, 'new')) {
+                        $currentutmtags=$entity->getUtmTags();
+                        $currentname   =$entity->getName();
+                        if ($form->getName() == 'focus') {
+                            if (empty($currentutmtags['utmSource'])) {
+                                $currentutmtags['utmSource']='leadsengage';
+                            }
+                            if (empty($currentutmtags['utmMedium'])) {
+                                $currentutmtags['utmMedium']='focus';
+                            }
+                            if (empty($currentutmtags['utmCampaign'])) {
+                                $currentutmtags['utmCampaign']=$currentname;
+                            }
+                            $entity->setUtmTags($currentutmtags);
+                        }
                         $model->saveEntity($entity);
                         $this->afterEntitySave($entity, $form, 'new', $valid);
 

@@ -520,8 +520,13 @@ class EmailCampaignController extends FormController
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
 
-        $entity->setFromName($fromname);
-        $entity->setFromAddress($fromadress);
+        if (empty($fromname)) {
+            $entity->setFromName($fromname);
+        }
+        if (empty($fromadress)) {
+            $entity->setFromAddress($fromadress);
+        }
+
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
         $action       = $this->generateUrl('mautic_email_campaign_action', ['objectAction' => 'new']);
@@ -713,8 +718,12 @@ class EmailCampaignController extends FormController
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
 
-        $entity->setFromName($fromname);
-        $entity->setFromAddress($fromadress);
+        if (empty($fromname)) {
+            $entity->setFromName($fromname);
+        }
+        if (empty($fromadress)) {
+            $entity->setFromAddress($fromadress);
+        }
 
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_campaign_index', ['page' => $page]);

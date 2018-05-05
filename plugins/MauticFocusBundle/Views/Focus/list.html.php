@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticFocusBundle:Focus:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -71,7 +72,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-focus-style',
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -81,6 +82,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-focus-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -135,7 +137,9 @@ if ($tmpl == 'index') {
                     </td>
                     <td class="visible-md visible-lg"><?php echo $view['translator']->trans('mautic.focus.type.'.$item->getType()); ?></td>
                     <td class="visible-md visible-lg"><?php echo $view['translator']->trans('mautic.focus.style.'.$item->getStyle()); ?></td>
+                    <?php  if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php  endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

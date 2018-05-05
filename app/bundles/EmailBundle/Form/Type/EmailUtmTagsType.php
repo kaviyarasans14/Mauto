@@ -44,11 +44,11 @@ class EmailUtmTagsType extends AbstractType
             'text',
             [
                 'label'      => 'mautic.email.campaign_medium',
-                'data'       => 'email',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class' => 'form-control',
                 ],
+                'data'     => isset($options['extra_fields_message']) ? $options['extra_fields_message'] : '',
                 'required' => false,
             ]
         );
