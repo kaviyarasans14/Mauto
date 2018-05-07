@@ -514,6 +514,8 @@ class EmailController extends FormController
         if (!$this->get('mautic.security')->isGranted('email:emails:create')) {
             return $this->accessDenied();
         }
+        $fromName   = $entity->getFromName();
+        $fromAdress = $entity->getFromAddress();
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
@@ -521,10 +523,10 @@ class EmailController extends FormController
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
 
-        if (empty($fromname)) {
+        if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
-        if (empty($fromadress)) {
+        if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
         }
 
@@ -708,6 +710,8 @@ class EmailController extends FormController
         $lastutmtags=$entity->getUtmTags();
         $lastsubject=$entity->getSubject();
         $lastname   =$entity->getName();
+        $fromName   = $entity->getFromName();
+        $fromAdress = $entity->getFromAddress();
         $session    = $this->get('session');
         $page       = $this->get('session')->get('mautic.email.page', 1);
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
@@ -716,10 +720,10 @@ class EmailController extends FormController
         $params     = $configurator->getParameters();
         $fromname   = $params['mailer_from_name'];
         $fromadress = $params['mailer_from_email'];
-        if (empty($fromname)) {
+        if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
-        if (empty($fromadress)) {
+        if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
         }
 
