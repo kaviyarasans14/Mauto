@@ -615,9 +615,10 @@ class AjaxController extends CommonAjaxController
                         'description' => "New Customer ($accountname) and their register domain is ($accountdomain)",
                         'source'      => $stripetoken, // obtained with Stripe.js
                         'email'       => $accountemail,
-                    ], [
-                        'idempotency_key' => $letoken,
                     ]);
+//                    , [
+//                        'idempotency_key' => $letoken,
+//                    ]
                 } else {
                     //To update new card with existing customer
                     $customer         = \Stripe\Customer::retrieve($stripecard->getCustomerID());

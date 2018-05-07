@@ -14,6 +14,7 @@ namespace Mautic\SubscriptionBundle\Controller;
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\SubscriptionBundle\Entity\Account;
 use Mautic\SubscriptionBundle\Entity\Billing;
+use Mautic\SubscriptionBundle\Entity\StripeCard;
 
 /**
  * Class AccountController.
