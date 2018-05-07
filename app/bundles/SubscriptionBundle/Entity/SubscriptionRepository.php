@@ -153,6 +153,13 @@ class SubscriptionRepository
         }
     }
 
+    public function updateContactCredits($credits)
+    {
+        $licentity=$this->licenseinforepo->findAll()[0];
+        $licentity->setTotalRecordCount($credits);
+        $this->licenseinforepo->saveEntity($licentity);
+    }
+
     public function getPlanValidity($plankey)
     {
         $qb = $this->getConnection()->createQueryBuilder();

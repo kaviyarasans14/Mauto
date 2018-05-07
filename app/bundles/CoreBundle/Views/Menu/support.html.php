@@ -20,8 +20,8 @@
         </li>
     </ul>
 </li>-->
-<a class="btn btn-nospin btn-primary btn-sm buycredits"
-   href="<?php echo $view['router']->path('le_plan_index'); ?>">
-    <i class="fa fa-plus-circle fs-14"></i>
-    <span><?php echo $view['translator']->trans('le.plans.buycredits'); ?></span>
-</a>
+<!--<a class="btn btn-nospin btn-primary btn-sm buycredits"-->
+<!--   href="--><?php //echo $view['router']->path('le_plan_index');?><!--">-->
+<!--    <i class="fa fa-plus-circle fs-14"></i>-->
+<!--    <span>--><?php //echo $view['translator']->trans('le.plans.buycredits');?><!--</span>-->
+<!--</a>-->

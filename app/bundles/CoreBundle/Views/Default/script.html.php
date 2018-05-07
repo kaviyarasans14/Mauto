@@ -37,6 +37,9 @@ $mauticContent = $view['slots']->get(
 if ($mauticContent == 'subscription' || $mauticContent == 'prepaidplans') {
     echo '<script src="https://checkout.razorpay.com/v1/checkout.js"></script>';
 }
+if ($mauticContent == 'cardinfo' || $mauticContent == 'pricingplans') {
+    echo '<script src="https://js.stripe.com/v3/"></script>';
+}
 ?>
 <?php
 if ($mauticContent != 'user') {

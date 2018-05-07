@@ -259,4 +259,41 @@ class AccountController extends FormController
             ],
         ]);
     }
+
+    /**
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function cardinfoAction()
+    {
+        if (!$this->user->isAdmin() && !$this->user->isCustomAdmin() && $this->coreParametersHelper->getParameter('accountinfo_disabled')) {
+            return $this->accessDenied();
+        }
+
+        $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $stripecardrepo     =$this->get('le.subscription.repository.stripecard');
+        $stripecards        = $stripecardrepo->findAll();
+        if (sizeof($stripecards) > 0) {
+            $stripecard = $stripecards[0];
+        } else {
+            $stripecard = new StripeCard();
+        }
+        $paymenthelper     =$this->get('le.helper.payment');
+
+        return $this->delegateView([
+            'viewParameters' => [
+                'tmpl'               => $tmpl,
+                'security'           => $this->get('mautic.security'),
+                'actionRoute'        => 'mautic_accountinfo_action',
+                'typePrefix'         => 'form',
+                'stripecard'         => $stripecard,
+                'letoken'            => $paymenthelper->getUUIDv4(),
+            ],
+            'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cardinfo.html.php',
+            'passthroughVars' => [
+                'activeLink'    => '#mautic_accountinfo_index',
+                'mauticContent' => 'cardinfo',
+                'route'         => $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'cardinfo']),
+            ],
+        ]);
+    }
 }

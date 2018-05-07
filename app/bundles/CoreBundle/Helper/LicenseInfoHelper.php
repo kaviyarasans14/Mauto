@@ -240,8 +240,11 @@ class LicenseInfoHelper
 
     public function isValidRecordAdd()
     {
+        $lastpayment=$this->em->getRepository('Mautic\SubscriptionBundle\Entity\PaymentHistory')->getLastPayment();
+        if ($lastpayment != null) {
+            return true;
+        }
         $data=$this->em->getRepository('Mautic\CoreBundle\Entity\LicenseInfo')->findAll();
-
         if (sizeof($data) > 0 && $data != null) {
             $entity = $data[0];
         }
@@ -730,5 +733,16 @@ class LicenseInfoHelper
         $result = $query->execute()->fetch();
 
         return $result['delete_count'];
+    }
+
+    public function getLicenseEntity()
+    {
+        $data  =$this->licenseinfo->findAll();
+        $entity=null;
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+
+        return $entity;
     }
 }

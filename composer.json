@@ -113,7 +113,8 @@
         "ramsey/uuid": "^3.7",
         "sendgrid/sendgrid": "~6.0",
         "razorpay/razorpay": "2.*",
-        "paypal/rest-api-sdk-php": "1.*"      
+        "paypal/rest-api-sdk-php": "1.*",
+        "stripe/stripe-php": "6.*"     
     },
     "require-dev": {
         "symfony/web-profiler-bundle": "~2.8",

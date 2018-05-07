@@ -141,7 +141,7 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
     <br>
     <div id="leadsengage_info">
         <p>
-            <b>LeadsEngage, Inc</b><br>
+            <b>LeadsEngage Inc.</b><br>
             340 S Lemon Ave, Walnut, CA 91789, USA<br>
             +1-909-742-8682<br>
         </p>
@@ -161,7 +161,7 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
         <p>
             <b>Date:</b> <?php echo $view['date']->toDate($payment->getcreatedOn()); ?><br>
             <b>Invoice #</b>:<?php echo $payment->getOrderID(); ?><br>
-            <b>Transaction ID:</b> <?php echo $payment->getPaymentID(); ?><br>
+<!--            <b>Transaction ID:</b> --><?php //echo $payment->getPaymentID();?><!--<br>-->
         </p>
     </div>
     <div id="payment_info">
@@ -186,7 +186,7 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
                     <?php echo $payment->getPlanLabel(); ?>
                 </td>
                 <td class="table_body description_body">
-                    <span><?php echo number_format($payment->getAddedCredits()).' Email Credits'; ?></span>
+                    <span><?php echo number_format($payment->getAddedCredits()).' Contact Credits '; ?></span> <!--Email Credits-->
                 </td>
                 <td class="table_body service_body">
                     <?php echo $view['date']->toDate($payment->getcreatedOn()); ?> -<br> <?php echo $view['date']->toDate($payment->getValidityTill()); ?>

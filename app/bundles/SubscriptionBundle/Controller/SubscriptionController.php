@@ -52,6 +52,33 @@ class SubscriptionController extends CommonController
     ]);
     }
 
+    public function indexpricingAction()
+    {
+        // $repository=$this->get('le.core.repository.subscription');
+        //  $planinfo  =$repository->getAllPrepaidPlans();
+        $paymenthelper     =$this->get('le.helper.payment');
+        $configtransport   =$this->coreParametersHelper->getParameter('mailer_transport');
+        $transport         ='viale';
+        if ($configtransport == 'mautic.transport.amazon') {
+            $transport='viaaws';
+        }
+
+        return $this->delegateView([
+            'viewParameters' => [
+                'security'        => $this->get('mautic.security'),
+                'contentOnly'     => 0,
+                'letoken'         => $paymenthelper->getUUIDv4(),
+                'transport'       => $transport,
+            ],
+            'contentTemplate' => 'MauticSubscriptionBundle:Pricing:index.html.php',
+            'passthroughVars' => [
+                'activeLink'    => '#le_pricing_index',
+                'mauticContent' => 'pricingplans',
+                'route'         => $this->generateUrl('le_pricing_index'),
+            ],
+        ]);
+    }
+
     public function subscriptionstatusAction()
     {
         $paymentid       = $this->request->get('paymentid');
