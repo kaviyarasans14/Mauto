@@ -11,6 +11,10 @@ return [
                 'path'       => '/plans',
                 'controller' => 'MauticSubscriptionBundle:Subscription:indexplan',
             ],
+            'le_pricing_index' => [
+                'path'       => '/pricing',
+                'controller' => 'MauticSubscriptionBundle:Subscription:indexpricing',
+            ],
             'le_subscription_status' => [
                 'path'       => '/subscription-status',
                 'controller' => 'MauticSubscriptionBundle:Subscription:subscriptionstatus',
@@ -117,6 +121,13 @@ return [
                     \Mautic\SubscriptionBundle\Entity\PaymentHistory::class,
                 ],
             ],
+            'le.subscription.repository.stripecard' => [
+                'class'     => \Doctrine\ORM\EntityRepository::class,
+                'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
+                'arguments' => [
+                    \Mautic\SubscriptionBundle\Entity\StripeCard::class,
+                ],
+            ],
         ],
         'models'    => [
             'mautic.subscription.model.kycinfo' => [
@@ -145,5 +156,6 @@ return [
         'paypal_cachepath'                 => '%kernel.root_dir%/paypal/cache', // for determining paypal cache directory
         'paypal_loglevel'                  => 'DEBUG', // PLEASE USE `INFO` LEVEL FOR LOGGING IN LIVE ENVIRONMENTS
         'paypal_log_enabled'               => true,
+        'stripe_api_key'                   => '',
     ],
 ];

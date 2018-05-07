@@ -16,35 +16,11 @@ $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accou
 <!-- start: box layout -->
 <div class="box-layout">
     <!-- step container -->
-    <div class="col-md-3 bg-white height-auto">
-        <div class="pr-lg pl-lg pt-md pb-md">
-            <!-- Nav tabs -->
-            <ul class="list-group list-group-tabs" role="tablist">
-                <li role="presentation" class="list-group-item">
-                    <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'edit']) ?>');" aria-controls="accountinfo" role="tab" data-toggle="tab">
-                        <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.accountinfo'); ?>
-                    </a>
-                </li>
-                <li role="presentation" class="list-group-item">
-                    <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'billing']) ?>');" aria-controls="billinginfo" role="tab" data-toggle="tab">
-                        <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.billinginfo'); ?>
-                    </a>
-                </li>
-                <li role="presentation" class="list-group-item">
-                    <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'payment']) ?>');" aria-controls="paymenthistory" role="tab" data-toggle="tab">
-                        <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.paymenthistory'); ?>
-                    </a>
-                </li>
-                <li role="presentation" class="list-group-item in active">
-                    <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" aria-controls="cancelsubscription" role="tab" data-toggle="tab">
-                        <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.cancelsubs'); ?>
-                    </a>
-                </li>
-            </ul>
-
-        </div>
-    </div>
-
+    <?php echo $view->render('MauticSubscriptionBundle:AccountInfo:steps.html.php', [
+        'step'                => 'cancelsubscription',
+        'typePrefix'          => $typePrefix,
+        'actionRoute'         => $actionRoute,
+    ]); ?>
     <!-- container -->
     <div class="col-md-9 bg-auto height-auto bdr-l accountinfo">
 

@@ -213,21 +213,23 @@ class DashboardController extends FormController
         $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
         $mailertransport      = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
 
-        $emailUssage    = false;
-        $bouceUsage     = false;
-        $emailsValidity = false;
-        $recordUsage    = false;
-        $buyCreditRoute =$this->generateUrl('le_plan_index');
+        $emailUssage      = false;
+        $bouceUsage       = false;
+        $emailsValidity   = false;
+        $recordUsage      = false;
+        $buyCreditRoute   =$this->generateUrl('le_plan_index');
+        $pricingplanRoute =$this->generateUrl('le_pricing_index');
 
-        $accountsuspendmsg='';
-        $notifymessage    ='';
-        $usageMsg         ='';
-        $maxEmailUsage    = 85;
-        $maxBounceUsage   =3;
-        $maxEmailValidity =7;
-        $maxRecordUsage   =85;
-        $buyNowButon      = 'Buy Now';
-
+        $accountsuspendmsg  ='';
+        $notifymessage      ='';
+        $usageMsg           ='';
+        $maxEmailUsage      = 85;
+        $maxBounceUsage     =3;
+        $maxEmailValidity   =7;
+        $maxRecordUsage     =85;
+        $buyNowButon        = 'Buy Now';
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        =$paymentrepository->getLastPayment();
         if ($accountStatus) {
             $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
         }
@@ -244,13 +246,13 @@ class DashboardController extends FormController
             }
         }
         if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
-            $emailUssage=true;
+            // $emailUssage=true;
         }
         if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
             $bouceUsage=true;
         }
         if (isset($emailValidity) && $emailValidity !== 'UL' && $emailValidity < $maxEmailValidity) {
-            $emailsValidity=true;
+            // $emailsValidity=true;
         }
         if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
             $recordUsage=true;
@@ -292,6 +294,11 @@ class DashboardController extends FormController
         }
         if ($recordUsage) {
             $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
+            if ($lastpayment == null) {
+                $usageMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Upgrade', '%url%' => $pricingplanRoute]);
+            } else {
+                $usageMsg .= $this->translator->trans('le.plan.renewal.message');
+            }
         }
         if ($bouceUsage) {
             $usageMsg .= $this->translator->trans('le.bounce.count.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);

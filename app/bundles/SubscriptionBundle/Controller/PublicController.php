@@ -12,7 +12,6 @@
 namespace Mautic\SubscriptionBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController as CommonFormController;
-use Mautic\SubscriptionBundle\Entity\Billing;
 
 /**
  * Class PublicController.

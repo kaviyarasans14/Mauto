@@ -38,4 +38,39 @@ class PaymentRepository extends CommonRepository
             $this->saveEntity($payment);
         }
     }
+
+    public function getLastPayment()
+    {
+        $paymenthistory=$this->findBy([], ['createdOn'=> 'DESC'], 1, 0);
+        if (count($paymenthistory) > 0) {
+            $payment=$paymenthistory[0];
+
+            return $payment;
+        } else {
+            return null;
+        }
+    }
+
+    public function captureStripePayment($orderid, $chargeid, $amount, $plancredits, $validitytill, $planname, $createdby, $createdbyuser)
+    {
+        $paymenthistory=new PaymentHistory();
+        $paymenthistory->setOrderID($orderid);
+        $paymenthistory->setPaymentID($chargeid);
+        $paymenthistory->setPaymentStatus('Paid');
+        $paymenthistory->setProvider('stripe');
+        $paymenthistory->setCurrency('$');
+        $paymenthistory->setAmount($amount);
+        $paymenthistory->setBeforeCredits($plancredits);
+        $paymenthistory->setAddedCredits($plancredits);
+        $paymenthistory->setAfterCredits($plancredits);
+        $paymenthistory->setValidityTill($validitytill);
+        $paymenthistory->setPlanName($planname);
+        $paymenthistory->setPlanLabel($planname == 'viaaws' ? 'Via AWS' : 'Via LeadsEngage');
+        $paymenthistory->setcreatedBy($createdby);
+        $paymenthistory->setcreatedByUser($createdbyuser);
+        $paymenthistory->setcreatedOn(new \DateTime());
+        $paymenthistory->setNetamount($amount);
+        $paymenthistory->setTaxamount(0);
+        $this->saveEntity($paymenthistory);
+    }
 }
