@@ -82,6 +82,7 @@ class SignupRepository
                 ->set('timezone', ':timezone')
                 ->set('country', ':country')
                 ->set('gst_no', ':gst_no')
+                ->set('lead_stage', ':stage')
                 ->setParameter('address', $companyaddress)
                 ->setParameter('city', $city)
                 ->setParameter('state', $state)
@@ -89,6 +90,7 @@ class SignupRepository
                 ->setParameter('timezone', $timezone)
                 ->setParameter('country', $country)
                 ->setParameter('gst_no', $gstnumber)
+                ->setParameter('stage', 'Trial- Activated')
                 ->where(
                     $qb->expr()->in('id', $recordid)
                 )
@@ -140,16 +142,14 @@ class SignupRepository
         }
     }
 
-    public function updateCustomerStatus($status, $stage, $email)
+    public function updateCustomerStatus($stage, $email)
     {
         $qb       = $this->getConnection()->createQueryBuilder();
         $recordid = $this->checkisRecordAvailable($email);
         if (!$recordid) {
         } else {
             $qb->update(MAUTIC_TABLE_PREFIX.'leads')
-                ->set('lead_status', ':status')
                 ->set('lead_stage', ':stage')
-                ->setParameter('status', $status)
                 ->setParameter('stage', $stage)
                 ->where(
                     $qb->expr()->in('id', $recordid)
