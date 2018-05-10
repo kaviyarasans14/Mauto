@@ -336,7 +336,7 @@ class ImportModel extends FormModel
         array_walk($headers, function (&$val) {
             $val = strtolower(InputHelper::alphanum($val, false, '_'));
         });
-
+        $emptyRowCount = 0;
         while ($batchSize && !$file->eof()) {
             $data = $file->fgetcsv($config['delimiter'], $config['enclosure'], $config['escape']);
             $import->setLastLineImported($lineNumber);
@@ -356,7 +356,10 @@ class ImportModel extends FormModel
             $eventLog     = $this->initEventLog($import, $lineNumber);
 
             if ($this->isEmptyCsvRow($data)) {
-                $errorMessage = 'mautic.lead.import.error.line_empty';
+                ++$emptyRowCount;
+                if ($emptyRowCount > 1) {
+                    $errorMessage = 'mautic.lead.import.error.line_empty';
+                }
             }
 
             if ($this->hasMoreValuesThanColumns($data, $headerCount)) {

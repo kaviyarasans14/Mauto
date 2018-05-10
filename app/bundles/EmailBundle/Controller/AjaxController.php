@@ -302,7 +302,8 @@ class AjaxController extends CommonAjaxController
                     }
                 } catch (\Exception $e) {
                     $dataArray['success'] = 0;
-                    $dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
+                    //$dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
+                    $dataArray['message'] = $e->getMessage();
                 }
             }
         }

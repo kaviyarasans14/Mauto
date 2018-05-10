@@ -499,6 +499,7 @@ class ConfigType extends AbstractType
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class'        => 'form-control',
+                    'placeholder'  => 'mautic.user.user.form.passwordplaceholder',
                     'data-show-on' => $mailerLoginUserShowConditions,
                     'data-hide-on' => $mailerLoginUserHideConditions,
                     'tooltip'      => 'mautic.email.config.mailer.user.tooltip',

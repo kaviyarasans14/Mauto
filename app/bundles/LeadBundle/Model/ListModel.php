@@ -593,6 +593,30 @@ class ListModel extends FormModel
                 'operators' => $this->getOperatorsForFieldType('multiselect'),
                 'object'    => 'lead',
             ],
+            'city' => [
+                'label'      => $this->translator->trans('mautic.lead.lead.thead.city'),
+                'properties' => ['type' => 'text'],
+                'operators'  => $this->getOperatorsForFieldType('default'),
+                'object'     => 'lead',
+            ],
+            'country' => [
+                'label'      => $this->translator->trans('mautic.lead.lead.thead.country'),
+                'properties' => ['type' => 'text'],
+                'operators'  => $this->getOperatorsForFieldType('default'),
+                'object'     => 'lead',
+            ],
+            'state' => [
+                'label'      => $this->translator->trans('mautic.lead.lead.thead.state'),
+                'properties' => ['type' => 'text'],
+                'operators'  => $this->getOperatorsForFieldType('default'),
+                'object'     => 'lead',
+            ],
+            'zipcode' => [
+                'label'      => $this->translator->trans('mautic.company.zipcode'),
+                'properties' => ['type' => 'text'],
+                'operators'  => $this->getOperatorsForFieldType('default'),
+                'object'     => 'lead',
+            ],
         ];
         if ($this->security->isAdmin()) {
             $choices['lead']['page_id']= [

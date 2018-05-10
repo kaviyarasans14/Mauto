@@ -65,8 +65,11 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
             </div>
             <?php endif; ?>
 
-            <div class="row">
+            <div class="row transportcallback <?php echo $hideusername; ?>">
                 <?php echo $view['form']->rowIfExists($fields, 'mailer_amazon_region', $template); ?>
+                <div class="row" style="margin-top: 28px;">
+                    <a style="padding-left: 18px;" href="http://help.leadsengage.com/container/show/amazon-ses"><?php echo $view['translator']->trans('le.email.amazon.setup.help'); ?></a>
+                </div>
             </div>
 
             <div class="row">
@@ -90,9 +93,9 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 <div class="transportcallback_help" style="width:50%;float:left;">
                 <label class="control-label"><?php echo $view['translator']->trans('le.email.bounce.callback'); ?></label>
                 </div>
-                <div class="transportcallback_help" style="width:50%;float:right;text-align:right;">
-                    <a href="https://leadsengage.com"><?php echo $view['translator']->trans('le.email.amazon.bounce.help'); ?></a>
-                </div>
+                <!--<div class="transportcallback_help" style="width:50%;float:right;text-align:right;">
+                    <a href="https://leadsengage.com"><?php /*echo $view['translator']->trans('le.email.amazon.bounce.help'); */?></a>
+                </div>-->
                 <input type="text" id="transportcallback" class="form-control" readonly value="<?php echo $view['router']->url('mautic_mailer_transport_callback', ['transport' => 'amazon']); ?>" />
                 <a id="transportcallback_atag" onclick="Mautic.copytoClipboardforms('transportcallback');">
                     <i aria-hidden="true" class="fa fa-clipboard"></i>
@@ -109,9 +112,9 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                     <div class="transportcallback_help" style="width:40%;float:left;">
                         <label class="control-label"><?php echo $view['translator']->trans('le.email.spam.callback'); ?></label>
                     </div>
-                    <div class="transportcallback_help" style="width:60%;float:right;text-align:right;">
-                        <a href="https://leadsengage.com"><?php echo $view['translator']->trans('le.email.amazon.spam.help'); ?></a>
-                    </div>
+                    <!--<div class="transportcallback_help" style="width:60%;float:right;text-align:right;">
+                        <a href="https://leadsengage.com"><?php /*echo $view['translator']->trans('le.email.amazon.spam.help'); */?></a>
+                    </div>-->
                     <input type="text" id="transportcallback_spam" class="form-control" readonly value="<?php echo $view['router']->url('mautic_mailer_transport_callback', ['transport' => 'amazon']); ?>" />
                     <a id="transportcallback_spam_atag" onclick="Mautic.copytoClipboardforms('transportcallback_spam');">
                         <i aria-hidden="true" class="fa fa-clipboard"></i>
@@ -122,37 +125,43 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
                 </div>
             </div>
             <br>
-
-            <?php if (isset($fields['mailer_transport'])): ?>
-                <div class="row">
-                    <?php echo $view['form']->rowIfExists($fields, 'mailer_mailjet_sandbox', $template); ?>
-                    <?php echo $view['form']->rowIfExists($fields, 'mailer_mailjet_sandbox_default_mail', $template); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($fields['mailer_transport'])): ?>
-                <hr class="text-muted" <?php echo $hidepanel ?> />
-            <?php endif; ?>
-
-            <div class="row" <?php echo $hidepanel ?>>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_type', $template); ?>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_path', $template); ?>
+        </div>
+        <div class="panel panel-primary emailconfig">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.footer.mail'); ?></h3>
             </div>
+            <div class="panel-body">
+        <?php if (isset($fields['mailer_transport'])): ?>
+            <div class="row">
+                <?php echo $view['form']->rowIfExists($fields, 'mailer_mailjet_sandbox', $template); ?>
+                <?php echo $view['form']->rowIfExists($fields, 'mailer_mailjet_sandbox_default_mail', $template); ?>
+            </div>
+        <?php endif; ?>
 
-            <div class="row" <?php echo $hidepanel ?>>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_msg_limit', $template); ?>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_time_limit', $template); ?>
-            </div>
+        <?php if (isset($fields['mailer_transport'])): ?>
+            <hr class="text-muted" <?php echo $hidepanel ?> />
+        <?php endif; ?>
 
-            <div class="row" <?php echo $hidepanel ?>>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_recover_timeout', $template); ?>
-                <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_clear_timeout', $template); ?>
-            </div>
-            <div class="row" style="margin:0;">
-                <?php echo $view['form']->rowIfExists($fields, 'postal_address'); ?>
-            </div>
-            <div class="row" style="margin:0;">
-                <?php echo $view['form']->rowIfExists($fields, 'footer_text'); ?>
+        <div class="row" <?php echo $hidepanel ?>>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_type', $template); ?>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_path', $template); ?>
+        </div>
+
+        <div class="row" <?php echo $hidepanel ?>>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_msg_limit', $template); ?>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_time_limit', $template); ?>
+        </div>
+
+        <div class="row" <?php echo $hidepanel ?>>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_recover_timeout', $template); ?>
+            <?php echo $view['form']->rowIfExists($fields, 'mailer_spool_clear_timeout', $template); ?>
+        </div>
+        <div class="row" style="margin:0;">
+            <?php echo $view['form']->rowIfExists($fields, 'postal_address'); ?>
+        </div>
+        <div class="row" style="margin:0;">
+            <?php echo $view['form']->rowIfExists($fields, 'footer_text'); ?>
+        </div>
             </div>
         </div>
     </div>

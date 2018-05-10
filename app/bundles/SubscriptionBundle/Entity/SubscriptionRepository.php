@@ -148,7 +148,7 @@ class SubscriptionRepository
             $account = $accountentity[0]; //$model->getEntity(1);
             $email   = $account->getEmail();
             if ($email != '') {
-                $this->signuprepo->updateCustomerStatus('Active', 'Customer', $email);
+                $this->signuprepo->updateCustomerStatus('Paid- Active', $email);
             }
         }
     }
