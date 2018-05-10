@@ -101,6 +101,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
+        $isAdmin =$this->factory->getUser()->isAdmin();
         $event->addDecision(
             'email.open',
             [
@@ -147,8 +148,8 @@ class CampaignSubscriber extends CommonSubscriber
                 'channelIdField'  => 'email',
             ]
         );
-
-        $event->addDecision(
+        if ($isAdmin) {
+            $event->addDecision(
                 'email.reply',
                 [
                     'label'                  => 'mautic.email.campaign.event.reply',
@@ -163,7 +164,7 @@ class CampaignSubscriber extends CommonSubscriber
                     ],
                 ]
             );
-
+        }
         $event->addAction(
             'email.send.to.user',
             [
