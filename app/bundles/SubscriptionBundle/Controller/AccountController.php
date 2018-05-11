@@ -320,7 +320,7 @@ class AccountController extends FormController
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cardinfo.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',
-                'mauticContent' => 'cardinfo',
+                'mauticContent' => 'accountinfo',
                 'route'         => $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'cardinfo']),
             ],
         ]);
