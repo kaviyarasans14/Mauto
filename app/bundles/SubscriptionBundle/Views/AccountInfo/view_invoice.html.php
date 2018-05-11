@@ -213,7 +213,7 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
                 </td>
                 <td class="table_body gstamount_body">
                     <p>
-                        <?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getAmount()) : $payment->getAmount())?><br><?php echo $payment->getCurrency(); echo $taxamount; ?>
+                        <?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getNetamount()) : $payment->getNetamount())?><br><?php echo $payment->getCurrency(); echo $taxamount; ?>
                     </p>
                 </td>
             </tr>
@@ -228,7 +228,7 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
                     Amount Paid
                 </td>
                 <td class="table_body amount_body">
-                    <?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getAmount()) : $payment->getAmount())?>
+                    <?php echo $payment->getCurrency().($payment->getProvider() == 'razorpay' ? number_format($payment->getNetamount()) : $payment->getNetamount())?>
                 </td>
             </tr>
             </tbody>

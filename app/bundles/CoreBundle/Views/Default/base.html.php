@@ -31,11 +31,8 @@
 
     <!-- start: app-header -->
    <header id="app-header" class="navbar">
-       <?php if (!empty($notifymessage)) : ?>
-           <span class="license-notifiation" id="licenseclosebutton"><?php echo $notifymessage ?> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </span>
-       <?php endif; ?>
-
-        <?php echo $view->render('MauticCoreBundle:Default:navbar.html.php'); ?>
+           <div class="license-notifiation hide" id="licenseclosebutton"><span id="license-alert-message"></span> <img style="cursor: pointer" class="button-notification" src="<?php echo $view['assets']->getUrl('media/images/button.png') ?>" onclick="licenseCloseButton()" width="10" height="10"> </div>
+      <?php echo $view->render('MauticCoreBundle:Default:navbar.html.php'); ?>
         <?php echo $view->render('MauticCoreBundle:Notification:flashes.html.php'); ?>
     </header>
     <!--/ end: app-header -->

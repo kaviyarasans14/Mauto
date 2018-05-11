@@ -12,6 +12,7 @@
 namespace Mautic\SubscriptionBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+use Mautic\SubscriptionBundle\Entity\Billing;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,10 +42,16 @@ class UpdatePaymentCommand extends ModeratedCommand
             // $translator->trans('mautic.campaign.rebuild.leads_affected', ['%leads%' => $processed])
             $paymentrepository  =$container->get('le.subscription.repository.payment');
             $lastpayment        =$paymentrepository->getLastPayment();
+            $licenseinfohelper  =$container->get('mautic.helper.licenseinfo');
+            $licenseinfo        =$licenseinfohelper->getLicenseEntity();
+            $accountStatus      =$licenseinfo->getAppStatus();
+            if ($accountStatus != 'Active') {
+                $output->writeln('<info>'.'Account is not active to proceed further.'.'</info>');
+
+                return 0;
+            }
             if ($lastpayment != null) {
                 $paymenthelper     =$container->get('le.helper.payment');
-                $licenseinfohelper = $container->get('mautic.helper.licenseinfo');
-                $licenseinfo       =$licenseinfohelper->getLicenseEntity();
                 if ($licenseinfo != null) {
                     $totalrecordcount =$licenseinfo->getTotalRecordCount();
                     $actualrecordcount=$licenseinfo->getActualRecordCount();
@@ -52,7 +59,8 @@ class UpdatePaymentCommand extends ModeratedCommand
                     $currentdate      = date('Y-m-d');
                     $planname         = $lastpayment->getPlanName();
                     $planamount       = $lastpayment->getAmount();
-                    $plancredits      =$lastpayment->getAfterCredits();
+                    $lastamount       = $lastpayment->getNetamount();
+                    $plancredits      = $lastpayment->getBeforeCredits();
                     $stripecardrepo   = $container->get('le.subscription.repository.stripecard');
                     $stripecards      = $stripecardrepo->findAll();
                     $stripecard       = null;
@@ -60,49 +68,39 @@ class UpdatePaymentCommand extends ModeratedCommand
                         $stripecard = $stripecards[0];
                     }
                     if ($stripecard != null) {
+                        $ismoreusage=false;
+                        if ($totalrecordcount < $actualrecordcount) {
+                            $ismoreusage=true;
+                        }
+                        $isvalidityexpired=false;
                         if (strtotime($validitytill) < strtotime($currentdate)) {
+                            $isvalidityexpired=true;
+                        }
+                        if ($ismoreusage || $isvalidityexpired) {
                             $output->writeln('<info>'.'Total Record Count:'.$totalrecordcount.'</info>');
                             $output->writeln('<info>'.'Actual Record Count:'.$actualrecordcount.'</info>');
-                            if ($totalrecordcount < $actualrecordcount) {
+                            $multiplx=1;
+                            if ($actualrecordcount > 0) {
                                 $multiplx   =ceil($actualrecordcount / 10000);
-                                $planamount =$planamount * $multiplx;
-                                $plancredits=$plancredits * $multiplx;
                             }
-                            $apikey=$container->get('mautic.helper.core_parameters')->getParameter('stripe_api_key');
-                            \Stripe\Stripe::setApiKey($apikey);
-                            $charges = \Stripe\Charge::create([
-                                'amount'   => $planamount * 100, //100 cents = 1 dollar
-                                'currency' => 'usd',
-                                //"source" => $token, // obtained with Stripe.js
-                                'customer'             => $stripecard->getCustomerID(),
-                                'description'          => 'charge for leadsengage product purchase',
-                                'capture'              => true,
-                                'statement_descriptor' => 'leadsengage purchase',
-                            ], [
-                                'idempotency_key' => $paymenthelper->getUUIDv4(),
-                            ]);
-                            if (isset($charges)) {
-                                $orderid         = uniqid();
-                                $chargeid        = $charges->id;
-                                $status          = $charges->status;
-                                $failure_code    = $charges->failure_code;
-                                $failure_message = $charges->failure_message;
-                                if ($status == 'succeeded') {
-                                    $validitytill=date('Y-m-d', strtotime($validitytill.' +1 months'));
-                                    $paymentrepository->captureStripePayment($orderid, $chargeid, $planamount, $plancredits, $validitytill, $planname, null, null);
-                                    $subsrepository          =$container->get('le.core.repository.subscription');
-                                    $subsrepository->updateContactCredits($plancredits);
-                                    $output->writeln('<info>'.'Plan Renewed Successfully'.'</info>');
-                                    $output->writeln('<info>'.'Transaction ID:'.$chargeid.'</info>');
-                                    $output->writeln('<info>'.'Amount($):'.$planamount.'</info>');
-                                    $output->writeln('<info>'.'Contact Credits:'.$plancredits.'</info>');
-                                } else {
-                                    $output->writeln('<error>'.'Plan renewed failed due to some technical issues.'.'</error>');
-                                    $output->writeln('<error>'.'Failure Code:'.$failure_code.'</error>');
-                                    $output->writeln('<error>'.'Failure Message:'.$failure_message.'</error>');
-                                }
+                            if ($isvalidityexpired) {
+                                $netamount   =$planamount * $multiplx;
+                                $netcredits  =$plancredits * $multiplx;
+                                $validitytill=date('Y-m-d', strtotime($validitytill.' +1 months'));
+                            } elseif ($ismoreusage) {
+                                $amount1   =$this->getProrataAmount($currentdate, $validitytill, $lastamount);
+                                $netamount =$planamount * $multiplx;
+                                $netcredits=$plancredits * $multiplx;
+                                $amount2   =$this->getProrataAmount($currentdate, $validitytill, $netamount);
+                                $output->writeln('<info>'.'Refund Amount:'.$amount1.'</info>');
+                                $output->writeln('<info>'.'Charged Amount:'.$amount2.'</info>');
+                                $netamount=$amount2 - $amount1;
+                                $output->writeln('<info>'.'Net Amount:'.$netamount.'</info>');
+                            }
+                            if ($netamount > 0) {
+                                $this->attemptStripeCharge($output, $stripecard, $paymenthelper, $paymentrepository, $planname, $planamount, $plancredits, $netamount, $netcredits, $validitytill);
                             } else {
-                                $output->writeln('<error>'.'Plan renewed failed due to some technical issues.'.'</error>');
+                                $output->writeln('<error>'.'Amount is too less to charge:'.$netamount.'</error>');
                             }
                         } else {
                             $output->writeln('<info>'."Plan validity available upto $validitytill".'</info>');
@@ -133,7 +131,8 @@ class UpdatePaymentCommand extends ModeratedCommand
             // param is '' in this case
             //  print('Param is:' . $err['param'] . "\n");
             // print('Message is:' . $err['message'] . "\n");
-            $errormsg=$err['message'];
+            $errormsg='Card Error:'.$err['message'];
+            $licenseinfohelper->suspendApplication();
         } catch (\Stripe\Error\RateLimit $e) {
             $errormsg= 'Too many requests made to the API too quickly';
             // Too many requests made to the API too quickly
@@ -161,5 +160,68 @@ class UpdatePaymentCommand extends ModeratedCommand
 
             return 0;
         }
+    }
+
+    protected function attemptStripeCharge($output, $stripecard, $paymenthelper, $paymentrepository, $planname, $planamount, $plancredits, $netamount, $netcredits, $validitytill)
+    {
+        $container  = $this->getContainer();
+        $apikey     =$container->get('mautic.helper.core_parameters')->getParameter('stripe_api_key');
+        \Stripe\Stripe::setApiKey($apikey);
+        $charges = \Stripe\Charge::create([
+            'amount'   => $netamount * 100, //100 cents = 1 dollar
+            'currency' => 'usd',
+            //"source" => $token, // obtained with Stripe.js
+            'customer'             => $stripecard->getCustomerID(),
+            'description'          => 'charge for leadsengage product purchase',
+            'capture'              => true,
+            'statement_descriptor' => 'leadsengage purchase',
+        ], [
+            'idempotency_key' => $paymenthelper->getUUIDv4(),
+        ]);
+        if (isset($charges)) {
+            $orderid         = uniqid();
+            $chargeid        = $charges->id;
+            $status          = $charges->status;
+            $failure_code    = $charges->failure_code;
+            $failure_message = $charges->failure_message;
+            if ($status == 'succeeded') {
+                $payment       =$paymentrepository->captureStripePayment($orderid, $chargeid, $planamount, $netamount, $plancredits, $netcredits, $validitytill, $planname, null, null);
+                $subsrepository=$container->get('le.core.repository.subscription');
+                $subsrepository->updateContactCredits($netcredits, $validitytill);
+                $output->writeln('<info>'.'Plan Renewed Successfully'.'</info>');
+                $output->writeln('<info>'.'Transaction ID:'.$chargeid.'</info>');
+                $output->writeln('<info>'.'Amount($):'.$netamount.'</info>');
+                $output->writeln('<info>'.'Contact Credits:'.$netcredits.'</info>');
+                $billingmodel  = $container->get('mautic.model.factory')->getModel('subscription.billinginfo');
+                $billingrepo   = $billingmodel->getRepository();
+                $billingentity = $billingrepo->findAll();
+                if (sizeof($billingentity) > 0) {
+                    $billing = $billingentity[0]; //$model->getEntity(1);
+                } else {
+                    $billing = new Billing();
+                }
+                if ($billing->getAccountingemail() != '') {
+                    $mailer       = $container->get('mautic.transport.elasticemail.transactions');
+                    $paymenthelper=$container->get('le.helper.payment');
+                    $paymenthelper->sendPaymentNotification($payment, $billing, $mailer);
+                }
+            } else {
+                $output->writeln('<error>'.'Plan renewed failed due to some technical issues.'.'</error>');
+                $output->writeln('<error>'.'Failure Code:'.$failure_code.'</error>');
+                $output->writeln('<error>'.'Failure Message:'.$failure_message.'</error>');
+            }
+        } else {
+            $output->writeln('<error>'.'Plan renewed failed due to some technical issues.'.'</error>');
+        }
+    }
+
+    protected function getProrataAmount($start, $end, $amount)
+    {
+        $date1        = new \DateTime($start);
+        $date2        = new \DateTime($end);
+        $diff         = $date2->diff($date1)->format('%a');
+        $prorataamount=$amount * ($diff / 31);
+
+        return round($prorataamount);
     }
 }

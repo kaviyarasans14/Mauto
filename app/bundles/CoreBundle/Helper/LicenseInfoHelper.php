@@ -575,17 +575,13 @@ class LicenseInfoHelper
         $entity           = $this->licenseinfo->findAll()[0];
         $totalEmailCount  = $entity->getTotalEmailCount();
         $actualEmailCount = $entity->getActualEmailCount();
-        $availablecredits =0;
         if ($totalEmailCount == 'UL') {
-            return 0;
+            return -1;
         } else {
             $availablecredits=$totalEmailCount - $actualEmailCount;
-            if ($availablecredits < 0) {
-                $availablecredits=0;
-            }
-        }
 
-        return $availablecredits;
+            return $availablecredits > 0 ? $availablecredits : 0;
+        }
     }
 
     public function getLicenseEndDate()
@@ -646,6 +642,29 @@ class LicenseInfoHelper
 
                 return $totalRecordUsage;
             }
+        }
+    }
+
+    public function getAvailableRecordCount()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return -1;
+        } else {
+            $availablerecordcount = $totalRecordCount - $actualRecordCount;
+
+            return $availablerecordcount > 0 ? $availablerecordcount : 0;
         }
     }
 
@@ -744,5 +763,19 @@ class LicenseInfoHelper
         }
 
         return $entity;
+    }
+
+    public function suspendApplication()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        $entity->setAppStatus('Suspended');
+        $this->licenseinfo->saveEntity($entity);
     }
 }

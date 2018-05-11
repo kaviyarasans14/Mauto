@@ -31,12 +31,12 @@ return [
                 'path'       => '/accountinfo/{objectAction}/{objectId}',
                 'controller' => 'MauticSubscriptionBundle:Account:execute',
             ],
-        ],
-        'public' => [
             'mautic_viewinvoice_action' => [
                 'path'       => '/viewinvoice/{id}',
                 'controller' => 'MauticSubscriptionBundle:Public:viewinvoice',
             ],
+        ],
+        'public' => [
         ],
         'api'    => [],
     ],

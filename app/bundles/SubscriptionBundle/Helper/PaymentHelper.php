@@ -95,4 +95,64 @@ class PaymentHelper
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
     }
+
+    /**
+     * @param User $user
+     */
+    public function sendPaymentNotification($paymenthistory, $billing, $mailer)
+    {
+        $mailer->start();
+        $invoicelink  = $this->factory->getRouter()->generate('mautic_viewinvoice_action', ['id' => $paymenthistory->getId()], true);
+        $message      = \Swift_Message::newInstance();
+        $message->setTo([$billing->getAccountingemail() => $billing->getCompanyname()]);
+        $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setSubject($this->factory->getTranslator()->trans('le.payment.received.alert'));
+        $datehelper =$this->factory->getDateHelper();
+        $processedat=$datehelper->toDate($paymenthistory->getcreatedOn());
+
+        $text = "<!DOCTYPE html>
+<html>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+	<head>
+		<title></title>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css'>
+	</head>
+	<body aria-disabled='false' style='min-height: 300px;margin:0px;'>
+		<div style='background-color:#eff2f7'>
+			<div style='padding-top: 55px;'>
+				<div class='marle' style='margin: 0% 11.5%;background-color:#fff;padding: 50px 50px 50px 50px;border-bottom:5px solid #0071ff;'>
+
+					<p style='text-align:center;'><img src='https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png' class='fr-fic fr-dii' height='40'></p>
+					<br>
+					<div style='text-align:center;width:100%;'>
+						<div style='display:inline-block;width: 80%;'>
+
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi ".$billing->getCompanyname().",</p>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Payment of <b>".$paymenthistory->getAmount().'$</b> has been processed on <b>'.$processedat."</b> for LeadsEngage's Monthly Subscription.You can download the Invoice in your account.
+</p><a href=\"$invoicelink\" class='butle' style='text-align:center;text-decoration:none;font-family: Montserrat,sans-serif;transition: all .1s ease;color: #fff;font-weight: 400;font-size: 18px;margin-top: 10px;font-family: Montserrat,sans-serif;display: inline-block;letter-spacing: .6px;padding: 15px 30px;box-shadow: 0 1px 2px rgba(0,0,0,.36);white-space: nowrap;border-radius: 35px;background-color: #0071ff;border: #0071ff;'>View Invoice</a>
+							<br>
+
+							<p style='text-align:center;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Contact <a href='mailto:support@leadsengage.com'>support@leadsengage.com</a> for any clarification</p>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thank you for your business!</p>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'> The <a href='https://leadsengage.com/'>LeadsEngage</a> Team</p>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+	</body>
+</html>";
+        //$html = nl2br($text);
+
+        $message->setBody($text, 'text/html');
+        //$mailer->setPlainText(strip_tags($text));
+
+        $mailer->send($message);
+    }
 }

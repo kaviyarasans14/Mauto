@@ -526,6 +526,135 @@ class AjaxController extends CommonAjaxController
         return $this->sendJsonResponse($dataArray);
     }
 
+    public function licenseusageinfoAction(Request $request)
+    {
+        $dataArray['success']  =true;
+        $dataArray['info']     =$this->getLicenseNotifyMessage();
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function getLicenseNotifyMessage()
+    {
+        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $licenseRemDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $emailUsageCount      = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount     = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
+        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
+        $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
+        $mailertransport      = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
+        $availablerecordcount = $this->get('mautic.helper.licenseinfo')->getAvailableRecordCount();
+        $availableemailcount  =  $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
+        $emailUssage          = false;
+        $bouceUsage           = false;
+        $emailsValidity       = false;
+        $recordUsage          = false;
+        $buyCreditRoute       =$this->generateUrl('le_plan_index');
+        $pricingplanRoute     =$this->generateUrl('le_pricing_index');
+
+        $accountsuspendmsg  ='';
+        $notifymessage      ='';
+        $usageMsg           ='';
+        $maxEmailUsage      = 85;
+        $maxBounceUsage     =3;
+        $maxEmailValidity   =7;
+        $maxRecordUsage     =85;
+        $buyNowButon        = 'Buy Now';
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        =$paymentrepository->getLastPayment();
+        if ($accountStatus) {
+            $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
+        }
+        if ($mailertransport == $this->translator->trans('mautic.transport.elasticemail') || $mailertransport == $this->translator->trans('mautic.transport.sendgrid_api')) {
+            $accountusagelink  = $this->translator->trans('le.emailusage.link');
+            $accountusagelink  = str_replace('|URL|', $this->generateUrl('mautic_email_usage'), $accountusagelink);
+            $accountsuspendmsg = str_replace('%ATAG%', $accountusagelink, $accountsuspendmsg);
+        } else {
+            $accountsuspendmsg = str_replace('%ATAG%', '', $accountsuspendmsg);
+        }
+        if (!empty($licenseRemDays) && $lastpayment == null) {
+            if ($licenseRemDays == 1) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.today');
+            } elseif ($licenseRemDays == 2) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.tommorow');
+            } elseif ($licenseRemDays < 7) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDays]);
+            }
+            $notifymessage .= $this->translator->trans('le.record.usage.count', ['%contact_usage%' => $availablerecordcount, '%email_usage%' => $availableemailcount]);
+            $notifymessage .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
+        }
+        if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
+            // $emailUssage=true;
+        }
+        if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
+            // $bouceUsage=true;
+        }
+        if (isset($emailValidity) && $emailValidity !== 'UL' && $emailValidity < $maxEmailValidity) {
+            // $emailsValidity=true;
+        }
+        if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
+            $recordUsage=true;
+        }
+
+        if ($emailUssage) {
+            if ($emailCountExpired == 0) {
+                $usageMsg=$this->translator->trans('le.emailusage.count.expired');
+            } else {
+                $usageMsg=$this->translator->trans('le.emailusage.count.exceeds', ['%maxEmailUsage%' => $maxEmailUsage]);
+            }
+        }
+        if ($emailsValidity) {
+            if ($emailValidity < 0) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
+            } elseif ($emailValidity == 0) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.today');
+            } elseif ($emailValidity == 1) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.tommorow');
+            } else {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]);
+            }
+            if ($usageMsg != '') {
+                $usageMsg .= ' and ';
+            }
+            $usageMsg .= $emailMsg;
+
+            if ($emailCountExpired == 0 && $emailValidity < 0) {
+                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
+            } elseif ($emailCountExpired == 0 && $emailsValidity) {
+                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
+            } elseif ($emailValidity < 0 && $emailUssage) {
+                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
+            }
+        }
+
+        if ($emailUssage || $emailsValidity) {
+            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
+        }
+//        if ($recordUsage) {
+//            $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
+//            if ($lastpayment == null) {
+//                $usageMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Upgrade', '%url%' => $pricingplanRoute]);
+//            } else {
+//                $usageMsg .= $this->translator->trans('le.plan.renewal.message');
+//            }
+//        }
+        if ($bouceUsage) {
+            $usageMsg .= $this->translator->trans('le.bounce.count.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);
+        }
+
+        if ($usageMsg != '') {
+            $notifymessage .= ' '.$usageMsg;
+        }
+        if ($accountsuspendmsg != '') {
+            return $accountsuspendmsg;
+        } else {
+            return $notifymessage;
+        }
+    }
+
     public function sendSms($url, $number, $content, $username, $password, $senderID)
     {
         try {
@@ -654,7 +783,7 @@ class AjaxController extends CommonAjaxController
                 // param is '' in this case
                 //  print('Param is:' . $err['param'] . "\n");
                 // print('Message is:' . $err['message'] . "\n");
-                $errormsg=$err['message'];
+                $errormsg='Card Error:'.$err['message'];
             } catch (\Stripe\Error\RateLimit $e) {
                 $errormsg= 'Too many requests made to the API too quickly';
                 // Too many requests made to the API too quickly
@@ -701,6 +830,7 @@ class AjaxController extends CommonAjaxController
             } else {
                 $errormsg='Some Technical Error Occurs';
             }
+            $statusurl='';
             if (isset($charges) && $isCardUpdateAlone == 'false') {
                 $orderid        =uniqid();
                 $chargeid       =$charges->id;
@@ -718,9 +848,10 @@ class AjaxController extends CommonAjaxController
                     }
                     $validitytill       =date('Y-m-d', strtotime('+1 months'));
                     $paymentrepository  =$this->get('le.subscription.repository.payment');
-                    $paymentrepository->captureStripePayment($orderid, $chargeid, $amount, $plancredits, $validitytill, $planname, $createdby, $createdbyuser);
-                    $subsrepository=$this->get('le.core.repository.subscription');
-                    $subsrepository->updateContactCredits($plancredits);
+                    $payment            =$paymentrepository->captureStripePayment($orderid, $chargeid, $amount, $amount, $plancredits, $plancredits, $validitytill, $planname, $createdby, $createdbyuser);
+                    $subsrepository     =$this->get('le.core.repository.subscription');
+                    $subsrepository->updateContactCredits($plancredits, $validitytill);
+                    $statusurl            = $this->generateUrl('le_payment_status', ['id'=> $orderid]);
                 } else {
                     $errormsg=$failure_message;
                 }
@@ -729,6 +860,21 @@ class AjaxController extends CommonAjaxController
         if (!empty($errormsg)) {
             $dataArray['success']   =false;
             $dataArray['errormsg']  =$errormsg;
+        } elseif ($statusurl != '') {
+            $billingmodel  = $this->getModel('subscription.billinginfo');
+            $billingrepo   = $billingmodel->getRepository();
+            $billingentity = $billingrepo->findAll();
+            if (sizeof($billingentity) > 0) {
+                $billing = $billingentity[0]; //$model->getEntity(1);
+            } else {
+                $billing = new Billing();
+            }
+            if ($billing->getAccountingemail() != '') {
+                $mailer       = $this->container->get('mautic.transport.elasticemail.transactions');
+                $paymenthelper=$this->get('le.helper.payment');
+                $paymenthelper->sendPaymentNotification($payment, $billing, $mailer);
+            }
+            $dataArray['statusurl']  =$statusurl;
         }
 
         return $this->sendJsonResponse($dataArray);

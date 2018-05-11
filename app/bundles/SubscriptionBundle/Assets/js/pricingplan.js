@@ -140,7 +140,7 @@ function stripeTokenHandler(card,token,rootclass,btnelement){
                 setInfoText("Card updated successfully");
                 location.reload();
             }else{
-                setInfoText("Payment Done Successfully.<a href='"+mauticBaseUrl+"s/accountinfo/payment"+"'>View Details</a>");
+                Mautic.redirectWithBackdrop(response.statusurl);
             }
         }
         else{

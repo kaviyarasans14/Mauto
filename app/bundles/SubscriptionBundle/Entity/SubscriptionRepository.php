@@ -153,10 +153,15 @@ class SubscriptionRepository
         }
     }
 
-    public function updateContactCredits($credits)
+    public function updateContactCredits($credits, $validitytill)
     {
         $licentity=$this->licenseinforepo->findAll()[0];
         $licentity->setTotalRecordCount($credits);
+        $licentity->setTotalEmailCount('UL');
+        $licentity->setLicensedDays('UL');
+        $licentity->setEmailValidity($validitytill);
+        $licentity->setLicenseStart(date('Y-m-d'));
+        $licentity->setLicenseEnd($validitytill);
         $this->licenseinforepo->saveEntity($licentity);
     }
 

@@ -51,7 +51,7 @@ class PaymentRepository extends CommonRepository
         }
     }
 
-    public function captureStripePayment($orderid, $chargeid, $amount, $plancredits, $validitytill, $planname, $createdby, $createdbyuser)
+    public function captureStripePayment($orderid, $chargeid, $planamount, $netamount, $plancredits, $netcredits, $validitytill, $planname, $createdby, $createdbyuser)
     {
         $paymenthistory=new PaymentHistory();
         $paymenthistory->setOrderID($orderid);
@@ -59,18 +59,20 @@ class PaymentRepository extends CommonRepository
         $paymenthistory->setPaymentStatus('Paid');
         $paymenthistory->setProvider('stripe');
         $paymenthistory->setCurrency('$');
-        $paymenthistory->setAmount($amount);
+        $paymenthistory->setAmount($planamount);
         $paymenthistory->setBeforeCredits($plancredits);
         $paymenthistory->setAddedCredits($plancredits);
-        $paymenthistory->setAfterCredits($plancredits);
+        $paymenthistory->setAfterCredits($netcredits);
         $paymenthistory->setValidityTill($validitytill);
         $paymenthistory->setPlanName($planname);
-        $paymenthistory->setPlanLabel($planname == 'viaaws' ? 'Via AWS' : 'Via LeadsEngage');
+        $paymenthistory->setPlanLabel($planname == 'viaaws' ? 'SES' : 'LE');
         $paymenthistory->setcreatedBy($createdby);
         $paymenthistory->setcreatedByUser($createdbyuser);
         $paymenthistory->setcreatedOn(new \DateTime());
-        $paymenthistory->setNetamount($amount);
+        $paymenthistory->setNetamount($netamount);
         $paymenthistory->setTaxamount(0);
         $this->saveEntity($paymenthistory);
+
+        return $paymenthistory;
     }
 }

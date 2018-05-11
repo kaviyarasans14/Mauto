@@ -145,7 +145,27 @@ class AccountController extends FormController
                 }
             }
         }
-        $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $emailModel         =$this->getModel('email');
+        $statrepo           =$emailModel->getStatRepository();
+        $licenseinfo        =$this->get('mautic.helper.licenseinfo')->getLicenseEntity();
+        $licensestart       =$licenseinfo->getLicenseStart();
+        $contactUsage       =$licenseinfo->getActualRecordCount();
+        $totalContactCredits=$licenseinfo->getTotalRecordCount();
+        $totalEmailCredits  =$licenseinfo->getTotalEmailCount();
+        $emailUsage         =$statrepo->getSentCountsByDate($licensestart);
+        $trialEndDays       =$this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $planType           ='Trial';
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        =$paymentrepository->getLastPayment();
+        $validityTill       ='';
+        $planAmount         ='';
+        $datehelper         =$this->get('mautic.helper.template.date');
+        if ($lastpayment != null) {
+            $planType    ='Paid';
+            $validityTill=$datehelper->toDate($lastpayment->getValidityTill());
+            $planAmount  =$lastpayment->getCurrency().$lastpayment->getAmount();
+        }
 
         return $this->delegateView([
             'viewParameters' => [
@@ -154,6 +174,14 @@ class AccountController extends FormController
                 'security'           => $this->get('mautic.security'),
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
+                'emailUsage'         => $emailUsage,
+                'contactUsage'       => $contactUsage,
+                'planType'           => $planType,
+                'vallidityTill'      => $validityTill,
+                'planAmount'         => $planAmount,
+                'trialEndDays'       => $trialEndDays.'',
+                'totalContactCredits'=> $totalContactCredits,
+                'totalEmailCredits'  => $totalEmailCredits,
             ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:billing.html.php',
             'passthroughVars' => [
