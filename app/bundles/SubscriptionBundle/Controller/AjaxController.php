@@ -879,4 +879,75 @@ class AjaxController extends CommonAjaxController
 
         return $this->sendJsonResponse($dataArray);
     }
+
+    public function cancelsubscriptionAction()
+    {
+        $dataArray['success']  =true;
+        $dataArray['error']    = true;
+        $curentDate            = $currentDate              =date('Y-m-d');
+        $this->get('mautic.helper.licenseinfo')->intCancelDate($curentDate);
+        $this->get('mautic.helper.licenseinfo')->intAppStatus('Cancelled');
+        $mailer = $this->container->get('mautic.transport.elasticemail.transactions');
+        $this->sendCancelSubscriptionEmail($mailer);
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function sendCancelSubscriptionEmail($mailer)
+    {
+        $mailer->start();
+        $message    = \Swift_Message::newInstance();
+        $message->setTo(['support@leadsengage.com' => 'Leadsengage Support']);
+        $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setSubject($this->translator->trans('leadsengage.accountinfo.cancelsubs'));
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
+        $accrepo       = $model->getRepository();
+        $accountentity = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
+        $name      =$this->user->getFirstName();
+        $useremail =$account->getEmail();
+        $domain    =$account->getDomainname();
+
+        $text = "<!DOCTYPE html>
+<html>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+	<head>
+		<title></title>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css'>
+	</head>
+	<body aria-disabled='false' style='min-height: 300px;margin:0px;'>
+		<div style='background-color:#eff2f7'>
+			<div style='padding-top: 55px;'>
+				<div class='marle' style='margin: 0% 11.5%;background-color:#fff;padding: 50px 50px 50px 50px;border-bottom:5px solid #0071ff;'>
+					<p style='text-align:center;'><img src='https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png' class='fr-fic fr-dii' height='40'></p>
+					<br>
+					<div style='text-align:center;width:100%;'>
+						<div style='display:inline-block;width: 80%;'>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi Team,</p>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>This email is regarding cancelling subscription for <b>$name</b> associated with domain <b>$domain</b>and email is <b>$useremail</b></p>
+							<br>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thanks,
+								<br><b>$name</b>
+                                </p>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+	</body>
+</html>";
+        $message->setBody($text, 'text/html');
+        $mailer->send($message);
+    }
 }

@@ -242,34 +242,23 @@ class AccountController extends FormController
         if (!$this->user->isAdmin() && !$this->user->isCustomAdmin() && $this->coreParametersHelper->getParameter('accountinfo_disabled')) {
             return $this->accessDenied();
         }
-
-        /** @var \Mautic\SubscriptionBundle\Model\BillingModel $model */
-        $model   = $this->getModel('subscription.billinginfo');
-        $action  = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'cancel']);
-        $billing = $model->getEntity(1);
-        //$form = $model->createForm($billing, $this->get('form.factory'), $action);
-        $form = '';
-        if ($this->request->getMethod() == 'POST') {
-            $isValid = false;
-            if (!$cancelled = $this->isFormCancelled($form)) {
-                if ($isValid = $this->isFormValid($form)) {
-                    $data               = $this->request->request->get('billinginfo');
-                    $companyname        = $data['companyname'];
-                    $companyaddressname = $data['companyaddress'];
-                    $accountingemail    = $data['accountingemail'];
-                    $billing->setCompanyname($companyname);
-                    $billing->setCompanyaddress($companyaddressname);
-                    $billing->setAccountingemail($accountingemail);
-                    $model->saveEntity($billing);
-                }
-            }
-            if ($cancelled || $isValid) {
-                if (!$cancelled && $this->isFormApplied($form)) {
-                    return $this->delegateRedirect($this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'cancel']));
-                } else {
-                    return $this->delegateRedirect($this->generateUrl('mautic_dashboard_index'));
-                }
-            }
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $appStatus          = $this->get('mautic.helper.licenseinfo')->getAppStatus();
+        $recordCount        = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+        $licenseEndDate     = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $licenseRemDays     = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $subcancel          = $this->get('mautic.helper.licenseinfo')->getCancelDate();
+        $subcanceldate      = date('F d, Y', strtotime($subcancel));
+        $planType           ='Trial';
+        $lastpayment        = $paymentrepository->getLastPayment();
+        if ($lastpayment != null) {
+            $planType    ='Paid';
+        }
+        $license='';
+        if ($planType == 'Trial') {
+            $license = $licenseRemDays.' days';
+        } else {
+            $license = date('F d, Y', strtotime($licenseEndDate.' + 1 days'));
         }
         $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
 
@@ -279,7 +268,12 @@ class AccountController extends FormController
                 'security'           => $this->get('mautic.security'),
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
-            ],
+                'appstatus'          => $appStatus,
+                'recordcount'        => $recordCount,
+                'licenseenddate'     => $license,
+                'planname'           => $planType,
+                'canceldate'         => $subcanceldate,
+             ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cancel.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_accountinfo_index',

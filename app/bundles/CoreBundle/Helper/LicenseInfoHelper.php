@@ -778,4 +778,47 @@ class LicenseInfoHelper
         $entity->setAppStatus('Suspended');
         $this->licenseinfo->saveEntity($entity);
     }
+
+    public function intCancelDate($canceldate)
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($canceldate)) {
+            $canceldate = '';
+        }
+        $entity->setCancelDate($canceldate);
+        $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function getCancelDate()
+    {
+        $entity             = $this->licenseinfo->findAll()[0];
+        $canceldate         = $entity->getCancelDate();
+
+        return $canceldate;
+    }
+
+    public function intAppStatus($status)
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($status)) {
+            $status = '';
+        }
+
+        $entity->setAppStatus($status);
+        $this->licenseinfo->saveEntity($entity);
+    }
 }

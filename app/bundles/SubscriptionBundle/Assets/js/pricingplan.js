@@ -19,6 +19,19 @@ Mautic.accountinfoOnLoad = function (container) {
             });
         });
     }
+    if(mQuery('.cancelsubscription').is(':visible')) {
+        mQuery('.cancelsubscription .cancel-subscription').click(function(e) {
+            e.preventDefault();
+            Mautic.activateBackdrop();
+            Mautic.ajaxActionRequest('subscription:cancelsubscription', {}, function(response) {
+                Mautic.deactivateBackgroup();
+                if(response.success) {
+                    mQuery('.cancelsubscription').addClass('hide');
+                    mQuery('.deactivatedaccount').addClass('show');
+                }
+            });
+        });
+    }
 }
 Mautic.pricingplansOnLoad = function (container) {
     var stripe = getStripeClient();

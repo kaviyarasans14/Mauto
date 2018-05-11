@@ -112,6 +112,11 @@ class LicenseInfo
     private $deletemonth;
 
     /**
+     * @var string
+     */
+    private $canceldate;
+
+    /**
      * @param ORM\ClassMetadata $metadata
      */
     public static function loadMetadata(ORM\ClassMetadata $metadata)
@@ -212,6 +217,11 @@ class LicenseInfo
 
         $builder->createField('deletemonth', 'string')
             ->columnName('delete_month')
+            ->nullable()
+            ->build();
+
+        $builder->createField('canceldate', 'string')
+            ->columnName('cancel_date')
             ->nullable()
             ->build();
     }
@@ -524,5 +534,21 @@ class LicenseInfo
     public function setDeleteMonth($deletemonth)
     {
         $this->deletemonth = $deletemonth;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCancelDate()
+    {
+        return $this->canceldate;
+    }
+
+    /**
+     * @param mixed $canceldate
+     */
+    public function setCancelDate($canceldate)
+    {
+        $this->canceldate = $canceldate;
     }
 }
