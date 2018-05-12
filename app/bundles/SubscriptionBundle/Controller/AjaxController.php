@@ -536,24 +536,24 @@ class AjaxController extends CommonAjaxController
 
     public function getLicenseNotifyMessage()
     {
-        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $licenseRemDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
-        $emailUsageCount      = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
-        $bounceUsageCount     = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
-        $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
-        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
-        $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
-        $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
-        $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
-        $mailertransport      = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
-        $availablerecordcount = $this->get('mautic.helper.licenseinfo')->getAvailableRecordCount();
-        $availableemailcount  =  $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
-        $emailUssage          = false;
-        $bouceUsage           = false;
-        $emailsValidity       = false;
-        $recordUsage          = false;
-        $buyCreditRoute       =$this->generateUrl('le_plan_index');
-        $pricingplanRoute     =$this->generateUrl('le_pricing_index');
+        $licenseRemDays           = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $licenseRemDate           = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $emailUsageCount          = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount         = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $totalRecordUsage         = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
+        $emailValidityEndDate     = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $emailCountExpired        = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
+        $emailValidityDays        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $accountStatus            = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
+        $mailertransport          = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
+        $availablerecordcount     = $this->get('mautic.helper.licenseinfo')->getAvailableRecordCount();
+        $availableemailcount      =  $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
+        $emailUssage              = false;
+        $bouceUsage               = false;
+        $emailsValidity           = false;
+        $recordUsage              = false;
+        $buyCreditRoute           =$this->generateUrl('le_plan_index');
+        $pricingplanRoute         =$this->generateUrl('le_pricing_index');
 
         $accountsuspendmsg  ='';
         $notifymessage      ='';
@@ -575,16 +575,16 @@ class AjaxController extends CommonAjaxController
         } else {
             $accountsuspendmsg = str_replace('%ATAG%', '', $accountsuspendmsg);
         }
-        if (!empty($licenseRemDays) && $lastpayment == null) {
+        if (!empty($licenseRemDays)) {
             if ($licenseRemDays == 1) {
                 $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.today');
             } elseif ($licenseRemDays == 2) {
                 $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.tommorow');
             } elseif ($licenseRemDays < 7) {
-                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDays]);
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]);
             }
-            $notifymessage .= $this->translator->trans('le.record.usage.count', ['%contact_usage%' => $availablerecordcount, '%email_usage%' => $availableemailcount]);
-            $notifymessage .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
+            //  $notifymessage .= $this->translator->trans('le.record.usage.count', ['%contact_usage%' => $availablerecordcount, '%email_usage%' => $availableemailcount]);
+            //$notifymessage .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
         }
         if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
             // $emailUssage=true;
@@ -592,8 +592,8 @@ class AjaxController extends CommonAjaxController
         if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
             // $bouceUsage=true;
         }
-        if (isset($emailValidity) && $emailValidity !== 'UL' && $emailValidity < $maxEmailValidity) {
-            // $emailsValidity=true;
+        if (isset($emailValidityDays) && $emailValidityDays !== 'UL' && $emailValidityDays < $maxEmailValidity) {
+            $emailsValidity=true;
         }
         if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
             $recordUsage=true;
@@ -606,33 +606,35 @@ class AjaxController extends CommonAjaxController
                 $usageMsg=$this->translator->trans('le.emailusage.count.exceeds', ['%maxEmailUsage%' => $maxEmailUsage]);
             }
         }
-        if ($emailsValidity) {
-            if ($emailValidity < 0) {
+        if ($emailsValidity && $lastpayment == null) {
+            if ($emailValidityDays < 0) {
                 $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
-            } elseif ($emailValidity == 0) {
+            } elseif ($emailValidityDays == 0) {
                 $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.today');
-            } elseif ($emailValidity == 1) {
+            } elseif ($emailValidityDays == 1) {
                 $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.tommorow');
             } else {
-                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]);
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityDays]);
             }
-            if ($usageMsg != '') {
-                $usageMsg .= ' and ';
-            }
-            $usageMsg .= $emailMsg;
-
-            if ($emailCountExpired == 0 && $emailValidity < 0) {
-                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
-            } elseif ($emailCountExpired == 0 && $emailsValidity) {
-                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
-            } elseif ($emailValidity < 0 && $emailUssage) {
-                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
-            }
+            $emailMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
+            $notifymessage .= $emailMsg;
+            //            if ($usageMsg != '') {
+//                $usageMsg .= ' and ';
+//            }
+//            $usageMsg .= $emailMsg;
+//
+//            if ($emailCountExpired == 0 && $emailValidity < 0) {
+//                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
+//            } elseif ($emailCountExpired == 0 && $emailsValidity) {
+//                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
+//            } elseif ($emailValidity < 0 && $emailUssage) {
+//                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
+//            }
         }
 
-        if ($emailUssage || $emailsValidity) {
-            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
-        }
+//        if ($emailUssage || $emailsValidity) {
+//            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
+//        }
 //        if ($recordUsage) {
 //            $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
 //            if ($lastpayment == null) {

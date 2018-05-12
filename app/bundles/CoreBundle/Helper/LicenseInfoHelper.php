@@ -513,9 +513,9 @@ class LicenseInfoHelper
         $emailValidity   = $entity->getEmailValidity();
         $totalEmailCount = $entity->getTotalEmailCount();
 
-        $remDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
-
-        if ($totalEmailCount == 'UL') {
+        $remDays    = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
+        $lastpayment=$this->em->getRepository('Mautic\SubscriptionBundle\Entity\PaymentHistory')->getLastPayment();
+        if ($totalEmailCount == 'UL' && $lastpayment != null) {
             return true;
         } else {
             if ($remDays >= 0) {
@@ -541,8 +541,8 @@ class LicenseInfoHelper
         $totalEmailCount = $entity->getTotalEmailCount();
 
         $validityDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
-
-        if ($totalEmailCount == 'UL') {
+        $lastpayment  =$this->em->getRepository('Mautic\SubscriptionBundle\Entity\PaymentHistory')->getLastPayment();
+        if ($totalEmailCount == 'UL' && $lastpayment != null) {
             return 'UL';
         } else {
             return $validityDays;

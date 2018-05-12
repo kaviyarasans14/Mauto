@@ -31,7 +31,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
                 <div class="price-desc">Per Month,Billed Monthly</div>
                 <div class="details-list">
                     <span>All Features Included</span>
-                    <span>Priority Support Via Email</span>
+<!--                    <span>Priority Support Via Email</span>-->
                     <span>$9 extra for every 10,000 additional contacts</span>
                     <span>AWS SES charges are extra and paid to Amazon</span>
                 </div>
@@ -53,7 +53,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
                 <div class="price-desc">Per Month,Billed Monthly</div>
                 <div class="details-list">
                     <span>All Features Included</span>
-                    <span>Priority Support Via Email</span>
+<!--                    <span>Priority Support Via Email</span>-->
                     <span>$29 extra for every 10,000 additional contacts</span>
                     <span>Charges include email deliveries</span>
                 </div>

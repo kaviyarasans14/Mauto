@@ -106,6 +106,7 @@ class PaymentHelper
         $message      = \Swift_Message::newInstance();
         $message->setTo([$billing->getAccountingemail() => $billing->getCompanyname()]);
         $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setReplyTo(['support@leadsengage.com' => 'LeadsEngage']);
         $message->setSubject($this->factory->getTranslator()->trans('le.payment.received.alert'));
         $datehelper =$this->factory->getDateHelper();
         $processedat=$datehelper->toDate($paymenthistory->getcreatedOn());
@@ -128,13 +129,13 @@ class PaymentHelper
 					<div style='text-align:center;width:100%;'>
 						<div style='display:inline-block;width: 80%;'>
 
-							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi ".$billing->getCompanyname().",</p>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Dear ".$billing->getCompanyname().",</p>
 
-							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Payment of <b>".$paymenthistory->getAmount().'$</b> has been processed on <b>'.$processedat."</b> for LeadsEngage's Monthly Subscription.You can download the Invoice in your account.
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Payment of <b>$".$paymenthistory->getNetamount().'</b> has been processed on <b>'.$processedat."</b> for LeadsEngage's Monthly Subscription.You can download the Invoice in your account.
 </p><a href=\"$invoicelink\" class='butle' style='text-align:center;text-decoration:none;font-family: Montserrat,sans-serif;transition: all .1s ease;color: #fff;font-weight: 400;font-size: 18px;margin-top: 10px;font-family: Montserrat,sans-serif;display: inline-block;letter-spacing: .6px;padding: 15px 30px;box-shadow: 0 1px 2px rgba(0,0,0,.36);white-space: nowrap;border-radius: 35px;background-color: #0071ff;border: #0071ff;'>View Invoice</a>
 							<br>
 
-							<p style='text-align:center;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Contact <a href='mailto:support@leadsengage.com'>support@leadsengage.com</a> for any clarification</p>
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>Contact <a href='mailto:support@leadsengage.com'>support@leadsengage.com</a> for any clarification</p>
 							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thank you for your business!</p>
 							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'> The <a href='https://leadsengage.com/'>LeadsEngage</a> Team</p>
 						</div>

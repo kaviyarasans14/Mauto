@@ -88,14 +88,19 @@ class UpdatePaymentCommand extends ModeratedCommand
                                 $netcredits  =$plancredits * $multiplx;
                                 $validitytill=date('Y-m-d', strtotime($validitytill.' +1 months'));
                             } elseif ($ismoreusage) {
-                                $amount1   =$this->getProrataAmount($currentdate, $validitytill, $lastamount);
-                                $netamount =$planamount * $multiplx;
+                                //$amount1   =$this->getProrataAmount($currentdate, $validitytill, $lastamount);
+                                $excesscount=$totalrecordcount - $actualrecordcount;
+                                $amtmultiplx=1;
+                                if ($excesscount > 0) {
+                                    $amtmultiplx   =ceil($excesscount / 10000);
+                                }
+                                $netamount =$planamount * $amtmultiplx;
                                 $netcredits=$plancredits * $multiplx;
-                                $amount2   =$this->getProrataAmount($currentdate, $validitytill, $netamount);
-                                $output->writeln('<info>'.'Refund Amount:'.$amount1.'</info>');
-                                $output->writeln('<info>'.'Charged Amount:'.$amount2.'</info>');
-                                $netamount=$amount2 - $amount1;
-                                $output->writeln('<info>'.'Net Amount:'.$netamount.'</info>');
+                                $netamount =$this->getProrataAmount($output, $currentdate, $validitytill, $netamount);
+                                //$output->writeln('<info>'.'Refund Amount:'.$amount1.'</info>');
+                                // $output->writeln('<info>'.'Charged Amount:'.$amount2.'</info>');
+                                // $netamount=$amount2 - $amount1;
+                                $output->writeln('<info>'.'Net Amount(Prorata):'.$netamount.'</info>');
                             }
                             if ($netamount > 0) {
                                 $this->attemptStripeCharge($output, $stripecard, $paymenthelper, $paymentrepository, $planname, $planamount, $plancredits, $netamount, $netcredits, $validitytill);
@@ -215,11 +220,13 @@ class UpdatePaymentCommand extends ModeratedCommand
         }
     }
 
-    protected function getProrataAmount($start, $end, $amount)
+    protected function getProrataAmount($output, $start, $end, $amount)
     {
         $date1        = new \DateTime($start);
         $date2        = new \DateTime($end);
         $diff         = $date2->diff($date1)->format('%a');
+        $diff         = $diff + 1;
+        $output->writeln('<info>'.'Billing Days:'.$diff.'</info>');
         $prorataamount=$amount * ($diff / 31);
 
         return round($prorataamount);

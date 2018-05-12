@@ -11,6 +11,12 @@
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'accountinfo');
 $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accountinfo.header.title'));
+$contactusageper='';
+if ($totalContactCredits != 'UL') {
+    $contactusageper=($contactUsage / $totalContactCredits) * 100;
+    $contactusageper=ceil($contactusageper);
+    $contactusageper='('.$contactusageper.'%)';
+}
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -35,15 +41,15 @@ $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accou
                         <div class="panel-body">
                             <span class='plan-info-lbl1'>Plan Type: <b><?php echo $planType ?></b></span>
                             <div class="trial-info-block <?php echo $planType == 'Trial' ? '' : 'hide' ?>">
-                                <span class='plan-info-lbl2'>Your current plan is <b>Free Trial</b> and includes <b><?php echo $totalContactCredits ?></b> contacts and <b><?php echo $totalEmailCredits == 'UL' ? 'UnLimited' : $totalEmailCredits?></b> emails. Your free trial ends in <b><?php echo $trialEndDays?></b> days.</span>
-                                <span class='plan-info-lbl2'>Your current usage for the trial period  is <b><?php echo $contactUsage?></b> subscribers and <b><?php echo $emailUsage?></b> email sends.</span>
+                                <span class='plan-info-lbl2'>Your current plan is <b>Free Trial</b> and includes <b><?php echo $totalContactCredits == 'UL' ? 'unlimited' : $totalContactCredits ?></b> contacts and <b><?php echo $totalEmailCredits == 'UL' ? 'unlimited' : $totalEmailCredits?></b> emails. Your free trial ends in <b><?php echo $trialEndDays?></b> days.</span>
+                                <span class='plan-info-lbl2'>Your current usage for the trial period  is <b><?php echo $contactUsage?></b> contacts<b><?php echo $contactusageper?></b> and <b><?php echo $emailUsage?></b> email sends.</span>
                                 <a href="<?php echo $view['router']->path('le_pricing_index'); ?>" class="btn btn-success plan-btn">
                                     Subscribe
                                 </a>
                             </div>
                             <div class="paid-info-block <?php echo $planType == 'Trial' ? 'hide' : '' ?>">
-                                <span class='plan-info-lbl2'>Your current plan is <b><?php echo $planAmount ?></b> per month and includes <b><?php echo $totalContactCredits?></b> contacts and <b><?php echo $totalEmailCredits == 'UL' ? 'UnLimited' : $totalEmailCredits?></b> email sends.</span>
-                                <span class='plan-info-lbl2'>Your current usage for the billing period ending <b> <?php echo $vallidityTill ?> </b> is <b><?php echo $contactUsage?></b> subscribers and <b><?php echo $emailUsage?></b> email sends.</span>
+                                <span class='plan-info-lbl2'>Your current plan is <b><?php echo $planAmount ?></b> per month and includes <b><?php echo $totalContactCredits == 'UL' ? 'unlimited' : $totalContactCredits?></b> contacts and <b><?php echo $totalEmailCredits == 'UL' ? 'unlimited' : $totalEmailCredits?></b> email sends.</span>
+                                <span class='plan-info-lbl2'>Your current usage for the billing period ending <b> <?php echo $vallidityTill ?> </b> is <b><?php echo $contactUsage?></b> contacts<b><?php echo $contactusageper?></b> and <b><?php echo $emailUsage?></b> email sends.</span>
                             </div>
                         </div>
                     </div>
