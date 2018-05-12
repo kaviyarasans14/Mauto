@@ -77,9 +77,9 @@ class EmailUsageController extends FormController
         $usageres                 = [];
         $bouncepercent            = ($result['blockedcontactscount'] / $result['totalemailssent']) * 100;
         $usageres['bouncecount']  = $result['blockedcontactscount'];
-        $usageres['abusepercent'] = round($bouncepercent, 2);
+        $usageres['abusepercent'] = round($result[0]['unknownuserspercent'], 2);
         $usageres['openpercent']  = round($result[0]['openedpercent'], 2);
-        $usageres['spamscore']    = $result[0]['averagespamscore'];
+        $usageres['spamscore']    = round($result[0]['averagespamscore'], 2);
         $usageres['totalemail']   = $result['totalemailssent'];
         $usageres['reputation']   = round($result['reputation'], 2);
         $usageres['status']       = $result['statusformatted'];

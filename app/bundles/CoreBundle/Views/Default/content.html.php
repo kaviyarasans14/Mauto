@@ -39,8 +39,8 @@ if (isset($isMobile) && $isMobile) {
 }?>
                         </p>
                         <div class="dropdown" style="<?php echo $videostyle; ?>">
-                            <span class="dont_show_again">
-                                <?php echo $view->render('MauticCoreBundle:Helper:confirm.html.php', [
+                            <!--<span class="dont_show_again">
+                                <?php /*echo $view->render('MauticCoreBundle:Helper:confirm.html.php', [
                                     'message'         => $view['translator']->trans('le.video.confirm.message'),
                                     'iconClass'       => 'fa fa-eye-slash',
                                     'confirmText'     => $view['translator']->trans('leadsengage.kyc.dont_show'),
@@ -48,10 +48,10 @@ if (isset($isMobile) && $isMobile) {
                                     'btnText'         => $view['translator']->trans('leadsengage.kyc.dont_show'),
                                     'btnClass'        => 'btn btn-primary btn-send',
                                 ]);
-                                ?>
-                            </span>
+                                */?>
+                            </span>-->
+                            <a href="javascript: void(0);" class="btn btn-primary btn-send" style="margin-right: 10px;" onclick="Mautic.RedirectToGivenURL('<?php echo $view['router']->path('mautic_dashboard_index', ['login' => 'dont_show_again']); ?>');"<span><i class="fa fa-eye-slash"></i><span>Don't Show Again</span></span></a>
                         </div>
-
                     </div>
                     <br>
                     <div class="card-body" style="margin-left:12%;">
