@@ -82,6 +82,8 @@ try {
                 $fcolname = 'f27';
             } elseif ($operation == 'mautic:reports:scheduler') {
                 $fcolname = 'f28';
+            } elseif ($operation == 'le:payment:update') {
+                $fcolname = 'f29';
             }
         } else {
             exit('Please Configure Valid Parameter');
