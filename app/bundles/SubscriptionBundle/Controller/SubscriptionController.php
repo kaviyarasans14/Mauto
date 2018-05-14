@@ -124,89 +124,110 @@ class SubscriptionController extends CommonController
 
     public function paymentstatusAction()
     {
-        $provider        = $this->request->get('provider');
-        $status          = $this->request->get('status');
-        if ($provider == 'paypal') {
-            if ($status) {
-                $paymenthelper     =$this->get('le.helper.payment');
-                $apiContext        =$paymenthelper->getPayPalApiContext();
-                $paymentid         =$this->request->get('paymentId');
-                $payerid           =$this->request->get('PayerID');
-                $payment           =Payment::get($paymentid, $apiContext);
-                $paymentstate      =$payment->getState();
-                $transactions      =$payment->getTransactions();
-                $transaction       =$transactions[0];
-                $orderid           =$transaction->getInvoiceNumber();
-                $itemlist          =$transaction->getItemList();
-                $items             =$itemlist->getItems();
-                $item              =$items[0];
-                $plankey           =$item->getSku();
-                if ($paymentstate == 'created') {
-                    $execution = new PaymentExecution();
-                    $execution->setPayerId($payerid);
-                    try {
-                        $result    = $payment->execute($execution, $apiContext);
-                        $repository=$this->get('le.core.repository.subscription');
-                        $repository->updateEmailCredits($plankey);
+        $orderid = $this->request->get('id', '');
+        if ($orderid != '') {
+            $paymentrepository  =$this->get('le.subscription.repository.payment');
+            $paymenthistory     = $paymentrepository->findBy(['orderid' => $orderid]);
+            $payment            =$paymenthistory[0];
+
+            return $this->delegateView([
+                'viewParameters' => [
+                    'security'       => $this->get('mautic.security'),
+                    'contentOnly'    => 0,
+                    'paymentdetails' => $payment,
+                ],
+                'contentTemplate' => 'MauticSubscriptionBundle:Pricing:status.html.php',
+                'passthroughVars' => [
+                    'activeLink'    => '#le_payment_status',
+                    'mauticContent' => 'payment-status',
+                    'route'         => $this->generateUrl('le_payment_status'),
+                ],
+            ]);
+        } else {
+            $provider        = $this->request->get('provider');
+            $status          = $this->request->get('status');
+            if ($provider == 'paypal') {
+                if ($status) {
+                    $paymenthelper     =$this->get('le.helper.payment');
+                    $apiContext        =$paymenthelper->getPayPalApiContext();
+                    $paymentid         =$this->request->get('paymentId');
+                    $payerid           =$this->request->get('PayerID');
+                    $payment           =Payment::get($paymentid, $apiContext);
+                    $paymentstate      =$payment->getState();
+                    $transactions      =$payment->getTransactions();
+                    $transaction       =$transactions[0];
+                    $orderid           =$transaction->getInvoiceNumber();
+                    $itemlist          =$transaction->getItemList();
+                    $items             =$itemlist->getItems();
+                    $item              =$items[0];
+                    $plankey           =$item->getSku();
+                    if ($paymentstate == 'created') {
+                        $execution = new PaymentExecution();
+                        $execution->setPayerId($payerid);
+                        try {
+                            $result    = $payment->execute($execution, $apiContext);
+                            $repository=$this->get('le.core.repository.subscription');
+                            $repository->updateEmailCredits($plankey);
 //                    try{
 //                        $payment = Payment::get($paymentid, $apiContext);
 //                    }catch(Exception $ex){
 //                        $status=false;
 //                    }
-                    } catch (Exception $ex) {
-                        $status=false;
+                        } catch (Exception $ex) {
+                            $status=false;
+                        }
                     }
+                } else {
+                    $repository         =$this->get('le.core.repository.subscription');
+                    $planinfo           =$repository->getAllPrepaidPlans();
+                    $session            = $this->get('session');
+                    $orderid            =$session->get('le.payment.orderid', '');
+                    $paymentrepository  =$this->get('le.subscription.repository.payment');
+                    $paymentrepository->updatePaymentStatus($orderid, '', 'Cancelled');
+
+                    return $this->postActionRedirect(
+                        [
+                            'returnUrl'       => $this->generateUrl('le_plan_index'),
+                            'viewParameters'  => [
+                                'security'        => $this->get('mautic.security'),
+                                'contentOnly'     => 0,
+                                'plans'           => $planinfo,
+                                'isIndianCurrency'=> $this->getCurrencyType(),
+                            ],
+                            'contentTemplate' => 'MauticSubscriptionBundle:Plans:index',
+                            'passthroughVars' => [
+                                'activeLink'    => '#le_plan_index',
+                                'mauticContent' => 'prepaidplans',
+                            ],
+                        ]
+                    );
                 }
             } else {
-                $repository         =$this->get('le.core.repository.subscription');
-                $planinfo           =$repository->getAllPrepaidPlans();
-                $session            = $this->get('session');
-                $orderid            =$session->get('le.payment.orderid', '');
-                $paymentrepository  =$this->get('le.subscription.repository.payment');
-                $paymentrepository->updatePaymentStatus($orderid, '', 'Cancelled');
-
-                return $this->postActionRedirect(
-                    [
-                        'returnUrl'       => $this->generateUrl('le_plan_index'),
-                        'viewParameters'  => [
-                            'security'        => $this->get('mautic.security'),
-                            'contentOnly'     => 0,
-                            'plans'           => $planinfo,
-                            'isIndianCurrency'=> $this->getCurrencyType(),
-                        ],
-                        'contentTemplate' => 'MauticSubscriptionBundle:Plans:index',
-                        'passthroughVars' => [
-                            'activeLink'    => '#le_plan_index',
-                            'mauticContent' => 'prepaidplans',
-                        ],
-                    ]
-                );
+                $paymentid        = $this->request->get('paymentid');
+                $orderid          = $this->request->get('orderid');
             }
-        } else {
-            $paymentid        = $this->request->get('paymentid');
-            $orderid          = $this->request->get('orderid');
-        }
 
-        if ($status) {
-            $paymentrepository  =$this->get('le.subscription.repository.payment');
-            $paymentrepository->updatePaymentStatus($orderid, $paymentid, 'Paid');
-            $paymenthistory     = $paymentrepository->findBy(['orderid' => $orderid]);
-            $payment            =$paymenthistory[0];
-        }
+            if ($status) {
+                $paymentrepository  =$this->get('le.subscription.repository.payment');
+                $paymentrepository->updatePaymentStatus($orderid, $paymentid, 'Paid');
+                $paymenthistory     = $paymentrepository->findBy(['orderid' => $orderid]);
+                $payment            =$paymenthistory[0];
+            }
 
-        return $this->delegateView([
-            'viewParameters' => [
-                'security'       => $this->get('mautic.security'),
-                'contentOnly'    => 0,
-                'paymentdetails' => $payment,
-            ],
-            'contentTemplate' => 'MauticSubscriptionBundle:Plans:status.html.php',
-            'passthroughVars' => [
-                'activeLink'    => '#le_payment_status',
-                'mauticContent' => 'payment-status',
-                'route'         => $this->generateUrl('le_payment_status'),
-            ],
-        ]);
+            return $this->delegateView([
+                'viewParameters' => [
+                    'security'       => $this->get('mautic.security'),
+                    'contentOnly'    => 0,
+                    'paymentdetails' => $payment,
+                ],
+                'contentTemplate' => 'MauticSubscriptionBundle:Plans:status.html.php',
+                'passthroughVars' => [
+                    'activeLink'    => '#le_payment_status',
+                    'mauticContent' => 'payment-status',
+                    'route'         => $this->generateUrl('le_payment_status'),
+                ],
+            ]);
+        }
     }
 
     public function getCurrencyType()

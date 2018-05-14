@@ -283,8 +283,7 @@ class UserModel extends FormModel
         $mailer->start();
         $resetToken = $this->getResetToken($user);
         $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken], true);
-        $message    = \Swift_Message::newInstance()
-            ->setSubject(['support@leadsengage.com' => 'LeadsEngage']);
+        $message    = \Swift_Message::newInstance();
         $message->setTo([$user->getEmail() => $user->getName()]);
         $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
         $message->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));

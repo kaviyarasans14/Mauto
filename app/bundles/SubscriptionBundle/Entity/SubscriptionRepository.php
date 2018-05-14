@@ -148,15 +148,20 @@ class SubscriptionRepository
             $account = $accountentity[0]; //$model->getEntity(1);
             $email   = $account->getEmail();
             if ($email != '') {
-                $this->signuprepo->updateCustomerStatus('Active', 'Customer', $email);
+                $this->signuprepo->updateCustomerStatus('Paid- Active', $email);
             }
         }
     }
 
-    public function updateContactCredits($credits)
+    public function updateContactCredits($credits, $validitytill)
     {
         $licentity=$this->licenseinforepo->findAll()[0];
         $licentity->setTotalRecordCount($credits);
+        $licentity->setTotalEmailCount('UL');
+        $licentity->setLicensedDays('UL');
+        $licentity->setEmailValidity($validitytill);
+        $licentity->setLicenseStart(date('Y-m-d'));
+        $licentity->setLicenseEnd($validitytill);
         $this->licenseinforepo->saveEntity($licentity);
     }
 

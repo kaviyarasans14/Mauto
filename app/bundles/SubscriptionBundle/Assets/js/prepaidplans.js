@@ -174,17 +174,27 @@ Mautic.getFormattedNumber = function(number) {
   return number.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
 };
 Mautic.loadLicenseUsageInfo = function() {
-    Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
+    // Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
+    //     if (response.success) {
+    //         if(response.credits != "" && response.validity != ""){
+    //             mQuery('.sidebar-credits-info-holder').show();
+    //             mQuery('.sidebar-credits-info-holder .email-credits').html("Available Credits : "+response.credits);
+    //             mQuery('.sidebar-credits-info-holder .email-validity').html("Expiry Date : "+response.validity);
+    //             mQuery('.sidebar-credits-info-holder .email-days-available').html("Days Available : "+response.daysavailable);
+    //         }else{
+    //             mQuery('.sidebar-credits-info-holder').hide();
+    //         }
+    //
+    //     }
+    // });
+    Mautic.ajaxActionRequest('subscription:licenseusageinfo', {}, function(response) {
         if (response.success) {
-            if(response.credits != "" && response.validity != ""){
-                mQuery('.sidebar-credits-info-holder').show();
-                mQuery('.sidebar-credits-info-holder .email-credits').html("Available Credits : "+response.credits);
-                mQuery('.sidebar-credits-info-holder .email-validity').html("Expiry Date : "+response.validity);
-                mQuery('.sidebar-credits-info-holder .email-days-available').html("Days Available : "+response.daysavailable);
+            if(response.info != ""){
+                mQuery('.license-notifiation').removeClass('hide');
+                mQuery('.license-notifiation #license-alert-message').html(response.info);
             }else{
-                mQuery('.sidebar-credits-info-holder').hide();
+                mQuery('.license-notifiation').addClass('hide');
             }
-
         }
     });
 };

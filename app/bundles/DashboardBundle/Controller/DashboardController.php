@@ -181,7 +181,6 @@ class DashboardController extends FormController
                 'security'             => $this->get('mautic.security'),
                 'widgets'              => $widgets,
                 'dateRangeForm'        => $dateRangeForm->createView(),
-                'notifymessage'        => $this->getLicenseNotifyMessage(),
                 'showvideo'            => $showvideo,
                 'videoURL'             => $videoURL,
                 'route'                => $this->generateUrl('le_plan_index'),
@@ -198,120 +197,6 @@ class DashboardController extends FormController
                 'route'         => $this->generateUrl('mautic_dashboard_index'),
             ],
         ]);
-    }
-
-    public function getLicenseNotifyMessage()
-    {
-        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $licenseRemDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
-        $emailUsageCount      = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
-        $bounceUsageCount     = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
-        $totalRecordUsage     = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
-        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
-        $emailCountExpired    = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
-        $emailValidity        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
-        $accountStatus        = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
-        $mailertransport      = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
-
-        $emailUssage      = false;
-        $bouceUsage       = false;
-        $emailsValidity   = false;
-        $recordUsage      = false;
-        $buyCreditRoute   =$this->generateUrl('le_plan_index');
-        $pricingplanRoute =$this->generateUrl('le_pricing_index');
-
-        $accountsuspendmsg  ='';
-        $notifymessage      ='';
-        $usageMsg           ='';
-        $maxEmailUsage      = 85;
-        $maxBounceUsage     =3;
-        $maxEmailValidity   =7;
-        $maxRecordUsage     =85;
-        $buyNowButon        = 'Buy Now';
-        $paymentrepository  =$this->get('le.subscription.repository.payment');
-        $lastpayment        =$paymentrepository->getLastPayment();
-        if ($accountStatus) {
-            $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
-        }
-        if ($mailertransport == $this->translator->trans('mautic.transport.elasticemail') || $mailertransport == $this->translator->trans('mautic.transport.sendgrid_api')) {
-            $accountusagelink  = $this->translator->trans('le.emailusage.link');
-            $accountusagelink  = str_replace('|URL|', $this->generateUrl('mautic_email_usage'), $accountusagelink);
-            $accountsuspendmsg = str_replace('%ATAG%', $accountusagelink, $accountsuspendmsg);
-        } else {
-            $accountsuspendmsg = str_replace('%ATAG%', '', $accountsuspendmsg);
-        }
-        if (!empty($licenseRemDays)) {
-            if ($licenseRemDays < 7) {
-                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]);
-            }
-        }
-        if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
-            // $emailUssage=true;
-        }
-        if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
-            $bouceUsage=true;
-        }
-        if (isset($emailValidity) && $emailValidity !== 'UL' && $emailValidity < $maxEmailValidity) {
-            // $emailsValidity=true;
-        }
-        if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
-            $recordUsage=true;
-        }
-
-        if ($emailUssage) {
-            if ($emailCountExpired == 0) {
-                $usageMsg=$this->translator->trans('le.emailusage.count.expired');
-            } else {
-                $usageMsg=$this->translator->trans('le.emailusage.count.exceeds', ['%maxEmailUsage%' => $maxEmailUsage]);
-            }
-        }
-        if ($emailsValidity) {
-            if ($emailValidity < 0) {
-                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
-            } elseif ($emailValidity == 0) {
-                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.today');
-            } elseif ($emailValidity == 1) {
-                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.tommorow');
-            } else {
-                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityEndDate]);
-            }
-            if ($usageMsg != '') {
-                $usageMsg .= ' and ';
-            }
-            $usageMsg .= $emailMsg;
-
-            if ($emailCountExpired == 0 && $emailValidity < 0) {
-                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
-            } elseif ($emailCountExpired == 0 && $emailsValidity) {
-                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
-            } elseif ($emailValidity < 0 && $emailUssage) {
-                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
-            }
-        }
-
-        if ($emailUssage || $emailsValidity) {
-            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
-        }
-        if ($recordUsage) {
-            $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
-            if ($lastpayment == null) {
-                $usageMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Upgrade', '%url%' => $pricingplanRoute]);
-            } else {
-                $usageMsg .= $this->translator->trans('le.plan.renewal.message');
-            }
-        }
-        if ($bouceUsage) {
-            $usageMsg .= $this->translator->trans('le.bounce.count.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);
-        }
-
-        if ($usageMsg != '') {
-            $notifymessage .= ' '.$usageMsg;
-        }
-        if ($accountsuspendmsg != '') {
-            return $accountsuspendmsg;
-        } else {
-            return $notifymessage;
-        }
     }
 
     /**

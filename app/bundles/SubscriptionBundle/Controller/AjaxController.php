@@ -526,6 +526,137 @@ class AjaxController extends CommonAjaxController
         return $this->sendJsonResponse($dataArray);
     }
 
+    public function licenseusageinfoAction(Request $request)
+    {
+        $dataArray['success']  =true;
+        $dataArray['info']     =$this->getLicenseNotifyMessage();
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function getLicenseNotifyMessage()
+    {
+        $licenseRemDays           = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $licenseRemDate           = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $emailUsageCount          = $this->get('mautic.helper.licenseinfo')->getTotalEmailUsage();
+        $bounceUsageCount         = $this->get('mautic.helper.licenseinfo')->getEmailBounceUsageCount();
+        $totalRecordUsage         = $this->get('mautic.helper.licenseinfo')->getTotalRecordUsage();
+        $emailValidityEndDate     = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $emailCountExpired        = $this->get('mautic.helper.licenseinfo')->emailCountExpired();
+        $emailValidityDays        = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
+        $accountStatus            = $this->get('mautic.helper.licenseinfo')->getAccountStatus();
+        $mailertransport          = $this->get('mautic.helper.licenseinfo')->getEmailProvider();
+        $availablerecordcount     = $this->get('mautic.helper.licenseinfo')->getAvailableRecordCount();
+        $availableemailcount      =  $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
+        $emailUssage              = false;
+        $bouceUsage               = false;
+        $emailsValidity           = false;
+        $recordUsage              = false;
+        $buyCreditRoute           =$this->generateUrl('le_plan_index');
+        $pricingplanRoute         =$this->generateUrl('le_pricing_index');
+
+        $accountsuspendmsg  ='';
+        $notifymessage      ='';
+        $usageMsg           ='';
+        $maxEmailUsage      = 85;
+        $maxBounceUsage     =3;
+        $maxEmailValidity   =7;
+        $maxRecordUsage     =85;
+        $buyNowButon        = 'Buy Now';
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        =$paymentrepository->getLastPayment();
+        if ($accountStatus) {
+            $accountsuspendmsg = $this->translator->trans('leadsengage.account.suspended');
+        }
+        if ($mailertransport == $this->translator->trans('mautic.transport.elasticemail') || $mailertransport == $this->translator->trans('mautic.transport.sendgrid_api')) {
+            $accountusagelink  = $this->translator->trans('le.emailusage.link');
+            $accountusagelink  = str_replace('|URL|', $this->generateUrl('mautic_email_usage'), $accountusagelink);
+            $accountsuspendmsg = str_replace('%ATAG%', $accountusagelink, $accountsuspendmsg);
+        } else {
+            $accountsuspendmsg = str_replace('%ATAG%', '', $accountsuspendmsg);
+        }
+        if (!empty($licenseRemDays)) {
+            if ($licenseRemDays == 1) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.today');
+            } elseif ($licenseRemDays == 2) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired.tommorow');
+            } elseif ($licenseRemDays < 7) {
+                $notifymessage = $this->translator->trans('leadsengage.msg.license.expired', ['%licenseRemDate%' => $licenseRemDate]);
+            }
+            //  $notifymessage .= $this->translator->trans('le.record.usage.count', ['%contact_usage%' => $availablerecordcount, '%email_usage%' => $availableemailcount]);
+            //$notifymessage .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
+        }
+        if (isset($emailUsageCount) && $emailUsageCount > $maxEmailUsage) {
+            // $emailUssage=true;
+        }
+        if (isset($bounceUsageCount) && $bounceUsageCount > $maxBounceUsage) {
+            // $bouceUsage=true;
+        }
+        if (isset($emailValidityDays) && $emailValidityDays !== 'UL' && $emailValidityDays < $maxEmailValidity) {
+            $emailsValidity=true;
+        }
+        if (isset($totalRecordUsage) && $totalRecordUsage > $maxRecordUsage) {
+            $recordUsage=true;
+        }
+
+        if ($emailUssage) {
+            if ($emailCountExpired == 0) {
+                $usageMsg=$this->translator->trans('le.emailusage.count.expired');
+            } else {
+                $usageMsg=$this->translator->trans('le.emailusage.count.exceeds', ['%maxEmailUsage%' => $maxEmailUsage]);
+            }
+        }
+        if ($emailsValidity && $lastpayment == null) {
+            if ($emailValidityDays < 0) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired');
+            } elseif ($emailValidityDays == 0) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.today');
+            } elseif ($emailValidityDays == 1) {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.expired.tommorow');
+            } else {
+                $emailMsg=$this->translator->trans('le.emailvalidity.count.exceeds', ['%emailValidityEndDate%' => $emailValidityDays]);
+            }
+            $emailMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Subscribe', '%url%' => $pricingplanRoute]);
+            $notifymessage .= $emailMsg;
+            //            if ($usageMsg != '') {
+//                $usageMsg .= ' and ';
+//            }
+//            $usageMsg .= $emailMsg;
+//
+//            if ($emailCountExpired == 0 && $emailValidity < 0) {
+//                $usageMsg = $this->translator->trans('le.emailusage.count.expired');
+//            } elseif ($emailCountExpired == 0 && $emailsValidity) {
+//                $usageMsg =$this->translator->trans('le.emailusage.count.expired');
+//            } elseif ($emailValidity < 0 && $emailUssage) {
+//                $usageMsg=$this->translator->trans('le.emailvalidity.count.expired');
+//            }
+        }
+
+//        if ($emailUssage || $emailsValidity) {
+//            $usageMsg .= $this->translator->trans('le.buyNow.button', ['%buyNow%' => $buyNowButon, '%url%' => $buyCreditRoute]);
+//        }
+//        if ($recordUsage) {
+//            $usageMsg .= $this->translator->trans('le.record.count.expired', ['%maxRecordUsage%' => $maxRecordUsage]);
+//            if ($lastpayment == null) {
+//                $usageMsg .= $this->translator->trans('le.upgrade.button', ['%upgrade%' => 'Upgrade', '%url%' => $pricingplanRoute]);
+//            } else {
+//                $usageMsg .= $this->translator->trans('le.plan.renewal.message');
+//            }
+//        }
+        if ($bouceUsage) {
+            $usageMsg .= $this->translator->trans('le.bounce.count.exceeds', ['%bounceUsageCount%' => $bounceUsageCount]);
+        }
+
+        if ($usageMsg != '') {
+            $notifymessage .= ' '.$usageMsg;
+        }
+        if ($accountsuspendmsg != '') {
+            return $accountsuspendmsg;
+        } else {
+            return $notifymessage;
+        }
+    }
+
     public function sendSms($url, $number, $content, $username, $password, $senderID)
     {
         try {
@@ -654,7 +785,7 @@ class AjaxController extends CommonAjaxController
                 // param is '' in this case
                 //  print('Param is:' . $err['param'] . "\n");
                 // print('Message is:' . $err['message'] . "\n");
-                $errormsg=$err['message'];
+                $errormsg='Card Error:'.$err['message'];
             } catch (\Stripe\Error\RateLimit $e) {
                 $errormsg= 'Too many requests made to the API too quickly';
                 // Too many requests made to the API too quickly
@@ -701,6 +832,7 @@ class AjaxController extends CommonAjaxController
             } else {
                 $errormsg='Some Technical Error Occurs';
             }
+            $statusurl='';
             if (isset($charges) && $isCardUpdateAlone == 'false') {
                 $orderid        =uniqid();
                 $chargeid       =$charges->id;
@@ -718,9 +850,10 @@ class AjaxController extends CommonAjaxController
                     }
                     $validitytill       =date('Y-m-d', strtotime('+1 months'));
                     $paymentrepository  =$this->get('le.subscription.repository.payment');
-                    $paymentrepository->captureStripePayment($orderid, $chargeid, $amount, $plancredits, $validitytill, $planname, $createdby, $createdbyuser);
-                    $subsrepository=$this->get('le.core.repository.subscription');
-                    $subsrepository->updateContactCredits($plancredits);
+                    $payment            =$paymentrepository->captureStripePayment($orderid, $chargeid, $amount, $amount, $plancredits, $plancredits, $validitytill, $planname, $createdby, $createdbyuser);
+                    $subsrepository     =$this->get('le.core.repository.subscription');
+                    $subsrepository->updateContactCredits($plancredits, $validitytill);
+                    $statusurl            = $this->generateUrl('le_payment_status', ['id'=> $orderid]);
                 } else {
                     $errormsg=$failure_message;
                 }
@@ -729,8 +862,94 @@ class AjaxController extends CommonAjaxController
         if (!empty($errormsg)) {
             $dataArray['success']   =false;
             $dataArray['errormsg']  =$errormsg;
+        } elseif ($statusurl != '') {
+            $billingmodel  = $this->getModel('subscription.billinginfo');
+            $billingrepo   = $billingmodel->getRepository();
+            $billingentity = $billingrepo->findAll();
+            if (sizeof($billingentity) > 0) {
+                $billing = $billingentity[0]; //$model->getEntity(1);
+            } else {
+                $billing = new Billing();
+            }
+            if ($billing->getAccountingemail() != '') {
+                $mailer       = $this->container->get('mautic.transport.elasticemail.transactions');
+                $paymenthelper=$this->get('le.helper.payment');
+                $paymenthelper->sendPaymentNotification($payment, $billing, $mailer);
+            }
+            $dataArray['statusurl']  =$statusurl;
         }
 
         return $this->sendJsonResponse($dataArray);
+    }
+
+    public function cancelsubscriptionAction()
+    {
+        $dataArray['success']  =true;
+        $dataArray['error']    = true;
+        $curentDate            = $currentDate              =date('Y-m-d');
+        $this->get('mautic.helper.licenseinfo')->intCancelDate($curentDate);
+        $this->get('mautic.helper.licenseinfo')->intAppStatus('Cancelled');
+        $mailer = $this->container->get('mautic.transport.elasticemail.transactions');
+        $this->sendCancelSubscriptionEmail($mailer);
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function sendCancelSubscriptionEmail($mailer)
+    {
+        $mailer->start();
+        $message    = \Swift_Message::newInstance();
+        $message->setTo(['support@leadsengage.com' => 'Leadsengage Support']);
+        $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setSubject($this->translator->trans('leadsengage.accountinfo.cancelsubs'));
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
+        $model         = $this->getModel('subscription.accountinfo');
+        $accrepo       = $model->getRepository();
+        $accountentity = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
+        $name      =$this->user->getFirstName();
+        $useremail =$account->getEmail();
+        $domain    =$account->getDomainname();
+
+        $text = "<!DOCTYPE html>
+<html>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+	<head>
+		<title></title>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css'>
+	</head>
+	<body aria-disabled='false' style='min-height: 300px;margin:0px;'>
+		<div style='background-color:#eff2f7'>
+			<div style='padding-top: 55px;'>
+				<div class='marle' style='margin: 0% 11.5%;background-color:#fff;padding: 50px 50px 50px 50px;border-bottom:5px solid #0071ff;'>
+					<p style='text-align:center;'><img src='https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png' class='fr-fic fr-dii' height='40'></p>
+					<br>
+					<div style='text-align:center;width:100%;'>
+						<div style='display:inline-block;width: 80%;'>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi Team,</p>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>This email is regarding cancelling subscription for <b>$name</b> associated with domain <b>$domain</b>and email is <b>$useremail</b></p>
+							<br>
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thanks,
+								<br><b>$name</b>
+                                </p>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+	</body>
+</html>";
+        $message->setBody($text, 'text/html');
+        $mailer->send($message);
     }
 }

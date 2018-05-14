@@ -132,5 +132,7 @@ Mautic.showBounceCallbackURL = function(modeEl) {
         mQuery('.transportcallback').addClass('hide');
     } else {
         mQuery('.transportcallback').removeClass('hide');
-    }
+           }
+    mQuery('#config_emailconfig_mailer_user').val('');
+    mQuery('#config_emailconfig_mailer_password').val('');
 };

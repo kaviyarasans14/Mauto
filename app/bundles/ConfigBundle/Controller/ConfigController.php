@@ -60,7 +60,8 @@ class ConfigController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator = $this->get('mautic.configurator');
         $isWritabale  = $configurator->isFileWritable();
-
+        $paramater    =   $configurator->getParameters();
+        $maileruser   = $paramater['mailer_user'];
         // Check for a submitted form and process it
         if ($this->request->getMethod() == 'POST') {
             if (!$cancelled = $this->isFormCancelled($form)) {
@@ -116,7 +117,12 @@ class ConfigController extends FormController
                             if (empty($params['secret_key'])) {
                                 $configurator->mergeParameters(['secret_key' => EncryptionHelper::generateKey()]);
                             }
-                            $emailProvider=$this->translator->trans($params['mailer_transport']);
+
+                            $emailProvider=$this->translator->trans($params['mailer_transport_name']);
+                            if (empty($params['mailer_user'])) {
+                                $configurator->mergeParameters(['mailer_user' => $maileruser]);
+                            }
+                            $emailTransport='';
                             if ($emailProvider != $this->translator->trans('mautic.transport.amazon')) {
                                 $emailTransport = $formData['emailconfig']['mailer_transport'];
                                 //$emailTransport = $params['mailer_transport_name'];
@@ -125,8 +131,7 @@ class ConfigController extends FormController
                                 $emailTransport = $params['mailer_transport_name'];
                                 $configurator->mergeParameters(['mailer_transport' => $emailTransport]);
                             }
-
-                            $this->container->get('mautic.helper.licenseinfo')->intEmailProvider($emailProvider);
+                            $this->container->get('mautic.helper.licenseinfo')->intEmailProvider($this->translator->trans($emailTransport));
                             $configurator->write();
 
                             $this->addFlash('mautic.config.config.notice.updated');

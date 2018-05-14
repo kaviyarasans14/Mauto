@@ -568,4 +568,33 @@ class StatRepository extends CommonRepository
             ->where('id = '.(int) $emailId);
         $query->execute();
     }
+
+    /**
+     * Get sent counts based on date.
+     *
+     * @param array $emailIds
+     *
+     * @return array
+     */
+    public function getSentCountsByDate($fromdate)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+        $q->select('count(e.id) as sentcount')
+            ->from(MAUTIC_TABLE_PREFIX.'email_stats', 'e')
+            ->where(
+                $q->expr()->andX(
+                    $q->expr()->eq('e.is_failed', ':false')
+                )
+            )->setParameter('false', false, 'boolean');
+
+        if ($fromdate !== null) {
+            $q->andWhere(
+                $q->expr()->gte('e.date_sent', $q->expr()->literal($fromdate))
+            );
+        }
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results[0]['sentcount'];
+    }
 }

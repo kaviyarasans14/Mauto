@@ -294,7 +294,7 @@ class AjaxController extends CommonAjaxController
                         }
                         $mailer->send($message);
                         $dataArray['success'] = 1;
-                        $dataArray['message'] = $translator->trans('mautic.core.success');
+                        $dataArray['message'] = $translator->trans('mautic.core.success', ['%email%'=>$user->getEmail()]);
                     } else {
                         $dataArray['success']         = 0;
                         $dataArray['to_address_empty']=true;
@@ -302,7 +302,8 @@ class AjaxController extends CommonAjaxController
                     }
                 } catch (\Exception $e) {
                     $dataArray['success'] = 0;
-                    $dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
+                    //$dataArray['message'] = $e->getMessage().'<br />'.$logger->dump();
+                    $dataArray['message'] = $e->getMessage();
                 }
             }
         }

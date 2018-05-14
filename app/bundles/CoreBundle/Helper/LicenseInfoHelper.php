@@ -513,9 +513,9 @@ class LicenseInfoHelper
         $emailValidity   = $entity->getEmailValidity();
         $totalEmailCount = $entity->getTotalEmailCount();
 
-        $remDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
-
-        if ($totalEmailCount == 'UL') {
+        $remDays    = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
+        $lastpayment=$this->em->getRepository('Mautic\SubscriptionBundle\Entity\PaymentHistory')->getLastPayment();
+        if ($totalEmailCount == 'UL' && $lastpayment != null) {
             return true;
         } else {
             if ($remDays >= 0) {
@@ -541,8 +541,8 @@ class LicenseInfoHelper
         $totalEmailCount = $entity->getTotalEmailCount();
 
         $validityDays = round((strtotime($emailValidity) - strtotime($currentDate)) / 86400);
-
-        if ($totalEmailCount == 'UL') {
+        $lastpayment  =$this->em->getRepository('Mautic\SubscriptionBundle\Entity\PaymentHistory')->getLastPayment();
+        if ($totalEmailCount == 'UL' && $lastpayment != null) {
             return 'UL';
         } else {
             return $validityDays;
@@ -575,17 +575,13 @@ class LicenseInfoHelper
         $entity           = $this->licenseinfo->findAll()[0];
         $totalEmailCount  = $entity->getTotalEmailCount();
         $actualEmailCount = $entity->getActualEmailCount();
-        $availablecredits =0;
         if ($totalEmailCount == 'UL') {
-            return 0;
+            return -1;
         } else {
             $availablecredits=$totalEmailCount - $actualEmailCount;
-            if ($availablecredits < 0) {
-                $availablecredits=0;
-            }
-        }
 
-        return $availablecredits;
+            return $availablecredits > 0 ? $availablecredits : 0;
+        }
     }
 
     public function getLicenseEndDate()
@@ -646,6 +642,29 @@ class LicenseInfoHelper
 
                 return $totalRecordUsage;
             }
+        }
+    }
+
+    public function getAvailableRecordCount()
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+
+        $totalRecordCount  = $entity->getTotalRecordCount();
+        $actualRecordCount = $entity->getActualRecordCount();
+
+        if ($totalRecordCount == 'UL') {
+            return -1;
+        } else {
+            $availablerecordcount = $totalRecordCount - $actualRecordCount;
+
+            return $availablerecordcount > 0 ? $availablerecordcount : 0;
         }
     }
 
@@ -744,5 +763,62 @@ class LicenseInfoHelper
         }
 
         return $entity;
+    }
+
+    public function suspendApplication()
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        $entity->setAppStatus('Suspended');
+        $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function intCancelDate($canceldate)
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($canceldate)) {
+            $canceldate = '';
+        }
+        $entity->setCancelDate($canceldate);
+        $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function getCancelDate()
+    {
+        $entity             = $this->licenseinfo->findAll()[0];
+        $canceldate         = $entity->getCancelDate();
+
+        return $canceldate;
+    }
+
+    public function intAppStatus($status)
+    {
+        $data=$this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($status)) {
+            $status = '';
+        }
+
+        $entity->setAppStatus($status);
+        $this->licenseinfo->saveEntity($entity);
     }
 }

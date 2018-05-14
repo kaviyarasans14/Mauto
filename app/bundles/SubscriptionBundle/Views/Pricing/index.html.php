@@ -13,9 +13,10 @@ $view['slots']->set('mauticContent', 'pricingplans');
 $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepaidplans'));
 ?>
 
-<div style="display: block;text-align: center" class="alert alert-danger hide" id="pricing-plan-alert-info" role="alert">First configure your own amazon ses settings then continue to upgrade.<a href="<?php echo $view['router']->path('mautic_config_action', ['objectAction' => 'edit']); ?>">
+<div style="display: block;text-align: center" class="alert alert-danger hide" id="pricing-plan-alert-info" role="alert"> You're not quite ready to process the payment.
+    You need to connect your AWS account to proceed further. <a href="<?php echo $view['router']->path('mautic_config_action', ['objectAction' => 'edit']); ?>">
         Click Here
-    </a></div>
+    </a> to connect it.</div>
 <div class="pricing-plan-holder" data-email-transaport="<?php echo $transport ?>">
 
     <div class="col-md-4 pricing-plan-list">
@@ -30,12 +31,12 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
                 <div class="price-desc">Per Month,Billed Monthly</div>
                 <div class="details-list">
                     <span>All Features Included</span>
-                    <span>Priority Support Via Email</span>
+<!--                    <span>Priority Support Via Email</span>-->
                     <span>$9 extra for every 10,000 additional contacts</span>
                     <span>AWS SES charges are extra and paid to Amazon</span>
                 </div>
                 <a href="#" type="button" data-planname="viaaws" data-plancurrency="$" data-planamount="9" data-plancredits="10000" class="btn btn-success plan-btn">
-                    Upgrade
+                    Subscribe
                 </a>
             </div>
         </div>
@@ -52,12 +53,12 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.core.prepa
                 <div class="price-desc">Per Month,Billed Monthly</div>
                 <div class="details-list">
                     <span>All Features Included</span>
-                    <span>Priority Support Via Email</span>
+<!--                    <span>Priority Support Via Email</span>-->
                     <span>$29 extra for every 10,000 additional contacts</span>
                     <span>Charges include email deliveries</span>
                 </div>
                 <a href="#" type="button"  data-planname="viale" data-plancurrency="$" data-planamount="29" data-plancredits="10000" class="btn btn-success plan-btn">
-                    Upgrade
+                    Subscribe
                 </a>
             </div>
         </div>

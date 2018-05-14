@@ -33,18 +33,22 @@ $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accou
                     <div class="panel-heading">
                         <h3 class="panel-title"><?php echo $view['translator']->trans('leadsengage.cancel.subscription.title'); ?></h3>
                     </div>
-                    <div class="panel-body">
+                        <div class="cancelsubscription panel-body" <?php echo $appstatus != 'Cancelled' ? 'style="display:block;"' : 'style="display:none;"' ?>>
                         <br>
-                        <p style="text-align: left;font-family: 'Open Sans', Helvetica, Arial, sans-serif;font-size:13px;"><?php echo $view['translator']->trans('leadsengage.cancel.description'); ?></p>
+                        <p style="text-align: left;font-family: 'Open Sans', Helvetica, Arial, sans-serif;font-size:14px;padding: 0 0 15px;"><?php echo $view['translator']->trans('leadsengage.cancel.'.strtolower($planname).'.description', ['%recordcount%' => $recordcount, '%licenseenddate%'=>$licenseenddate, '%planname%'=>$planname]); ?></p>
                         <br>
-                        <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" class="cancel-subscription" ><?php echo $view['translator']->trans('leadsengage.cancel.subscription.title'); ?></a>
+                        <a  href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" <?php echo $planname == 'Paid' ? 'class="cancel-subscription"' : 'class="hide"' ?>><?php echo $view['translator']->trans('leadsengage.cancel.subscription.title'); ?></a>
                         <br>
                         <br>
                     </div>
+                     <div class="deactivatedaccount panel-body"<?php echo $appstatus == 'Cancelled' ? 'style="display:block;"' : 'style="display:none;"' ?>>
+                     <br>
+                     <p style="text-align: left;font-weight: normal;font-family: Open Sans, Helvetica, Arial, sans-serif;font-size:14px;"><?php echo $view['translator']->trans('leadsengage.account.cancel.description', ['%cancellationdate%' => $canceldate]); ?></p>
+                     <br>
+                     </div>
                 </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

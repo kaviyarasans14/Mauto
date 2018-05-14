@@ -1356,7 +1356,7 @@ class EmailCampaignController extends FormController
         $remainingCount= $pending + $actualEmailCount;
 
         if (!$accountStatus) {
-            if ((($totalEmailCount >= $remainingCount) && ($isHavingEmailValidity)) || $totalEmailCount == 'UL') {
+            if ((($totalEmailCount >= $remainingCount) || ($totalEmailCount == 'UL')) && $isHavingEmailValidity) {
                 if ($this->request->getMethod() == 'POST' && ($complete || $this->isFormValid($form))) {
                     if (!$complete) {
                         $progress = [0, (int) $pending];

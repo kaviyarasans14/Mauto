@@ -1,22 +1,37 @@
-Mautic.cardinfoOnLoad = function (container) {
-    var stripe = getStripeClient();
-    var card=getStripeCard(stripe);
-    mountStripeCard(stripe,card,'#card-holder-widget');
-    mQuery('.cardholder-panel .card-update-btn').click(function(e) {
-        e.preventDefault();
-        Mautic.activateBackdrop();
-        stripe.createToken(card).then(function(result) {
-            if (result.error) {
-                Mautic.deactivateBackgroup();
-                // Inform the user if there was an error.
-                var errorElement = document.getElementById('card-holder-errors');
-                errorElement.textContent = result.error.message;
-            } else {
-                // Send the token to your server.
-                stripeTokenHandler(card,result.token,".cardholder-panel",null);
-            }
+Mautic.accountinfoOnLoad = function (container) {
+    if(mQuery('.cardholder-panel').is(':visible')) {
+        var stripe = getStripeClient();
+        var card=getStripeCard(stripe);
+        mountStripeCard(stripe,card,'#card-holder-widget');
+        mQuery('.cardholder-panel .card-update-btn').click(function(e) {
+            e.preventDefault();
+            Mautic.activateBackdrop();
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                    Mautic.deactivateBackgroup();
+                    // Inform the user if there was an error.
+                    var errorElement = document.getElementById('card-holder-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                    // Send the token to your server.
+                    stripeTokenHandler(card,result.token,".cardholder-panel",null);
+                }
+            });
         });
-    });
+    }
+    if(mQuery('.cancelsubscription').is(':visible')) {
+        mQuery('.cancelsubscription .cancel-subscription').click(function(e) {
+            e.preventDefault();
+            Mautic.activateBackdrop();
+            Mautic.ajaxActionRequest('subscription:cancelsubscription', {}, function(response) {
+                Mautic.deactivateBackgroup();
+                if(response.success) {
+                    mQuery('.cancelsubscription').addClass('hide');
+                    mQuery('.deactivatedaccount').addClass('show');
+                }
+            });
+        });
+    }
 }
 Mautic.pricingplansOnLoad = function (container) {
     var stripe = getStripeClient();
@@ -140,7 +155,7 @@ function stripeTokenHandler(card,token,rootclass,btnelement){
                 setInfoText("Card updated successfully");
                 location.reload();
             }else{
-                setInfoText("Payment Done Successfully.<a href='"+mauticBaseUrl+"s/accountinfo/payment"+"'>View Details</a>");
+                Mautic.redirectWithBackdrop(response.statusurl);
             }
         }
         else{

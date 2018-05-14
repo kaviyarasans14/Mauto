@@ -19163,7 +19163,7 @@ padding:5px;
   width: 17%;
   height: 10px;
   background: transparent;
-  border: 1px solid #e9ecef;
+  border: 1px solid #21BF76;
   border-radius: 4px;
   float:left;
   margin-left:43%;
@@ -19210,6 +19210,7 @@ padding:5px;
 .pricing-plan-list .details-list{
   padding-top: 10px;
   padding-bottom: 10px;
+  height: 150px;
 }
 .pricing-plan-list .plan-header{
   font-size: 18px;
@@ -19280,7 +19281,29 @@ padding:5px;
 .pay-now-btn[disabled]{
   margin-top: 15px;
   text-transform: uppercase;
-  background: #ff9933;
+  background: #ff9933 !important;
   color: #fff;
-  border: 1px solid #ff9933;
+  border: 1px solid #ff9933 !important;
+}
+
+#billinginfo .plan-info-lbl1{
+  display: block;
+  padding: 0 0 15px;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #262626;
+}
+
+#billinginfo .plan-info-lbl2{
+  display: block;
+  padding: 0 0 15px;
+  color: #262626;
+  font-size: 14px;
+}
+
+#billinginfo .plan-btn{
+  display: block;
+  width:100px;
+  cursor: pointer;
 }

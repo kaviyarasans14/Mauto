@@ -276,6 +276,11 @@ class MauticFactory
         return new DateTimeHelper($string, $format, $tz);
     }
 
+    public function getDateHelper()
+    {
+        return $this->container->get('mautic.helper.template.date');
+    }
+
     /**
      * Get Router.
      *
