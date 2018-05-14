@@ -49,7 +49,7 @@ if ($usagedetails['reputation'] < 50) {
     </div>
     <br>
     <div style="margin-top:8%;">
-        <p style="margin-left:43%;"><b><abbr style="margin-left:-12%;">REPUTATION:</abbr>&nbsp;&nbsp;</b><?php echo $usagedetails['reputation']; ?>%</p>
+        <p style="margin-left:43%;float: left;"><b><abbr>REPUTATION:</abbr>&nbsp;&nbsp;</b><?php echo $usagedetails['reputation']; ?>%</p>
         <div class="meter-bar">
             <div class="meter-bar-fill <?php echo $styleclass; ?>" style="width: <?php echo $usagedetails['reputation']; ?>%;"></div>
         </div>

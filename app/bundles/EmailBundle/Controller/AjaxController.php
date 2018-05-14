@@ -256,11 +256,12 @@ class AjaxController extends CommonAjaxController
                 $mailer->registerPlugin(new \Swift_Plugins_LoggerPlugin($logger));
 
                 try {
-                    $mailer->start();
                     $translator = $this->get('translator');
 
                     if ($settings['send_test'] == 'true' || $settings['toemail'] != '') {
                         if ($settings['toemail'] != '') {
+                            $lemailer = $this->container->get('mautic.transport.elasticemail.transactions');
+                            $lemailer->start();
                             $trackingcode = $settings['trackingcode'];
                             $mailbody     = $translator->trans('mautic.email.website_tracking.body');
                             $mailbody     = str_replace('|FROM_EMAIL|', $settings['from_email'], nl2br($mailbody));
@@ -271,30 +272,37 @@ class AjaxController extends CommonAjaxController
                                 //$mailbody .= "$additioninfo<br>";
                             }
                             $mailbody .= '</body></html>';
-
                             $message = \Swift_Message::newInstance()
                                 ->setSubject($translator->trans('mautic.email.config.mailer.transport.tracking_send.subject'));
                             $message->setBody($mailbody, 'text/html');
+                            $message->setTo([$settings['toemail']]);
+                            $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+                            $lemailer->send($message);
                         } else {
+                            $mailer->start();
                             $message = new \Swift_Message(
                                 $translator->trans('mautic.email.config.mailer.transport.test_send.subject'),
                                 $translator->trans('mautic.email.config.mailer.transport.test_send.body')
                             );
+                            $userFullName = trim($user->getFirstName().' '.$user->getLastName());
+                            if (empty($userFullName)) {
+                                $userFullName = null;
+                            }
+                            $message->setFrom([$settings['from_email'] => $settings['from_name']]);
+                            if ($settings['toemail'] != '') {
+                                $message->setTo([$settings['toemail']]);
+                            } else {
+                                $message->setTo([$user->getEmail() => $userFullName]);
+                            }
+                            $mailer->send($message);
                         }
-
-                        $userFullName = trim($user->getFirstName().' '.$user->getLastName());
-                        if (empty($userFullName)) {
-                            $userFullName = null;
-                        }
-                        $message->setFrom([$settings['from_email'] => $settings['from_name']]);
-                        if ($settings['toemail'] != '') {
-                            $message->setTo([$settings['toemail']]);
-                        } else {
-                            $message->setTo([$user->getEmail() => $userFullName]);
-                        }
-                        $mailer->send($message);
                         $dataArray['success'] = 1;
-                        $dataArray['message'] = $translator->trans('mautic.core.success', ['%email%'=>$user->getEmail()]);
+                        if ($settings['send_test'] == 'true') {
+                            $message= $translator->trans('mautic.core.success', ['%email%'=>$user->getEmail()]);
+                        } else {
+                            $message = $translator->trans('mautic.core.success.tracking');
+                        }
+                        $dataArray['message'] =$message;
                     } else {
                         $dataArray['success']         = 0;
                         $dataArray['to_address_empty']=true;

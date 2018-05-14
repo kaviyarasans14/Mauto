@@ -886,7 +886,7 @@ class AjaxController extends CommonAjaxController
     {
         $dataArray['success']  =true;
         $dataArray['error']    = true;
-        $curentDate            = $currentDate              =date('Y-m-d');
+        $curentDate            =date('Y-m-d');
         $this->get('mautic.helper.licenseinfo')->intCancelDate($curentDate);
         $this->get('mautic.helper.licenseinfo')->intAppStatus('Cancelled');
         $mailer = $this->container->get('mautic.transport.elasticemail.transactions');

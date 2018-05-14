@@ -58,10 +58,11 @@ class ConfigController extends FormController
         );
 
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
-        $configurator = $this->get('mautic.configurator');
-        $isWritabale  = $configurator->isFileWritable();
-        $paramater    =   $configurator->getParameters();
-        $maileruser   = $paramater['mailer_user'];
+        $configurator   = $this->get('mautic.configurator');
+        $isWritabale    = $configurator->isFileWritable();
+        $paramater      =   $configurator->getParameters();
+        $maileruser     =   $paramater['mailer_user'];
+        $mailertransport= $paramater['mailer_transport'];
         // Check for a submitted form and process it
         if ($this->request->getMethod() == 'POST') {
             if (!$cancelled = $this->isFormCancelled($form)) {
@@ -117,10 +118,11 @@ class ConfigController extends FormController
                             if (empty($params['secret_key'])) {
                                 $configurator->mergeParameters(['secret_key' => EncryptionHelper::generateKey()]);
                             }
-
                             $emailProvider=$this->translator->trans($params['mailer_transport_name']);
-                            if (empty($params['mailer_user'])) {
+                            if (empty($params['mailer_user']) && $mailertransport == $params['mailer_transport']) {
                                 $configurator->mergeParameters(['mailer_user' => $maileruser]);
+                            } else {
+                                $configurator->mergeParameters(['mailer_user' => $params['mailer_user']]);
                             }
                             $emailTransport='';
                             if ($emailProvider != $this->translator->trans('mautic.transport.amazon')) {
