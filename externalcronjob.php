@@ -2,13 +2,13 @@
 
 //ini_set ( "display_errors", "1" );
 //error_reporting ( E_ALL );
-chdir('/var/www/leadsengage');
+chdir('/var/www/mauto');
 
-include '../leadsengagesaas/lib/process/config.php';
-include '../leadsengagesaas/lib/process/field.php';
-include '../leadsengagesaas/lib/util.php';
-include '../leadsengagesaas/lib/process/createElasticEmailSubAccount.php';
-include '../leadsengagesaas/lib/process/createSendGridAccount.php';
+include '../mautosaas/lib/process/config.php';
+include '../mautosaas/lib/process/field.php';
+include '../mautosaas/lib/util.php';
+include '../mautosaas/lib/process/createElasticEmailSubAccount.php';
+include '../mautosaas/lib/process/createSendGridAccount.php';
 
 $loader = require_once __DIR__.'/app/autoload.php';
 
@@ -82,6 +82,8 @@ try {
                 $fcolname = 'f27';
             } elseif ($operation == 'mautic:reports:scheduler') {
                 $fcolname = 'f28';
+            } elseif ($operation == 'le:payment:update') {
+                $fcolname = 'f29';
             }
         } else {
             exit('Please Configure Valid Parameter');
@@ -117,6 +119,26 @@ try {
 
             if ($domain == '') {
                 continue;
+            }
+
+            if ($operation == 'mautic:import') {
+                $importstatus = checkImportAvailablity($con, $domain);
+                if (!$importstatus) {
+                    displayCronlog('general', "This operation ($operation) for ($domain) is skipped because no import available.");
+                    continue;
+                }
+            } elseif ($operation == 'mautic:campaigns:trigger') {
+                $emailstatus = checkTriggerAvailablity($con, $domain);
+                if (!$emailstatus) {
+                    displayCronlog('general', "This operation ($operation) for ($domain) is skipped because no Contacts available.");
+                    continue;
+                }
+            } elseif ($operation == 'mautic:emails:send') {
+                $triggerstatus = checkEmailAvailablity($domain);
+                if (!$triggerstatus) {
+                    displayCronlog('general', "This operation ($operation) for ($domain) is skipped because no email available.");
+                    continue;
+                }
             }
             $currentdate = date('Y-m-d');
             $sql         = "select count(*) from cronerrorinfo where domain = '$domain' and operation = '$operation' and createdtime like '$currentdate%'";
@@ -229,4 +251,69 @@ function updateEmailAccountStatus($con, $domain)
     $result      = execSQL($con, $sql);
     $sql         = "update applicationlist set f21 = 0 where f5 = '$domain'";
     $result      = execSQL($con, $sql);
+}
+
+function checkEmailAvailablity($domain)
+{
+    $directory = "app/spool/$domain/default/";
+    $filecount = 0;
+    $files     = glob($directory.'*');
+    if ($files) {
+        $filecount = count($files);
+        displayCronlog('general', 'Email File Count from Spool:'.$filecount);
+        if ($filecount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function checkImportAvailablity($con, $domain)
+{
+    $sql         = "select appid from applicationlist where f5 = '$domain';";
+    $appidarr    = getResultArray($con, $sql);
+    $appid       = $appidarr[0][0];
+    $dbname      = DBINFO::$COMMONDBNAME.$appid.'.imports';
+    $sql         = "select count(*) from $dbname where is_published = 1 and status in ('1','2')";
+    $result      = getResultArray($con, $sql);
+    $count       = $result[0][0];
+    displayCronlog('general', 'Import Live Count:'.$count);
+    if ($count > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function checkTriggerAvailablity($con, $domain)
+{
+    $sql         = "select appid from applicationlist where f5 = '$domain';";
+    $appidarr    = getResultArray($con, $sql);
+    $appid       = $appidarr[0][0];
+    $dbname      = DBINFO::$COMMONDBNAME.$appid.'.campaigns';
+    $sql         = "select id from $dbname where is_published = 1";
+    $result      = getResultArray($con, $sql);
+    $count       = sizeof($result);
+    displayCronlog('general', 'Campaign Published Count:'.$count);
+    if ($count > 0) {
+        for ($i = 0; $i < $count; ++$i) {
+            $id          = $result[$i][0];
+            $tablename   = DBINFO::$COMMONDBNAME.$appid.'.campaign_leads';
+            $sql         = "select count(*) from $tablename where campaign_id = '$id'";
+            $response    = getResultArray($con, $sql);
+            if (sizeof($response) > 0) {
+                displayCronlog('general', "Contacts available against this campaign($id)");
+
+                return true;
+            }
+        }
+        displayCronlog('general', 'No more contacts available against any campaign');
+
+        return false;
+    } else {
+        return false;
+    }
 }
