@@ -119,7 +119,7 @@ class ConfigController extends FormController
                                 $configurator->mergeParameters(['secret_key' => EncryptionHelper::generateKey()]);
                             }
                             $emailProvider=$this->translator->trans($params['mailer_transport_name']);
-                            if (empty($params['mailer_user']) && $mailertransport == $params['mailer_transport']) {
+                            if (empty($params['mailer_user']) && $mailertransport == $params['mailer_transport_name']) {
                                 $configurator->mergeParameters(['mailer_user' => $maileruser]);
                             } else {
                                 $configurator->mergeParameters(['mailer_user' => $params['mailer_user']]);
