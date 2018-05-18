@@ -107,8 +107,9 @@ class CampaignSubscriber extends CommonSubscriber
             'channel'        => 'page',
             'channelIdField' => 'pages',
         ];
-        $event->addDecision('page.devicehit', $deviceHitTrigger);
-
+        if ($this->factory->getUser()->isAdmin()) {
+            $event->addDecision('page.devicehit', $deviceHitTrigger);
+        }
         $trackingServices = $this->trackingHelper->getEnabledServices();
         if (!empty($trackingServices)) {
             $action = [

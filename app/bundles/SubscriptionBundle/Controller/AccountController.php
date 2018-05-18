@@ -145,22 +145,25 @@ class AccountController extends FormController
                 }
             }
         }
-        $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
-        $emailModel         =$this->getModel('email');
-        $statrepo           =$emailModel->getStatRepository();
-        $licenseinfo        =$this->get('mautic.helper.licenseinfo')->getLicenseEntity();
-        $licensestart       =$licenseinfo->getLicenseStart();
-        $contactUsage       =$licenseinfo->getActualRecordCount();
-        $totalContactCredits=$licenseinfo->getTotalRecordCount();
-        $totalEmailCredits  =$licenseinfo->getTotalEmailCount();
-        $emailUsage         =$statrepo->getSentCountsByDate($licensestart);
-        $trialEndDays       =$this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $planType           ='Trial';
-        $paymentrepository  =$this->get('le.subscription.repository.payment');
-        $lastpayment        =$paymentrepository->getLastPayment();
-        $validityTill       ='';
-        $planAmount         ='';
-        $datehelper         =$this->get('mautic.helper.template.date');
+        $tmpl                 = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        $emailModel           =$this->getModel('email');
+        $statrepo             =$emailModel->getStatRepository();
+        $licenseinfo          =$this->get('mautic.helper.licenseinfo')->getLicenseEntity();
+        $licensestart         =$licenseinfo->getLicenseStart();
+        $contactUsage         =$licenseinfo->getActualRecordCount();
+        $totalContactCredits  =$licenseinfo->getTotalRecordCount();
+        $totalEmailCredits    =$licenseinfo->getTotalEmailCount();
+        $currentDate          = date('Y-m-d');
+        $emailValidityEndDate = $this->get('mautic.helper.licenseinfo')->getEmailValidityEndDate();
+        $emailValidityEndDays = round((strtotime($emailValidityEndDate) - strtotime($currentDate)) / 86400);
+        $emailUsage           =$statrepo->getSentCountsByDate($licensestart);
+        $trialEndDays         =$this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $planType             ='Trial';
+        $paymentrepository    =$this->get('le.subscription.repository.payment');
+        $lastpayment          =$paymentrepository->getLastPayment();
+        $validityTill         ='';
+        $planAmount           ='';
+        $datehelper           =$this->get('mautic.helper.template.date');
         if ($lastpayment != null) {
             $planType    ='Paid';
             $validityTill=$datehelper->toDate($lastpayment->getValidityTill());
@@ -179,7 +182,7 @@ class AccountController extends FormController
                 'planType'           => $planType,
                 'vallidityTill'      => $validityTill,
                 'planAmount'         => $planAmount,
-                'trialEndDays'       => $trialEndDays.'',
+                'trialEndDays'       => $emailValidityEndDays.'',
                 'totalContactCredits'=> $totalContactCredits,
                 'totalEmailCredits'  => $totalEmailCredits,
             ],
