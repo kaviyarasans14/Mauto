@@ -50,6 +50,7 @@ return [
                     'mautic.configurator',
                     '%kernel.root_dir%',
                     'request_stack',
+                    'mautic.cipher.openssl',
                 ],
                 'tag'          => 'mautic.configurator.step',
                 'tagArguments' => [

@@ -149,7 +149,7 @@ class MenuHelper
 
                 unset($items[$k]);
 
-                // Don't set a default priority here as it'll assume that of it's parent
+            // Don't set a default priority here as it'll assume that of it's parent
             } elseif (!isset($i['priority'])) {
                 // Ensure a priority for non-orphans
                 $i['priority'] = $defaultPriority;
@@ -265,9 +265,9 @@ class MenuHelper
     {
         $integration = $this->integrationHelper->getIntegrationObject($integrationName);
 
-       if (!$integration) {
+        if (!$integration) {
             return false;
-       }
+        }
 
         $settings = $integration->getIntegrationSettings();
 

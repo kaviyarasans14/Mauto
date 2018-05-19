@@ -284,7 +284,6 @@ class CommonController extends Controller implements MauticController
      */
     public function postActionRedirect($args = [])
     {
-
         $returnUrl = array_key_exists('returnUrl', $args) ? $args['returnUrl'] : $this->generateUrl('mautic_dashboard_index');
         $flashes   = array_key_exists('flashes', $args) ? $args['flashes'] : [];
         //forward the controller by default
@@ -308,6 +307,7 @@ class CommonController extends Controller implements MauticController
 
         if (!$this->request->isXmlHttpRequest() || !empty($args['ignoreAjax'])) {
             $code = (isset($args['responseCode'])) ? $args['responseCode'] : 302;
+
             return $this->redirect($returnUrl, $code);
         }
         //load by ajax
@@ -801,7 +801,7 @@ class CommonController extends Controller implements MauticController
         $filename    = strtolower($filename.'_'.((new \DateTime())->format($dateFormat)).'.'.$type);
         $handler     = Handler::create($sourceIterator, $writer);
 
-        return new StreamedResponse(function () use ($handler, $sourceIterator, $writer) {
+        return new StreamedResponse(function () use ($handler) {
             $handler->export();
         }, 200, ['Content-Type' => $contentType, 'Content-Disposition' => sprintf('attachment; filename=%s', $filename)]);
     }

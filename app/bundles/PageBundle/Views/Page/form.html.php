@@ -105,7 +105,9 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
             <?php if (!$isVariant): ?>
             <?php echo $view['form']->row($form['redirectType']); ?>
             <?php echo $view['form']->row($form['redirectUrl']); ?>
-            <?php endif; ?>
+            <?php endif;
+            echo $view['form']->row($form['noIndex']);
+            ?>
 
             <div class="template-fields<?php echo (!$template) ? ' hide"' : ''; ?>">
                 <?php echo $view['form']->row($form['metaDescription']); ?>

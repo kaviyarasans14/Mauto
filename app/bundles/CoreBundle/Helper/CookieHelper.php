@@ -22,6 +22,7 @@ class CookieHelper
     private $domain   = null;
     private $secure   = false;
     private $httponly = false;
+    private $request  = null;
 
     /**
      * CookieHelper constructor.
@@ -46,6 +47,21 @@ class CookieHelper
     }
 
     /**
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getCookie($key, $default = null)
+    {
+        if ($this->request === null) {
+            return $default;
+        }
+
+        return $this->request->cookies->get($key, $default);
+    }
+
+    /**
      * @param      $name
      * @param      $value
      * @param int  $expire
@@ -60,7 +76,7 @@ class CookieHelper
             return true;
         }
         $expire=($expire) ? time() + $expire : 1800;
-        if($expire > 2147483646){
+        if ($expire > 2147483646) {
             $expire=2147483646;
         }
         setcookie(

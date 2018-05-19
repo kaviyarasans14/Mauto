@@ -608,6 +608,12 @@ return [
                     'translator',
                 ],
             ],
+            'mautic.email.helper.stat' => [
+                'class'     => \Mautic\EmailBundle\Stat\StatHelper::class,
+                'arguments' => [
+                    'mautic.email.repository.stat',
+                ],
+            ],
             'mautic.validator.emailverify' => [
                 'class'     => 'Mautic\EmailBundle\Form\Validator\Constraints\EmailVerifyValidator',
                 'arguments' => ['mautic.factory', 'mautic.validator.email', 'translator'],
@@ -643,7 +649,7 @@ return [
                 'class'     => \Mautic\EmailBundle\Model\SendEmailToContact::class,
                 'arguments' => [
                     'mautic.helper.mailer',
-                    'mautic.email.repository.stat',
+                    'mautic.email.helper.stat',
                     'mautic.lead.model.dnc',
                     'translator',
                 ],

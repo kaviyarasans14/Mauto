@@ -11,6 +11,8 @@
 
 namespace Mautic\LeadBundle\Command;
 
+use Mautic\LeadBundle\Exception\ImportDelayedException;
+use Mautic\LeadBundle\Exception\ImportFailedException;
 use Mautic\LeadBundle\Helper\Progress;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -85,28 +87,26 @@ EOT
                 ]
             ).'</info>');
 
-            $success = $model->startImport($import, $progress, $limit);
-
-            // Import was delayed
-            if ($import->getStatus() === $import::DELAYED) {
-                $output->writeln('<info>'.$translator->trans(
-                    'mautic.lead.import.delayed',
-                    [
-                        '%reason%' => $import->getStatusInfo(),
-                    ]
-                ).'</info>');
-            }
-
-            // Import failed
-            if (!$success) {
+            try {
+                $model->beginImport($import, $progress, $limit);
+            } catch (ImportFailedException $e) {
                 $output->writeln('<error>'.$translator->trans(
-                    'mautic.lead.import.failed',
-                    [
-                        '%reason%' => $import->getStatusInfo(),
-                    ]
-                ).'</error>');
+                'mautic.lead.import.failed',
+                [
+                    '%reason%' => $import->getStatusInfo(),
+                ]
+            ).'</error>');
 
                 return 1;
+            } catch (ImportDelayedException $e) {
+                $output->writeln('<info>'.$translator->trans(
+                'mautic.lead.import.delayed',
+                [
+                    '%reason%' => $import->getStatusInfo(),
+                ]
+            ).'</info>');
+
+                return 0;
             }
 
             // Success

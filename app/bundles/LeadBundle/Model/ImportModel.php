@@ -28,6 +28,8 @@ use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadEventLog;
 use Mautic\LeadBundle\Entity\LeadEventLogRepository;
 use Mautic\LeadBundle\Event\ImportEvent;
+use Mautic\LeadBundle\Exception\ImportDelayedException;
+use Mautic\LeadBundle\Exception\ImportFailedException;
 use Mautic\LeadBundle\Helper\Progress;
 use Mautic\LeadBundle\LeadEvents;
 use Symfony\Component\EventDispatcher\Event;
@@ -197,6 +199,8 @@ class ImportModel extends FormModel
      * Start import. This is meant for the CLI command since it will import
      * the whole file at once.
      *
+     * @deprecated in 2.13.0. To be removed in 3.0.0. Use beginImport instead
+     *
      * @param Import   $import
      * @param Progress $progress
      * @param int      $limit    Number of records to import before delaying the import. 0 will import all
@@ -205,19 +209,41 @@ class ImportModel extends FormModel
      */
     public function startImport(Import $import, Progress $progress, $limit = 0)
     {
+        try {
+            return $this->beginImport($import, $progress, $limit);
+        } catch (\Exception $e) {
+            $this->logDebug($e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Start import. This is meant for the CLI command since it will import
+     * the whole file at once.
+     *
+     * @param Import   $import
+     * @param Progress $progress
+     * @param int      $limit    Number of records to import before delaying the import. 0 will import all
+     *
+     * @throws ImportFailedException
+     * @throws ImportDelayedException
+     */
+    public function beginImport(Import $import, Progress $progress, $limit = 0)
+    {
         $this->setGhostImportsAsFailed();
 
         if (!$import) {
-            $this->logDebug('import is empty, closing the import process');
-
-            return false;
+            $msg = 'import is empty, closing the import process';
+            $this->logDebug($msg, $import);
+            throw new ImportFailedException($msg);
         }
 
         if (!$import->canProceed()) {
             $this->saveEntity($import);
-            $this->logDebug('import cannot be processed because '.$import->getStatusInfo(), $import);
-
-            return false;
+            $msg = 'import cannot be processed because '.$import->getStatusInfo();
+            $this->logDebug($msg, $import);
+            throw new ImportFailedException($msg);
         }
 
         if (!$this->checkParallelImportLimit()) {
@@ -227,9 +253,9 @@ class ImportModel extends FormModel
             );
             $import->setStatus($import::DELAYED)->setStatusInfo($info);
             $this->saveEntity($import);
-            $this->logDebug('import cannot be processed because '.$import->getStatusInfo(), $import);
-
-            return false;
+            $msg = 'import is delayed because parrallel limit was hit. '.$import->getStatusInfo();
+            $this->logDebug($msg, $import);
+            throw new ImportDelayedException($msg);
         }
 
         $processed = $import->getProcessedRows();
@@ -252,7 +278,7 @@ class ImportModel extends FormModel
 
         try {
             if (!$this->process($import, $progress, $limit)) {
-                return false;
+                throw new ImportFailedException($import->getStatusInfo());
             }
         } catch (ORMException $e) {
             // The EntityManager is probably closed. The entity cannot be saved.
@@ -263,9 +289,7 @@ class ImportModel extends FormModel
 
             $import->setStatus($import::DELAYED)->setStatusInfo($info);
 
-            $this->logDebug('Database had been overloaded', $import);
-
-            return false;
+            throw new ImportFailedException('Database had been overloaded');
         }
 
         $import->end();
@@ -288,8 +312,6 @@ class ImportModel extends FormModel
                 $this->em->getReference('MauticUserBundle:User', $import->getCreatedBy())
             );
         }
-
-        return true;
     }
 
     /**
@@ -309,7 +331,7 @@ class ImportModel extends FormModel
         try {
             $file = new \SplFileObject($import->getFilePath());
         } catch (\Exception $e) {
-            $import->setStatusInfo('SplFileObject cannot read the file');
+            $import->setStatusInfo('SplFileObject cannot read the file. '.$e->getMessage());
             $import->setStatus(Import::FAILED);
             $this->logDebug('import cannot be processed because '.$import->getStatusInfo(), $import);
 
@@ -386,7 +408,8 @@ class ImportModel extends FormModel
                         true,
                         $eventLog,
                         $import->getCreatedBy(),
-                        $import->getCreatedByUser()
+                        $import->getCreatedByUser(),
+                        $import->getId()
                     );
 
                     if ($merged) {
@@ -407,6 +430,8 @@ class ImportModel extends FormModel
                 $import->increaseIgnoredCount();
                 $this->logImportRowError($eventLog, $errorMessage);
                 $this->logDebug('Line '.$lineNumber.' error: '.$errorMessage, $import);
+            } else {
+                $this->leadEventLogRepo->saveEntity($eventLog);
             }
 
             // Release entities in Doctrine's memory to prevent memory leak

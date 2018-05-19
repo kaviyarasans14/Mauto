@@ -104,9 +104,8 @@ $isAdmin=$view['security']->isAdmin();
                 echo $view['form']->row($form['language']);
                 echo $view['form']->row($form['publishUp']);
                 echo $view['form']->row($form['publishDown']);
-                ?>
-            </div>
-        </div>
+            echo $view['form']->row($form['disallow']); ?>
+		</div></div>
 	</div>
 </div>
 <?php echo $view['form']->end($form); ?>
