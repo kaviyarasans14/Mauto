@@ -16,6 +16,7 @@ use Mautic\CoreBundle\Controller\AjaxLookupControllerTrait;
 use Mautic\CoreBundle\Controller\VariantAjaxControllerTrait;
 use Mautic\EmailBundle\Helper\PlainTextHelper;
 use Mautic\EmailBundle\Model\EmailModel;
+use Mautic\EmailBundle\Swiftmailer\Transport\AmazonApiTransport;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -219,7 +220,9 @@ class AjaxController extends CommonAjaxController
                         $mailer = $this->container->get($transport);
 
                         if ('mautic.transport.amazon' == $transport) {
-                            $mailer->setHost($settings['amazon_region']);
+                            if (!$mailer instanceof AmazonApiTransport) {
+                                $mailer->setHost($settings['amazon_region']);
+                            }
                         }
                     }
             }

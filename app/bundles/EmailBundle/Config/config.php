@@ -352,19 +352,37 @@ return [
         ],
         'other' => [
             // Mailers
+//            'mautic.transport.amazon' => [
+//                'class'        => 'Mautic\EmailBundle\Swiftmailer\Transport\AmazonTransport',
+//                'serviceAlias' => 'swiftmailer.mailer.transport.%s',
+//                'arguments'    => [
+//                    '%mautic.mailer_amazon_region%',
+//                    'mautic.http.connector',
+//                    'monolog.logger.mautic',
+//                    'translator',
+//                    'mautic.email.model.transport_callback',
+//                ],
+//                'methodCalls' => [
+//                    'setUsername' => ['%mautic.mailer_user%'],
+//                    'setPassword' => ['%mautic.mailer_password%'],
+//                ],
+//            ],
+            'mautic.transport.amazon.api.ses_service' => [
+                'class'     => 'Mautic\EmailBundle\Swiftmailer\Amazon\SimpleEmailService',
+                'arguments' => [
+                    '%mautic.mailer_user%',
+                    '%mautic.mailer_password%',
+                    '%mautic.mailer_amazon_region%',
+                ],
+            ],
             'mautic.transport.amazon' => [
-                'class'        => 'Mautic\EmailBundle\Swiftmailer\Transport\AmazonTransport',
+                'class'        => \Mautic\EmailBundle\Swiftmailer\Transport\AmazonApiTransport::class,
                 'serviceAlias' => 'swiftmailer.mailer.transport.%s',
                 'arguments'    => [
-                    '%mautic.mailer_amazon_region%',
-                    'mautic.http.connector',
-                    'monolog.logger.mautic',
-                    'translator',
-                    'mautic.email.model.transport_callback',
-                ],
-                'methodCalls' => [
-                    'setUsername' => ['%mautic.mailer_user%'],
-                    'setPassword' => ['%mautic.mailer_password%'],
+                    'mautic.transport.amazon.api.ses_service',
+                                       'monolog.logger.mautic',
+                  'translator',
+               'mautic.email.model.transport_callback',
                 ],
             ],
             'mautic.transport.mandrill' => [

@@ -67,6 +67,13 @@ $activatebasiceditor  =($formcontainserror || $isCloneOp || $isMobile) && $isbas
 $activateadvanceeditor=($formcontainserror || $isCloneOp || !$isMobile) && !$isbasiceditor ? 'active' : '';
 $hidebasiceditor      =($formcontainserror || $isCloneOp || !$isMobile) && !$isbasiceditor ? 'hide' : '';
 $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbasiceditor ? 'hide' : '';
+$activateotherconfig  ='';
+if ($formcontainserror) {
+    $activatebasiceditor  ='';
+    $activateadvanceeditor='';
+    $activateotherconfig  ='active in';
+}
+
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
     <div class="box-layout">
@@ -115,7 +122,7 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbas
                                 <?php echo $view['translator']->trans('mautic.email.form.editor.advance'); ?>
                             </a>
                         </li>
-                        <li>
+                        <li <?php echo $activateotherconfig != '' ? 'class='.$activateotherconfig : '' ?>>
                             <a href="#email-other-container" role="tab" data-toggle="tab">
                                 <?php echo $view['translator']->trans('mautic.email.form.editor.other'); ?>
                             </a>
@@ -155,7 +162,7 @@ $hideadvanceeditor    =($formcontainserror || $isCloneOp || $isMobile) && $isbas
                                 'active'       => $form['template']->vars['value'],
                             ]); ?>
                         </div>
-                        <div class="tab-pane fade bdr-w-0" id="email-other-container">
+                        <div class="tab-pane fade bdr-w-0 <?php echo $activateotherconfig ?>" id="email-other-container">
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php echo $view['form']->row($form['fromName']); ?>

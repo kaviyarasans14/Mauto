@@ -68,10 +68,10 @@ class EmailVerifyValidator extends ConstraintValidator
             $result = $this->emailValidator->getEmailVerificationStatus($emailuser, $emailpassword, $region, $newfromaddress);
             if (!$result) {
                 $message = $this->translator->trans('le.email.verification.error');
-            } elseif ($result == 'Policy not written') {
-                $message = $this->translator->trans('le.email.verification.policy.error');
             } elseif ($result) {
                 return;
+            } elseif ($result == 'Policy not written') {
+                $message = $this->translator->trans('le.email.verification.policy.error');
             }
             $this->context->addViolation($message);
         } else {
