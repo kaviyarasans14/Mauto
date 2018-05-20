@@ -65,10 +65,14 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
                             </div>
                         </div>
 
-                        <?php echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
-                            'type'   => 'page',
-                            'themes' => $themes,
-                            'active' => $form['template']->vars['value'],
+<!--                        --><?php //echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
+//                            'type'   => 'page',
+//                            'themes' => $themes,
+//                            'active' => $form['template']->vars['value'],
+//                        ]);?>
+                        <?php echo $view->render('MauticEmailBundle:Email:bee_template_select.html.php', [
+                            'beetemplates' => $beetemplates,
+                            'active'       => $form['template']->vars['value'],
                         ]); ?>
                     </div>
                 </div>
@@ -121,13 +125,13 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
 </div>
 <?php echo $view['form']->row($form['customHtml']); ?>
 <?php echo $view['form']->end($form); ?>
-
-<?php echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
-    'type'          => 'page',
-    'isCodeMode'    => $isCodeMode,
-    'sectionForm'   => $sectionForm,
-    'builderAssets' => $builderAssets,
-    'slots'         => $slots,
-    'sections'      => $sections,
-    'objectId'      => $activePage->getSessionId(),
-]); ?>
+<?php echo $view->render('MauticEmailBundle:Email:beeeditor.html.php', ['objectId'      => $activePage->getSessionId(), 'type'          => 'page']); ?>
+<?php //echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
+//    'type'          => 'page',
+//    'isCodeMode'    => $isCodeMode,
+//    'sectionForm'   => $sectionForm,
+//    'builderAssets' => $builderAssets,
+//    'slots'         => $slots,
+//    'sections'      => $sections,
+//    'objectId'      => $activePage->getSessionId(),
+//]);?>

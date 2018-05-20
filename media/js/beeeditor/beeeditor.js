@@ -133,7 +133,8 @@
 
           mQuery('body').css('overflow-y', 'hidden');
           mQuery('#bee-plugin-viewpanel').css('height', height+"px");
-          Mautic.getTokens('email:getBuilderTokens', function(tokens) {
+          Mautic.getTokens(actionName+':getBuilderTokens', function(tokens) {
+              mergeTags.length=0;
               mQuery.each(tokens, function(k,v){
                   if (k.match(/assetlink=/i) && v.match(/a:/)){
                       delete tokens[k];
@@ -178,7 +179,6 @@
                   if (title.length>24) title = title.substr(0, 24) + '...';
                  mergeTags.push({name : title + badge,value : val});
               }
-              mergeTags=[];
               var container = mQuery('#bee-plugin-container');
               var viewpanel = mQuery('#bee-plugin-viewpanel');
               // Activate the builder

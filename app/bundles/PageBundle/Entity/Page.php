@@ -130,6 +130,10 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
      * @var
      */
     private $sessionId;
+    /**
+     * @var string
+     */
+    private $beeJSON;
 
     public function __clone()
     {
@@ -219,7 +223,10 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
             ->columnName('no_index')
             ->nullable()
             ->build();
-
+        $builder->createField('beeJSON', 'text')
+            ->columnName('bee_json')
+            ->nullable()
+            ->build();
         self::addTranslationMetadata($builder, self::class);
         self::addVariantMetadata($builder, self::class);
     }
@@ -313,6 +320,7 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
                     'translationChildren',
                     'template',
                     'customHtml',
+                    'beeJSON',
                 ]
             )
             ->setMaxDepth(1, 'variantParent')
@@ -778,5 +786,25 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
     public function setCustomHtml($customHtml)
     {
         $this->customHtml = $customHtml;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBeeJSON()
+    {
+        return $this->beeJSON;
+    }
+
+    /**
+     * @param $beeJSON
+     *
+     * @return $this
+     */
+    public function setBeeJSON($beeJSON)
+    {
+        $this->beeJSON = $beeJSON;
+
+        return $this;
     }
 }
