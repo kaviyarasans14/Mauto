@@ -209,11 +209,11 @@ $dbalSettings = [
     'connections'        => [
         'default' => [
             'driver'   => '%mautic.db_driver%',
-            'host'     => '%mautic.db_host%',
-            'port'     => '%mautic.db_port%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
             'dbname'   => '%mautic.db_name%',
-            'user'     => '%mautic.db_user%',
-            'password' => '%mautic.db_password%',
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
             'charset'  => 'UTF8',
             // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
             'mapping_types' => [
@@ -225,11 +225,11 @@ $dbalSettings = [
         ],
         'commondb' => [
             'driver'   => '%mautic.db_driver%',
-            'host'     => '%mautic.db_host%',
-            'port'     => '%mautic.db_port%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
             'dbname'   => 'leadsengage_apps', // Cpanel Database name
-            'user'     => '%mautic.db_user%',
-            'password' => '%mautic.db_password%',
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
             'charset'  => 'UTF8',
             // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
             'mapping_types' => [
@@ -241,11 +241,11 @@ $dbalSettings = [
         ],
         'signupdb' => [
             'driver'   => '%mautic.db_driver%',
-            'host'     => '%mautic.db_host%',
-            'port'     => '%mautic.db_port%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
             'dbname'   => 'leadsengage_signup', // KYC & Customer details updating schema
-            'user'     => '%mautic.db_user%',
-            'password' => '%mautic.db_password%',
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
             'charset'  => 'UTF8',
             // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
             'mapping_types' => [

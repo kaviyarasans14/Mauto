@@ -925,7 +925,7 @@ class EmailController extends FormController
                     'slots'              => $this->buildSlotForms($slotTypes),
                     'sections'           => $this->buildSlotForms($sections),
                     'themes'             => $this->factory->getInstalledThemes('email', true),
-                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates('email'),
                     'email'              => $entity,
                     'forceTypeSelection' => $forceTypeSelection,
                     'attachmentSize'     => $attachmentSize,

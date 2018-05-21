@@ -462,16 +462,17 @@ class PageController extends FormController
 
         return $this->delegateView([
             'viewParameters' => [
-                'form'          => $this->setFormTheme($form, 'MauticPageBundle:Page:form.html.php', 'MauticPageBundle:FormTheme\Page'),
-                'isVariant'     => $entity->isVariant(true),
-                'tokens'        => $model->getBuilderComponents($entity, 'tokens'),
-                'activePage'    => $entity,
-                'themes'        => $this->factory->getInstalledThemes('page', true),
-                'slots'         => $this->buildSlotForms($slotTypes),
-                'sections'      => $this->buildSlotForms($sections),
-                'builderAssets' => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
-                'sectionForm'   => $sectionForm->createView(),
-                'permissions'   => $permissions,
+                'form'               => $this->setFormTheme($form, 'MauticPageBundle:Page:form.html.php', 'MauticPageBundle:FormTheme\Page'),
+                'isVariant'          => $entity->isVariant(true),
+                'tokens'             => $model->getBuilderComponents($entity, 'tokens'),
+                'activePage'         => $entity,
+                'themes'             => $this->factory->getInstalledThemes('page', true),
+                'slots'              => $this->buildSlotForms($slotTypes),
+                'sections'           => $this->buildSlotForms($sections),
+                'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
+                'sectionForm'        => $sectionForm->createView(),
+                'permissions'        => $permissions,
+                'beetemplates'       => $this->factory->getInstalledBeeTemplates('page'),
             ],
             'contentTemplate' => 'MauticPageBundle:Page:form.html.php',
             'passthroughVars' => [
@@ -628,7 +629,8 @@ class PageController extends FormController
                     ],
                     'RETURN_ARRAY'
                 ),
-                'security' => $security,
+                'security'           => $security,
+                'beetemplates'       => $this->factory->getInstalledBeeTemplates('page'),
             ],
             'contentTemplate' => 'MauticPageBundle:Page:form.html.php',
             'passthroughVars' => [
@@ -843,33 +845,45 @@ class PageController extends FormController
                 return $this->accessDenied();
             }
         }
+        $isBeeTemplate = $this->request->get('beetemplate', false);
+        if ($isBeeTemplate) {
+            $template = InputHelper::clean($this->request->query->get('beetemplate'));
 
-        $template = InputHelper::clean($this->request->query->get('template'));
-        $slots    = $this->factory->getTheme($template)->getSlots('page');
+            return new JsonResponse($this->factory->getBeeTemplateJSONByName($template));
+        } else {
+            $isBeeHTMLTemplate = $this->request->get('beehtmltemplate', false);
+            if ($isBeeHTMLTemplate) {
+                $template = InputHelper::clean($this->request->query->get('beehtmltemplate'));
 
-        //merge any existing changes
-        $newContent = $this->get('session')->get('mautic.pagebuilder.'.$objectId.'.content', []);
-        $content    = $entity->getContent();
+                return new JsonResponse($this->factory->getBeeTemplateHTMLByName($template));
+            }
+            $template = InputHelper::clean($this->request->query->get('template'));
+            $slots    = $this->factory->getTheme($template)->getSlots('page');
 
-        if (is_array($newContent)) {
-            $content = array_merge($content, $newContent);
-            // Update the content for processSlots
-            $entity->setContent($content);
+            //merge any existing changes
+            $newContent = $this->get('session')->get('mautic.pagebuilder.'.$objectId.'.content', []);
+            $content    = $entity->getContent();
+
+            if (is_array($newContent)) {
+                $content = array_merge($content, $newContent);
+                // Update the content for processSlots
+                $entity->setContent($content);
+            }
+
+            $this->processSlots($slots, $entity);
+
+            $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':page.html.php');
+
+            return $this->render($logicalName, [
+                'isNew'       => $isNew,
+                'slots'       => $slots,
+                'formFactory' => $this->get('form.factory'),
+                'content'     => $content,
+                'page'        => $entity,
+                'template'    => $template,
+                'basePath'    => $this->request->getBasePath(),
+            ]);
         }
-
-        $this->processSlots($slots, $entity);
-
-        $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':page.html.php');
-
-        return $this->render($logicalName, [
-            'isNew'       => $isNew,
-            'slots'       => $slots,
-            'formFactory' => $this->get('form.factory'),
-            'content'     => $content,
-            'page'        => $entity,
-            'template'    => $template,
-            'basePath'    => $this->request->getBasePath(),
-        ]);
     }
 
     /**

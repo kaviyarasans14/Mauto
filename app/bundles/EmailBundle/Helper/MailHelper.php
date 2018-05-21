@@ -369,8 +369,10 @@ class MailHelper
 
                 // Search/replace tokens if this is not a queue flush
                 if ($dispatchSendEvent && !empty($this->body['content'])) {
-                    $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
-                    $this->body['content'] = $bodycontent;
+                    if (strpos($this->body['content'], '{footer_text}') == 0) {
+                        $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
+                        $this->body['content'] = $bodycontent;
+                    }
                 }
 
                 // Generate tokens from listeners
@@ -1026,7 +1028,6 @@ class MailHelper
                 $content .= $trackingImg;
             }
         }
-
         // Update the identifier for the content
         $this->contentHash = md5($content.$this->plainText);
 

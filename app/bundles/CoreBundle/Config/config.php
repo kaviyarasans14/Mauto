@@ -1076,5 +1076,9 @@ return [
         'cors_valid_domains'        => [],
         'rss_notification_url'      => 'https://mautic.com/?feed=rss2&tag=notification',
         'max_entity_lock_time'      => 0,
+        'le_db_host'                => 'localhost',
+        'le_db_port'                => 3306,
+        'le_db_user'                => 'root',
+        'le_db_password'            => 'dacam',
     ],
 ];

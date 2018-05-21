@@ -397,7 +397,7 @@ Mautic.initSelectTheme = function(themeField) {
  *
  * @param themeField
  */
-Mautic.initSelectBeeTemplate = function(themeField) {
+Mautic.initSelectBeeTemplate = function(themeField,formname) {
     var templateJSON = mQuery('textarea.bee-editor-json');
     var isNew = Mautic.isNewEntity('#page_sessionId, #emailform_sessionId');
     Mautic.showChangeThemeWarning = true;
@@ -405,16 +405,26 @@ Mautic.initSelectBeeTemplate = function(themeField) {
 
     if (isNew) {
         Mautic.showChangeThemeWarning = false;
-        if(!mQuery('.sidebar-content').is(':visible')) {
+        if(!mQuery('.sidebar-content').is(':visible') && formname=='email') {
             Mautic.selectEmailEditor("basic");
         }
     }else{
-        if (!templateJSON.length || !templateJSON.val().length) {
-            Mautic.selectEmailEditor("basic");
-        }else{
-            Mautic.selectEmailEditor("advance");
+        if(formname=='email'){
+            if (!templateJSON.length || !templateJSON.val().length) {
+                Mautic.selectEmailEditor("basic");
+            }else{
+                Mautic.selectEmailEditor("advance");
+            }
         }
     }
+    if(formname=='page'){
+        var templateJSON = mQuery('textarea.bee-editor-json');
+        // Populate default content
+        if (!templateJSON.length || !templateJSON.val().length) {
+            Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+        }
+    }
+
     if (templateJSON.length) {
          mQuery('[data-beetemplate]').click(function(e) {
             e.preventDefault();

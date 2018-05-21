@@ -673,7 +673,7 @@ class EmailCampaignController extends FormController
                     'slots'              => $this->buildSlotForms($slotTypes),
                     'sections'           => $this->buildSlotForms($sections),
                     'themes'             => $this->factory->getInstalledThemes('email', true),
-                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates('email'),
                     'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
                     'sectionForm'        => $sectionForm->createView(),
                     'updateSelect'       => $updateSelect,
@@ -929,7 +929,7 @@ class EmailCampaignController extends FormController
                     'slots'              => $this->buildSlotForms($slotTypes),
                     'sections'           => $this->buildSlotForms($sections),
                     'themes'             => $this->factory->getInstalledThemes('email', true),
-                    'beetemplates'       => $this->factory->getInstalledBeeTemplates(),
+                    'beetemplates'       => $this->factory->getInstalledBeeTemplates('email'),
                     'email'              => $entity,
                     'forceTypeSelection' => $forceTypeSelection,
                     'attachmentSize'     => $attachmentSize,

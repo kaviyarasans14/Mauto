@@ -36,7 +36,7 @@ class DashboardController extends FormController
         $videoarg     = $this->request->get('login');
         $loginsession = $this->get('session');
         $loginarg     = $loginsession->get('isLogin');
-        $dbhost       = $this->coreParametersHelper->getParameter('db_host');
+        $dbhost       = $this->coreParametersHelper->getParameter('le_db_host');
         $showsetup    = false;
         $billformview = '';
         $accformview  = '';

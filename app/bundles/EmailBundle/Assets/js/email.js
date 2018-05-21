@@ -7,7 +7,7 @@ Mautic.emailOnLoad = function (container, response) {
         Mautic.initAtWho(plaintext, plaintext.attr('data-token-callback'));
         //builder disabled due to bee editor
       //  Mautic.initSelectTheme(mQuery('#emailform_template'));
-        Mautic.initSelectBeeTemplate(mQuery('#emailform_template'));
+        Mautic.initSelectBeeTemplate(mQuery('#emailform_template'),'email');
         Mautic.initEmailDynamicContent();
 
         Mautic.prepareVersioning(
@@ -274,13 +274,16 @@ Mautic.selectEmailType = function(emailType) {
 Mautic.selectEmailEditor = function(editorType) {
     var basic= mQuery('#email-editor-basic');
     var advance= mQuery('#email-editor-advance');
+    var other= mQuery('#email-other-container');
     var builderbtn= mQuery('.btn-beeditor');
+    var activateTab='';
     if (editorType == 'basic') {
         advance.addClass('hide');
         builderbtn.addClass('hide');
         var textarea = mQuery('textarea.bee-editor-json');
         textarea.val("");
-        basic.trigger('click');
+        activateTab='basic';
+
     } else {
         var templateJSON = mQuery('textarea.bee-editor-json');
         // Populate default content
@@ -288,7 +291,20 @@ Mautic.selectEmailEditor = function(editorType) {
             Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
         }
         basic.addClass('hide');
+        activateTab='advance';
+
+    }
+    var fromAddress=mQuery('[for=emailform_fromAddress]');
+    var fromAddressParent=fromAddress.parent();
+    if (fromAddressParent.hasClass('has-error')) {
+        activateTab='other';
+    }
+    if(activateTab == 'basic'){
+        basic.trigger('click');
+    }else if(activateTab == 'advance'){
         advance.trigger('click');
+    }else{
+        other.trigger('click');
     }
     mQuery('.email-type-modal').remove();
     mQuery('.email-type-modal-backdrop').remove();
