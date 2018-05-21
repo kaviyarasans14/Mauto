@@ -22,7 +22,7 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
 
 <?php if (count(array_intersect($fieldKeys, ['mailer_from_name', 'mailer_from_email', 'mailer_transport', 'mailer_spool_type']))): ?>
     <div class="panel panel-primary emailconfig">
-        <div class="panel-heading">
+        <div class="panel-heading emailconfig">
             <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.header.mail'); ?></h3>
         </div>
         <div class="panel-body">
@@ -164,24 +164,25 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
         </div>
             </div>
         </div>
-    </div>
-<?php endif; ?>
-
-<div class="panel panel-primary" <?php echo $hidepanel ?>>
-    <div class="panel-heading">
-        <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.config.tab.frequency_rules'); ?></h3>
-    </div>
-    <div class="panel-body">
-        <div class="row">
-            <div class="col-md-12">
-                <?php echo $view['form']->row($fields['email_frequency_number']); ?>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.config.tab.frequency_rules'); ?></h3>
             </div>
-            <div class="col-md-12">
-                <?php echo $view['form']->row($fields['email_frequency_time']); ?>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <?php echo $view['form']->row($fields['email_frequency_number']); ?>
+                    </div>
+                    <div class="col-md-12">
+                        <?php echo $view['form']->row($fields['email_frequency_time']); ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+<?php endif; ?>
+
+
 
 <?php if (isset($fields['monitored_email'])): ?>
     <div class="panel panel-primary" <?php echo $hidepanel ?>>

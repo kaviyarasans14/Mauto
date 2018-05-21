@@ -20,6 +20,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('leadsengage.accou
         'step'                => 'paymenthistory',
         'typePrefix'          => $typePrefix,
         'actionRoute'         => $actionRoute,
+        'planType'            => $planType,
     ]); ?>
 
     <!-- container -->

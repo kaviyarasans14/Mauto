@@ -20,6 +20,7 @@ $hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
         'step'                => 'accountinfo',
         'typePrefix'          => $typePrefix,
         'actionRoute'         => $actionRoute,
+        'planType'            => $planType,
     ]); ?>
    <!-- container -->
     <div class="col-md-9 bg-auto height-auto bdr-l accountinfo">
