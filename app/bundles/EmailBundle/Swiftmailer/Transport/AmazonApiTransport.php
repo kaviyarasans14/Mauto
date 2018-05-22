@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Swiftmailer\Transport;
 
+use Joomla\Http\Http;
 use Mautic\EmailBundle\Helper\PlainTextMassageHelper;
 use Mautic\EmailBundle\Model\TransportCallback;
 use Mautic\EmailBundle\Swiftmailer\Amazon\SimpleEmailService;
@@ -28,7 +29,10 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
      * @var \Swift_Events_SimpleEventDispatcher
      */
     private $swiftEventDispatcher;
-
+    /**
+     * @var Http
+     */
+    private $httpClient;
     /**
      * @var bool
      */
@@ -53,8 +57,9 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
      */
     private $translator;
 
-    public function __construct(SimpleEmailService $simpleemailservice, LoggerInterface $logger, TranslatorInterface $translator, TransportCallback $transportCallback)
+    public function __construct(Http $httpClient, SimpleEmailService $simpleemailservice, LoggerInterface $logger, TranslatorInterface $translator, TransportCallback $transportCallback)
     {
+        $this->httpClient           = $httpClient;
         $this->simpleemailservice   = $simpleemailservice;
         $this->logger               = $logger;
         $this->translator           = $translator;

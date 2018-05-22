@@ -379,6 +379,7 @@ return [
                 'class'        => \Mautic\EmailBundle\Swiftmailer\Transport\AmazonApiTransport::class,
                 'serviceAlias' => 'swiftmailer.mailer.transport.%s',
                 'arguments'    => [
+                    'mautic.http.connector',
                     'mautic.transport.amazon.api.ses_service',
                                        'monolog.logger.mautic',
                   'translator',
