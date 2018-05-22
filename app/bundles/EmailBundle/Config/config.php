@@ -668,7 +668,7 @@ return [
                 'class'     => \Mautic\EmailBundle\Model\SendEmailToContact::class,
                 'arguments' => [
                     'mautic.helper.mailer',
-                    'mautic.email.helper.stat',
+                    'mautic.email.repository.stat',
                     'mautic.lead.model.dnc',
                     'translator',
                 ],

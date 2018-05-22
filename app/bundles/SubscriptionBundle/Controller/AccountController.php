@@ -30,6 +30,12 @@ class AccountController extends FormController
             return $this->accessDenied();
         }
 
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $planType           ='Trial';
+        $lastpayment        = $paymentrepository->getLastPayment();
+        if ($lastpayment != null) {
+            $planType    ='Paid';
+        }
         /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $model */
         $model         = $this->getModel('subscription.accountinfo');
         $action        = $this->generateUrl('mautic_accountinfo_action', ['objectAction' => 'edit']);
@@ -93,6 +99,7 @@ class AccountController extends FormController
                 'security'           => $this->get('mautic.security'),
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
+                'planType'           => $planType,
             ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:form.html.php',
             'passthroughVars' => [
@@ -206,6 +213,11 @@ class AccountController extends FormController
 
         $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
         $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $planType           ='Trial';
+        $lastpayment        = $paymentrepository->getLastPayment();
+        if ($lastpayment != null) {
+            $planType    ='Paid';
+        }
         $paymentalias       =$paymentrepository->getTableAlias();
         $filter             = [
             'force'  => [
@@ -227,6 +239,7 @@ class AccountController extends FormController
                 'actionRoute'        => 'mautic_accountinfo_action',
                 'typePrefix'         => 'form',
                 'payments'           => $payments,
+                'planType'           => $planType,
             ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:payment.html.php',
             'passthroughVars' => [
@@ -252,6 +265,9 @@ class AccountController extends FormController
         $licenseRemDays     = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
         $subcancel          = $this->get('mautic.helper.licenseinfo')->getCancelDate();
         $subcanceldate      = date('F d, Y', strtotime($subcancel));
+        if ($recordCount == 'UL') {
+            $recordCount= 'unlimited';
+        }
         $planType           ='Trial';
         $lastpayment        = $paymentrepository->getLastPayment();
         if ($lastpayment != null) {
@@ -274,7 +290,7 @@ class AccountController extends FormController
                 'appstatus'          => $appStatus,
                 'recordcount'        => $recordCount,
                 'licenseenddate'     => $license,
-                'planname'           => $planType,
+                'planType'           => $planType,
                 'canceldate'         => $subcanceldate,
              ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cancel.html.php',
@@ -294,7 +310,12 @@ class AccountController extends FormController
         if (!$this->user->isAdmin() && !$this->user->isCustomAdmin() && $this->coreParametersHelper->getParameter('accountinfo_disabled')) {
             return $this->accessDenied();
         }
-
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $planType           ='Trial';
+        $lastpayment        = $paymentrepository->getLastPayment();
+        if ($lastpayment != null) {
+            $planType    ='Paid';
+        }
         $tmpl               = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
         $stripecardrepo     =$this->get('le.subscription.repository.stripecard');
         $stripecards        = $stripecardrepo->findAll();
@@ -313,6 +334,7 @@ class AccountController extends FormController
                 'typePrefix'         => 'form',
                 'stripecard'         => $stripecard,
                 'letoken'            => $paymenthelper->getUUIDv4(),
+                'planType'           => $planType,
             ],
             'contentTemplate' => 'MauticSubscriptionBundle:AccountInfo:cardinfo.html.php',
             'passthroughVars' => [

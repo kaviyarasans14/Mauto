@@ -25,6 +25,7 @@ if ($totalContactCredits != 'UL') {
         'step'                => 'billinginfo',
         'typePrefix'          => $typePrefix,
         'actionRoute'         => $actionRoute,
+        'planType'            => $planType,
     ]); ?>
     <!-- container -->
     <div class="col-md-9 bg-auto height-auto bdr-l accountinfo">

@@ -31,11 +31,13 @@
                     <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.paymenthistory'); ?>
                 </a>
             </li>
+            <?php if ($planType == 'Paid'): ?>
             <li role="presentation" class="list-group-item <?php echo $step == 'cancelsubscription' ? 'in active' : ''; ?>">
                 <a href="javascript: void(0);" onclick="Mautic.closeModalAndRedirect('.<?php echo $typePrefix; ?>-type-modal', '<?php echo $view['router']->path($actionRoute, ['objectAction' => 'cancel']) ?>');" aria-controls="<?php echo $step?>" role="tab" data-toggle="tab">
                     <?php echo $view['translator']->trans('leadsengage.accountinfo.tab.cancelsubs'); ?>
                 </a>
             </li>
+            <?php endif; ?>
         </ul>
     </div>
 </div>

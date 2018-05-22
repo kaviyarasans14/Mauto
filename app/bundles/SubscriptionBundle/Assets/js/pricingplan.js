@@ -24,6 +24,8 @@ Mautic.accountinfoOnLoad = function (container) {
             e.preventDefault();
             Mautic.activateBackdrop();
             Mautic.ajaxActionRequest('subscription:cancelsubscription', {}, function(response) {
+                e.preventDefault();
+                Mautic.activateBackdrop();
                 Mautic.deactivateBackgroup();
                 if(response.success) {
                     mQuery('.cancelsubscription').addClass('hide');
