@@ -1340,7 +1340,7 @@ class EmailCampaignController extends FormController
                         'flashes' => [
                             [
                                 'type'    => 'error',
-                                'msg'     => 'mautic.email.error.send',
+                                'msg'     => 'mautic.email.error.send.unpublished',
                                 'msgVars' => ['%name%' => $entity->getName()],
                             ],
                         ],
