@@ -605,7 +605,7 @@ class StatRepository extends CommonRepository
                 $q->expr()->gte('e.date_sent', $q->expr()->literal($fromdate))
             );
             $q->andWhere(
-                 $q->expr()->eq('e.source_id', 1)
+                 $q->expr()->neq('e.is_read', 1)
             );
         }
         //get a total number of sent emails
