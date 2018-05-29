@@ -522,7 +522,7 @@ class LeadModel extends FormModel
             }
         }
 
-        $this->processManipulator($entity);
+        //$this->processManipulator($entity);
 
         $this->setEntityDefaultValues($entity);
 
