@@ -258,13 +258,15 @@ class AccountController extends FormController
         if (!$this->user->isAdmin() && !$this->user->isCustomAdmin() && $this->coreParametersHelper->getParameter('accountinfo_disabled')) {
             return $this->accessDenied();
         }
-        $paymentrepository  =$this->get('le.subscription.repository.payment');
-        $appStatus          = $this->get('mautic.helper.licenseinfo')->getAppStatus();
-        $recordCount        = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
-        $licenseEndDate     = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
-        $licenseRemDays     = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
-        $subcancel          = $this->get('mautic.helper.licenseinfo')->getCancelDate();
-        $subcanceldate      = date('F d, Y', strtotime($subcancel));
+        $paymentrepository    =$this->get('le.subscription.repository.payment');
+        $appStatus            = $this->get('mautic.helper.licenseinfo')->getAppStatus();
+        $recordCount          = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+        $licenseEndDate       = $this->get('mautic.helper.licenseinfo')->getLicenseEndDate();
+        $licenseRemDays       = $this->get('mautic.helper.licenseinfo')->getLicenseRemainingDays();
+        $subcancel            = $this->get('mautic.helper.licenseinfo')->getCancelDate();
+        $subcanceldate        = date('F d, Y', strtotime($subcancel));
+        $datehelper           =$this->get('mautic.helper.template.date');
+
         if ($recordCount == 'UL') {
             $recordCount= 'unlimited';
         }
@@ -277,7 +279,11 @@ class AccountController extends FormController
         if ($planType == 'Trial') {
             $license = $licenseRemDays.' days';
         } else {
-            $license = date('F d, Y', strtotime($licenseEndDate.' + 1 days'));
+            if ($lastpayment != null) {
+                $planType    ='Paid';
+                $license     = $datehelper->toDate($lastpayment->getValidityTill());
+            }
+            $license = date('F d, Y', strtotime($license.' + 1 days'));
         }
         $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
 

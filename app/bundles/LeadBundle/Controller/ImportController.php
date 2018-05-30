@@ -166,9 +166,10 @@ class ImportController extends FormController
         if (!$this->get('mautic.security')->isGranted('lead:imports:create')) {
             return $this->accessDenied();
         }
-
-        $totalRecordCount  = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
-        $actualRecordCount = $this->get('mautic.helper.licenseinfo')->getActualRecordCount();
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        = $paymentrepository->getLastPayment();
+        $totalRecordCount   = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+        $actualRecordCount  = $this->get('mautic.helper.licenseinfo')->getActualRecordCount();
 
         // Move the file to cache and rename it
         $forceStop = $this->request->get('cancel', false);
@@ -426,7 +427,7 @@ class ImportController extends FormController
                             $lineCount         = $import->getLineCount() - 1;
                             $toBeinsertedCount = $actualRecordCount + $lineCount;
 
-                            if ($totalRecordCount >= $toBeinsertedCount || $totalRecordCount == 'UL') {
+                            if ($totalRecordCount >= $toBeinsertedCount || $totalRecordCount == 'UL' || $lastpayment != null) {
                                 $importModel->saveEntity($import);
                             } else {
                                 $this->addFlash('mautic.record.count.exceeds');

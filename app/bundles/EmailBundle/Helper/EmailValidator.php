@@ -13,6 +13,8 @@ namespace Mautic\EmailBundle\Helper;
 
 use Aws\Ses\Exception\SesException;
 use Aws\Ses\SesClient;
+use Aws\Sns\SnsClient;
+use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailValidationEvent;
 use Mautic\EmailBundle\Exception\InvalidEmailException;
@@ -24,6 +26,11 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class EmailValidator
 {
+    /**
+     * @var MauticFactory
+     */
+    private $factory;
+
     /**
      * @var TranslatorInterface
      */
@@ -39,11 +46,13 @@ class EmailValidator
      *
      * @param TranslatorInterface      $translator
      * @param EventDispatcherInterface $dispatcher
+     * @param MauticFactory            $factory
      */
-    public function __construct(TranslatorInterface $translator, EventDispatcherInterface $dispatcher)
+    public function __construct(TranslatorInterface $translator, EventDispatcherInterface $dispatcher, MauticFactory $factory)
     {
         $this->translator = $translator;
         $this->dispatcher = $dispatcher;
+        $this->factory    = $factory;
     }
 
     /**
@@ -150,27 +159,74 @@ class EmailValidator
 
     public function getEmailVerificationStatus($key, $secret, $region, $email)
     {
-        $regionname = explode('.', $region);
-        $regionname = $regionname[1];
-        $client     = SesClient::factory([
-            'credentials' => ['key' => $key, 'secret' => $secret],
-            'region'      => $regionname,
-        ]);
-        try {
-            $result = $client->getIdentityVerificationAttributes([
-                'Identities' => [
-                    $email,
-                ],
+        $regionname            = explode('.', $region);
+        $regionname            = $regionname[1];
+        $sesclient             = $this->getSesClient($key, $secret, $regionname);
+        $checkifdomainverified = $this->checkDomainVerification($sesclient, $email);
+
+        if ($checkifdomainverified != true) {
+            $result = $sesclient->listVerifiedEmailAddresses([
             ]);
-            if (sizeof($result['VerificationAttributes']) > 0) {
-                if ($result['VerificationAttributes'][$email]['VerificationStatus'] != 'Success') {
-                    return false;
-                } else {
-                    return true;
+            if (in_array($email, $result['VerifiedEmailAddresses'])) {
+                return true;
+            } else {
+                try {
+                    $result = $sesclient->getIdentityVerificationAttributes([
+                        'Identities' => [
+                            $email,
+                        ],
+                    ]);
+                    if (sizeof($result['VerificationAttributes']) > 0) {
+                        if ($result['VerificationAttributes'][$email]['VerificationStatus'] != 'Success') {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                } catch (SesException $e) {
+                    return 'Policy not written';
                 }
             }
-        } catch (SesException $e) {
-            return 'Policy not written';
+        } else {
+            return true;
         }
+    }
+
+    public function checkDomainVerification($sesclient, $email)
+    {
+        $domainname = substr(strrchr($email, '@'), 1);
+        $result     = $sesclient->listIdentities([
+            'IdentityType' => 'Domain',
+            'MaxItems'     => 100,
+            'NextToken'    => '',
+        ]);
+
+        foreach ($result['Identities'] as $key => $value) {
+            if ($domainname == $value) {
+                return true;
+            }
+        }
+    }
+
+    public function getSesClient($key, $secret, $regionname)
+    {
+        $sesclient     = SesClient::factory([
+            'credentials' => ['key' => $key, 'secret' => $secret],
+            'region'      => $regionname,
+            'version'     => 'latest',
+        ]);
+
+        return $sesclient;
+    }
+
+    public function getSnsClient($key, $secret, $regionname)
+    {
+        $snsclient     = SnsClient::factory([
+            'credentials' => ['key' => $key, 'secret' => $secret],
+            'region'      => $regionname,
+            'version'     => 'latest',
+        ]);
+
+        return $snsclient;
     }
 }

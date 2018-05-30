@@ -264,7 +264,7 @@ class SearchSubscriber extends CommonSubscriber
             'column' => 'mq.channel_id',
             'params' => [
                 'mq.channel' => 'email',
-                'mq.status'  => MessageQueue::STATUS_SENT,
+                'mq.status'  => MessageQueue::STATUS_PENDING,
             ],
         ];
 

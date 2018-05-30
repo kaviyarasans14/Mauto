@@ -202,6 +202,22 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     }
 
     /**
+     * @return \Mautic\EmailBundle\Entity\AwsConfig
+     */
+    public function getAwsConfigRepository()
+    {
+        return $this->em->getRepository('MauticEmailBundle:AwsConfig');
+    }
+
+    /**
+     * @return \Mautic\EmailBundle\Entity\AwsVerifiedEmails
+     */
+    public function getAwsVerifiedEmailsRepository()
+    {
+        return $this->em->getRepository('MauticEmailBundle:AwsVerifiedEmails');
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getPermissionBase()
@@ -898,22 +914,13 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      * @param Email           $email
      * @param array           $lists
      * @param int             $limit
-     * @param bool            $batch        True to process and batch all pending leads
+     * @param bool            $batch  True to process and batch all pending leads
      * @param OutputInterface $output
-     * @param int             $minContactId
-     * @param int             $maxContactId
      *
      * @return array array(int $sentCount, int $failedCount, array $failedRecipientsByList)
      */
-    public function sendEmailToLists(
-        Email $email,
-        $lists = null,
-        $limit = null,
-        $batch = false,
-        OutputInterface $output = null,
-        $minContactId = null,
-        $maxContactId = null
-    ) {
+    public function sendEmailToLists(Email $email, $lists = null, $limit = null, $batch = false, OutputInterface $output = null)
+    {
         //get the leads
         if (empty($lists)) {
             $lists = $email->getLists();
@@ -921,12 +928,6 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         // Safety check
         if ('list' !== $email->getEmailType()) {
-            return [0, 0, []];
-        }
-
-        // Doesn't make sense to send unpublished emails. Probably a user error.
-        // @todo throw an exception in Mautic 3 here.
-        if (!$email->isPublished()) {
             return [0, 0, []];
         }
 
@@ -938,16 +939,16 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             ],
         ];
 
-        $failedRecipientsByList = [];
-        $sentCount              = 0;
-        $failedCount            = 0;
+        $failed      = [];
+        $sentCount   = 0;
+        $failedCount = 0;
 
         $progress = false;
         if ($batch && $output) {
             $progressCounter = 0;
-            $totalLeadCount  = $this->getPendingLeads($email, null, true, null, true, $minContactId, $maxContactId);
+            $totalLeadCount  = $this->getPendingLeads($email, null, true);
             if (!$totalLeadCount) {
-                return [0, 0, []];
+                return;
             }
 
             // Broadcast send through CLI
@@ -962,7 +963,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             }
 
             $options['listId'] = $list->getId();
-            $leads             = $this->getPendingLeads($email, $list->getId(), false, $limit, true, $minContactId, $maxContactId);
+            $leads             = $this->getPendingLeads($email, $list->getId(), false, $limit);
             $leadCount         = count($leads);
 
             while ($leadCount) {
@@ -981,7 +982,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
                     $sentCount -= $listFailedCount;
                     $failedCount += $listFailedCount;
 
-                    $failedRecipientsByList[$options['listId']] = $listErrors;
+                    $failed[$options['listId']] = $listErrors;
                 }
 
                 if ($batch) {
@@ -991,7 +992,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
                     }
 
                     // Get the next batch of leads
-                    $leads     = $this->getPendingLeads($email, $list->getId(), false, $limit, true, $minContactId, $maxContactId);
+                    $leads     = $this->getPendingLeads($email, $list->getId(), false, $limit);
                     $leadCount = count($leads);
                 } else {
                     $leadCount = 0;
@@ -1003,7 +1004,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $progress->finish();
         }
 
-        return [$sentCount, $failedCount, $failedRecipientsByList];
+        return [$sentCount, $failedCount, $failed];
     }
 
     /**
@@ -1591,9 +1592,29 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         if ($lead instanceof Lead) {
             $email   = $stat->getEmail();
-            $channel = ($email) ? ['email' => $email->getId()] : 'email';
+            if ($email instanceof Email) {
+                $channel = ($email) ? ['email' => $email->getId()] : 'email';
+                if ($reason == DoNotContact::IS_CONTACTABLE) {
+                    $this->sendModel->upEmailFailureCount($email->getId());
+                    $this->updateFailureCount($stat);
+                } else {
+                    if ($reason == DoNotContact::UNSUBSCRIBED) {
+                        $this->sendModel->upEmailUnsubscriberCount($email->getId());
+                        $this->updateUnsubscribeCount($stat);
+                    } elseif ($reason == DoNotContact::BOUNCED) {
+                        $this->sendModel->upEmailBounceCount($email->getId());
+                        $this->updateBounceCount($stat);
+                    }
 
-            return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
+            } else {
+                if ($reason == DoNotContact::UNSUBSCRIBED || $reason == DoNotContact::BOUNCED) {
+                    $channel = 'email';
+
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
+            }
         }
 
         return false;
@@ -2289,5 +2310,21 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
                 --$strikes;
             }
         }
+    }
+
+    public function getVerifiedEmailAddress()
+    {
+        $emailids=[];
+
+        $q = $this->em->createQueryBuilder()
+            ->select('a.verifiedemails')
+            ->from('MauticEmailBundle:AwsVerifiedEmails', 'a');
+        $value = $q->getQuery()->getArrayResult();
+
+        for ($i=0; $i < sizeof($value); ++$i) {
+            $emailids[]= $value[$i]['verifiedemails'];
+        }
+
+        return $emailids;
     }
 }

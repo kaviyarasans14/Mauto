@@ -617,6 +617,7 @@ return [
                 'arguments' => [
                     'translator',
                     'event_dispatcher',
+                    'mautic.factory',
                 ],
             ],
             'mautic.email.fetcher' => [
