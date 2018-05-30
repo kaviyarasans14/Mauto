@@ -89,7 +89,7 @@ class UpdatePaymentCommand extends ModeratedCommand
                                 $validitytill=date('Y-m-d', strtotime($validitytill.' +1 months'));
                             } elseif ($ismoreusage) {
                                 //$amount1   =$this->getProrataAmount($currentdate, $validitytill, $lastamount);
-                                $excesscount=$totalrecordcount - $actualrecordcount;
+                                $excesscount=$actualrecordcount - $totalrecordcount;
                                 $amtmultiplx=1;
                                 if ($excesscount > 0) {
                                     $amtmultiplx   =ceil($excesscount / 10000);
