@@ -57,7 +57,7 @@ Mautic.pricingplansOnLoad = function (container) {
     paynowbtn.attr("planname",planname);
     mQuery('.pricing-type-modal-backdrop').removeClass('hide');
     mQuery('.pricing-type-modal').removeClass('hide');
-    mountStripeCard(stripe,card,'#card-holder-widget');
+    mountStripeCard(stripe,card,'#card-holder-widget123');
 }
 
     });
