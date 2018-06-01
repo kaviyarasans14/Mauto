@@ -211,7 +211,7 @@ class ConfigType extends AbstractType
                 'attr'       => [
                     'class'    => 'form-control',
                     'tooltip'  => 'mautic.email.config.mailer.from.name.tooltip',
-                    'disabled' => $disabled,
+                    'disabled' => false,
                 ],
                 'constraints' => [
                     new NotBlank(

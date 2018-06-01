@@ -83,7 +83,7 @@ class EmailType extends AbstractType
         $disabled      = false;
 
         if (!$currentUser) {
-            if ($emailProvider == 'Sparkpost') {
+            if ($emailProvider == 'Sparkpost' || $emailProvider == 'Via Amazon SES') {
                 $disabled = true;
             }
         }
@@ -126,7 +126,7 @@ class EmailType extends AbstractType
                     'class'    => 'form-control',
                     'preaddon' => 'fa fa-user',
                     'tooltip'  => 'mautic.email.from_name.tooltip',
-                    'disabled' => $disabled,
+                    'disabled' => false,
                 ],
                 'required' => false,
             ]

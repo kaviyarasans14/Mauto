@@ -1474,8 +1474,14 @@ class LeadController extends FormController
 
         // Check if lead has a bounce status
         /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
-        $emailModel = $this->getModel('email');
-        $dnc        = $emailModel->getRepository()->checkDoNotEmail($leadEmail);
+        $emailModel    = $this->getModel('email');
+        $dnc           = $emailModel->getRepository()->checkDoNotEmail($leadEmail);
+        $verifiedemail = $emailModel->getVerifiedEmailAddress();
+
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator   = $this->get('mautic.configurator');
+        $params         = $configurator->getParameters();
+        $mailertransport= $params['mailer_transport'];
 
         $inList = ($this->request->getMethod() == 'GET')
             ? $this->request->get('list', 0)
@@ -1620,8 +1626,10 @@ class LeadController extends FormController
             [
                 'contentTemplate' => 'MauticLeadBundle:Lead:email.html.php',
                 'viewParameters'  => [
-                    'form' => $form->createView(),
-                    'dnc'  => $dnc,
+                    'form'           => $form->createView(),
+                    'dnc'            => $dnc,
+                    'verifiedemail'  => $verifiedemail,
+                    'mailertransport'=> $mailertransport,
                 ],
                 'passthroughVars' => [
                     'mauticContent' => 'leadEmail',

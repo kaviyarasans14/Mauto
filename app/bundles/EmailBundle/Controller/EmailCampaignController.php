@@ -516,12 +516,12 @@ class EmailCampaignController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
-        $params     = $configurator->getParameters();
-        $fromname   = $params['mailer_from_name'];
-        $fromadress = $params['mailer_from_email'];
-        $fromName   = $entity->getFromName();
-        $fromAdress = $entity->getFromAddress();
-
+        $params         = $configurator->getParameters();
+        $fromname       = $params['mailer_from_name'];
+        $fromadress     = $params['mailer_from_email'];
+        $fromName       = $entity->getFromName();
+        $fromAdress     = $entity->getFromAddress();
+        $mailertransport= $params['mailer_transport'];
         if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
@@ -663,6 +663,7 @@ class EmailCampaignController extends FormController
             ],
             'RETURN_ARRAY'
         );
+        $verifiedemail = $model->getVerifiedEmailAddress();
 
         return $this->delegateView(
             [
@@ -680,6 +681,8 @@ class EmailCampaignController extends FormController
                     'permissions'        => $permissions,
                     'isClone'            => $isClone,
                     'isMobile'           => $ismobile,
+                    'verifiedemail'      => $verifiedemail,
+                    'mailertransport'    => $mailertransport,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [
@@ -717,10 +720,10 @@ class EmailCampaignController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
-        $params     = $configurator->getParameters();
-        $fromname   = $params['mailer_from_name'];
-        $fromadress = $params['mailer_from_email'];
-
+        $params         = $configurator->getParameters();
+        $fromname       = $params['mailer_from_name'];
+        $fromadress     = $params['mailer_from_email'];
+        $mailertransport=$params['mailer_transport'];
         if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
@@ -911,7 +914,8 @@ class EmailCampaignController extends FormController
             $routeParams['updateSelect'] = $updateSelect;
             $routeParams['contentOnly']  = 1;
         }
-        $ismobile = InputHelper::isMobile();
+        $ismobile      = InputHelper::isMobile();
+        $verifiedemail = $model->getVerifiedEmailAddress();
         //set some permissions
         $permissions = $this->get('mautic.security')->isGranted(
             [
@@ -937,6 +941,8 @@ class EmailCampaignController extends FormController
                     'sectionForm'        => $sectionForm->createView(),
                     'permissions'        => $permissions,
                     'isMobile'           => $ismobile,
+                    'verifiedemail'      => $verifiedemail,
+                    'mailertransport'    => $mailertransport,
                 ],
                 'contentTemplate' => 'MauticEmailBundle:Email:form.html.php',
                 'passthroughVars' => [

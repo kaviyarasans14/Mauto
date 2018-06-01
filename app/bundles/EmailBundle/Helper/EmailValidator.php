@@ -13,9 +13,12 @@ namespace Mautic\EmailBundle\Helper;
 
 use Aws\Ses\Exception\SesException;
 use Aws\Ses\SesClient;
+use Aws\Sns\Exception\SnsException;
 use Aws\Sns\SnsClient;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\EmailBundle\EmailEvents;
+use Mautic\EmailBundle\Entity\AwsConfig;
+use Mautic\EmailBundle\Entity\AwsVerifiedEmails;
 use Mautic\EmailBundle\Event\EmailValidationEvent;
 use Mautic\EmailBundle\Exception\InvalidEmailException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -192,20 +195,153 @@ class EmailValidator
         }
     }
 
+    public function sendVerificationMail($key, $secret, $region, $email, $awscallbackurl)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
+        $emailModel       = $this->factory->getModel('email');
+        $repo             =$emailModel->getAwsConfigRepository();
+        $verifiedemailRepo=$emailModel->getAwsVerifiedEmailsRepository();
+        $verifiedEmails   =$emailModel->getAllEmailAddress();
+
+        try {
+            $sesclient =$this->getSesClient($key, $secret, $regionname);
+            $snsclient =$this->getSnsClient($key, $secret, $regionname);
+
+            $sesclient->verifyEmailAddress([
+                         'EmailAddress' => $email,
+             ]);
+        } catch (SesException $e) {
+            return 'Policy not written';
+        }
+        try {
+            $bounceArnValue = $this->createBounceTopic($snsclient, $email, $sesclient, $awscallbackurl);
+            $comptopicArn   =  $this->createComplaintTopic($snsclient, $email, $sesclient, $awscallbackurl);
+        } catch (SnsException $e) {
+            return 'Sns Policy not written';
+        }
+
+        $entity = new AwsConfig();
+        if ($entity->getBounceArnValue() != $bounceArnValue) {
+            $entity->setBounceArnValue($bounceArnValue);
+        }
+        if ($entity->getComplaintArnValue() != $comptopicArn) {
+            $entity->setComplaintArnValue($comptopicArn);
+        }
+        $repo->saveEntity($entity);
+
+        $entity = new AwsVerifiedEmails();
+
+        if (!in_array($email, $verifiedEmails)) {
+            $entity->setVerifiedEmails($email);
+            $entity->setVerificationStatus('Pending');
+            $verifiedemailRepo->saveEntity($entity);
+        }
+    }
+
+    public function createBounceTopic($snsclient, $email, $sesclient, $awscallbackurl)
+    {
+        $bounceResult = $snsclient->createTopic([
+            'Name' => 'LE_BOUNCE',
+        ]);
+        $bouncetopicArn = $bounceResult['TopicArn'];
+
+        $snsclient->subscribe([
+            'TopicArn' => $bouncetopicArn,
+            'Protocol' => 'HTTP',
+            'Endpoint' => $awscallbackurl,
+        ]);
+
+        $sesclient->setIdentityNotificationTopic([
+            'Identity'         => $email,
+            'NotificationType' => 'Bounce',
+            'SnsTopic'         => $bouncetopicArn,
+        ]);
+
+        return $bouncetopicArn;
+    }
+
+    public function createComplaintTopic($snsclient, $email, $sesclient, $awscallbackurl)
+    {
+        $compResult = $snsclient->createTopic([
+              'Name' => 'LE_COMP',
+          ]);
+
+        $comptopicArn = $compResult['TopicArn'];
+
+        $snsclient->subscribe([
+              'TopicArn' => $comptopicArn,
+              'Protocol' => 'HTTP',
+              'Endpoint' => $awscallbackurl,
+          ]);
+
+        $sesclient->setIdentityNotificationTopic([
+              'Identity'         => $email,
+              'NotificationType' => 'Complaint',
+              'SnsTopic'         => $comptopicArn,
+          ]);
+
+        return $comptopicArn;
+    }
+
+    public function getVerifiedEmailAddressDetails($key, $secret, $region, $email)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        try {
+            $sesclient             =$this->getSesClient($key, $secret, $regionname);
+            $checkifdomainverified = $this->checkDomainVerification($sesclient, $email);
+
+            if ($checkifdomainverified != true) {
+                $result = $sesclient->listVerifiedEmailAddresses([
+             ]);
+                if (in_array($email, $result['VerifiedEmailAddresses'])) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        } catch (SesException $e) {
+            return 'Policy not written';
+        }
+    }
+
     public function checkDomainVerification($sesclient, $email)
     {
         $domainname = substr(strrchr($email, '@'), 1);
-        $result     = $sesclient->listIdentities([
-            'IdentityType' => 'Domain',
-            'MaxItems'     => 100,
-            'NextToken'    => '',
-        ]);
+        try {
+            $result = $sesclient->listIdentities([
+                'IdentityType' => 'Domain',
+                'MaxItems'     => 100,
+                'NextToken'    => '',
+          ]);
 
-        foreach ($result['Identities'] as $key => $value) {
-            if ($domainname == $value) {
-                return true;
+            foreach ($result['Identities'] as $key => $value) {
+                if ($domainname == $value) {
+                    return true;
+                }
             }
+        } catch (SesException $e) {
+            return 'Policy not written';
         }
+    }
+
+    public function getSendingStatistics($key, $secret, $region)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        try {
+            $sesclient = $this->getSesClient($key, $secret, $regionname);
+            $result    = $sesclient->getSendQuota([
+            ]);
+        } catch (SesException $e) {
+            return;
+        }
+
+        return $result;
     }
 
     public function getSesClient($key, $secret, $regionname)
@@ -228,5 +364,20 @@ class EmailValidator
         ]);
 
         return $snsclient;
+    }
+
+    public function getVerifiedEmailList($key, $secret, $region)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        try {
+            $sesclient  =$this->getSesClient($key, $secret, $regionname);
+            $result = $sesclient->listVerifiedEmailAddresses([
+        ]);
+        } catch (SesException $e) {
+            return;
+        }
+
+        return $result['VerifiedEmailAddresses'];
     }
 }

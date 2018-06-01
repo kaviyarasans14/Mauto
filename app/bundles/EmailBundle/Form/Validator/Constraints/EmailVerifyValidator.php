@@ -12,6 +12,7 @@
 namespace Mautic\EmailBundle\Form\Validator\Constraints;
 
 use Mautic\CoreBundle\Factory\MauticFactory;
+use Mautic\EmailBundle\Entity\AwsVerifiedEmails;
 use Mautic\EmailBundle\Helper\EmailValidator;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraint;
@@ -65,13 +66,51 @@ class EmailVerifyValidator extends ConstraintValidator
             if ($emailpassword == '') {
                 $message = $this->translator->trans('le.email.password.error');
             }
-            $result = $this->emailValidator->getEmailVerificationStatus($emailuser, $emailpassword, $region, $newfromaddress);
-            if (!$result) {
-                $message = $this->translator->trans('le.email.verification.error');
-            } elseif ($result) {
-                return;
-            } elseif ($result == 'Policy not written') {
+            /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
+            $emailModel       = $this->factory->getModel('email');
+            $getAllEmailIds   =$emailModel->getAllEmailAddress();
+            $verifiedemailRepo=$emailModel->getAwsVerifiedEmailsRepository();
+            $verifiedEmails   = $this->emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
+            /** @var \Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper $routerHelper */
+            $awscallbackurl = $this->factory->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
+            $isValidEmail   = $this->emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $newfromaddress);
+            $entity         = new AwsVerifiedEmails();
+
+            if (!empty($verifiedEmails)) {
+                if (in_array($newfromaddress, $verifiedEmails)) {
+                    if (!in_array($newfromaddress, $getAllEmailIds)) {
+                        $entity->setVerifiedEmails($newfromaddress);
+                        $entity->setVerificationStatus('Verified');
+                        $verifiedemailRepo->saveEntity($entity);
+
+                        return;
+                    }
+                }
+            }
+
+            if ($isValidEmail == 'Policy not written') {
                 $message = $this->translator->trans('le.email.verification.policy.error');
+            }
+            if (!in_array($newfromaddress, $getAllEmailIds) && $newfromaddress != '') {
+                if (!$isValidEmail) {
+                    $result = $this->emailValidator->sendVerificationMail($emailuser, $emailpassword, $region, $newfromaddress, $awscallbackurl);
+                    if ($result == 'Policy not written') {
+                        $message = $this->translator->trans('le.email.verification.policy.error');
+                    } elseif ($result == 'Sns Policy not written') {
+                        $message = $this->translator->trans('le.email.verification.sns.policy.error');
+                    } else {
+                        return;
+                    }
+                }
+            } else {
+                $result = $this->emailValidator->getEmailVerificationStatus($emailuser, $emailpassword, $region, $newfromaddress);
+                if (!$result) {
+                    $message = $this->translator->trans('le.email.verification.error');
+                } elseif ($result) {
+                    return;
+                } elseif ($result == 'Policy not written') {
+                    $message = $this->translator->trans('le.email.verification.policy.error');
+                }
             }
             $this->context->addViolation($message);
         } else {

@@ -16,6 +16,7 @@ use Mautic\ConfigBundle\Event\ConfigBuilderEvent;
 use Mautic\ConfigBundle\Event\ConfigEvent;
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\CoreBundle\Helper\EncryptionHelper;
+use Mautic\EmailBundle\Model\EmailModel;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,6 +64,18 @@ class ConfigController extends FormController
         $paramater      =   $configurator->getParameters();
         $maileruser     =   $paramater['mailer_user'];
         $mailertransport= $paramater['mailer_transport'];
+        $emailpassword  = $paramater['mailer_password'];
+        $region         = $paramater['mailer_amazon_region'];
+        /** @var EmailModel $emailModel */
+        $emailModel     = $this->getModel('email');
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $emailModel->upAwsEmailVerificationStatus($emails);
+            }
+        }
+
         // Check for a submitted form and process it
         if ($this->request->getMethod() == 'POST') {
             if (!$cancelled = $this->isFormCancelled($form)) {
@@ -161,6 +174,7 @@ class ConfigController extends FormController
                     return $this->delegateRedirect($this->generateUrl('mautic_config_action', ['objectAction' => 'edit']));
                 } else {
                     $loginsession = $this->get('session');
+
                     $loginsession->set('isLogin', false);
 
                     return $this->delegateRedirect($this->generateUrl('mautic_dashboard_index'));
@@ -169,15 +183,20 @@ class ConfigController extends FormController
         }
 
         $tmpl = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
+        $emailModel          = $this->factory->getModel('email');
+        $awsEmailRepository  =$emailModel->getAwsVerifiedEmailsRepository();
+        $awsemailstatus      =$awsEmailRepository->getEntities();
 
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'tmpl'        => $tmpl,
-                    'security'    => $this->get('mautic.security'),
-                    'form'        => $this->setFormTheme($form, 'MauticConfigBundle:Config:form.html.php', $formThemes),
-                    'formConfigs' => $formConfigs,
-                    'isWritable'  => $isWritabale,
+                    'tmpl'           => $tmpl,
+                    'security'       => $this->get('mautic.security'),
+                    'form'           => $this->setFormTheme($form, 'MauticConfigBundle:Config:form.html.php', $formThemes),
+                    'formConfigs'    => $formConfigs,
+                    'isWritable'     => $isWritabale,
+                    'verifiedEmails' => $awsemailstatus,
                 ],
                 'contentTemplate' => 'MauticConfigBundle:Config:form.html.php',
                 'passthroughVars' => [

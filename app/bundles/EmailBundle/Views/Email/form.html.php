@@ -73,7 +73,12 @@ if ($formcontainserror) {
     $activateadvanceeditor='';
     $activateotherconfig  ='active in';
 }
-
+$hideawsemailoptions = '';
+$style               ='78%';
+if ($mailertransport != 'mautic.transport.amazon') {
+    $hideawsemailoptions = 'hide';
+    $style               = '';
+}
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
     <div class="box-layout">
@@ -168,15 +173,32 @@ if ($formcontainserror) {
                                     <?php echo $view['form']->row($form['fromName']); ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <?php echo $view['form']->row($form['fromAddress']); ?>
+                                    <div class="pull-left" style="max-width:<?php echo $style; ?>">
+                                        <?php echo $view['form']->row($form['fromAddress']); ?>
+                                    </div>
+                                        <?php echo $view['form']->widget($form['fromAddress']); ?>
+                                    <li class="dropdown <?php echo $hideawsemailoptions; ?>" name="verifiedemails" id="verifiedemails" style="display: block;margin-left: 191px;">
+                                        <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="font-size:13px;margin-top:23px;" data-toggle="dropdown" href="#">
+                                            <span><?php echo $view['translator']->trans('le.core.button.aws.load'); ?></span> </span><span><i class="caret" ></i>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-right" id="verifiedemails">
+                                            <li>
+                                                    <?php foreach ($verifiedemail as $key=> $value): ?>
+                                            <li >
+                                                <a class="verified-emails" id="data-verified-emails" data-verified-emails="<?php echo $value; ?>"><?php echo $value; ?></a>
+                                            </li>
+                                                   <?php endforeach; ?>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </div>
                             </div>
+
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php echo $view['form']->row($form['replyToAddress']); ?>
                                 </div>
-
                                 <div class="col-md-6">
                                     <?php echo $view['form']->row($form['bccAddress']); ?>
                                 </div>

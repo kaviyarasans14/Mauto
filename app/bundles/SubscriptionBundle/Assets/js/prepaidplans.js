@@ -174,19 +174,20 @@ Mautic.getFormattedNumber = function(number) {
   return number.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
 };
 Mautic.loadLicenseUsageInfo = function() {
-    // Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
-    //     if (response.success) {
-    //         if(response.credits != "" && response.validity != ""){
-    //             mQuery('.sidebar-credits-info-holder').show();
-    //             mQuery('.sidebar-credits-info-holder .email-credits').html("Available Credits : "+response.credits);
-    //             mQuery('.sidebar-credits-info-holder .email-validity').html("Expiry Date : "+response.validity);
-    //             mQuery('.sidebar-credits-info-holder .email-days-available').html("Days Available : "+response.daysavailable);
-    //         }else{
-    //             mQuery('.sidebar-credits-info-holder').hide();
-    //         }
-    //
-    //     }
-    // });
+     Mautic.ajaxActionRequest('subscription:validityinfo', {}, function(response) {
+         if (response.success) {
+              if(response.credits != "" && response.validity != "" && response.transport == 'mautic.transport.amazon'){
+                 mQuery('.sidebar-credits-info-holder').removeClass('hide');
+                 mQuery('.sidebar-credits-info-holder').show();
+                 mQuery('.sidebar-credits-info-holder .email-credits').html("Max24HourSend : "+response.credits);
+                 mQuery('.sidebar-credits-info-holder .email-validity').html("MaxSendRate : "+response.validity);
+                 mQuery('.sidebar-credits-info-holder .email-days-available').html("SentLast24Hours : "+response.daysavailable);
+              }
+             else{
+                 mQuery('.sidebar-credits-info-holder').hide();
+             }
+         }
+     });
     Mautic.ajaxActionRequest('subscription:licenseusageinfo', {}, function(response) {
         if (response.success) {
             if(response.info != ""){

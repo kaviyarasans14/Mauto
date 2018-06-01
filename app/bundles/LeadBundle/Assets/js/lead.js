@@ -238,6 +238,12 @@ Mautic.getLeadId = function() {
 }
 
 Mautic.leadEmailOnLoad = function(container, response) {
+    mQuery('[data-verified-email]').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var value = currentLink.attr('data-verified-email');
+        mQuery("#lead_quickemail_from").val(value);
+    });
     // Some hacky editations made on every form submit because of Froala (more at: https://github.com/froala/wysiwyg-editor/issues/1372)
     mQuery('[name="lead_quickemail"]').on('submit.ajaxform', function() {
         var emailHtml = mQuery('.fr-iframe').contents();

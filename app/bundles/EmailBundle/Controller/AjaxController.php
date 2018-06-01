@@ -14,6 +14,8 @@ namespace Mautic\EmailBundle\Controller;
 use Mautic\CoreBundle\Controller\AjaxController as CommonAjaxController;
 use Mautic\CoreBundle\Controller\AjaxLookupControllerTrait;
 use Mautic\CoreBundle\Controller\VariantAjaxControllerTrait;
+use Mautic\CoreBundle\Helper\InputHelper;
+use Mautic\EmailBundle\Entity\AwsVerifiedEmails;
 use Mautic\EmailBundle\Helper\PlainTextHelper;
 use Mautic\EmailBundle\Model\EmailModel;
 use Mautic\EmailBundle\Swiftmailer\Transport\AmazonApiTransport;
@@ -387,5 +389,88 @@ class AjaxController extends CommonAjaxController
         }
 
         return new JsonResponse($data);
+    }
+
+    public function awsEmailFormValidationAction(Request $request)
+    {
+        $emailId     = InputHelper::clean($request->request->get('email'));
+        $dataArray   =[];
+        $validator   = $this->container->get('validator');
+        $constraints = [
+            new \Symfony\Component\Validator\Constraints\Email(),
+            new \Symfony\Component\Validator\Constraints\NotBlank(),
+        ];
+        $error = $validator->validateValue($emailId, $constraints);
+
+        if (count($error) > 0) {
+            $errors[]            = $error;
+            $dataArray['success']=false;
+            $dataArray['message']=$this->translator->trans('mautic.core.email.required');
+        } else {
+            /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
+            $emailModel       = $this->factory->getModel('email');
+            $emailValidator   = $this->factory->get('mautic.validator.email');
+            $getAllEmailIds   = $emailModel->getAllEmailAddress();
+            $awsVeridiedIds   =$emailModel->getVerifiedEmailAddress();
+            $verifiedemailRepo=$emailModel->getAwsVerifiedEmailsRepository();
+
+            /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+            $configurator     = $this->factory->get('mautic.configurator');
+            $params           = $configurator->getParameters();
+            $emailuser        = $params['mailer_user'];
+            $region           = $params['mailer_amazon_region'];
+            $emailpassword    = $params['mailer_password'];
+            $emailverifyhelper= $this->factory->get('mautic.validator.email');
+
+            $verifiedEmails = $emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
+            $isValidEmail   = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $emailId);
+            $returnUrl      = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
+            /** @var \Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper $routerHelper */
+            $awscallbackurl = $this->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
+            if ($isValidEmail == 'Policy not written') {
+                $dataArray['success'] = false;
+                $dataArray['message'] = $this->translator->trans('le.email.verification.policy.error');
+            }
+
+            $entity = new AwsVerifiedEmails();
+            if (!empty($verifiedEmails)) {
+                if (in_array($emailId, $verifiedEmails)) {
+                    if (!in_array($emailId, $getAllEmailIds)) {
+                        $entity->setVerifiedEmails($emailId);
+                        $entity->setVerificationStatus('Verified');
+                        $verifiedemailRepo->saveEntity($entity);
+                        $dataArray['success']  = true;
+                        $dataArray['redirect'] = $returnUrl;
+                    }
+                }
+            }
+
+            if (!in_array($emailId, $getAllEmailIds)) {
+                if (!$isValidEmail) {
+                    $result = $emailverifyhelper->sendVerificationMail($emailuser, $emailpassword, $region, $emailId, $awscallbackurl);
+                    if ($result == 'Policy not written') {
+                        $dataArray['success'] = false;
+                        $dataArray['message'] = $this->translator->trans('le.email.verification.policy.error');
+                    } elseif ($result == 'Sns Policy not written') {
+                        $dataArray['success'] = false;
+                        $dataArray['message'] = $this->translator->trans('le.email.verification.sns.policy.error');
+                    } else {
+                        $dataArray['success']  = true;
+                        $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
+                        $dataArray['redirect'] = $returnUrl;
+                    }
+                }
+            } else {
+                if (!in_array($emailId, $awsVeridiedIds)) {
+                    $dataArray['success'] = false;
+                    $dataArray['message'] = $this->translator->trans('le.aws.email.verification.pending');
+                } else {
+                    $dataArray['success'] = false;
+                    $dataArray['message'] = $this->translator->trans('le.aws.email.verification.verified');
+                }
+            }
+        }
+
+        return $this->sendJsonResponse($dataArray);
     }
 }

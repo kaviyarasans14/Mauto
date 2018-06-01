@@ -116,6 +116,12 @@ Mautic.emailOnLoad = function (container, response) {
            }
         });
     });
+    mQuery('[data-verified-emails]').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var value = currentLink.attr('data-verified-emails');
+        mQuery("#emailform_fromAddress").val(value);
+    });
 };
 
 Mautic.emailOnUnload = function(id) {

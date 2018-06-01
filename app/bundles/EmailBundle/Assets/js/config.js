@@ -136,3 +136,30 @@ Mautic.showBounceCallbackURL = function(modeEl) {
     mQuery('#config_emailconfig_mailer_user').val('');
     mQuery('#config_emailconfig_mailer_password').val('');
 };
+
+
+Mautic.configOnLoad = function (container) {
+    mQuery('#emailVerifyModel').on("hidden.bs.modal", function(){
+        mQuery('#aws_email_verification').val('');
+        mQuery('#user_email .help-block').addClass('hide');
+        mQuery('#user_email .help-block').html("");
+    });
+    mQuery('.aws-verification-btn').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var email = mQuery('#aws_email_verification').val();
+        mQuery('#user_email .help-block').removeClass('hide');
+       Mautic.activateButtonLoadingIndicator(currentLink);
+        Mautic.ajaxActionRequest('email:awsEmailFormValidation', {'email': email}, function(response) {
+           Mautic.removeButtonLoadingIndicator(currentLink);
+
+            if(response.success) {
+                Mautic.redirectWithBackdrop(response.redirect);
+                mQuery('#emailVerifyModel').addClass('hide');
+            } else {
+                document.getElementById('errors').innerHTML=response.message;
+                return;
+            }
+        });
+    });
+}

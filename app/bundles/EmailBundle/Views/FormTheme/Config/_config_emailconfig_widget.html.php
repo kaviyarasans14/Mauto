@@ -126,6 +126,16 @@ $hidefield  = '<div class="col-md-6" style="display: none;">{content}</div>';
             </div>
             <br>
         </div>
+        <div class="panel panel-primary <?php echo $hideusername; ?>">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.config.tab.awsverified_emails'); ?></h3>
+            </div>
+            <div class="panel-body">
+                <?php echo $view->render('MauticEmailBundle:Email:aws_verified_emails.html.php', [
+                    'verifiedEmails'  => $verifiedEmails,
+                ]); ?>
+            </div>
+        </div>
         <div class="panel panel-primary emailconfig">
             <div class="panel-heading">
                 <h3 class="panel-title"><?php echo $view['translator']->trans('mautic.email.config.footer.mail'); ?></h3>

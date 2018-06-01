@@ -509,19 +509,28 @@ class AjaxController extends CommonAjaxController
 
     public function validityinfoAction(Request $request)
     {
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator   = $this->get('mautic.configurator');
+        $params         = $configurator->getParameters();
+        $emailuser      = $params['mailer_user'];
+        $emailpassword  = $params['mailer_password'];
+        $region         = $params['mailer_amazon_region'];
+        $transport      = $params['mailer_transport'];
+
         $dataArray['success']  =true;
-        $credits               = $this->get('mautic.helper.licenseinfo')->getAvailableEmailCount();
-        $validity              = $this->get('mautic.helper.licenseinfo')->getEmailValidity();
-        $daysavailable         = $this->get('mautic.helper.licenseinfo')->getEmailValidityDays();
-        if (!empty($validity)) {
-            $validity = date('d-M-y', strtotime($validity));
+        $maxhoursend           ='';
+        $maxsendrate           ='';
+        $sendlast24hr          ='';
+        if ($transport == 'mautic.transport.amazon') {
+            $stats       = $this->get('mautic.validator.email')->getSendingStatistics($emailuser, $emailpassword, $region);
+            $maxhoursend = $stats['Max24HourSend'];
+            $maxsendrate = $stats['MaxSendRate'];
+            $sendlast24hr= $stats['SentLast24Hours'];
         }
-        if ($daysavailable < 0) {
-            $daysavailable=0;
-        }
-        $dataArray['credits']        =number_format($credits);
-        $dataArray['validity']       =$validity;
-        $dataArray['daysavailable']  =$daysavailable;
+        $dataArray['credits']        = $maxhoursend;
+        $dataArray['validity']       = $maxsendrate;
+        $dataArray['daysavailable']  = $sendlast24hr;
+        $dataArray['transport']      = $transport;
 
         return $this->sendJsonResponse($dataArray);
     }
