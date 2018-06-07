@@ -188,9 +188,14 @@ Mautic.loadLicenseUsageInfo = function() {
              }
          }
      });
+    mQuery('#licenseclosebutton').click(function(e) {
+       Mautic.ajaxActionRequest('subscription:notificationclosed', {'isalert_needed': "true"}, function(response) {
+        });
+    });
+
     Mautic.ajaxActionRequest('subscription:licenseusageinfo', {}, function(response) {
         if (response.success) {
-            if(response.info != ""){
+            if(response.info != "" && response.isalertneeded != "true"){
                 mQuery('.license-notifiation').removeClass('hide');
                 mQuery('.license-notifiation #license-alert-message').html(response.info);
             }else{

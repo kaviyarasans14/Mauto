@@ -537,8 +537,20 @@ class AjaxController extends CommonAjaxController
 
     public function licenseusageinfoAction(Request $request)
     {
-        $dataArray['success']  =true;
-        $dataArray['info']     =$this->getLicenseNotifyMessage();
+        $isClosed                   = $this->factory->get('session')->get('isalert_needed');
+        $dataArray['success']       =true;
+        $dataArray['info']          =$this->getLicenseNotifyMessage();
+        $dataArray['isalertneeded'] = $isClosed;
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function notificationclosedAction(Request $request)
+    {
+        $isClosed                   = $request->request->get('isalert_needed');
+        $session                    =$this->factory->get('session');
+        $dataArray['success']       = true;
+        $dataArray['isalertneeded'] =$session->set('isalert_needed', $isClosed);
 
         return $this->sendJsonResponse($dataArray);
     }

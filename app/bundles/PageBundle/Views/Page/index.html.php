@@ -33,6 +33,7 @@ $view['slots']->set(
             'searchValue' => $searchValue,
             'searchHelp'  => 'mautic.page.help.searchcommands',
             'action'      => $currentRoute,
+            'filters'     => $filters,
         ]
     ); ?>
     <div class="page-list">

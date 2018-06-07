@@ -58,6 +58,15 @@ class PageController extends FormController
             $this->setListFilters();
         }
 
+        $listFilters = [
+            'filters' => [
+                'placeholder' => $this->get('translator')->trans('mautic.category.filter.placeholder'),
+                'multiple'    => true,
+            ],
+        ];
+        // Reset available groups
+        $listFilters['filters']['groups'] = [];
+
         //set limits
         $limit = $this->get('session')->get('mautic.page.limit', $this->coreParametersHelper->getParameter('default_pagelimit'));
         $start = ($page === 1) ? 0 : (($page - 1) * $limit);
@@ -69,6 +78,11 @@ class PageController extends FormController
         $this->get('session')->set('mautic.page.filter', $search);
 
         $filter = ['string' => $search, 'force' => []];
+
+        $listFilters['filters']['groups']['mautic.core.filter.category'] = [
+            'options' => $this->getModel('category.category')->getLookupResults('page'),
+            'prefix'  => 'category',
+        ];
 
         if (!$permissions['page:pages:viewother']) {
             $filter['force'][] = ['column' => 'p.createdBy', 'expr' => 'eq', 'value' => $this->user->getId()];
@@ -103,7 +117,53 @@ class PageController extends FormController
                     ],
                 ];
         }
+        $updatedFilters = $this->request->get('filters', false);
 
+        if ($updatedFilters) {
+            // Filters have been updated
+
+            // Parse the selected values
+            $newFilters     = [];
+            $updatedFilters = json_decode($updatedFilters, true);
+
+            if ($updatedFilters) {
+                foreach ($updatedFilters as $updatedFilter) {
+                    list($clmn, $fltr) = explode(':', $updatedFilter);
+
+                    $newFilters[$clmn][] = $fltr;
+                }
+
+                $currentFilters = $newFilters;
+            } else {
+                $currentFilters = [];
+            }
+        }
+        $this->get('session')->set('mautic.form.filter', []);
+
+        if (!empty($currentFilters)) {
+            $catIds = [];
+            foreach ($currentFilters as $type => $typeFilters) {
+                switch ($type) {
+                    case 'category':
+                        $key = 'categories';
+                        break;
+                }
+
+                $listFilters['filters']['groups']['mautic.core.filter.'.$key]['values'] = $typeFilters;
+
+                foreach ($typeFilters as $fltr) {
+                    switch ($type) {
+                        case 'category':
+                            $catIds[] = (int) $fltr;
+                            break;
+                    }
+                }
+            }
+
+            if (!empty($catIds)) {
+                $filter['force'][] = ['column' => 'c.id', 'expr' => 'in', 'value' => $catIds];
+            }
+        }
         $translator = $this->get('translator');
 
         //do not list variants in the main list
@@ -155,6 +215,7 @@ class PageController extends FormController
         return $this->delegateView([
             'viewParameters' => [
                 'searchValue' => $search,
+                'filters'     => $listFilters,
                 'items'       => $pages,
                 'categories'  => $categories,
                 'page'        => $page,
