@@ -157,8 +157,16 @@ try {
             if ($errormsg != '') {
                 displayCronlog('general', 'errorinfo:  '.$errormsg);
                 updatecronFailedstatus($con, $domain, $operation, $errormsg);
-                if ($operation == 'mautic:emails:send' && strpos($errormsg, 'Failed to authenticate on SMTP server with') !== false) {
-                    CheckESPStatus($con, $domain);
+                if ($operation == 'mautic:emails:send') {
+                    require_once "app/config/$domain/local.php";
+                    $mailer        = $parameters['mailer_transport'];
+                    $elasticapikey = $parameters['mailer_password'];
+                    $subusername   = $parameters['mailer_user'];
+                    if ($mailer == 'mautic.transport.elasticemail' && strpos($errormsg, 'Failed to authenticate on SMTP server with') !== false) {
+                        CheckESPStatus($con, $domain, $mailer, $elasticapikey, $subusername);
+                    } elseif ($mailer == 'mautic.transport.sendgrid_api' && strpos($errormsg, 'The provided authorization grant is invalid, expired, or revoked') !== false) {
+                        CheckESPStatus($con, $domain, $mailer, $elasticapikey, $subusername);
+                    }
                 }
             }
             displayCronlog('general', $domain.' : '.$command);
@@ -220,18 +228,14 @@ function executeCommand($command)
 
     return $output;
 }
-function CheckESPStatus($con, $domain)
+function CheckESPStatus($con, $domain, $mailer, $elasticapikey, $subusername)
 {
-    require_once "app/config/$domain/local.php";
-    $mailer = $parameters['mailer_transport'];
     $status = true;
     if ($mailer == 'mautic.transport.elasticemail') {
-        $apikey = $parameters['mailer_password'];
-        if ($apikey != '') {
-            $status = checkStatusofElastic($apikey);
+        if ($elasticapikey != '') {
+            $status = checkStatusofElastic($elasticapikey);
         }
     } elseif ($mailer == 'mautic.transport.sendgrid_api') {
-        $subusername = $parameters['mailer_user'];
         if ($subusername != '') {
             $status = checkStatus($subusername);
         }

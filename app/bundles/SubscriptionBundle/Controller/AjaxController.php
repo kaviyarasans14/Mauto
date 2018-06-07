@@ -510,19 +510,19 @@ class AjaxController extends CommonAjaxController
     public function validityinfoAction(Request $request)
     {
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
-        $configurator   = $this->get('mautic.configurator');
-        $params         = $configurator->getParameters();
-        $emailuser      = $params['mailer_user'];
-        $emailpassword  = $params['mailer_password'];
-        $region         = $params['mailer_amazon_region'];
-        $transport      = $params['mailer_transport'];
-
+        $configurator          = $this->get('mautic.configurator');
+        $paramater             = $configurator->getParameters();
+        $maileruser            = $paramater['mailer_user'];
+        $emailpassword         = $paramater['mailer_password'];
+        $region                = $paramater['mailer_amazon_region'];
+        $fromadress            = $paramater['mailer_from_email'];
+        $transport             = $paramater['mailer_transport'];
         $dataArray['success']  =true;
         $maxhoursend           ='';
         $maxsendrate           ='';
         $sendlast24hr          ='';
-        if ($transport == 'mautic.transport.amazon') {
-            $stats       = $this->get('mautic.validator.email')->getSendingStatistics($emailuser, $emailpassword, $region);
+        if ($transport == 'mautic.transport.amazon' && !empty($maileruser) && !empty($emailpassword)) {
+            $stats       = $this->get('mautic.validator.email')->getSendingStatistics($maileruser, $emailpassword, $region);
             $maxhoursend = $stats['Max24HourSend'];
             $maxsendrate = $stats['MaxSendRate'];
             $sendlast24hr= $stats['SentLast24Hours'];
@@ -839,7 +839,9 @@ class AjaxController extends CommonAjaxController
                 $stripecard->setupdatedOn(new \DateTime());
                 $stripecardrepo->saveEntity($stripecard);
             } else {
-                $errormsg='Some Technical Error Occurs';
+                if (empty($errormsg)) {
+                    $errormsg='Some Technical Error Occurs';
+                }
             }
             $statusurl='';
             if (isset($charges) && $isCardUpdateAlone == 'false') {

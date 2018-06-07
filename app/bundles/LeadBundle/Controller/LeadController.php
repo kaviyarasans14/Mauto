@@ -1481,8 +1481,18 @@ class LeadController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator   = $this->get('mautic.configurator');
         $params         = $configurator->getParameters();
+        $maileruser     = $params['mailer_user'];
         $mailertransport= $params['mailer_transport'];
+        $emailpassword  = $params['mailer_password'];
+        $region         = $params['mailer_amazon_region'];
 
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $emailModel->upAwsEmailVerificationStatus($emails);
+            }
+        }
         $inList = ($this->request->getMethod() == 'GET')
             ? $this->request->get('list', 0)
             : $this->request->request->get(

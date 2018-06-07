@@ -108,7 +108,11 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
      */
     public function send(Swift_Mime_Message $message, &$failedRecipients = null)
     {
-        $this->simpleemailservice->sendEmail($this->getMessage($message), true, true);
+        try {
+            $this->simpleemailservice->sendEmail($this->getMessage($message), true, true);
+        } catch (\Swift_TransportException $e) {
+            throw new \Swift_TransportException($e->getMessage());
+        }
 
         return count($message->getTo());
     }
@@ -122,7 +126,7 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
         }
         $fromaddress='';
         foreach ($message->getFrom() as $recipientEmail => $recipientName) {
-            $fromaddress=$recipientEmail;
+            $fromaddress='"'.$recipientName.'"'.' <'.$recipientEmail.'>';
         }
         $rawmessage->addTo($toAddress);
         $rawmessage->setFrom($fromaddress);

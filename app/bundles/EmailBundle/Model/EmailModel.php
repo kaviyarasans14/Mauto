@@ -2361,4 +2361,15 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $q->execute();
         }
     }
+
+    public function upAwsDeletedEmailVerificationStatus($email)
+    {
+        $q = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->update(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+                ->set('verification_status', ':status')
+                ->setParameter('status', 'Pending')
+                ->where('verified_emails = '.'"'.$email.'"');
+
+        $q->execute();
+    }
 }

@@ -459,6 +459,10 @@ class AjaxController extends CommonAjaxController
                         $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
                         $dataArray['redirect'] = $returnUrl;
                     }
+                } else {
+                    $dataArray['success']  = true;
+                    $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
+                    $dataArray['redirect'] = $returnUrl;
                 }
             } else {
                 if (!in_array($emailId, $awsVeridiedIds)) {

@@ -119,6 +119,7 @@ class SimpleEmailService
     public function enableVerifyHost($enable = true)
     {
         $this->__verifyHost = (bool) $enable;
+
         return $this;
     }
 
@@ -126,6 +127,7 @@ class SimpleEmailService
     public function enableVerifyPeer($enable = true)
     {
         $this->__verifyPeer = (bool) $enable;
+
         return $this;
     }
 
@@ -534,10 +536,14 @@ class SimpleEmailService
             return $response;
         }
         if ($ses_response->error !== false) {
-            if (($this->__trigger_errors && ($trigger_error !== false)) || $trigger_error === true) {
-                $this->__triggerError('sendEmail', $ses_response->error);
+            try {
+                if (($this->__trigger_errors && ($trigger_error !== false)) || $trigger_error === true) {
+                    $this->__triggerError('sendEmail', $ses_response->error);
 
-                return false;
+                    return false;
+                }
+            } catch (\Swift_TransportException $e) {
+                throw new \Swift_TransportException($e->getMessage());
             }
 
             return $ses_response;

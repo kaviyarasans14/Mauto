@@ -142,15 +142,15 @@ if ($billing->getCountry() != 'India' || $payment->getCurrency() != '₹') {
     <div id="leadsengage_info">
         <p>
             <b>LeadsEngage Inc.</b><br>
-            340 S Lemon Ave, Walnut, CA 91789, USA<br>
-            +1-909-742-8682<br>
+            340 S Lemon Ave,<br>
+            Walnut, CA 91789, USA<br>
         </p>
     </div>
     <div id="customer_info">
         <p>
             <b><?php echo $billing->getCompanyname(); ?></b><br>
             <?php echo $billing->getCompanyaddress(); ?><br>
-            <span style="word-wrap:break-word;"><?php echo $billing->getCity().', '.$billing->getPostalcode().', '.$billing->getState().', '.$billing->getCountry(); ?></span><br>
+            <span style="word-wrap:break-word;"><?php echo $billing->getCity().'-'.$billing->getPostalcode().','.'<br>'.$billing->getState().', '.$billing->getCountry().'.'; ?></span><br>
             <b style="<?php echo ($billing->getGstnumber() == '') ? 'display:none' : ''; ?>">TAXID:</b> <?php echo $billing->getGstnumber(); ?><br>
         </p>
     </div>

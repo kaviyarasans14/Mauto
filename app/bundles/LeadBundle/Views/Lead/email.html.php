@@ -10,9 +10,11 @@
  */
 $hideawsemailoptions = '';
 $style               ='88%';
+$pointerevent        = 'none';
 if ($mailertransport != 'mautic.transport.amazon') {
-    $hideawsemailoptions = 'hide';
-    $style               = '';
+    $hideawsemailoptions  = 'hide';
+    $style                = '';
+    $pointerevent         = '';
 }
 if ($dnc && $dnc['bounced']) {
     echo '<div class="alert alert-warning">'.$view['translator']->trans('mautic.lead.do.not.contact_bounced').'</div>';
@@ -20,7 +22,7 @@ if ($dnc && $dnc['bounced']) {
     echo $view['form']->start($form);
     echo $view['form']->row($form['fromname']); ?>
     <div class="row">
-     <div class="form-group col-xs-12" style="width:<?php echo $style; ?>">
+     <div class="form-group col-xs-12" style="width:<?php echo $style; ?>;pointer-events: <?php echo $pointerevent; ?>">
         <?php echo $view['form']->row($form['from']); ?>
     </div>
         <li class="dropdown <?php echo $hideawsemailoptions; ?>" name="verifiedemails" id="verifiedemails" style="display: block;">

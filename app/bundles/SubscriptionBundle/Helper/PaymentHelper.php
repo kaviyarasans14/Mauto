@@ -107,6 +107,7 @@ class PaymentHelper
         $message->setTo([$billing->getAccountingemail() => $billing->getCompanyname()]);
         $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
         $message->setReplyTo(['support@leadsengage.com' => 'LeadsEngage']);
+        $message->setBcc(['sales@leadsengage.com' => 'LeadsEngage']);
         $message->setSubject($this->factory->getTranslator()->trans('le.payment.received.alert'));
         $datehelper =$this->factory->getDateHelper();
         $processedat=$datehelper->toDate($paymenthistory->getcreatedOn());

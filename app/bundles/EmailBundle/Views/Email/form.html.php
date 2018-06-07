@@ -75,9 +75,11 @@ if ($formcontainserror) {
 }
 $hideawsemailoptions = '';
 $style               ='78%';
+$pointerevent        = 'none';
 if ($mailertransport != 'mautic.transport.amazon') {
-    $hideawsemailoptions = 'hide';
-    $style               = '';
+    $hideawsemailoptions  = 'hide';
+    $style                = '';
+    $pointerevent         = '';
 }
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -173,7 +175,7 @@ if ($mailertransport != 'mautic.transport.amazon') {
                                     <?php echo $view['form']->row($form['fromName']); ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="pull-left" style="max-width:<?php echo $style; ?>">
+                                    <div class="pull-left" style="max-width:<?php echo $style; ?>;pointer-events: <?php echo $pointerevent; ?>">
                                         <?php echo $view['form']->row($form['fromAddress']); ?>
                                     </div>
                                         <?php echo $view['form']->widget($form['fromAddress']); ?>

@@ -83,7 +83,7 @@ class EmailType extends AbstractType
         $disabled      = false;
 
         if (!$currentUser) {
-            if ($emailProvider == 'Sparkpost' || $emailProvider == 'Via Amazon SES') {
+            if ($emailProvider == 'Sparkpost') {
                 $disabled = true;
             }
         }
