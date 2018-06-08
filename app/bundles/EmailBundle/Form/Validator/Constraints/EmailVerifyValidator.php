@@ -52,28 +52,33 @@ class EmailVerifyValidator extends ConstraintValidator
             return;
         }
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
-        $configurator   = $this->factory->get('mautic.configurator');
-        $params         = $configurator->getParameters();
-        $newfromaddress = $value;
-        if (isset($transport)) {
-            $transport = $this->factory->get('session')->get('mailer_transport');
+        $configurator    = $this->factory->get('mautic.configurator');
+        $params          = $configurator->getParameters();
+        $newfromaddress  = $value;
+        $mailertransport = $this->factory->get('session')->get('mailer_transport');
+        $maileruser      = $this->factory->get('session')->get('mailer_user');
+        $mailerpassword  = $this->factory->get('session')->get('mailer_password');
+        $mailerregion    = $this->factory->get('session')->get('mailer_amazon_region');
+
+        if (isset($mailertransport)) {
+            $transport = $mailertransport;
         } else {
             $transport      = $params['mailer_transport'];
         }
-        if (isset($emailuser)) {
-            $emailuser = $this->factory->get('session')->get('mailer_user');
+        if (isset($maileruser)) {
+            $emailuser = $maileruser;
         } else {
             $emailuser      = $params['mailer_user'];
         }
-        if (isset($emailpassword)) {
-            $emailpassword= $this->factory->get('session')->get('mailer_password');
+        if (isset($mailerpassword)) {
+            $emailpassword= $mailerpassword;
         } else {
             $emailpassword      = $params['mailer_password'];
         }
-        if (isset($region)) {
-            $region = $this->factory->get('session')->get('mailer_amazon_region');
+        if (isset($mailerregion)) {
+            $region = $mailerregion;
         } else {
-            $region      = $params['mailer_amazon_region'];
+            $region = $params['mailer_amazon_region'];
         }
 
         if ($transport == 'mautic.transport.amazon') {
