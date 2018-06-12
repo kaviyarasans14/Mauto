@@ -368,7 +368,7 @@ class PublicController extends CommonFormController
                 $this->translator->setLocale($lead->getPreferredLocale());
             }
 
-            $model->removeDoNotContact($stat->getEmailAddress());
+            $model->removeDoNotContact($stat);
 
 //            $message = $this->coreParametersHelper->getParameter('resubscribe_message');
             $message = false;

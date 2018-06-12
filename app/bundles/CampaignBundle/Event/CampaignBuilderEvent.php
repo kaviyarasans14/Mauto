@@ -262,8 +262,8 @@ class CampaignBuilderEvent extends Event
                 $this->{$property},
                 function ($a, $b) {
                     return strnatcasecmp(
-                        $a['label'],
-                        $b['label']
+                        $a['order'].$a['label'],
+                        $b['order'].$b['label']
                     );
                 }
             );

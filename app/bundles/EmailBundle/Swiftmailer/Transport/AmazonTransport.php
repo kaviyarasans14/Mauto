@@ -174,7 +174,7 @@ class AmazonTransport extends \Swift_SmtpTransport implements CallbackTransportI
                         $reason = $this->translator->trans('mautic.email.complaint.reason.unknown');
                     }
 
-                    $this->transportCallback->addFailureByAddress($complainedRecipient['emailAddress'], $reason, DoNotContact::UNSUBSCRIBED);
+                    $this->transportCallback->addFailureByAddress($complainedRecipient['emailAddress'], $reason, DoNotContact::SPAM);
 
                     $this->logger->debug("Unsubscribe email '".$complainedRecipient['emailAddress']."'");
                 }

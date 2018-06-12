@@ -99,6 +99,11 @@ class SendEmailToContact
     private $emailBounceCounts = [];
 
     /**
+     * @var array
+     */
+    private $emailSpamCounts = [];
+
+    /**
      * @var
      */
     private $emailEntityErrors;
@@ -299,6 +304,7 @@ class SendEmailToContact
         $this->emailFailureCounts     = [];
         $this->emailUnsubscribeCounts = [];
         $this->emailBounceCounts      = [];
+        $this->emailSpamCounts        = [];
         $this->singleEmailMode        = null;
         $this->listId                 = null;
         $this->statBatchCounter       = 0;
@@ -332,6 +338,14 @@ class SendEmailToContact
     public function getUnsubscribeCounts()
     {
         return $this->emailUnsubscribeCounts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSpamCounts()
+    {
+        return $this->emailSpamCounts;
     }
 
     /**
@@ -503,6 +517,18 @@ class SendEmailToContact
      * Up Bounce counter for the given email ID.
      */
     public function upEmailBounceCount($emailId)
+    {
+        // Up bounce counts
+        if (!isset($this->emailBounceCounts[$emailId])) {
+            $this->emailBounceCounts[$emailId] = 0;
+        }
+        ++$this->emailBounceCounts[$emailId];
+    }
+
+    /**
+     * Up Bounce counter for the given email ID.
+     */
+    public function upEmailSpamCount($emailId)
     {
         // Up bounce counts
         if (!isset($this->emailBounceCounts[$emailId])) {

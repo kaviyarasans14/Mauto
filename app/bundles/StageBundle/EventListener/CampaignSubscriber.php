@@ -70,6 +70,7 @@ class CampaignSubscriber extends CommonSubscriber
                 'eventName'   => StageEvents::ON_CAMPAIGN_TRIGGER_ACTION,
                 'formType'    => 'stageaction_change',
                 'formTheme'   => 'MauticStageBundle:FormTheme\StageActionChange',
+                'order'       => 17,
             ];
             $event->addAction('stage.change', $action);
         }

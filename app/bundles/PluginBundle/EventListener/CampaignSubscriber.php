@@ -46,9 +46,11 @@ class CampaignSubscriber extends CommonSubscriber
             'formType'    => 'integration_list',
             'formTheme'   => 'MauticPluginBundle:FormTheme\Integration',
             'eventName'   => PluginEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            'order'       => 21,
         ];
-
-        $event->addAction('plugin.leadpush', $action);
+        if ($this->security->isAdmin()) {
+            $event->addAction('plugin.leadpush', $action);
+        }
     }
 
     /**

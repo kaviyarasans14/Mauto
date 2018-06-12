@@ -467,6 +467,15 @@ $view['slots']->set(
                                     <i class="fa fa-times has-click-event" onclick="Mautic.removeBounceStatus(this, <?php echo $doNotContact['id']; ?>);"></i>
                                 </span>
                             </span>
+                            <?php elseif ($doNotContact['spam']): ?>
+                                <span class="label label-warning" data-toggle="tooltip" title="<?php echo $doNotContact['comments']; ?>">
+                                <?php echo $view['translator']->trans('mautic.lead.do.not.contact_spam'); ?>
+                                    <span data-toggle="tooltip" data-placement="bottom" title="<?php echo $view['translator']->trans(
+                                        'mautic.lead.remove_dnc_status'
+                                    ); ?>">
+                                    <i class="fa fa-times has-click-event" onclick="Mautic.removeBounceStatus(this, <?php echo $doNotContact['id']; ?>);"></i>
+                                </span>
+                            </span>
                             <?php endif; ?>
                         </h4>
                     </div>

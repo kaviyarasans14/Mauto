@@ -71,7 +71,7 @@ class CallbackEnum
         return [
             self::BOUNCE            => DoNotContact::BOUNCED,
             self::DROPPED           => DoNotContact::BOUNCED,
-            self::SPAM_REPORT       => DoNotContact::BOUNCED,
+            self::SPAM_REPORT       => DoNotContact::SPAM,
             self::UNSUBSCRIBE       => DoNotContact::UNSUBSCRIBED,
             self::GROUP_UNSUBSCRIBE => DoNotContact::UNSUBSCRIBED,
         ];

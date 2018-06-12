@@ -133,7 +133,10 @@ class CampaignSubscriber extends CommonSubscriber
             'description' => 'mautic.webhook.event.sendwebhook_desc',
             'formType'    => 'campaignevent_sendwebhook',
             'eventName'   => WebhookEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            'order'       => 20,
         ];
-        $event->addAction('campaign.sendwebhook', $sendWebhookAction);
+        if ($this->security->isAdmin()) {
+            $event->addAction('campaign.sendwebhook', $sendWebhookAction);
+        }
     }
 }

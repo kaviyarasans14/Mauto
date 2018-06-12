@@ -47,31 +47,12 @@ class EmailUsageController extends FormController
         ]);
     }
 
-    public function getElasticAccountDetails($apikey, $name, $limit = false)
-    {
-        $data_array['apikey']=$apikey;
-        if ($limit) {
-            $data_array['limit'] = 1;
-        }
-        $ch = curl_init("https://api.elasticemail.com/v2/account/$name");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data_array));
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result     = curl_exec($ch);
-        $dataresult = json_decode($result, true);
-
-        return $dataresult['data'];
-    }
-
     public function getElasticEmailStat()
     {
         $apikey                   = $this->coreParametersHelper->getParameter('mailer_password');
-        $overviewresult           = $this->getElasticAccountDetails($apikey, 'overview');
-        $loadresult               = $this->getElasticAccountDetails($apikey, 'load');
-        $loadrepresult            = $this->getElasticAccountDetails($apikey, 'loadreputationhistory', 1);
+        $overviewresult           = $this->get('mautic.helper.licenseinfo')->getElasticAccountDetails($apikey, 'overview');
+        $loadresult               = $this->get('mautic.helper.licenseinfo')->getElasticAccountDetails($apikey, 'load');
+        $loadrepresult            = $this->get('mautic.helper.licenseinfo')->getElasticAccountDetails($apikey, 'loadreputationhistory', 1);
         $result                   = array_merge($overviewresult, $loadresult);
         $result                   = array_merge($result, $loadrepresult);
         $usageres                 = [];
@@ -93,7 +74,7 @@ class EmailUsageController extends FormController
         $username      = $this->coreParametersHelper->getParameter('mailer_user');
         $usagearr      = $this->getSendGridDetails($username);
         $reparr        = $this->getSendGridReputation($username);
-        $status        = $this->checkSendGridStatus($username);
+        $status        = $this->get('mautic.helper.licenseinfo')->getSendGridStatus($username);
         $requestcount  = 0;
         $bouncecount   = 0;
         $opencount     = 0;
@@ -143,7 +124,7 @@ class EmailUsageController extends FormController
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'authorization: Bearer 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',
+            'authorization: Bearer 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',
             'On-behalf-of: '.$username,
         ]);
 

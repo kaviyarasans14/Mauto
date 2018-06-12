@@ -574,7 +574,9 @@ class StatRepository extends CommonRepository
         if (DNC::BOUNCED === $dncReason) {
             $type = 'bounce';
         } elseif (DNC::UNSUBSCRIBED === $dncReason) {
-            $type = 'unsubscriber';
+            $type = 'unsubscribe';
+        } elseif (DNC::SPAM === $dncReason) {
+            $type = 'spam';
         }
         $query->update(MAUTIC_TABLE_PREFIX.'emails')
             ->set($type.'_count', $type.'_count + '.(int) 1)

@@ -554,6 +554,9 @@ class LeadSubscriber extends CommonSubscriber
                     case DoNotContact::BOUNCED:
                         $row['reason'] = $this->translator->trans('mautic.lead.event.donotcontact_bounce');
                         break;
+                    case DoNotContact::SPAM:
+                        $row['reason'] = $this->translator->trans('mautic.lead.event.donotcontact_spam');
+                        break;
                     case DoNotContact::MANUAL:
                         $row['reason'] = $this->translator->trans('mautic.lead.event.donotcontact_manual');
                         break;

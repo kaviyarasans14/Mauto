@@ -81,6 +81,11 @@ class Stat
     /**
      * @var bool
      */
+    private $isSpam = false;
+
+    /**
+     * @var bool
+     */
     private $viewedInBrowser = false;
 
     /**
@@ -198,6 +203,9 @@ class Stat
 
         $builder->createField('isBounce', 'boolean')
             ->columnName('is_bounce')
+            ->build();
+        $builder->createField('isSpam', 'boolean')
+            ->columnName('is_spam')
             ->build();
 
         $builder->createField('viewedInBrowser', 'boolean')
@@ -496,6 +504,22 @@ class Stat
     public function setIsBounce($isBounce)
     {
         $this->isBounce = $isBounce;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsSpam()
+    {
+        return $this->isSpam;
+    }
+
+    /**
+     * @param mixed $isSpam
+     */
+    public function setIsSpam($isSpam)
+    {
+        $this->isSpam = $isSpam;
     }
 
     /**

@@ -146,6 +146,11 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     /**
      * @var int
      */
+    private $spamCount = 0;
+
+    /**
+     * @var int
+     */
     private $sentCount = 0;
 
     /**
@@ -230,6 +235,7 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
         $this->failureCount            = 0;
         $this->unsubscribeCount        = 0;
         $this->bounceCount             = 0;
+        $this->spamCount               = 0;
         $this->variantSentCount        = 0;
         $this->variantUnsubscribeCount = 0;
         $this->variantBounceCount      = 0;
@@ -343,6 +349,10 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
         $builder->createField('bounceCount', 'integer')
         ->columnName('bounce_count')
         ->build();
+
+        $builder->createField('spamCount', 'integer')
+            ->columnName('spam_count')
+            ->build();
 
         $builder->createField('sentCount', 'integer')
             ->columnName('sent_count')
@@ -773,6 +783,26 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     public function setBounceCount($bounceCount)
     {
         $this->bounceCount = $bounceCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpamCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getSpamCount') : $this->spamCount;
+    }
+
+    /**
+     * @param $spamCount
+     *
+     * @return $this
+     */
+    public function setSpamCount($spamCount)
+    {
+        $this->spamCount = $spamCount;
 
         return $this;
     }

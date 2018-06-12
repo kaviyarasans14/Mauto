@@ -115,6 +115,7 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                 ],
+                'order'                  => 1,
             ]
         );
 
@@ -132,6 +133,7 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                 ],
+                'order'                   => 2,
             ]
         );
 
@@ -146,6 +148,7 @@ class CampaignSubscriber extends CommonSubscriber
                 'formTheme'       => 'MauticEmailBundle:FormTheme\EmailSendList',
                 'channel'         => 'email',
                 'channelIdField'  => 'email',
+                'order'           => 1,
             ]
         );
         if ($isAdmin) {
@@ -162,6 +165,7 @@ class CampaignSubscriber extends CommonSubscriber
                             ],
                         ],
                     ],
+                    'order'                   => 9,
                 ]
             );
         }
@@ -176,6 +180,7 @@ class CampaignSubscriber extends CommonSubscriber
                 'formTheme'       => 'MauticEmailBundle:FormTheme\EmailSendList',
                 'channel'         => 'email',
                 'channelIdField'  => 'email',
+                'order'           => 3,
             ]
         );
     }

@@ -54,6 +54,7 @@ Mautic.emailOnLoad = function (container, response) {
                         mQuery('#failure-count-' + id + ' > a').html(response.failureCount);
                         mQuery('#unsubscribe-count-' + id + ' > a').html(response.unsubscribeCount);
                         mQuery('#bounce-count-' + id + ' > a').html(response.bounceCount);
+                        mQuery('#spam-count-' + id + ' > a').html(response.spamCount);
                     }
                 },
                 false,
@@ -283,13 +284,12 @@ Mautic.selectEmailEditor = function(editorType) {
     var other= mQuery('#email-other-container');
     var builderbtn= mQuery('.btn-beeditor');
     var activateTab='';
-    if (editorType == 'basic') {
+    if (editorType == 'basic' || editorType == 'code') {
         advance.addClass('hide');
         builderbtn.addClass('hide');
         var textarea = mQuery('textarea.bee-editor-json');
         textarea.val("");
         activateTab='basic';
-
     } else {
         var templateJSON = mQuery('textarea.bee-editor-json');
         // Populate default content
@@ -300,16 +300,21 @@ Mautic.selectEmailEditor = function(editorType) {
         activateTab='advance';
 
     }
+
     var fromAddress=mQuery('[for=emailform_fromAddress]');
     var fromAddressParent=fromAddress.parent();
     if (fromAddressParent.hasClass('has-error')) {
         activateTab='other';
     }
     if(activateTab == 'basic'){
-        basic.trigger('click');
-    }else if(activateTab == 'advance'){
+       basic.trigger('click');
+       if(editorType == 'code'){
+          var editor = mQuery('.builder-html').data('froala.editor');
+          editor.commands.exec('html');
+       }
+    } else if(activateTab == 'advance'){
         advance.trigger('click');
-    }else{
+    } else{
         other.trigger('click');
     }
     mQuery('.email-type-modal').remove();

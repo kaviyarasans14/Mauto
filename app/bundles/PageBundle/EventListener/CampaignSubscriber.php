@@ -95,6 +95,7 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'      => PageEvents::ON_CAMPAIGN_TRIGGER_DECISION,
             'channel'        => 'page',
             'channelIdField' => 'pages',
+            'order'          => 5,
         ];
         $event->addDecision('page.pagehit', $pageHitTrigger);
 
@@ -106,6 +107,7 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'      => PageEvents::ON_CAMPAIGN_TRIGGER_DECISION,
             'channel'        => 'page',
             'channelIdField' => 'pages',
+            'order'          => 7,
         ];
         if ($this->factory->getUser()->isAdmin()) {
             $event->addDecision('page.devicehit', $deviceHitTrigger);

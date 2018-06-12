@@ -116,7 +116,8 @@ class CampaignSubscriber extends CommonSubscriber
             'formTypeOptions' => [
                 'include_this' => true,
             ],
-            'callback' => '\Mautic\CampaignBundle\Helper\CampaignEventHelper::addRemoveLead',
+            'callback'        => '\Mautic\CampaignBundle\Helper\CampaignEventHelper::addRemoveLead',
+            'order'           => 7,
         ];
         $event->addAction('campaign.addremovelead', $addRemoveLeadAction);
     }

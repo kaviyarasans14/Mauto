@@ -509,6 +509,8 @@ class AjaxController extends CommonAjaxController
 
     public function validityinfoAction(Request $request)
     {
+        $emailModel           =$this->getModel('email');
+        $statrepo             =$emailModel->getStatRepository();
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator          = $this->get('mautic.configurator');
         $paramater             = $configurator->getParameters();
@@ -517,19 +519,29 @@ class AjaxController extends CommonAjaxController
         $region                = $paramater['mailer_amazon_region'];
         $fromadress            = $paramater['mailer_from_email'];
         $transport             = $paramater['mailer_transport'];
+        $date                  = new \DateTime();
+        $date->modify('-1 day');
+        $last24hrsDate         =  $date->format('Y-m-d H:i:s');
+        $mailsent24hrs         = $statrepo->getSentCountsByDate($last24hrsDate);
         $dataArray['success']  =true;
-        $maxhoursend           ='';
-        $maxsendrate           ='';
-        $sendlast24hr          ='';
+
         if ($transport == 'mautic.transport.amazon' && !empty($maileruser) && !empty($emailpassword)) {
-            $stats       = $this->get('mautic.validator.email')->getSendingStatistics($maileruser, $emailpassword, $region);
-            $maxhoursend = $stats['Max24HourSend'];
-            $maxsendrate = $stats['MaxSendRate'];
-            $sendlast24hr= $stats['SentLast24Hours'];
+            $stats                        = $this->get('mautic.validator.email')->getSendingStatistics($maileruser, $emailpassword, $region);
+            $dataArray['credits']         = $stats['Max24HourSend'];
+            $dataArray['validity']        = $stats['MaxSendRate'];
+            $dataArray['daysavailable']   = $stats['SentLast24Hours'];
         }
-        $dataArray['credits']        = $maxhoursend;
-        $dataArray['validity']       = $maxsendrate;
-        $dataArray['daysavailable']  = $sendlast24hr;
+        if ($transport == 'mautic.transport.elasticemail' && !empty($maileruser) && !empty($emailpassword)) {
+            $accountstatus              = $this->get('mautic.helper.licenseinfo')->getElasticAccountDetails($emailpassword, 'load');
+            $dataArray['credits']       = $accountstatus['statusformatted'];
+            $dataArray['daysavailable'] = $mailsent24hrs;
+        }
+        if ($transport == 'mautic.transport.sendgrid_api' && !empty($maileruser) && !empty($emailpassword)) {
+            $accountstatus              = $this->get('mautic.helper.licenseinfo')->getSendGridStatus($maileruser);
+            $dataArray['credits']       = $accountstatus;
+            $dataArray['daysavailable'] = $mailsent24hrs;
+        }
+
         $dataArray['transport']      = $transport;
 
         return $this->sendJsonResponse($dataArray);

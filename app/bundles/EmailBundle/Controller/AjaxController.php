@@ -341,6 +341,7 @@ class AjaxController extends CommonAjaxController
                 $failureCount= $email->getFailureCount(true);
                 $unsubCount  = $email->getUnsubscribeCount(true);
                 $bounceCount =$email->getBounceCount(true);
+                $spamCount   =$email->getSpamCount(true);
                 $totalCount  = $pending + $sentCount;
 
                 $clickCount = $model->getEmailClickCount($email->getId());
@@ -350,19 +351,24 @@ class AjaxController extends CommonAjaxController
                     $totalSentPec = 0;
                 }
                 if ($failureCount > 0 && $totalCount > 0) {
-                    $failurePercentage = round($failureCount / $totalCount * 100);
+                    $failurePercentage = round($failureCount / $totalCount * 100, 2);
                 } else {
                     $failurePercentage = 0;
                 }
                 if ($unsubCount > 0 && $totalCount > 0) {
-                    $unSubPercentage = round($unsubCount / $sentCount * 100);
+                    $unSubPercentage = round($unsubCount / $sentCount * 100, 2);
                 } else {
                     $unSubPercentage = 0;
                 }
                 if ($bounceCount > 0 && $sentCount > 0) {
-                    $bouncePercentage = round($bounceCount / $sentCount * 100);
+                    $bouncePercentage = round($bounceCount / $sentCount * 100, 2);
                 } else {
                     $bouncePercentage = 0;
+                }
+                if ($spamCount > 0 && $sentCount > 0) {
+                    $spamPercentage = round($spamCount / $sentCount * 100, 2);
+                } else {
+                    $spamPercentage = 0;
                 }
                 if ($clickCount > 0 && $sentCount > 0) {
                     $clickCountPercentage = round($clickCount / $sentCount * 100);
@@ -384,6 +390,7 @@ class AjaxController extends CommonAjaxController
                     'failureCount'     => $this->translator->trans('mautic.email.stat.failurecount', ['%count%' => $failureCount, '%percentage%'=>$failurePercentage]),
                     'unsubscribeCount' => $this->translator->trans('mautic.email.stat.unsubscribecount', ['%count%' =>$unsubCount, '%percentage%'=>$unSubPercentage]),
                     'bounceCount'      => $this->translator->trans('mautic.email.stat.bouncecount', ['%count%' => $bounceCount, '%percentage%' => $bouncePercentage]),
+                    'spamCount'        => $this->translator->trans('mautic.email.stat.spamcount', ['%count%' => $spamCount, '%percentage%' => $spamPercentage]),
                 ];
             }
         }
