@@ -35,6 +35,6 @@ class Version20180613163000 extends AbstractMauticMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql("ALTER TABLE {$this->prefix}pages ADD spam_count int(11) NOT NULL");
+        $this->addSql("ALTER TABLE {$this->prefix}emails ADD spam_count int(11) NOT NULL");
     }
 }
