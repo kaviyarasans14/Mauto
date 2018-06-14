@@ -111,7 +111,8 @@ class ElasticemailTransport extends \Swift_SmtpTransport implements CallbackTran
             $this->transportCallback->addFailureByAddress($email, $status, DoNotContact::UNSUBSCRIBED);
         } elseif ('Spam' === $category) {
             $this->transportCallback->addFailureByAddress($email, $status, DoNotContact::SPAM);
-        } elseif (in_array($category, ['NotDelivered', 'NoMailbox', 'AccountProblem', 'DNSProblem', 'Unknown'])) {
+        } elseif (in_array($category, ['NotDelivered', 'NoMailboxes', 'AccountProblem', 'DNSProblem', 'Unknown'])) {
+            $category = 'Bounce';
             // just hard bounces https://elasticemail.com/support/user-interface/activity/bounced-category-filters
             $this->transportCallback->addFailureByAddress($email, $category);
         } elseif ($status == 'Error') {

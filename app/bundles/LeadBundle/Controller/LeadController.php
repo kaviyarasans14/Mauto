@@ -1475,6 +1475,7 @@ class LeadController extends FormController
         // Check if lead has a bounce status
         /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
         $emailModel    = $this->getModel('email');
+        $emailRepo     = $emailModel->getRepository();
         $dnc           = $emailModel->getRepository()->checkDoNotEmail($leadEmail);
         $verifiedemail = $emailModel->getVerifiedEmailAddress();
 
@@ -1549,6 +1550,9 @@ class LeadController extends FormController
                         if (!$accountStatus) {
                             if ($isValidEmailCount && $isHavingEmailValidity) {
                                 if ($mailer->send(true, false, false)) {
+                                    if (!empty($email['templates'])) {
+                                        $emailRepo->upCount($email['templates'], 'sent', 1, false);
+                                    }
                                     $mailer->createEmailStat();
                                     $this->get('mautic.helper.licenseinfo')->intEmailCount('1');
                                     $this->addFlash(

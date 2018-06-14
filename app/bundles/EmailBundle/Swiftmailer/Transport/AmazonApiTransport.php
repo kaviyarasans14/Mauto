@@ -127,7 +127,7 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
         }
         $fromaddress='';
         foreach ($message->getFrom() as $recipientEmail => $recipientName) {
-            $fromaddress='"'.$recipientName.'"'.' <'.$recipientEmail.'>';
+            $fromaddress=$recipientName.' <'.$recipientEmail.'>';
         }
         $rawmessage->addTo($toAddress);
         $rawmessage->setFrom($fromaddress);

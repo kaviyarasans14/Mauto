@@ -11,6 +11,8 @@
 
 namespace Mautic\EmailBundle\Helper;
 
+use Aws\Exception\AwsException;
+use Aws\Iam\IamClient;
 use Aws\Ses\Exception\SesException;
 use Aws\Ses\SesClient;
 use Aws\Sns\Exception\SnsException;
@@ -413,6 +415,28 @@ class EmailValidator
         if (sizeof($result['VerificationAttributes']) > 0) {
             return true;
         } else {
+            return false;
+        }
+    }
+
+    public function getAwsAccountStatus($key, $secret, $region)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+
+        $iAmClient = IamClient::factory([
+            'credentials' => ['key' => $key, 'secret' => $secret],
+            'region'      => $regionname,
+            'version'     => 'latest',
+        ]);
+        try {
+            $result = $iAmClient->listAccessKeys();
+            if ($result['AccessKeyMetadata'][0]['Status'] != 'Active') {
+                return false;
+            } else {
+                true;
+            }
+        } catch (AwsException $e) {
             return false;
         }
     }

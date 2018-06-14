@@ -110,7 +110,12 @@ class EmailVerifyValidator extends ConstraintValidator
                     }
                 }
             } else {
-                return;
+                $awsAccountStatus = $this->emailValidator->getAwsAccountStatus($emailuser, $emailpassword, $region);
+                if ($awsAccountStatus) {
+                    return;
+                } else {
+                    $message = $this->translator->trans('le.email.verification.inactive.key');
+                }
             }
             if (!empty($verifiedEmails)) {
                 if (in_array($newfromaddress, $verifiedEmails)) {

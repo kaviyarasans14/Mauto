@@ -100,8 +100,11 @@ class LeadImportFieldType extends AbstractType
                     'multiple' => false,
                 ]
             )
-                ->addModelTransformer($transformer)
         );
+
+        $constraints = [
+            new \Symfony\Component\Validator\Constraints\NotBlank(),
+        ];
 
         if ($options['object'] === 'lead') {
             $builder->add(
@@ -114,8 +117,9 @@ class LeadImportFieldType extends AbstractType
                         'attr'       => [
                             'class' => 'form-control',
                         ],
-                        'required' => true,
-                        'multiple' => false,
+                        'constraints' => $constraints,
+                        'required'    => true,
+                        'multiple'    => false,
                     ]
                 )
             );

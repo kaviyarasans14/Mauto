@@ -285,10 +285,10 @@ class AjaxController extends CommonAjaxController
                             $lemailer->send($message);
                         } else {
                             $mailer->start();
-                            $message = new \Swift_Message(
-                                $translator->trans('mautic.email.config.mailer.transport.test_send.subject'),
-                                $translator->trans('mautic.email.config.mailer.transport.test_send.body')
-                            );
+                            $message = \Swift_Message::newInstance()
+                                ->setSubject($translator->trans('mautic.email.config.mailer.transport.test_send.subject'));
+                            $mailbody =  $translator->trans('mautic.email.config.mailer.transport.test_send.body');
+                            $message->setBody($mailbody, 'text/html');
                             $userFullName = trim($user->getFirstName().' '.$user->getLastName());
                             if (empty($userFullName)) {
                                 $userFullName = null;
@@ -429,9 +429,10 @@ class AjaxController extends CommonAjaxController
             $emailpassword    = $params['mailer_password'];
             $emailverifyhelper= $this->factory->get('mautic.validator.email');
 
-            $verifiedEmails = $emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
-            $isValidEmail   = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $emailId);
-            $returnUrl      = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
+            $awsAccountStatus = $emailValidator->getAwsAccountStatus($emailuser, $emailpassword, $region);
+            $verifiedEmails   = $emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
+            $isValidEmail     = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $emailId);
+            $returnUrl        = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
             /** @var \Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper $routerHelper */
             $awscallbackurl = $this->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
             if ($isValidEmail == 'Policy not written') {
@@ -467,9 +468,14 @@ class AjaxController extends CommonAjaxController
                         $dataArray['redirect'] = $returnUrl;
                     }
                 } else {
-                    $dataArray['success']  = true;
-                    $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
-                    $dataArray['redirect'] = $returnUrl;
+                    if (!$awsAccountStatus) {
+                        $dataArray['success']  = false;
+                        $dataArray['message']  = $this->translator->trans('le.email.verification.inactive.key');
+                    } else {
+                        $dataArray['success']  = true;
+                        $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
+                        $dataArray['redirect'] = $returnUrl;
+                    }
                 }
             } else {
                 if (!in_array($emailId, $awsVeridiedIds)) {
