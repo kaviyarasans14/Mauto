@@ -1358,7 +1358,7 @@ class EmailCampaignController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator     = $this->factory->get('mautic.configurator');
         $params           = $configurator->getParameters();
-        $fromadress       = $params['mailer_from_email'];
+        $fromadress       = $entity->getFromAddress();
         $emailuser        = $params['mailer_user'];
         $region           = $params['mailer_amazon_region'];
         $emailpassword    = $params['mailer_password'];

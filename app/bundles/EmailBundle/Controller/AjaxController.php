@@ -463,6 +463,7 @@ class AjaxController extends CommonAjaxController
                         $dataArray['success'] = false;
                         $dataArray['message'] = $this->translator->trans('le.email.verification.sns.policy.error');
                     } else {
+                        $this->addFlash('le.config.aws.email.verification');
                         $dataArray['success']  = true;
                         $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
                         $dataArray['redirect'] = $returnUrl;
@@ -487,6 +488,20 @@ class AjaxController extends CommonAjaxController
                 }
             }
         }
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function deleteAwsVerifiedEmailsAction(Request $request)
+    {
+        $emailModel = $this->factory->getModel('email');
+        $email      = $request->request->get('email');
+        $emailModel->deleteAwsVerifiedEmails($email);
+
+        $returnUrl = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
+
+        $dataArray['success']  =true;
+        $dataArray['redirect'] =$returnUrl;
 
         return $this->sendJsonResponse($dataArray);
     }

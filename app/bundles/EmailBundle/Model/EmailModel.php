@@ -2402,4 +2402,14 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         $q->execute();
     }
+
+    public function deleteAwsVerifiedEmails($email)
+    {
+        $emailId = trim(preg_replace('/\s\s+/', ' ', $email));
+        $q       = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->delete(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+           ->where('verified_emails = :emails')
+           ->setParameter('emails', $emailId)
+           ->execute();
+    }
 }

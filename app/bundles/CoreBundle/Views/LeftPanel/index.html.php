@@ -94,6 +94,9 @@ $extraMenu = $view['menu']->render('extra');
                     <li class="first nav-group">
                         <a style="pointer-events:none"><span class="nav-item-name text email-credits">Loading...</span></a>
                     </li>
+                    <li class="nav-group" id="accountstatus">
+                        <a style="pointer-events:none"><span class="nav-item-name text account-status">Loading...</span></a>
+                    </li>
                     <li class="nav-group" id="emailvalidityloading">
                        <a style="pointer-events:none"><span class="nav-item-name text email-validity">Loading...</span></a>
                    </li>

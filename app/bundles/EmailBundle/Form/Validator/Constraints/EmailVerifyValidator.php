@@ -92,10 +92,11 @@ class EmailVerifyValidator extends ConstraintValidator
             $verifiedemailRepo=$emailModel->getAwsVerifiedEmailsRepository();
             $verifiedEmails   = $this->emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
             /** @var \Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper $routerHelper */
-            $awscallbackurl = $this->factory->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
-            $isValidEmail   = $this->emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $newfromaddress);
-            $entity         = new AwsVerifiedEmails();
-            $emailStatus    = $this->emailValidator->getEmailListAndStatus($emailuser, $emailpassword, $region, $newfromaddress);
+            $awscallbackurl   = $this->factory->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
+            $isValidEmail     = $this->emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $newfromaddress);
+            $entity           = new AwsVerifiedEmails();
+            $emailStatus      = $this->emailValidator->getEmailListAndStatus($emailuser, $emailpassword, $region, $newfromaddress);
+            $awsAccountStatus = $this->emailValidator->getAwsAccountStatus($emailuser, $emailpassword, $region);
 
             if (!$isValidEmail) {
                 if (!$emailStatus) {
@@ -110,7 +111,6 @@ class EmailVerifyValidator extends ConstraintValidator
                     }
                 }
             } else {
-                $awsAccountStatus = $this->emailValidator->getAwsAccountStatus($emailuser, $emailpassword, $region);
                 if ($awsAccountStatus) {
                     return;
                 } else {
@@ -129,7 +129,7 @@ class EmailVerifyValidator extends ConstraintValidator
                 }
             }
 
-            if ($isValidEmail == 'Policy not written') {
+            if ($isValidEmail == 'Policy not written' && $awsAccountStatus) {
                 $message = $this->translator->trans('le.email.verification.policy.error');
             }
             if (!in_array($newfromaddress, $getAllEmailIds) && $newfromaddress != '') {
@@ -159,5 +159,9 @@ class EmailVerifyValidator extends ConstraintValidator
         } else {
             return;
         }
+
+        unset($transport);
+        unset($emailpassword);
+        unset($emailuser);
     }
 }

@@ -124,7 +124,7 @@ class EmailUsageController extends FormController
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'authorization: Bearer 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',
+            'authorization: Bearer <SENDGRID_PASSWORD>',
             'On-behalf-of: '.$username,
         ]);
 
@@ -145,7 +145,7 @@ class EmailUsageController extends FormController
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'authorization: Bearer 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',
+            'authorization: Bearer <SENDGRID_PASSWORD>',
         ]);
 
         $result = curl_exec($ch);
@@ -162,7 +162,7 @@ class EmailUsageController extends FormController
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer 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', ]);
+            'Authorization: Bearer <SENDGRID_PASSWORD>', ]);
         $result = curl_exec($ch);
         $result = json_decode($result, true);
         if (isset($result[0]['disabled']) && !$result[0]['disabled']) {

@@ -75,11 +75,13 @@ if ($formcontainserror) {
 }
 $hideawsemailoptions = '';
 $style               ='78%';
-$pointerevent        = 'none';
+$tabindex            ='-1';
+$pointereventstyle   = 'pointer-events: none;background-color: #ebedf0;opacity: 1;';
 if ($mailertransport != 'mautic.transport.amazon') {
     $hideawsemailoptions  = 'hide';
     $style                = '';
-    $pointerevent         = '';
+    $pointereventstyle    = '';
+    $tabindex             = '';
 }
 ?>
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -175,8 +177,9 @@ if ($mailertransport != 'mautic.transport.amazon') {
                                     <?php echo $view['form']->row($form['fromName']); ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="pull-left" style="max-width:<?php echo $style; ?>;pointer-events: <?php echo $pointerevent; ?>">
-                                        <?php echo $view['form']->row($form['fromAddress']); ?>
+                                    <div class="pull-left" style="max-width:<?php echo $style; ?>;">
+                                        <?php echo $view['form']->row($form['fromAddress'],
+                                            ['attr' => ['tabindex' => $tabindex, 'style' =>$pointereventstyle]]); ?>
                                     </div>
                                         <?php echo $view['form']->widget($form['fromAddress']); ?>
                                     <li class="dropdown <?php echo $hideawsemailoptions; ?>" name="verifiedemails" id="verifiedemails" style="display: block;margin-left: 191px;">

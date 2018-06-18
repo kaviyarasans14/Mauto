@@ -870,7 +870,7 @@ class LicenseInfoHelper
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer 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', ]);
+            'Authorization: Bearer <SENDGRID_PASSWORD>', ]);
         $result = curl_exec($ch);
         $result = json_decode($result, true);
         if (isset($result[0]['disabled']) && !$result[0]['disabled']) {

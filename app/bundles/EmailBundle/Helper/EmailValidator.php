@@ -434,7 +434,7 @@ class EmailValidator
             if ($result['AccessKeyMetadata'][0]['Status'] != 'Active') {
                 return false;
             } else {
-                true;
+                return true;
             }
         } catch (AwsException $e) {
             return false;

@@ -162,4 +162,22 @@ Mautic.configOnLoad = function (container) {
             }
         });
     });
+
+    mQuery('.delete_aws_verified_emails').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var spans = currentLink.closest("tr").find("span");
+        var email = spans.eq(0).text();
+
+        Mautic.activateButtonLoadingIndicator(currentLink);
+        Mautic.ajaxActionRequest('email:deleteAwsVerifiedEmails', {'email': email}, function(response) {
+            Mautic.removeButtonLoadingIndicator(currentLink);
+            if(response.success) {
+                Mautic.redirectWithBackdrop(response.redirect);
+            } else {
+                document.getElementById('errors').innerHTML=response.message;
+                return;
+            }
+        });
+    });
 }
