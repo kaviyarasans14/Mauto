@@ -249,6 +249,7 @@ if (($activeForm->getFormType() === null || !empty($forceTypeSelection)) && ($ac
             'typeTwoIconClass'   => 'fa-list',
             'typeTwoDescription' => 'mautic.form.type.standalone.description',
             'typeTwoOnClick'     => "Mautic.selectFormType('standalone');",
+            'typeThreeHeader'    => 'mautic.email.editor.codeeditor.header',
         ]
     );
 endif;

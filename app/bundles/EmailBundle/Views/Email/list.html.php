@@ -257,6 +257,18 @@ $isAdmin=$view['security']->isAdmin();
                                 </div>
                             </a>
                         </span>
+                        <span class="mt-xs label label-info has-click-event clickable-stat"
+                              id="spam-count-<?php echo $item->getId(); ?>">
+                            <a href="<?php echo $view['router']->path(
+                                'mautic_contact_index',
+                                ['search' => $view['translator']->trans('mautic.lead.lead.searchcommand.email_spam').':'.$item->getId()]
+                            ); ?>" data-toggle="tooltip"
+                               title="<?php echo $view['translator']->trans('mautic.email.stat.spam.tooltip'); ?>">
+                                <div style="width: 50px;">
+                                    <i class="fa fa-spin fa-spinner"></i>
+                                </div>
+                            </a>
+                        </span>
                         <?php echo $view['content']->getCustomContent('email.stats', $mauticTemplateVars); ?>
                         <?php echo $view['content']->getCustomContent('email.stats.below', $mauticTemplateVars); ?>
                     </td>

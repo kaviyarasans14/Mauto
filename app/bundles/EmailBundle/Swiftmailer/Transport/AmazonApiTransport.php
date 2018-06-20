@@ -16,6 +16,7 @@ use Mautic\EmailBundle\Helper\PlainTextMassageHelper;
 use Mautic\EmailBundle\Model\TransportCallback;
 use Mautic\EmailBundle\Swiftmailer\Amazon\SimpleEmailService;
 use Mautic\EmailBundle\Swiftmailer\Amazon\SimpleEmailServiceMessage;
+use Mautic\LeadBundle\Entity\DoNotContact;
 use Psr\Log\LoggerInterface;
 use Swift_Events_EventListener;
 use Swift_Mime_Message;
@@ -108,7 +109,11 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
      */
     public function send(Swift_Mime_Message $message, &$failedRecipients = null)
     {
-        $this->simpleemailservice->sendEmail($this->getMessage($message), true, true);
+        try {
+            $this->simpleemailservice->sendEmail($this->getMessage($message), true, true);
+        } catch (\Swift_TransportException $e) {
+            throw new \Swift_TransportException($e->getMessage());
+        }
 
         return count($message->getTo());
     }
@@ -122,7 +127,7 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
         }
         $fromaddress='';
         foreach ($message->getFrom() as $recipientEmail => $recipientName) {
-            $fromaddress=$recipientEmail;
+            $fromaddress=$recipientName.' <'.$recipientEmail.'>';
         }
         $rawmessage->addTo($toAddress);
         $rawmessage->setFrom($fromaddress);
@@ -309,7 +314,7 @@ class AmazonApiTransport implements \Swift_Transport, TokenTransportInterface, C
                         $reason = $this->translator->trans('mautic.email.complaint.reason.unknown');
                     }
 
-                    $this->transportCallback->addFailureByAddress($complainedRecipient['emailAddress'], $reason, DoNotContact::UNSUBSCRIBED);
+                    $this->transportCallback->addFailureByAddress($complainedRecipient['emailAddress'], $reason, DoNotContact::SPAM);
 
                     $this->logger->debug("Unsubscribe email '".$complainedRecipient['emailAddress']."'");
                 }

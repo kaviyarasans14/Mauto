@@ -516,19 +516,28 @@ class EmailCampaignController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
-        $params         = $configurator->getParameters();
-        $fromname       = $params['mailer_from_name'];
-        $fromadress     = $params['mailer_from_email'];
-        $fromName       = $entity->getFromName();
-        $fromAdress     = $entity->getFromAddress();
-        $mailertransport= $params['mailer_transport'];
+        $params          = $configurator->getParameters();
+        $maileruser      = $params['mailer_user'];
+        $emailpassword   = $params['mailer_password'];
+        $region          = $params['mailer_amazon_region'];
+        $fromname        = $params['mailer_from_name'];
+        $fromadress      = $params['mailer_from_email'];
+        $fromName        = $entity->getFromName();
+        $fromAdress      = $entity->getFromAddress();
+        $mailertransport = $params['mailer_transport'];
         if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
         if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
         }
-
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $model->upAwsEmailVerificationStatus($emails);
+            }
+        }
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
         $action       = $this->generateUrl('mautic_email_campaign_action', ['objectAction' => 'new']);
@@ -720,17 +729,26 @@ class EmailCampaignController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
-        $params         = $configurator->getParameters();
-        $fromname       = $params['mailer_from_name'];
-        $fromadress     = $params['mailer_from_email'];
-        $mailertransport=$params['mailer_transport'];
+        $params          = $configurator->getParameters();
+        $maileruser      = $params['mailer_user'];
+        $emailpassword   = $params['mailer_password'];
+        $region          = $params['mailer_amazon_region'];
+        $fromname        = $params['mailer_from_name'];
+        $fromadress      = $params['mailer_from_email'];
+        $mailertransport =$params['mailer_transport'];
         if (empty($fromName)) {
             $entity->setFromName($fromname);
         }
         if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
         }
-
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $model->upAwsEmailVerificationStatus($emails);
+            }
+        }
         //set the return URL
         $returnUrl = $this->generateUrl('mautic_email_campaign_index', ['page' => $page]);
 
@@ -1337,6 +1355,34 @@ class EmailCampaignController extends FormController
         $category     = $entity->getCategory();
         $catPublished = (!empty($category)) ? $category->isPublished() : true;
         $published    = $entity->isPublished();
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator     = $this->factory->get('mautic.configurator');
+        $params           = $configurator->getParameters();
+        $fromadress       = $entity->getFromAddress();
+        $emailuser        = $params['mailer_user'];
+        $region           = $params['mailer_amazon_region'];
+        $emailpassword    = $params['mailer_password'];
+        $transport        = $params['mailer_transport'];
+        $emailValidator   = $this->factory->get('mautic.validator.email');
+
+        if ($transport == 'mautic.transport.amazon') {
+            $isValidEmail   = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $fromadress);
+            if (!$isValidEmail) {
+                return $this->postActionRedirect(
+                    array_merge(
+                        $postActionVars,
+                        [
+                            'flashes' => [
+                                [
+                                    'type'    => 'error',
+                                    'msg'     => 'mautic.email.error.send.aws.verification',
+                                ],
+                            ],
+                        ]
+                    )
+                );
+            }
+        }
 
         if (!$catPublished || !$published) {
             return $this->postActionRedirect(

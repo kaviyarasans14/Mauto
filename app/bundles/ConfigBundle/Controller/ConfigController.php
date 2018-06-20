@@ -61,15 +61,36 @@ class ConfigController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator   = $this->get('mautic.configurator');
         $isWritabale    = $configurator->isFileWritable();
-        $paramater      =   $configurator->getParameters();
-        $maileruser     =   $paramater['mailer_user'];
+        $paramater      = $configurator->getParameters();
         $mailertransport= $paramater['mailer_transport'];
+        $maileruser     = $paramater['mailer_user'];
         $emailpassword  = $paramater['mailer_password'];
         $region         = $paramater['mailer_amazon_region'];
+
+        $session        = $this->get('session');
+        $data           = $this->request->request->get('config');
+
+        if (isset($data['emailconfig']['mailer_transport'])) {
+            $transport = $data['emailconfig']['mailer_transport'];
+            $session->set('mailer_transport', $transport);
+        }
+        if (isset($data['emailconfig']['mailer_user'])) {
+            $user     = $data['emailconfig']['mailer_user'];
+            $session->set('mailer_user', $user);
+        }
+        if (isset($data['emailconfig']['mailer_password'])) {
+            $password = $data['emailconfig']['mailer_password'];
+            $session->set('mailer_password', $password);
+        }
+        if (isset($data['emailconfig']['mailer_amazon_region'])) {
+            $amazonregion   = $data['emailconfig']['mailer_amazon_region'];
+            $session->set('mailer_amazon_region', $amazonregion);
+        }
+
         /** @var EmailModel $emailModel */
         $emailModel     = $this->getModel('email');
         $emailValidator = $this->factory->get('mautic.validator.email');
-        if ($mailertransport == 'mautic.transport.amazon') {
+        if ($mailertransport == 'mautic.transport.amazon' && !empty($maileruser) && !empty($emailpassword)) {
             $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
             if (!empty($emails)) {
                 $emailModel->upAwsEmailVerificationStatus($emails);

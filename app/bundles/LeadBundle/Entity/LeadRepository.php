@@ -925,6 +925,7 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
             'mautic.lead.lead.searchcommand.email_failure',
             'mautic.lead.lead.searchcommand.email_unsubscribe',
             'mautic.lead.lead.searchcommand.email_bounce',
+            'mautic.lead.lead.searchcommand.email_spam',
             'mautic.lead.lead.searchcommand.sms_sent',
             'mautic.lead.lead.searchcommand.web_sent',
             'mautic.lead.lead.searchcommand.mobile_sent',

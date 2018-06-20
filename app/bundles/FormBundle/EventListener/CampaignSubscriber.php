@@ -80,6 +80,7 @@ class CampaignSubscriber extends CommonSubscriber
             'description' => 'mautic.form.campaign.event.submit_descr',
             'formType'    => 'campaignevent_formsubmit',
             'eventName'   => FormEvents::ON_CAMPAIGN_TRIGGER_DECISION,
+            'order'       => 4,
         ];
         $event->addDecision('form.submit', $trigger);
 
@@ -89,6 +90,7 @@ class CampaignSubscriber extends CommonSubscriber
             'formType'    => 'campaignevent_form_field_value',
             'formTheme'   => 'MauticFormBundle:FormTheme\FieldValueCondition',
             'eventName'   => FormEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
+            'order'       => 7,
         ];
 
         if ($this->security->isAdmin()) {

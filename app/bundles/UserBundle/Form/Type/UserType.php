@@ -197,7 +197,10 @@ class UserType extends AbstractType
                 'error_bubbling'  => false,
             ]
         );
-        $choices = FormFieldHelper::getCustomTimezones();
+
+        $timeZone = $this->model->getUserTimeZone();
+        $choices  = FormFieldHelper::getCustomTimezones();
+
         $builder->add(
             'timezone',
             'choice',
@@ -209,6 +212,7 @@ class UserType extends AbstractType
                     'class' => 'form-control',
                 ],
                 'multiple'    => false,
+                'data'        => $timeZone,
                 'empty_value' => 'mautic.user.user.form.defaulttimezone',
             ]
         );

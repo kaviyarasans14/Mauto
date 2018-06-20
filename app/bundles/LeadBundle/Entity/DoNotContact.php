@@ -41,6 +41,11 @@ class DoNotContact
     const MANUAL = 3;
 
     /**
+     * Lead was unsubscribed due to spam.
+     */
+    const SPAM = 4;
+
+    /**
      * @var int
      */
     private $id;

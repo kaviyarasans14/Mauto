@@ -234,7 +234,7 @@ $view['slots']->set(
             </div>
             <div class="panel-body pt-xs">
                 <div class="input-group">
-                    <input onclick="this.setSelectionRange(0, this.value.length);" type="text" class="form-control"
+                    <input id="javascipt_textarea" class="form-control" onclick="this.setSelectionRange(0, this.value.length);" type="text" class="form-control"
                            readonly
                            value="<?php echo $view->escape($pageUrl); ?>"/>
                     <span class="input-group-btn">
@@ -243,6 +243,12 @@ $view['slots']->set(
                         </button>
                     </span>
                 </div>
+                <a id="javascipt_textarea_atag" onclick="Mautic.copytoClipboardforms('javascipt_textarea');">
+                    <i aria-hidden="true" class="fa fa-clipboard"></i>
+                    <?php echo $view['translator']->trans(
+                        'leadsengage.subs.clicktocopy'
+                    ); ?>
+                </a>
             </div>
         </div>
         <?php endif; ?>

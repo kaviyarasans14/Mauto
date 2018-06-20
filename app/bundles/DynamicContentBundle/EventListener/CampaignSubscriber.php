@@ -92,20 +92,22 @@ class CampaignSubscriber extends CommonSubscriber
                 ],
                 'channel'        => 'dynamicContent',
                 'channelIdField' => 'dwc_slot_name',
+                'order'          => 14,
             ]
         );
         if ($this->security->isGranted(['dynamiccontent:dynamiccontents:viewown', 'dynamiccontent:dynamiccontents:viewother'], 'MATCH_ONE')) {
             $event->addDecision(
                 'dwc.decision',
                 [
-                    'label' => 'mautic.dynamicContent.campaign.decision_dwc',
-                    'description' => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
-                    'eventName' => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
-                    'formType' => 'dwcdecision_list',
+                    'label'           => 'mautic.dynamicContent.campaign.decision_dwc',
+                    'description'     => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
+                    'eventName'       => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
+                    'formType'        => 'dwcdecision_list',
                     'formTypeOptions' => ['update_select' => 'campaignevent_properties_dynamicContent'],
-                    'formTheme' => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
-                    'channel' => 'dynamicContent',
-                    'channelIdField' => 'dynamicContent',
+                    'formTheme'       => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
+                    'channel'         => 'dynamicContent',
+                    'channelIdField'  => 'dynamicContent',
+                    'order'           => 8,
                 ]
             );
         }

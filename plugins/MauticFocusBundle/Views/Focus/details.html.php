@@ -149,11 +149,10 @@ $view['slots']->set(
                     <h5 class="fw-sb mb-sm"><?php echo $view['translator']->trans('mautic.focus.install.header'); ?></h5>
                     <p class="mb-sm"><?php echo $view['translator']->trans('mautic.focus.install.description'); ?></p>
 
-                    <input id="javascipt_textarea" onclick="this.setSelectionRange(0, this.value.length);" type="text" class="form-control" readonly value="&lt;script src=&quot;<?php echo $view['router']->url(
+                    <input id="javascipt_textarea" onclick="this.setSelectionRange(0, this.value.length);" type="text" class="form-control" readonly value="<?php echo $view['router']->url(
                         'mautic_focus_generate',
-                        ['id' => $item->getId()],
-                        true
-                    ); ?>&quot; type=&quot;text/javascript&quot; charset=&quot;utf-8&quot; async=&quot;async&quot;&gt;&lt;/script&gt;"/>
+                        ['id' => $item->getId()]
+                    ); ?>"/>
                     <a style="color:beige;" id="javascipt_textarea_atag" onclick="Mautic.copytoClipboardforms('javascipt_textarea');">
                         <i  aria-hidden="true" class="fa fa-clipboard"></i>
                         <?php echo $view['translator']->trans(

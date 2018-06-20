@@ -85,6 +85,7 @@ class EmailRepository extends CommonRepository
             'id'           => $dnc['id'],
             'unsubscribed' => ($dnc['reason'] === DoNotContact::UNSUBSCRIBED),
             'bounced'      => ($dnc['reason'] === DoNotContact::BOUNCED),
+            'spam'         => ($dnc['reason'] === DoNotContact::SPAM),
             'manual'       => ($dnc['reason'] === DoNotContact::MANUAL),
             'comments'     => $dnc['comments'],
         ];
@@ -673,6 +674,28 @@ class EmailRepository extends CommonRepository
     }
 
     /**
+     * Up the Unsubscribe counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function downUnsubscribeCount($id, $type = 'unsubscribe', $decreaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count - '.(int) $decreaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $decreaseBy);
+        }
+        $q->execute();
+    }
+
+    /**
      * Up the Bounce counts.
      *
      * @param            $id
@@ -681,6 +704,29 @@ class EmailRepository extends CommonRepository
      * @param bool|false $variant
      */
     public function upBounceCount($id, $type = 'bounce', $increaseBy = 1, $variant = false)
+    {
+        $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $q->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) $increaseBy)
+            ->where('id = '.(int) $id);
+
+        if ($variant) {
+            $q->set('variant_'.$type.'_count', 'variant_'.$type.'_count + '.(int) $increaseBy);
+        }
+
+        $q->execute();
+    }
+
+    /**
+     * Up the Spam counts.
+     *
+     * @param            $id
+     * @param string     $type
+     * @param int        $increaseBy
+     * @param bool|false $variant
+     */
+    public function upSpamCount($id, $type = 'spam', $increaseBy = 1, $variant = false)
     {
         $q = $this->getEntityManager()->getConnection()->createQueryBuilder();
 

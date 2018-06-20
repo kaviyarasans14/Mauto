@@ -78,6 +78,7 @@ class LogoutHandler implements LogoutHandlerInterface
                 $session->set($key, $value);
             }
         }
+        $session->set('isalert_needed', false);
         // Note that a logout occurred
         $session->set('post_logout', true);
     }

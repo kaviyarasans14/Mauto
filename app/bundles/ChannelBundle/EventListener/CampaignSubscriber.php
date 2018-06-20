@@ -101,6 +101,7 @@ class CampaignSubscriber extends CommonSubscriber
                 'timelineTemplateVars' => [
                     'messageSettings' => $channels,
                 ],
+                'order'               => 19,
             ];
             $event->addAction('message.send', $action);
         }

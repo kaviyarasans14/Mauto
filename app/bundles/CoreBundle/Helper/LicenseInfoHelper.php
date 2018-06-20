@@ -162,6 +162,27 @@ class LicenseInfoHelper
         $this->licenseinfo->saveEntity($entity);
     }
 
+    public function intSpamCount($spamCount)
+    {
+        $data = $this->licenseinfo->findAll();
+
+        if (sizeof($data) > 0 && $data != null) {
+            $entity = $data[0];
+        }
+        if (!$data) {
+            $entity = new LicenseInfo();
+        }
+        if (!isset($spamCount)) {
+            $spamCount = 0;
+        }
+
+        $previousValue= $entity->getSpamCount();
+        $totalSize    = $previousValue + $spamCount;
+        $entity->setSpamCount($totalSize);
+
+        $this->licenseinfo->saveEntity($entity);
+    }
+
     public function intDeleteCount($deleteCount, $sum)
     {
         $data = $this->licenseinfo->findAll();
@@ -820,5 +841,42 @@ class LicenseInfoHelper
 
         $entity->setAppStatus($status);
         $this->licenseinfo->saveEntity($entity);
+    }
+
+    public function getElasticAccountDetails($apikey, $name, $limit = false)
+    {
+        $data_array['apikey']=$apikey;
+        if ($limit) {
+            $data_array['limit'] = 1;
+        }
+        $ch = curl_init("https://api.elasticemail.com/v2/account/$name");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data_array));
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result     = curl_exec($ch);
+        $dataresult = json_decode($result, true);
+
+        return $dataresult['data'];
+    }
+
+    public function getSendGridStatus($subusername)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_URL, "https://api.sendgrid.com/v3/subusers?username=$subusername");
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer <SENDGRID_PASSWORD>', ]);
+        $result = curl_exec($ch);
+        $result = json_decode($result, true);
+        if (isset($result[0]['disabled']) && !$result[0]['disabled']) {
+            return 'Active';
+        } else {
+            return 'InActive';
+        }
     }
 }

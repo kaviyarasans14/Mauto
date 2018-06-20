@@ -96,7 +96,11 @@ class TransportCallback
                 } else {
                     $this->updateStatDetails($stat, $comments, $dncReason);
                     $channel = ($channelId) ? ['email' => $channelId] : 'email';
-                    $this->licenseInfoHelper->intBounceCount('1');
+                    if ($dncReason == DNC::SPAM) {
+                        $this->licenseInfoHelper->intSpamCount('1');
+                    } else {
+                        $this->licenseInfoHelper->intBounceCount('1');
+                    }
                 }
                 $this->dncModel->addDncForContact($contact->getId(), $channel, $dncReason, $comments);
             }
@@ -104,7 +108,11 @@ class TransportCallback
         if ($stat != null && $stat->getEmail() != null && $stat->getEmail()->getId() != null) {
             $this->updateStatDetails($stat, $comments, $dncReason);
             $this->statRepository->updateBouneorUnsubscribecount($stat->getEmail()->getId(), $dncReason);
-            $this->licenseInfoHelper->intBounceCount('1');
+            if ($dncReason == DNC::SPAM) {
+                $this->licenseInfoHelper->intSpamCount('1');
+            } else {
+                $this->licenseInfoHelper->intBounceCount('1');
+            }
         }
     }
 
@@ -130,12 +138,15 @@ class TransportCallback
             $stat->setIsBounce(true);
         } elseif (DNC::UNSUBSCRIBED === $dncReason) {
             $stat->setIsUnsubscribe(true);
+        } elseif (DNC::SPAM === $dncReason) {
+            $stat->setIsSpam(true);
         }
 
         $openDetails = $stat->getOpenDetails();
         if (!isset($openDetails['bounces'])) {
             $openDetails['bounces'] = [];
         }
+
         $dtHelper                 = new DateTimeHelper();
         $openDetails['bounces'][] = [
             'datetime' => $dtHelper->toUtcString(),

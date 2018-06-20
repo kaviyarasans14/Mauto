@@ -11,6 +11,8 @@
 
 namespace Mautic\EmailBundle\Helper;
 
+use Aws\Exception\AwsException;
+use Aws\Iam\IamClient;
 use Aws\Ses\Exception\SesException;
 use Aws\Ses\SesClient;
 use Aws\Sns\Exception\SnsException;
@@ -164,20 +166,19 @@ class EmailValidator
     {
         $regionname            = explode('.', $region);
         $regionname            = $regionname[1];
-        $sesclient             = $this->getSesClient($key, $secret, $regionname);
-        $checkifdomainverified = $this->checkDomainVerification($sesclient, $email);
-
-        if ($checkifdomainverified != true) {
-            $result = $sesclient->listVerifiedEmailAddresses([
-            ]);
-            if (in_array($email, $result['VerifiedEmailAddresses'])) {
-                return true;
-            } else {
-                try {
+        try {
+            $sesclient             = $this->getSesClient($key, $secret, $regionname);
+            $checkifdomainverified = $this->checkDomainVerification($sesclient, $email);
+            if ($checkifdomainverified != true) {
+                $result = $sesclient->listVerifiedEmailAddresses([
+               ]);
+                if (in_array($email, $result['VerifiedEmailAddresses'])) {
+                    return true;
+                } else {
                     $result = $sesclient->getIdentityVerificationAttributes([
-                        'Identities' => [
-                            $email,
-                        ],
+                          'Identities' => [
+                             $email,
+                         ],
                     ]);
                     if (sizeof($result['VerificationAttributes']) > 0) {
                         if ($result['VerificationAttributes'][$email]['VerificationStatus'] != 'Success') {
@@ -186,12 +187,12 @@ class EmailValidator
                             return true;
                         }
                     }
-                } catch (SesException $e) {
-                    return 'Policy not written';
                 }
+            } else {
+                return true;
             }
-        } else {
-            return true;
+        } catch (SesException $e) {
+            return 'Policy not written';
         }
     }
 
@@ -311,18 +312,33 @@ class EmailValidator
 
     public function checkDomainVerification($sesclient, $email)
     {
-        $domainname = substr(strrchr($email, '@'), 1);
+        /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
+        $emailModel       = $this->factory->getModel('email');
+        $verifiedEmails   =$emailModel->getAllEmailAddress();
+        $verifiedemailRepo=$emailModel->getAwsVerifiedEmailsRepository();
+        $entity           = new AwsVerifiedEmails();
+        $domainname       = substr(strrchr($email, '@'), 1);
         try {
-            $result = $sesclient->listIdentities([
-                'IdentityType' => 'Domain',
-                'MaxItems'     => 100,
-                'NextToken'    => '',
-          ]);
+            $result = $sesclient->getIdentityVerificationAttributes([
+                'Identities' => [
+                    $domainname,
+                ],
+            ]);
 
-            foreach ($result['Identities'] as $key => $value) {
-                if ($domainname == $value) {
+            if (sizeof($result['VerificationAttributes']) > 0) {
+                if ($result['VerificationAttributes'][$domainname]['VerificationStatus'] != 'Success') {
+                    return false;
+                } else {
+                    if (!in_array($email, $verifiedEmails)) {
+                        $entity->setVerifiedEmails($email);
+                        $entity->setVerificationStatus('Verified');
+                        $verifiedemailRepo->saveEntity($entity);
+                    }
+
                     return true;
                 }
+            } else {
+                return false;
             }
         } catch (SesException $e) {
             return 'Policy not written';
@@ -372,12 +388,56 @@ class EmailValidator
         $regionname = $regionname[1];
         try {
             $sesclient  =$this->getSesClient($key, $secret, $regionname);
-            $result = $sesclient->listVerifiedEmailAddresses([
+            $result     = $sesclient->listVerifiedEmailAddresses([
         ]);
         } catch (SesException $e) {
             return;
         }
 
         return $result['VerifiedEmailAddresses'];
+    }
+
+    public function getEmailListAndStatus($key, $secret, $region, $email)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+        try {
+            $sesclient = $this->getSesClient($key, $secret, $regionname);
+            $result    = $sesclient->getIdentityVerificationAttributes([
+                'Identities' => [
+                    $email,
+                ],
+            ]);
+        } catch (SesException $e) {
+            return 'Policy not written';
+        }
+
+        if (sizeof($result['VerificationAttributes']) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getAwsAccountStatus($key, $secret, $region)
+    {
+        $regionname = explode('.', $region);
+        $regionname = $regionname[1];
+
+        $iAmClient = IamClient::factory([
+            'credentials' => ['key' => $key, 'secret' => $secret],
+            'region'      => $regionname,
+            'version'     => 'latest',
+        ]);
+        try {
+            $result = $iAmClient->listAccessKeys();
+            if ($result['AccessKeyMetadata'][0]['Status'] != 'Active') {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (AwsException $e) {
+            return false;
+        }
     }
 }

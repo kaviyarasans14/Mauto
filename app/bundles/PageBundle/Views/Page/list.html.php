@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticPageBundle:Page:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php if (count($items)): ?>
@@ -61,8 +62,9 @@ if ($tmpl == 'index') {
                         'class'      => 'col-page-hits visible-md visible-lg',
                     ]
                 );
-
-                echo $view->render(
+                ?>
+              <?php if ($isAdmin):?>
+              <?php  echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
                         'sessionVar' => 'page',
@@ -72,6 +74,7 @@ if ($tmpl == 'index') {
                     ]
                 );
                 ?>
+              <?php endif; ?>
             </tr>
             </thead>
             <tbody>
@@ -144,7 +147,9 @@ if ($tmpl == 'index') {
                         <span style="white-space: nowrap;"><span class="label label-default pa-4" style="border: 1px solid #d5d5d5; background: <?php echo $color; ?>;"> </span> <span><?php echo $catName; ?></span></span>
                     </td>
                     <td class="visible-md visible-lg"><?php echo $item->getHits(); ?></td>
+                    <?php if ($isAdmin):?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

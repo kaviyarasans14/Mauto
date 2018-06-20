@@ -9,10 +9,13 @@
         font-style: normal;
         letter-spacing: 0;
     }
+    td {
+        padding-bottom: .3em;
+    }
 </style>
 <table class="payment-history">
     <thead>
-    <button id="open-model-btn" type="button" class="btn btn-info" style="float:right;margin-right:70px;" data-toggle="modal" data-target="#emailVerifyModel">Verify Email</button>
+    <button id="open-model-btn" type="button" class="btn btn-info" style="margin-left: 200px;" data-toggle="modal" data-target="#emailVerifyModel"><?php echo $view['translator']->trans('le.core.button.aws.verification'); ?></button>
     <div class="modal fade" id="emailVerifyModel">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -30,7 +33,7 @@
                         <br>
                         <div class="modal-footer">
                             <div class="button_container" id="aws_email_verification_button">
-                            <button type="button"  class="btn btn-default aws-verification-btn" id="aws_emailverification-btn"> Verify Email</button>
+                            <button type="button"  class="btn btn-default aws-verification-btn" id="aws_emailverification-btn"> <?php echo $view['translator']->trans('le.core.button.aws.verification'); ?></button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                        </div>
@@ -52,10 +55,13 @@
     <?php foreach ($verifiedEmails as $verifiedEmail): ?>
         <tr>
           <td>
-         <span class="data"><?php echo $verifiedEmail->getVerifiedEmails()?><span>
+         <span class="data aws_verified_emails_list" ><?php echo $verifiedEmail->getVerifiedEmails()?><span>
           </td>
           <td>
            <span class="data"><?php echo $verifiedEmail->getVerificationStatus() ?><span>
+          </td>
+          <td>
+           <a type="button" style="padding:3px 7px;" class="btn btn-danger delete_aws_verified_emails"  data-target="#" >Delete</a>
           </td>
         </tr>
     <?php endforeach; ?>

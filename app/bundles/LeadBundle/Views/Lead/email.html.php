@@ -9,10 +9,14 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 $hideawsemailoptions = '';
-$style               ='88%';
+$style               ='86%';
+$tabindex            ='-1';
+$pointereventstyle   = 'pointer-events: none;background-color: #ebedf0;opacity: 1;';
 if ($mailertransport != 'mautic.transport.amazon') {
-    $hideawsemailoptions = 'hide';
-    $style               = '';
+    $hideawsemailoptions  = 'hide';
+    $style                = '';
+    $pointereventstyle    ='';
+    $tabindex             = '';
 }
 if ($dnc && $dnc['bounced']) {
     echo '<div class="alert alert-warning">'.$view['translator']->trans('mautic.lead.do.not.contact_bounced').'</div>';
@@ -20,9 +24,11 @@ if ($dnc && $dnc['bounced']) {
     echo $view['form']->start($form);
     echo $view['form']->row($form['fromname']); ?>
     <div class="row">
-     <div class="form-group col-xs-12" style="width:<?php echo $style; ?>">
-        <?php echo $view['form']->row($form['from']); ?>
-    </div>
+      <div class="form-group col-xs-12" style="width:<?php echo $style; ?>">
+           <?php echo $view['form']->row($form['from'],
+                ['attr' => ['tabindex' => $tabindex, 'style' =>$pointereventstyle]]
+            ); ?>
+      </div>
         <li class="dropdown <?php echo $hideawsemailoptions; ?>" name="verifiedemails" id="verifiedemails" style="display: block;">
             <a class="btn btn-nospin btn-primary btn-sm hidden-xs" style="font-size:13px;float:inherit;margin-top:23px;" data-toggle="dropdown" href="#">
                 <span><?php echo $view['translator']->trans('le.core.button.aws.load'); ?></span> </span><span><i class="caret" ></i>

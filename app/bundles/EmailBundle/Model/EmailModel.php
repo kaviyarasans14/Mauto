@@ -1604,12 +1604,15 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
                     } elseif ($reason == DoNotContact::BOUNCED) {
                         $this->sendModel->upEmailBounceCount($email->getId());
                         $this->updateBounceCount($stat);
+                    } elseif ($reason == DoNotContact::SPAM) {
+                        $this->sendModel->upEmailSpamCount($email->getId());
+                        $this->updateSpamCount($stat);
                     }
 
                     return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
                 }
             } else {
-                if ($reason == DoNotContact::UNSUBSCRIBED || $reason == DoNotContact::BOUNCED) {
+                if ($reason == DoNotContact::UNSUBSCRIBED || $reason == DoNotContact::BOUNCED || $reason == DoNotContact::SPAM) {
                     $channel = 'email';
 
                     return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
@@ -1625,8 +1628,14 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      *
      * @param string $email
      */
-    public function removeDoNotContact($email)
+    public function removeDoNotContact(Stat $stat)
     {
+        $email             = $stat->getEmailAddress();
+        $emailAdress       = $stat->getEmail();
+        if ($emailAdress instanceof Email) {
+            $this->getRepository()->downUnsubscribeCount($emailAdress->getId(), 'unsubscribe', 1);
+        }
+
         /** @var \Mautic\LeadBundle\Entity\LeadRepository $leadRepo */
         $leadRepo = $this->em->getRepository('MauticLeadBundle:Lead');
         $leadId   = (array) $leadRepo->getLeadByEmail($email, true);
@@ -2312,6 +2321,27 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         }
     }
 
+    public function updateSpamCount(Stat $stat)
+    {
+        // Get Bounce counts to update email stats
+        $spamCounts = $this->sendModel->getSpamCounts();
+        foreach ($spamCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsSpam(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->licenseInfoHelper->intSpamCount($count);
+                    $this->getRepository()->upSpamCount($emailId, 'spam', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
     public function getVerifiedEmailAddress()
     {
         $emailids=[];
@@ -2360,5 +2390,26 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
             $q->execute();
         }
+    }
+
+    public function upAwsDeletedEmailVerificationStatus($email)
+    {
+        $q = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->update(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+                ->set('verification_status', ':status')
+                ->setParameter('status', 'Pending')
+                ->where('verified_emails = '.'"'.$email.'"');
+
+        $q->execute();
+    }
+
+    public function deleteAwsVerifiedEmails($email)
+    {
+        $emailId = trim(preg_replace('/\s\s+/', ' ', $email));
+        $q       = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->delete(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+           ->where('verified_emails = :emails')
+           ->setParameter('emails', $emailId)
+           ->execute();
     }
 }

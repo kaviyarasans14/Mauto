@@ -442,4 +442,15 @@ class UserModel extends FormModel
     {
         return $this->userHelper->getUser();
     }
+
+    public function getUserTimeZone()
+    {
+        $query = $this->em->getConnection()->createQueryBuilder()
+            ->select('a.timezone')
+            ->from(MAUTIC_TABLE_PREFIX.'accountinfo', 'a');
+
+        $result = $query->execute()->fetch();
+
+        return $result['timezone'];
+    }
 }

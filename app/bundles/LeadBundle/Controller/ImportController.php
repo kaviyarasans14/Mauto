@@ -393,8 +393,15 @@ class ImportController extends FormController
                                 $matchedFields[$k] = trim($matchedFields[$k]);
                             }
                         }
-
-                        if (empty($matchedFields)) {
+                        if (empty($list)) {
+                            $form->addError(
+                                new FormError(
+                                    $this->get('translator')->trans('mautic.lead.import.matchfields.list', [], 'validators')
+                                )
+                            );
+                            break;
+                        }
+                        if (empty($matchedFields) && !empty($list)) {
                             $form->addError(
                                 new FormError(
                                     $this->get('translator')->trans('mautic.lead.import.matchfields', [], 'validators')

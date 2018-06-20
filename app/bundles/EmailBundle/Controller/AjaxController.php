@@ -285,10 +285,10 @@ class AjaxController extends CommonAjaxController
                             $lemailer->send($message);
                         } else {
                             $mailer->start();
-                            $message = new \Swift_Message(
-                                $translator->trans('mautic.email.config.mailer.transport.test_send.subject'),
-                                $translator->trans('mautic.email.config.mailer.transport.test_send.body')
-                            );
+                            $message = \Swift_Message::newInstance()
+                                ->setSubject($translator->trans('mautic.email.config.mailer.transport.test_send.subject'));
+                            $mailbody =  $translator->trans('mautic.email.config.mailer.transport.test_send.body');
+                            $message->setBody($mailbody, 'text/html');
                             $userFullName = trim($user->getFirstName().' '.$user->getLastName());
                             if (empty($userFullName)) {
                                 $userFullName = null;
@@ -341,6 +341,7 @@ class AjaxController extends CommonAjaxController
                 $failureCount= $email->getFailureCount(true);
                 $unsubCount  = $email->getUnsubscribeCount(true);
                 $bounceCount =$email->getBounceCount(true);
+                $spamCount   =$email->getSpamCount(true);
                 $totalCount  = $pending + $sentCount;
 
                 $clickCount = $model->getEmailClickCount($email->getId());
@@ -350,19 +351,24 @@ class AjaxController extends CommonAjaxController
                     $totalSentPec = 0;
                 }
                 if ($failureCount > 0 && $totalCount > 0) {
-                    $failurePercentage = round($failureCount / $totalCount * 100);
+                    $failurePercentage = round($failureCount / $totalCount * 100, 2);
                 } else {
                     $failurePercentage = 0;
                 }
                 if ($unsubCount > 0 && $totalCount > 0) {
-                    $unSubPercentage = round($unsubCount / $sentCount * 100);
+                    $unSubPercentage = round($unsubCount / $sentCount * 100, 2);
                 } else {
                     $unSubPercentage = 0;
                 }
                 if ($bounceCount > 0 && $sentCount > 0) {
-                    $bouncePercentage = round($bounceCount / $sentCount * 100);
+                    $bouncePercentage = round($bounceCount / $sentCount * 100, 2);
                 } else {
                     $bouncePercentage = 0;
+                }
+                if ($spamCount > 0 && $sentCount > 0) {
+                    $spamPercentage = round($spamCount / $sentCount * 100, 2);
+                } else {
+                    $spamPercentage = 0;
                 }
                 if ($clickCount > 0 && $sentCount > 0) {
                     $clickCountPercentage = round($clickCount / $sentCount * 100);
@@ -384,6 +390,7 @@ class AjaxController extends CommonAjaxController
                     'failureCount'     => $this->translator->trans('mautic.email.stat.failurecount', ['%count%' => $failureCount, '%percentage%'=>$failurePercentage]),
                     'unsubscribeCount' => $this->translator->trans('mautic.email.stat.unsubscribecount', ['%count%' =>$unsubCount, '%percentage%'=>$unSubPercentage]),
                     'bounceCount'      => $this->translator->trans('mautic.email.stat.bouncecount', ['%count%' => $bounceCount, '%percentage%' => $bouncePercentage]),
+                    'spamCount'        => $this->translator->trans('mautic.email.stat.spamcount', ['%count%' => $spamCount, '%percentage%' => $spamPercentage]),
                 ];
             }
         }
@@ -422,9 +429,10 @@ class AjaxController extends CommonAjaxController
             $emailpassword    = $params['mailer_password'];
             $emailverifyhelper= $this->factory->get('mautic.validator.email');
 
-            $verifiedEmails = $emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
-            $isValidEmail   = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $emailId);
-            $returnUrl      = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
+            $awsAccountStatus = $emailValidator->getAwsAccountStatus($emailuser, $emailpassword, $region);
+            $verifiedEmails   = $emailValidator->getVerifiedEmailList($emailuser, $emailpassword, $region);
+            $isValidEmail     = $emailValidator->getVerifiedEmailAddressDetails($emailuser, $emailpassword, $region, $emailId);
+            $returnUrl        = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
             /** @var \Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper $routerHelper */
             $awscallbackurl = $this->get('templating.helper.router')->url('mautic_mailer_transport_callback', ['transport' => 'amazon_api']);
             if ($isValidEmail == 'Policy not written') {
@@ -455,6 +463,16 @@ class AjaxController extends CommonAjaxController
                         $dataArray['success'] = false;
                         $dataArray['message'] = $this->translator->trans('le.email.verification.sns.policy.error');
                     } else {
+                        $this->addFlash('le.config.aws.email.verification');
+                        $dataArray['success']  = true;
+                        $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
+                        $dataArray['redirect'] = $returnUrl;
+                    }
+                } else {
+                    if (!$awsAccountStatus) {
+                        $dataArray['success']  = false;
+                        $dataArray['message']  = $this->translator->trans('le.email.verification.inactive.key');
+                    } else {
                         $dataArray['success']  = true;
                         $dataArray['message']  = $this->translator->trans('le.aws.email.verification');
                         $dataArray['redirect'] = $returnUrl;
@@ -470,6 +488,20 @@ class AjaxController extends CommonAjaxController
                 }
             }
         }
+
+        return $this->sendJsonResponse($dataArray);
+    }
+
+    public function deleteAwsVerifiedEmailsAction(Request $request)
+    {
+        $emailModel = $this->factory->getModel('email');
+        $email      = $request->request->get('email');
+        $emailModel->deleteAwsVerifiedEmails($email);
+
+        $returnUrl = $this->generateUrl('mautic_config_action', ['objectAction' => 'edit']);
+
+        $dataArray['success']  =true;
+        $dataArray['redirect'] =$returnUrl;
 
         return $this->sendJsonResponse($dataArray);
     }

@@ -70,6 +70,7 @@ class CampaignConditionSubscriber implements EventSubscriberInterface
                 'label'       => 'mautic.email.campaign.event.validate_address',
                 'description' => 'mautic.email.campaign.event.validate_address_descr',
                 'eventName'   => EmailEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
+                'order'       => 6,
             ]
         );
         }

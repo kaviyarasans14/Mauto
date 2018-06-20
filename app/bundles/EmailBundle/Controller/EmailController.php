@@ -519,10 +519,13 @@ class EmailController extends FormController
         /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
         $configurator= $this->get('mautic.configurator');
 
-        $params         = $configurator->getParameters();
-        $fromname       = $params['mailer_from_name'];
-        $fromadress     = $params['mailer_from_email'];
-        $mailertransport= $params['mailer_transport'];
+        $params          = $configurator->getParameters();
+        $maileruser      = $params['mailer_user'];
+        $emailpassword   = $params['mailer_password'];
+        $region          = $params['mailer_amazon_region'];
+        $fromname        = $params['mailer_from_name'];
+        $fromadress      = $params['mailer_from_email'];
+        $mailertransport = $params['mailer_transport'];
 
         if (empty($fromName)) {
             $entity->setFromName($fromname);
@@ -530,7 +533,13 @@ class EmailController extends FormController
         if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
         }
-
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $model->upAwsEmailVerificationStatus($emails);
+            }
+        }
         //set the page we came from
         $page         = $session->get('mautic.email.page', 1);
         $action       = $this->generateUrl('mautic_email_action', ['objectAction' => 'new']);
@@ -723,6 +732,9 @@ class EmailController extends FormController
         $configurator= $this->get('mautic.configurator');
 
         $params          = $configurator->getParameters();
+        $maileruser      = $params['mailer_user'];
+        $emailpassword   = $params['mailer_password'];
+        $region          = $params['mailer_amazon_region'];
         $fromname        = $params['mailer_from_name'];
         $fromadress      = $params['mailer_from_email'];
         $mailertransport = $params['mailer_transport'];
@@ -731,6 +743,13 @@ class EmailController extends FormController
         }
         if (empty($fromAdress)) {
             $entity->setFromAddress($fromadress);
+        }
+        $emailValidator = $this->factory->get('mautic.validator.email');
+        if ($mailertransport == 'mautic.transport.amazon') {
+            $emails = $emailValidator->getVerifiedEmailList($maileruser, $emailpassword, $region);
+            if (!empty($emails)) {
+                $model->upAwsEmailVerificationStatus($emails);
+            }
         }
 
         //set the return URL

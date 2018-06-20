@@ -179,18 +179,31 @@ Mautic.loadLicenseUsageInfo = function() {
               if(response.credits != "" && response.validity != "" && response.transport == 'mautic.transport.amazon'){
                  mQuery('.sidebar-credits-info-holder').removeClass('hide');
                  mQuery('.sidebar-credits-info-holder').show();
+                  mQuery('.sidebar-credits-info-holder .account-status').html("Status : "+response.accountstatus);
                  mQuery('.sidebar-credits-info-holder .email-credits').html("Max24HourSend : "+response.credits);
-                 mQuery('.sidebar-credits-info-holder .email-validity').html("MaxSendRate : "+response.validity);
+                 mQuery('.sidebar-credits-info-holder .email-validity').html("Contact Usage : "+response.validity);
                  mQuery('.sidebar-credits-info-holder .email-days-available').html("SentLast24Hours : "+response.daysavailable);
+              } else if(response.credits != "" && (response.transport == 'mautic.transport.elasticemail' || response.transport == 'mautic.transport.sendgrid_api')){
+                  mQuery('.sidebar-credits-info-holder').removeClass('hide');
+                  mQuery('.sidebar-credits-info-holder').show();
+                  mQuery('.sidebar-credits-info-holder .account-status').html("Status : "+response.accountstatus);
+                  mQuery('.sidebar-credits-info-holder .email-credits').html("Contact Usage : "+response.credits);
+                  mQuery('.sidebar-credits-info-holder .email-days-available').html("SentLast24Hours : "+response.daysavailable);
+                  mQuery('.sidebar-credits-info-holder #emailvalidityloading').addClass('hide');
               }
              else{
                  mQuery('.sidebar-credits-info-holder').hide();
              }
          }
      });
+    mQuery('#licenseclosebutton').click(function(e) {
+       Mautic.ajaxActionRequest('subscription:notificationclosed', {'isalert_needed': "true"}, function(response) {
+        });
+    });
+
     Mautic.ajaxActionRequest('subscription:licenseusageinfo', {}, function(response) {
         if (response.success) {
-            if(response.info != ""){
+            if(response.info != "" && response.isalertneeded != "true"){
                 mQuery('.license-notifiation').removeClass('hide');
                 mQuery('.license-notifiation #license-alert-message').html(response.info);
             }else{
