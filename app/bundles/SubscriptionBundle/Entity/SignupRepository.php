@@ -157,4 +157,61 @@ class SignupRepository
                 ->execute();
         }
     }
+
+    public function selectfocusItems($args = [])
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('f.*')
+            ->from(MAUTIC_TABLE_PREFIX.'focus', 'f', 'f.id')
+            ->andWhere($qb->expr()->neq('f.focus_type', ':form'))
+            ->setParameter(':form', 'form')
+            ->andWhere($qb->expr()->eq('f.is_published', 0))
+            ->orderBy('f.templateorder', 'asc');
+
+        return $qb->execute()->fetchAll();
+    }
+
+    public function selectformItems($args = [])
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('f.*')
+            ->from(MAUTIC_TABLE_PREFIX.'forms', 'f', 'f.id')
+            ->andWhere($qb->expr()->eq('f.is_published', 0))
+            ->orderBy('f.templateorder', 'asc');
+
+        return $qb->execute()->fetchAll();
+    }
+
+    public function selectPopupTemplatebyID($formid)
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('f.*')
+            ->from(MAUTIC_TABLE_PREFIX.'focus', 'f', 'f.id')
+            ->andWhere($qb->expr()->eq('f.is_published', 0))
+            ->andWhere($qb->expr()->eq('f.id', $formid));
+
+        return $qb->execute()->fetch();
+    }
+
+    public function selectFormTemplatebyID($formid)
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('f.*')
+            ->from(MAUTIC_TABLE_PREFIX.'forms', 'f', 'f.id')
+            ->andWhere($qb->expr()->eq('f.is_published', 0))
+            ->andWhere($qb->expr()->eq('f.id', $formid));
+
+        return $qb->execute()->fetch();
+    }
+
+    public function selectFormFieldsTemplatebyID($formid)
+    {
+        $qb = $this->getConnection()->createQueryBuilder();
+        $qb->select('f.id as id, f.label as label, f.show_label as showLabel, f.alias as alias, f.type as type, f.is_custom as isCustom, f.custom_parameters as customParameters,f.default_value as defaultValue, f.is_required as isRequired, f.validation_message as validationMessage, f.help_message as helpMessage, f.field_order as forder, f.properties as properties, f.label_attr as labelAttributes, f.input_attr as inputAttributes, f.container_attr as containerAttributes, f.lead_field as leadField , f.save_result as saveResult, f.is_auto_fill as isAutoFill, f.show_when_value_exists as showWhenValueExists, f.show_after_x_submissions as showAfterXSubmissions,f.form_id as formId')
+            ->from(MAUTIC_TABLE_PREFIX.'form_fields', 'f', 'f.id')
+            ->andWhere($qb->expr()->eq('f.form_id', $formid))
+            ->orderBy('f.field_order', 'asc');
+
+        return $qb->execute()->fetchAll();
+    }
 }

@@ -229,4 +229,12 @@ class FocusController extends FormController
 
         return $options;
     }
+
+    /**
+     * @param int $objectId
+     */
+    protected function cloneTemplateAction($objectId)
+    {
+        return parent::clonePopupsFromTemplateAction($objectId);
+    }
 }

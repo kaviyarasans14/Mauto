@@ -333,13 +333,21 @@ class FormController extends CommonFormController
      *
      * @throws \Exception
      */
-    public function newAction()
+    public function newAction($objectEntity = null, $sessionid)
     {
         /** @var \Mautic\FormBundle\Model\FormModel $model */
-        $model   = $this->getModel('form');
-        $entity  = $model->getEntity();
-        $session = $this->get('session');
-
+        $model          = $this->getModel('form');
+        $entity         = $model->getEntity();
+        $session        = $this->get('session');
+        $objectformtype = '';
+        if ($objectEntity == '0') {
+            $objectEntity = null;
+        }
+        if ($objectEntity == 'scratch_campaign' || $objectEntity == 'scratch_standalone') {
+            $objectvalues   = explode('_', $objectEntity);
+            $objectEntity   = $objectvalues[0];
+            $objectformtype = $objectvalues[1];
+        }
         if (!$this->get('mautic.security')->isGranted('form:forms:create')) {
             return $this->accessDenied();
         }
@@ -348,7 +356,12 @@ class FormController extends CommonFormController
         $page = $this->get('session')->get('mautic.form.page', 1);
 
         $sessionId = $this->request->request->get('mauticform[sessionId]', 'mautic_'.sha1(uniqid(mt_rand(), true)), true);
-
+        if ($objectEntity != null && $objectEntity != 'scratch' && $objectEntity instanceof Form) {
+            $entity    = $objectEntity;
+            $sessionId = $sessionid;
+        } elseif ($objectEntity == 'scratch') {
+            $entity->setFormType($objectformtype);
+        }
         //set added/updated fields
         $modifiedFields = $session->get('mautic.form.'.$sessionId.'.fields.modified', []);
         $deletedFields  = $session->get('mautic.form.'.$sessionId.'.fields.deleted', []);
@@ -471,31 +484,36 @@ class FormController extends CommonFormController
             }
         } else {
             //clear out existing fields in case the form was refreshed, browser closed, etc
-            $this->clearSessionComponents($sessionId);
-            $modifiedFields = $modifiedActions = $deletedActions = $deletedFields = [];
-
             $form->get('sessionId')->setData($sessionId);
+            if ($objectEntity == null || $objectEntity == 'scratch') {
+                $this->clearSessionComponents($sessionId);
+                $modifiedFields = $modifiedActions = $deletedActions = $deletedFields = [];
 
-            //add a submit button
-            $keyId = 'new'.hash('sha1', uniqid(mt_rand()));
-            $field = new Field();
+                //$form->get('sessionId')->setData($sessionId);
 
-            $modifiedFields[$keyId]                    = $field->convertToArray();
-            $modifiedFields[$keyId]['label']           = $this->translator->trans('mautic.core.form.submit');
-            $modifiedFields[$keyId]['alias']           = 'submit';
-            $modifiedFields[$keyId]['showLabel']       = 1;
-            $modifiedFields[$keyId]['type']            = 'button';
-            $modifiedFields[$keyId]['id']              = $keyId;
-            $modifiedFields[$keyId]['inputAttributes'] = 'class="btn btn-default"';
-            $modifiedFields[$keyId]['formId']          = $sessionId;
-            unset($modifiedFields[$keyId]['form']);
-            $session->set('mautic.form.'.$sessionId.'.fields.modified', $modifiedFields);
+                //add a submit button
+                $keyId = 'new'.hash('sha1', uniqid(mt_rand()));
+                $field = new Field();
+
+                $modifiedFields[$keyId]                    = $field->convertToArray();
+                $modifiedFields[$keyId]['label']           = $this->translator->trans('mautic.core.form.submit');
+                $modifiedFields[$keyId]['alias']           = 'submit';
+                $modifiedFields[$keyId]['showLabel']       = 1;
+                $modifiedFields[$keyId]['type']            = 'button';
+                $modifiedFields[$keyId]['id']              = $keyId;
+                $modifiedFields[$keyId]['inputAttributes'] = 'class="btn btn-default"';
+                $modifiedFields[$keyId]['formId']          = $sessionId;
+                unset($modifiedFields[$keyId]['form']);
+                $session->set('mautic.form.'.$sessionId.'.fields.modified', $modifiedFields);
+            }
         }
-
+        $newactionurl = $this->generateUrl('mautic_form_action', ['objectAction' => 'new', 'objectId' => 'scratch']);
         //fire the form builder event
         $customComponents = $model->getCustomComponents($sessionId);
 
-        $fieldHelper = $this->get('mautic.helper.form.field_helper');
+        $fieldHelper      = $this->get('mautic.helper.form.field_helper');
+        $signuprepository = $this->get('le.core.repository.signup');
+        $formitems        = $signuprepository->selectformItems();
 
         return $this->delegateView(
             [
@@ -513,6 +531,9 @@ class FormController extends CommonFormController
                     'contactFields'  => $this->getModel('lead.field')->getFieldListWithProperties(),
                     'companyFields'  => $this->getModel('lead.field')->getFieldListWithProperties('company'),
                     'inBuilder'      => true,
+                    'formItems'      => $formitems,
+                    'objectID'       => $objectEntity,
+                    'newFormURL'     => $newactionurl,
                 ],
                 'contentTemplate' => 'MauticFormBundle:Builder:index.html.php',
                 'passthroughVars' => [
@@ -870,6 +891,7 @@ class FormController extends CommonFormController
             $session->set('mautic.form.'.$objectId.'.actions.modified', $modifiedActions);
             $deletedActions = [];
         }
+        $newactionurl = $this->generateUrl('mautic_form_action', ['objectAction' => 'new', 'objectId' => 'scratch']);
 
         return $this->delegateView(
             [
@@ -889,6 +911,9 @@ class FormController extends CommonFormController
                     'contactFields'      => $this->getModel('lead.field')->getFieldListWithProperties('lead'),
                     'companyFields'      => $this->getModel('lead.field')->getFieldListWithProperties('company'),
                     'inBuilder'          => true,
+                    'objectID'           => null,
+                    'formItems'          => [],
+                    'newFormURL'         => $newactionurl,
                 ],
                 'contentTemplate' => 'MauticFormBundle:Builder:index.html.php',
                 'passthroughVars' => [
@@ -1264,5 +1289,47 @@ class FormController extends CommonFormController
                 ]
             )
         );
+    }
+
+    public function cloneFormTemplateAction($formid)
+    {
+        $model            = $this->getModel('form');
+        $signuprepository = $this->get('le.core.repository.signup');
+        $formitem         = $signuprepository->selectFormTemplatebyID($formid);
+        $entity           = $model->getEntity();
+        $entity->setName($formitem['name']);
+        $entity->setCachedHtml($formitem['cached_html']);
+        $entity->setAlias($formitem['alias']);
+        $entity->setTemplate($formitem['template']);
+        $entity->setFormType($formitem['form_type']);
+        $session           = $this->get('session');
+        $sessionId         = $this->request->request->get('mauticform[sessionId]', 'mautic_'.sha1(uniqid(mt_rand(), true)), true);
+        $modifiedFields    = $session->get('mautic.form.'.$sessionId.'.fields.modified', []);
+        $usedLeadFields    = $this->get('session')->get('mautic.form.'.$sessionId.'.fields.leadfields', []);
+        $formFields        = $signuprepository->selectFormFieldsTemplatebyID($formid);
+        for ($i = 0; $i < sizeof($formFields); ++$i) {
+            $keyId = 'new'.hash('sha1', uniqid(mt_rand()));
+            $field = new Field();
+
+            $modifiedFields[$keyId]                    = $field->convertToArray();
+            $modifiedFields[$keyId]['label']           = $formFields[$i]['label'];
+            $modifiedFields[$keyId]['alias']           = $formFields[$i]['alias'];
+            $modifiedFields[$keyId]['showLabel']       = $formFields[$i]['showLabel'];
+            $modifiedFields[$keyId]['type']            = $formFields[$i]['type'];
+            $modifiedFields[$keyId]['id']              = $keyId;
+            $modifiedFields[$keyId]['inputAttributes'] = $formFields[$i]['inputAttributes'];
+            $modifiedFields[$keyId]['formId']          = $sessionId;
+            $modifiedFields[$keyId]['leadField']       = $formFields[$i]['leadField'];
+            $modifiedFields[$keyId]['properties']      = unserialize($formFields[$i]['properties']);
+            if (!empty($formFields[$i]['leadField'])) {
+                $usedLeadFields[$keyId] = $formFields[$i]['leadField'];
+            }
+            unset($modifiedFields[$keyId]['form']);
+        }
+        $session->set('mautic.form.'.$sessionId.'.fields.leadfields', $usedLeadFields);
+        $session->set('mautic.form.'.$sessionId.'.fields.modified', $modifiedFields);
+        $newEntity = clone $entity;
+
+        return $this->newAction($newEntity, $sessionId);
     }
 }

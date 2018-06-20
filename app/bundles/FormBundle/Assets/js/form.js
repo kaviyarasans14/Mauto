@@ -311,9 +311,11 @@ Mautic.onPostSubmitActionChange = function(value) {
 
 Mautic.selectFormType = function(formType) {
     if (formType == 'standalone') {
+        mQuery("#form_template_campaign").removeClass('hide').addClass('hide');
         mQuery('option.action-standalone-only').removeClass('hide');
         mQuery('.page-header h3').text(mauticLang.newStandaloneForm);
     } else {
+        mQuery("#form_template_standalone").removeClass('hide').addClass('hide');
         mQuery('option.action-standalone-only').addClass('hide');
         mQuery('.page-header h3').text(mauticLang.newCampaignForm);
     }
@@ -326,4 +328,10 @@ Mautic.selectFormType = function(formType) {
 
     mQuery('.form-type-modal').remove();
     mQuery('.form-type-modal-backdrop').remove();
+};
+
+Mautic.openNewFormAction = function(url){
+    var formtype = mQuery('#mauticform_formType').val();
+    url = url + "_" + formtype;
+    window.location.href = url;
 };
