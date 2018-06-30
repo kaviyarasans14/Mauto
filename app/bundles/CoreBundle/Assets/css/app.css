@@ -4852,6 +4852,9 @@ figcaption {
   border: 1px solid #f22446;
 
 }
+.page_hit_url:hover{
+  text-decoration: underline;
+}
 .license-notifiation {
   background-color: #f9edbe;
   width: 100%;

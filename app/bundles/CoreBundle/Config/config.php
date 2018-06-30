@@ -119,21 +119,21 @@ return [
                 'iconClass' => 'fa-puzzle-piece',
                 'priority'  => 40,
             ],
-            /* 'mautic.core.channels' => [
+             'mautic.core.channels' => [
                  'id'        => 'mautic_channels_root',
                  'iconClass' => 'fa-rss',
-                 'priority'  => 40,
-             ],*/
-            'mautic.segments.root' => [
+                 'priority'  => 55,
+             ],
+           /*'mautic.segments.root' => [
                 'id'        => 'mautic_segments_root',
                 'iconClass' => 'icon pull-left fa fa-user',
-                'priority'  => 50,
-            ],
-            'mautic.campaigns.root' => [
+                'priority'  => 35,
+            ],*/
+           /* 'mautic.campaigns.root' => [
                 'id'        => 'mautic_campaigns_root',
                 'iconClass' => 'fa-clock-o',
                 'priority'  => 70,
-            ],
+            ],*/
         ],
         'admin' => [
             'mautic.theme.menu.index' => [

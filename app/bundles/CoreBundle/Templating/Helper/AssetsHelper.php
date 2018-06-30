@@ -671,6 +671,32 @@ class AssetsHelper
     }
 
     /**
+     * @param           $country
+     * @param bool|true $urlOnly
+     * @param string    $class
+     *
+     * @return string
+     */
+    public function getLeadScoreIcon($score, $urlOnly = true, $class = '')
+    {
+        $flagPath = $this->pathsHelper->getSystemPath('assets', true).'/images/';
+        $relpath  = $this->pathsHelper->getSystemPath('assets').'/images/';
+        $country  = ucwords(str_replace(' ', '-', $score));
+        $flagImg  = '';
+        if (file_exists($flagPath.$country.'.png')) {
+            if (file_exists($flagPath.$country.'.png')) {
+                $flagImg = $this->getUrl($relpath.$country.'.png');
+            }
+        }
+
+        if ($urlOnly) {
+            return $flagImg;
+        } else {
+            return '<img src="'.$flagImg.'" class="'.$class.'" />';
+        }
+    }
+
+    /**
      * Clear all the assets.
      */
     public function clear()

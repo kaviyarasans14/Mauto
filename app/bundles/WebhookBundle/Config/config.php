@@ -41,7 +41,7 @@ return [
                 'mautic.webhook.webhooks' => [
                     'id'              => 'mautic_webhook_root',
                     'iconClass'       => 'fa-exchange',
-                    'priority'        => 300,
+                    'priority'        => 200,
                     'access'          => ['webhook:webhooks:viewown', 'webhook:webhooks:viewother'],
                     'route'           => 'mautic_webhook_index',
                 ],

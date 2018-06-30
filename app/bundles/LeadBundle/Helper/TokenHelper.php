@@ -34,7 +34,7 @@ class TokenHelper
         // @deprecated BC support for leadfield
         $tokenRegex = [
             '/({|%7B)leadfield=(.*?)(}|%7D)/',
-            '/({|%7B)contactfield=(.*?)(}|%7D)/',
+            '/({|%7B)leadfield=(.*?)(}|%7D)/',
         ];
         $tokenList  = [];
 

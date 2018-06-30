@@ -112,15 +112,15 @@ return [
                 'mautic.email.emails' => [
                     'route'    => 'mautic_email_index',
                     'access'   => ['email:emails:viewown', 'email:emails:viewother'],
-                    'parent'   => 'mautic.core.components',
+                    'parent'   => 'mautic.core.channels',
                     'priority' => 300,
                 ],
-                'mautic.emailcampaign.emails' => [
+                /*'mautic.emailcampaign.emails' => [
                     'route'    => 'mautic_email_campaign_index',
                     'access'   => ['email:emails:viewown', 'email:emails:viewother'],
                     'parent'   => 'mautic.campaigns.root',
                     'priority' => 100,
-                ],
+                ],*/
             ],
         ],
     ],

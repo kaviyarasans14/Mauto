@@ -229,7 +229,7 @@ if (($activeForm->getName() == '' || $activeForm->getName() == null) && $objectI
 
 echo $view['form']->end($form);
 
-if (($activeForm->getFormType() === null || !empty($forceTypeSelection)) && ($activeForm->getName() == '' || $activeForm->getName() == null) && $objectID == null):
+/*if (($activeForm->getFormType() === null || !empty($forceTypeSelection)) && ($activeForm->getName() == '' || $activeForm->getName() == null) && $objectID == null):
     echo $view->render(
         'MauticCoreBundle:Helper:form_selecttype.html.php',
         [
@@ -252,7 +252,7 @@ if (($activeForm->getFormType() === null || !empty($forceTypeSelection)) && ($ac
             'typeThreeHeader'    => 'mautic.email.editor.codeeditor.header',
         ]
     );
-endif;
+endif;*/
 
 $view['slots']->append(
     'modal',

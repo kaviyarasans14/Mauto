@@ -439,6 +439,7 @@ class LeadController extends FormController
         /** @var \Mautic\EmailBundle\Entity\EmailRepository $emailRepo */
         $emailRepo       = $this->getModel('email')->getRepository();
         $integrationRepo = $this->get('doctrine.orm.entity_manager')->getRepository('MauticPluginBundle:IntegrationEntity');
+        $pageHitDetails  = $this->getPageHitsDetails($lead);
 
         return $this->delegateView(
             [
@@ -452,6 +453,7 @@ class LeadController extends FormController
                     'places'            => $this->getPlaces($lead),
                     'permissions'       => $permissions,
                     'events'            => $this->getEngagements($lead),
+                    'pageHitDetails'    => $pageHitDetails,
                     'upcomingEvents'    => $this->getScheduledCampaignEvents($lead),
                     'engagementData'    => $this->getEngagementData($lead),
                     'noteCount'         => $this->getModel('lead.note')->getNoteCount($lead, true),
@@ -481,6 +483,21 @@ class LeadController extends FormController
                 ],
             ]
         );
+    }
+
+    public function getPageHitsDetails($lead)
+    {
+        $leadRepo       = $this->getModel('lead')->getRepository();
+        $engagement     = $this->getEngagements($lead);
+        $dataValues     = '';
+        foreach ($engagement['events'] as $counter => $event) {
+            if ($event['event'] == 'page.hit') {
+                $contactId  = $event['contactId'];
+                $dataValues = $leadRepo->getPageHitDetails($contactId);
+            }
+        }
+
+        return $dataValues;
     }
 
     /**

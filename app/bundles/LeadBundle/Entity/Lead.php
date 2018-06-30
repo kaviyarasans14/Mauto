@@ -758,7 +758,7 @@ class Lead extends FormEntity implements CustomFieldEntityInterface
         } elseif ($this->getCompany()) {
             return $this->getCompany();
         } elseif ($this->getEmail()) {
-            return $this->getEmail();
+            return '';
         } elseif ($socialIdentity = $this->getFirstSocialIdentity()) {
             return $socialIdentity;
         } elseif (count($ips = $this->getIpAddresses())) {

@@ -33,7 +33,7 @@ class EmailSubscriber extends CommonSubscriber
     /**
      * @var string
      */
-    private static $contactFieldRegex = '{contactfield=(.*?)}';
+    private static $contactFieldRegex = '{leadfield=(.*?)}';
 
     /**
      * @return array

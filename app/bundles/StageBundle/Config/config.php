@@ -55,12 +55,12 @@ return [
 
     'menu' => [
         'main' => [
-            'mautic.stages.menu.index' => [
+            /*'mautic.stages.menu.index' => [
                 'route'     => 'mautic_stage_index',
                 'iconClass' => 'fa-tachometer',
                 'access'    => ['stage:stages:view'],
                 'priority'  => 25,
-            ],
+            ],*/
         ],
     ],
 

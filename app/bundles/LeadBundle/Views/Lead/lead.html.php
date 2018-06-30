@@ -425,8 +425,12 @@ $view['slots']->set(
                 <?php
                 $color = $lead->getColor();
                 $style = !empty($color) ? ' style="font-color: '.$color.' !important;"' : '';
+                $score = (!empty($fields['core']['score']['value'])) ? $view['assets']->getCountryFlag($fields['core']['score']['value']) : '';
                 ?>
-                <h1 <?php echo $style; ?>>
+                <h1
+                    <?php echo $style; ?>>
+
+                    <img src="<?php echo $score; ?>" style="max-height: 25px;vertical-align: baseline;" />
                     <?php echo $view['translator']->transChoice(
                         'mautic.lead.points.count',
                         $lead->getPoints(),
@@ -578,6 +582,20 @@ $view['slots']->set(
             <?php endforeach; ?>
             <div class="clearfix"></div>
         </div>
+        <div class="pa-sm">
+            <?php if (!empty($pageHitDetails)): ?>
+                <span class="fw-sb"><?php echo $view['translator']->trans('leadsenage.lead.view.visited.pages'); ?></span>
+            <?php foreach ($pageHitDetails as $counter => $event): ?>
+            <?php
+               $linkType   = 'target="_new"';
+               $eventLabel = "<a class= 'page_hit_url' href=\"{$event['url']}\" $linkType>{$event['url']}</a>"; ?>
+               <h5 class="pull-left mt-xs mr-xs">
+                   <?php echo $event['pagehits'].' x '.$eventLabel.'<br>'?></h5>
+              <?php endforeach; ?>
+            <div class="clearfix"></div>
+            <?php endif; ?>
+        </div>
+
         <!-- <div class="pa-sm panel-companies">
             <div class="panel-title">  <?php echo $view['translator']->trans(
                     'mautic.lead.lead.companies'); ?></div>

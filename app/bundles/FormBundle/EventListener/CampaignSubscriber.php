@@ -82,8 +82,9 @@ class CampaignSubscriber extends CommonSubscriber
             'eventName'   => FormEvents::ON_CAMPAIGN_TRIGGER_DECISION,
             'order'       => 4,
         ];
-        $event->addDecision('form.submit', $trigger);
-
+        if ($this->security->isAdmin()) {
+            $event->addDecision('form.submit', $trigger);
+        }
         $trigger = [
             'label'       => 'mautic.form.campaign.event.field_value',
             'description' => 'mautic.form.campaign.event.field_value_descr',

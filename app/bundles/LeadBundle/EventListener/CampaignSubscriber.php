@@ -89,6 +89,7 @@ class CampaignSubscriber extends CommonSubscriber
                 ['onCampaignTriggerActionChangeCompanyScore', 4],
                 ['onCampaignTriggerActionDeleteContact', 6],
                 ['onCampaignTriggerActionChangeOwner', 7],
+                ['onCampaignTriggerActionChangeScore', 8],
             ],
             LeadEvents::ON_CAMPAIGN_TRIGGER_CONDITION => ['onCampaignTriggerCondition', 0],
         ];
@@ -110,6 +111,15 @@ class CampaignSubscriber extends CommonSubscriber
             'order'       => 6,
         ];
         $event->addAction('lead.changepoints', $action);
+
+        $action = [
+            'label'       => 'mautic.lead.lead.events.onscorechange',
+            'description' => 'mautic.lead.lead.events.onscorechange_descr',
+            'formType'    => 'leadscore_action',
+            'eventName'   => LeadEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            'order'       => 7,
+        ];
+        $event->addAction('lead.scorechange', $action);
 
         $action = [
             'label'       => 'mautic.lead.lead.events.changelist',
@@ -273,6 +283,26 @@ class CampaignSubscriber extends CommonSubscriber
             $lead->addPointsChangeLog($log);
 
             $this->leadModel->saveEntity($lead);
+            $somethingHappened = true;
+        }
+
+        return $event->setResult($somethingHappened);
+    }
+
+    /**
+     * @param CampaignExecutionEvent $event
+     */
+    public function onCampaignTriggerActionChangeScore(CampaignExecutionEvent $event)
+    {
+        if (!$event->checkContext('lead.scorechange')) {
+            return;
+        }
+        $lead              = $event->getLead();
+        $score             = $event->getConfig()['score'];
+        $somethingHappened = false;
+
+        if ($lead !== null && !empty($score)) {
+            $this->leadModel->getRepository()->updateContactScore($score, $lead->getId());
             $somethingHappened = true;
         }
 

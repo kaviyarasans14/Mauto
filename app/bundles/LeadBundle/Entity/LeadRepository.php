@@ -1182,4 +1182,50 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
             }
         }
     }
+
+    public function getPageHitDetails($contactId)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+
+        $q->select('p.url', 'count(id) as pagehits')
+            ->from(MAUTIC_TABLE_PREFIX.'page_hits', 'p');
+
+        if ($contactId !== null) {
+            $q->andWhere(
+                $q->expr()->gte('p.lead_id', $contactId)
+            );
+            $q->groupBy('p.url');
+        }
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results;
+    }
+
+    public function updateContactScore($score, $id)
+    {
+        $now = new \DateTime();
+        $q   = $this->_em->getConnection()->createQueryBuilder();
+        $q->update(MAUTIC_TABLE_PREFIX.'leads')
+            ->set('score', ':score')
+            ->set('date_modified', ':datemodified')
+            ->where('id = '.$id)
+            ->setParameter('score', $score)
+            ->setParameter('datemodified', $now->format('Y-m-d H:i:s'))->execute();
+    }
+
+    public function getHotAndWarmLead($dateinterval)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+
+        $q->select('l.score as leadscore', 'l.id as leadid')
+            ->from(MAUTIC_TABLE_PREFIX.'leads', 'l')
+            ->where('l.score in ("hot","warm")')
+            ->andWhere('l.last_active <= '."'".$dateinterval."'");
+
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results;
+    }
 }

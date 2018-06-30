@@ -1,6 +1,6 @@
 //LeadBundle
 Mautic.leadOnLoad = function (container, response) {
-    Mautic.addKeyboardShortcut('a', 'Quick add a New Contact', function(e) {
+    Mautic.addKeyboardShortcut('a', 'Quick add a New Lead', function(e) {
         if(mQuery('a.quickadd').length) {
             mQuery('a.quickadd').click();
         } else if (mQuery('a.btn-leadnote-add').length) {

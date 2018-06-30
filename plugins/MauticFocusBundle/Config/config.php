@@ -163,7 +163,7 @@ return [
                 'route'    => 'mautic_focus_index',
                 'access'   => 'plugin:focus:items:view',
                 'parent'   => 'mautic.campaigns.root',
-                'priority' => 110,
+                'priority' => 170,
                 'parent'   => 'mautic.core.components',
             ],
         ],

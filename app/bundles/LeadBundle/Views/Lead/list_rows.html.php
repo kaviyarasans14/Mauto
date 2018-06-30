@@ -71,13 +71,36 @@ $isAdmin    =$view['security']->isAdmin();
                 <?php if (in_array($item->getId(), array_keys($noContactList)))  : ?>
                     <div class="pull-right label label-danger"><i class="fa fa-ban"> </i></div>
                 <?php endif; ?>
-                <div><?php echo ($item->isAnonymous()) ? $view['translator']->trans($item->getPrimaryIdentifier()) : $item->getPrimaryIdentifier(); ?></div>
+                <div> <?php echo ($item->isAnonymous()) ? $view['translator']->trans($item->getPrimaryIdentifier()) : $item->getPrimaryIdentifier(); ?></div>
                 <div class="small"><?php echo $item->getSecondaryIdentifier(); ?></div>
+                <div><?php echo $fields['core']['email']['value']; ?></div>
             </a>
         </td>
-        <td class="visible-md visible-lg"><?php echo $fields['core']['company_new']['value']; ?></td>
-        <td><?php echo $fields['core']['email']['value']; ?></td>
-        <td class="visible-md visible-lg"><?php echo $fields['core']['mobile']['value']; ?></td>
+        <td class="visible-md visible-lg">
+            <?php $tags = $item->getTags(); ?>
+            <?php foreach ($tags as $tag): ?>
+                <div class="label label-info" style="margin-bottom: 2px;background-color:  #00b49c;"><?php echo $tag->getTag(); ?></div>
+            <?php endforeach; ?>
+        </td>
+        <td class="visible-md visible-lg" style="text-align:center;">
+           <?php
+            $score = (!empty($fields['core']['score']['value'])) ? $view['assets']->getLeadScoreIcon($fields['core']['score']['value']) : '';
+           ?>
+           <img src="<?php echo $score; ?>" style="max-height: 25px;" />
+
+        </td>
+        <td class="visible-md visible-lg text-center">
+            <?php
+            $color = $item->getColor();
+            $style = !empty($color) ? ' style="background-color: '.$color.';"' : '';
+            ?>
+            <span class="label label-success"><?php echo $item->getPoints(); ?></span>
+        </td>
+        <td class="visible-md visible-lg">
+            <abbr title="<?php echo $view['date']->toFull($item->getLastActive()); ?>">
+                <?php echo $view['date']->toText($item->getLastActive()); ?>
+            </abbr>
+        </td>
         <td class="visible-md visible-lg">
             <?php
             $flag = (!empty($fields['core']['country'])) ? $view['assets']->getCountryFlag($fields['core']['country']['value']) : '';
@@ -110,18 +133,6 @@ $isAdmin    =$view['security']->isAdmin();
                 <?php endif?>
             </td>
         <?php endif; ?>
-        <td class="visible-md visible-lg text-center">
-            <?php
-            $color = $item->getColor();
-            $style = !empty($color) ? ' style="background-color: '.$color.';"' : '';
-            ?>
-            <span class="label label-default"<?php echo $style; ?>><?php echo $item->getPoints(); ?></span>
-        </td>
-        <td class="visible-md visible-lg">
-            <abbr title="<?php echo $view['date']->toFull($item->getLastActive()); ?>">
-                <?php echo $view['date']->toText($item->getLastActive()); ?>
-            </abbr>
-        </td>
         <?php  if ($isAdmin): ?>
         <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
         <?php  endif; ?>

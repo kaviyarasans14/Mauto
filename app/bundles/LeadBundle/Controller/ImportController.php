@@ -501,7 +501,7 @@ class ImportController extends FormController
                         'route'         => $this->generateUrl(
                             'mautic_import_action',
                             [
-                                'object'       => $object === 'lead' ? 'contacts' : 'companies',
+                                'object'       => $object === 'lead' ? 'leads' : 'companies',
                                 'objectAction' => 'new',
                             ]
                         ),
@@ -692,7 +692,7 @@ class ImportController extends FormController
     public function generateUrl($route, $parameters = [], $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH)
     {
         if (!isset($parameters['object'])) {
-            $parameters['object'] = $this->request->get('object', 'contacts');
+            $parameters['object'] = $this->request->get('object', 'leads');
         }
 
         return parent::generateUrl($route, $parameters, $referenceType);
@@ -705,7 +705,7 @@ class ImportController extends FormController
         switch ($objectInRequest) {
             case 'companies':
                 return 'company';
-            case 'contacts':
+            case 'leads':
             default:
                 return 'lead';
         }

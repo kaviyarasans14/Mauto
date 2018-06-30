@@ -47,7 +47,7 @@ return [
                 'route'           => 'mautic_accountinfo_action',
                 'id'              => 'mautic_accountinfo_index',
                 'routeParameters' => ['objectAction' => 'edit'],
-                'iconClass'       => 'fa-users',
+                'iconClass'       => 'fa fa-address-book-o',
                 'priority'        => 600,
                 'checks'          => [
                     'parameters' => [

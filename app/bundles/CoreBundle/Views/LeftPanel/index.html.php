@@ -85,7 +85,7 @@ $extraMenu = $view['menu']->render('extra');
                 </li>
             </ul>
             <!--/ end: left nav -->
-            <ul class="nav sidebar-credits-info-holder hide" data-toggle="menu">
+            <!--<ul class="nav sidebar-credits-info-holder hide" data-toggle="menu">
            <li class="nav-group open">
               <a href="javascript:void(0);" data-target="#le_usage_info" data-toggle="submenu" data-parent=".nav" data-menu-link="le_usage_root_info" id="le_usage_root_info">
                   <span class="arrow pull-right text-right"></span>
@@ -104,14 +104,14 @@ $extraMenu = $view['menu']->render('extra');
                         <a style="pointer-events:none"><span class="nav-item-name text email-days-available">Loading...</span></a>
                    </li>
                    <!--<li class="nav-group">
-                      <a  class="sidebar-buycredits" href="<?php /*/*echo $view['router']->path('le_plan_index');*/?>">
+                      <a  class="sidebar-buycredits" href="<?php /*echo $view['router']->path('le_plan_index');*/?>">
                            <i class="fa fa-plus-circle fs-14"></i>
-                            <span class="nav-item-name text"><?php /*/*echo $view['translator']->trans('le.plans.buycredits');*/?></span>
+                            <span class="nav-item-name text"><?php /*/*echo $view['translator']->trans('le.plans.buycredits');/*/?></span>
                         </a>
-                    </li>-->
+                    </li>
                 </ul>
             </li>
-            </ul>
+            </ul>-->
         </nav>
         <!--/ end: navigation -->
     </div>
