@@ -30,7 +30,7 @@ class AssetController extends FormController
     {
 
         $model = $this->getModel('asset');
-        dump("Hai I am sankar");
+
         //set some permissions
         $permissions = $this->get('mautic.security')->isGranted([
             'asset:assets:viewown',
