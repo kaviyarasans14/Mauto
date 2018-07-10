@@ -28,8 +28,9 @@ class AssetController extends FormController
      */
     public function indexAction($page = 1)
     {
-        $model = $this->getModel('asset');
 
+        $model = $this->getModel('asset');
+        dump("Hai I am sankar");
         //set some permissions
         $permissions = $this->get('mautic.security')->isGranted([
             'asset:assets:viewown',
