@@ -33,7 +33,6 @@ class FieldController extends FormController
         $permissions = $this->get('mautic.security')->isGranted(['lead:fields:full'], 'RETURN_ARRAY');
 
         $session = $this->get('session');
-        dump("Hi");
 
         if (!$permissions['lead:fields:full']) {
             return $this->accessDenied();
