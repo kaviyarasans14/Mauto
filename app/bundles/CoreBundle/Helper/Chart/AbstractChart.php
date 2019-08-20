@@ -79,7 +79,7 @@ abstract class AbstractChart
      *
      * @var array
      */
-    public $colors = ['#4E5D9D', '#00B49C', '#FD9572', '#FDB933', '#757575', '#9C4E5C', '#694535', '#596935'];
+    public $colors = ['#375695', '#00B49C', '#FD9572', '#FDB933', '#757575', '#9C4E5C', '#694535', '#596935'];
 
     /**
      * Create a DateInterval time unit.

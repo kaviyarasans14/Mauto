@@ -130,6 +130,11 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
     private $guest = false;
 
     /**
+     * @var string
+     */
+    private $mobile;
+
+    /**
      * User constructor.
      *
      * @param bool $isGuest
@@ -230,6 +235,10 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
         $builder->createField('signature', 'text')
             ->nullable()
             ->build();
+
+        $builder->createField('mobile', 'string')
+            ->nullable()
+            ->build();
     }
 
     /**
@@ -294,7 +303,9 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
                 'groups'     => ['CheckPassword'],
             ]
         ));
-
+        $metadata->addPropertyConstraint('mobile', new Assert\NotBlank(
+            ['message' => 'mautic.user.user.mobile.notblank']
+        ));
         $metadata->setGroupSequence(['User', 'SecondPass', 'CheckPassword']);
     }
 
@@ -343,6 +354,7 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
                     'lastActive',
                     'onlineStatus',
                     'signature',
+                    'mobile',
                 ]
             )
             ->build();
@@ -795,6 +807,20 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
     }
 
     /**
+     * Determines if user is custom admin.
+     *
+     * @return bool
+     */
+    public function isCustomAdmin()
+    {
+        if ($this->role !== null) {
+            return $this->role->getName() == 'Administrator';
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getLastLogin()
@@ -908,5 +934,30 @@ class User extends FormEntity implements AdvancedUserInterface, \Serializable, E
     public function isGuest()
     {
         return $this->guest;
+    }
+
+    /**
+     * Set Mobile.
+     *
+     * @param string $mobile
+     *
+     * @return User
+     */
+    public function setMobile($mobile)
+    {
+        $this->isChanged('mobile', $mobile);
+        $this->mobile = $mobile;
+
+        return $this;
+    }
+
+    /**
+     * Get Mobile.
+     *
+     * @return string
+     */
+    public function getMobile()
+    {
+        return $this->mobile;
     }
 }

@@ -14,8 +14,11 @@ namespace Mautic\UserBundle\Model;
 use Mautic\CoreBundle\Model\FormModel;
 use Mautic\EmailBundle\Helper\MailHelper;
 use Mautic\UserBundle\Entity\User;
+use Mautic\UserBundle\Entity\UserToken;
+use Mautic\UserBundle\Enum\UserTokenAuthorizator;
 use Mautic\UserBundle\Event\StatusChangeEvent;
 use Mautic\UserBundle\Event\UserEvent;
+use Mautic\UserBundle\Model\UserToken\UserTokenServiceInterface;
 use Mautic\UserBundle\UserEvents;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -31,9 +34,23 @@ class UserModel extends FormModel
      */
     protected $mailHelper;
 
-    public function __construct(MailHelper $mailHelper)
-    {
-        $this->mailHelper = $mailHelper;
+    /**
+     * @var UserTokenServiceInterface
+     */
+    private $userTokenService;
+
+    /**
+     * UserModel constructor.
+     *
+     * @param MailHelper                $mailHelper
+     * @param UserTokenServiceInterface $userTokenService
+     */
+    public function __construct(
+        MailHelper $mailHelper,
+        UserTokenServiceInterface $userTokenService
+    ) {
+        $this->mailHelper          = $mailHelper;
+        $this->userTokenService    = $userTokenService;
     }
 
     /**
@@ -92,6 +109,9 @@ class UserModel extends FormModel
      */
     public function getUserList($search = '', $limit = 10, $start = 0, $permissionLimiter = [])
     {
+        $currentuser=$this->userHelper->getUser();
+        $this->getRepository()->setCurrentUser($currentuser);
+
         return $this->getRepository()->getUserList($search, $limit, $start, $permissionLimiter);
     }
 
@@ -217,7 +237,9 @@ class UserModel extends FormModel
                 $results = $this->em->getRepository('MauticUserBundle:Role')->getRoleList($filter, $limit);
                 break;
             case 'user':
-                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit);
+                $currentuser=$this->userHelper->getUser();
+                $this->em->getRepository('MauticUserBundle:User')->setCurrentUser($currentuser);
+                $results = $this->em->getRepository('MauticUserBundle:User')->getUserList($filter, $limit, 0, []);
                 break;
             case 'position':
                 $results = $this->em->getRepository('MauticUserBundle:User')->getPositionList($filter, $limit);
@@ -245,16 +267,17 @@ class UserModel extends FormModel
     /**
      * @param User $user
      *
-     * @return string
+     * @return UserToken
      */
     protected function getResetToken(User $user)
     {
-        /** @var \DateTime $lastLogin */
-        $lastLogin = $user->getLastLogin();
+        $userToken = new UserToken();
+        $userToken->setUser($user)
+            ->setAuthorizator(UserTokenAuthorizator::RESET_PASSWORD_AUTHORIZATOR)
+            ->setExpiration((new \DateTime())->add(new \DateInterval('PT24H')))
+            ->setOneTimeOnly();
 
-        $dateTime = ($lastLogin instanceof \DateTime) ? $lastLogin->format('Y-m-d H:i:s') : null;
-
-        return hash('sha256', $user->getUsername().$user->getEmail().$dateTime);
+        return $this->userTokenService->generateSecret($userToken, 64);
     }
 
     /**
@@ -265,34 +288,86 @@ class UserModel extends FormModel
      */
     public function confirmResetToken(User $user, $token)
     {
-        $resetToken = $this->getResetToken($user);
+        $userToken = new UserToken();
+        $userToken->setUser($user)
+            ->setAuthorizator(UserTokenAuthorizator::RESET_PASSWORD_AUTHORIZATOR)
+            ->setSecret($token);
 
-        return hash_equals($token, $resetToken);
+        return $this->userTokenService->verify($userToken);
     }
 
     /**
      * @param User $user
+     *
+     * @throws \RuntimeException
      */
-    public function sendResetEmail(User $user)
+    public function sendResetEmail(User $user, $mailer)
     {
-        $mailer = $this->mailHelper->getMailer();
-
+        $mailer->start();
         $resetToken = $this->getResetToken($user);
-        $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken], true);
-
-        $mailer->setTo([$user->getEmail() => $user->getName()]);
-        $mailer->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));
-        $text = $this->translator->trans(
+        $this->em->persist($resetToken);
+        try {
+            $this->em->flush();
+        } catch (\Exception $exception) {
+            $this->logger->addError($exception->getMessage());
+            throw new \RuntimeException();
+        }
+        $resetLink  = $this->router->generate('mautic_user_passwordresetconfirm', ['token' => $resetToken->getSecret()], true);
+        $message    = \Swift_Message::newInstance();
+        $message->setTo([$user->getEmail() => $user->getName()]);
+        $message->setFrom(['support@lemailer3.com' => 'LeadsEngage']);
+        $message->setSubject($this->translator->trans('mautic.user.user.passwordreset.subject'));
+        /*$text = $this->translator->trans(
             'mautic.user.user.passwordreset.email.body',
             ['%name%' => $user->getFirstName(), '%resetlink%' => '<a href="'.$resetLink.'">'.$resetLink.'</a>']
         );
-        $text = str_replace('\\n', "\n", $text);
-        $html = nl2br($text);
+        $text = str_replace('\\n', "\n", $text);*/
+        $name = $user->getFirstName();
+        $text = "<!DOCTYPE html>
+<html>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 
-        $mailer->setBody($html);
-        $mailer->setPlainText(strip_tags($text));
+	<head>
+		<title></title>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css'>
+	</head>
+	<body aria-disabled='false' style='min-height: 300px;margin:0px;'>
+		<div style='background-color:#eff2f7'>
+			<div style='padding-top: 55px;'>
+				<div class='marle' style='margin: 0% 11.5%;background-color:#fff;padding: 50px 50px 50px 50px;border-bottom:5px solid #0071ff;'>
 
-        $mailer->send();
+					<p style='text-align:center;'><img src='https://s3.amazonaws.com/leadsroll.com/home/leadsengage_logo-black.png' class='fr-fic fr-dii' height='40'></p>
+					<br>
+					<div style='text-align:center;width:100%;'>
+						<div style='display:inline-block;width: 80%;'>
+
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Hi $name,</p>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>This email is in your inbox because you requested to reset your password. Here is the link to do just that</p><a href=\"$resetLink\" class='butle' style='text-align:center;text-decoration:none;font-family: Montserrat,sans-serif;transition: all .1s ease;color: #fff;font-weight: 400;font-size: 18px;margin-top: 10px;font-family: Montserrat,sans-serif;display: inline-block;letter-spacing: .6px;padding: 15px 30px;box-shadow: 0 1px 2px rgba(0,0,0,.36);white-space: nowrap;border-radius: 35px;background-color: #0071ff;border: #0071ff;'>Reset Your Password</a>
+							<br>
+
+							<p style='text-align:left;font-size:14px;line-height: 30px;font-family: Montserrat,sans-serif;'>If you did not request a password reset please reply to this email and let us know. We can investigate if the request was unauthorized.</p>
+							<br>
+
+							<p style='text-align:left;font-size:14px;font-family: Montserrat,sans-serif;'>Thanks,
+								<br>LeadsEngage Support</p>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<br>
+			</div>
+		</div>
+		
+	</body>
+</html>";
+        //$html = nl2br($text);
+
+        $message->setBody($text, 'text/html');
+        //$mailer->setPlainText(strip_tags($text));
+
+        $mailer->send($message);
     }
 
     /**
@@ -360,6 +435,22 @@ class UserModel extends FormModel
      */
     public function getOwnerListChoices()
     {
-        return $this->getRepository()->getOwnerListChoices();
+        return $this->getRepository()->getOwnerListChoices($this);
+    }
+
+    public function getCurrentUserEntity()
+    {
+        return $this->userHelper->getUser();
+    }
+
+    public function getUserTimeZone()
+    {
+        $query = $this->em->getConnection()->createQueryBuilder()
+            ->select('a.timezone')
+            ->from(MAUTIC_TABLE_PREFIX.'accountinfo', 'a');
+
+        $result = $query->execute()->fetch();
+
+        return $result['timezone'];
     }
 }

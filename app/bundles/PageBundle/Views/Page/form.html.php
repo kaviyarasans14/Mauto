@@ -36,7 +36,8 @@ $attr                               = $form->vars['attr'];
 $attr['data-submit-callback-async'] = 'clearThemeHtmlBeforeSave';
 
 $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
-
+$isAdmin    =$view['security']->isAdmin();
+$hidepanel  =$view['security']->isAdmin() ? '' : "style='display: none;'";
 ?>
 
 <?php echo $view['form']->start($form, ['attr' => $attr]); ?>
@@ -64,10 +65,14 @@ $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
                             </div>
                         </div>
 
-                        <?php echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
-                            'type'   => 'page',
-                            'themes' => $themes,
-                            'active' => $form['template']->vars['value'],
+<!--                        --><?php //echo $view->render('MauticCoreBundle:Helper:theme_select.html.php', [
+//                            'type'   => 'page',
+//                            'themes' => $themes,
+//                            'active' => $form['template']->vars['value'],
+//                        ]);?>
+                        <?php echo $view->render('MauticEmailBundle:Email:bee_template_select.html.php', [
+                            'beetemplates' => $beetemplates,
+                            'active'       => $form['template']->vars['value'],
                         ]); ?>
                     </div>
                 </div>
@@ -82,29 +87,30 @@ $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
             <?php else: ?>
             <?php echo $view['form']->row($form['template']); ?>
             <?php endif; ?>
-            <?php
-            if ($isVariant):
-            echo $view['form']->row($form['variantSettings']);
-
-            else:
-            echo $view['form']->row($form['category']);
-            echo $view['form']->row($form['language']);
-            echo $view['form']->row($form['translationParent']);
-            endif;
-
-            echo $view['form']->row($form['isPublished']);
-            if (($permissions['page:preference_center:editown'] ||
+            <?php if ($isVariant): ?>
+            <?php echo $view['form']->row($form['variantSettings']); ?>
+            <?php else: ?>
+            <?php echo $view['form']->row($form['category']); ?>
+            <?php endif; ?>
+            <?php echo $view['form']->row($form['isPublished']); ?>
+            <?php if (($permissions['page:preference_center:editown'] ||
                     $permissions['page:preference_center:editother']) &&
                         !$activePage->isVariant()) {
-                echo $view['form']->row($form['isPreferenceCenter']);
-            }
-            echo $view['form']->row($form['publishUp']);
-            echo $view['form']->row($form['publishDown']);
-
-            if (!$isVariant):
-            echo $view['form']->row($form['redirectType']);
-            echo $view['form']->row($form['redirectUrl']);
-            endif;
+                            echo $view['form']->row($form['isPreferenceCenter']);
+                        } ?>
+            <div <?php echo ($isAdmin) ? '' : 'class="hide"' ?>>
+            <?php if (!$isVariant): ?>
+            <?php echo $view['form']->row($form['language']); ?>
+            <?php endif; ?>
+            <?php echo $view['form']->row($form['publishUp']); ?>
+            <?php echo $view['form']->row($form['publishDown']); ?>
+            <?php echo $view['form']->row($form['translationParent']); ?>
+            </div>
+            <?php if (!$isVariant): ?>
+            <?php echo $view['form']->row($form['redirectType']); ?>
+            <?php echo $view['form']->row($form['redirectUrl']); ?>
+            <?php endif;
+            echo $view['form']->row($form['noIndex']);
             ?>
 
             <div class="template-fields<?php echo (!$template) ? ' hide"' : ''; ?>">
@@ -119,13 +125,13 @@ $isCodeMode = ($activePage->getTemplate() === 'mautic_code_mode');
 </div>
 <?php echo $view['form']->row($form['customHtml']); ?>
 <?php echo $view['form']->end($form); ?>
-
-<?php echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
-    'type'          => 'page',
-    'isCodeMode'    => $isCodeMode,
-    'sectionForm'   => $sectionForm,
-    'builderAssets' => $builderAssets,
-    'slots'         => $slots,
-    'sections'      => $sections,
-    'objectId'      => $activePage->getSessionId(),
-]); ?>
+<?php echo $view->render('MauticEmailBundle:Email:beeeditor.html.php', ['objectId'      => $activePage->getSessionId(), 'type'          => 'page']); ?>
+<?php //echo $view->render('MauticCoreBundle:Helper:builder.html.php', [
+//    'type'          => 'page',
+//    'isCodeMode'    => $isCodeMode,
+//    'sectionForm'   => $sectionForm,
+//    'builderAssets' => $builderAssets,
+//    'slots'         => $slots,
+//    'sections'      => $sections,
+//    'objectId'      => $activePage->getSessionId(),
+//]);?>

@@ -21,6 +21,7 @@ use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\Chart\PieChart;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\CoreBundle\Helper\IpLookupHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\ThemeHelper;
 use Mautic\CoreBundle\Model\AjaxLookupModelInterface;
 use Mautic\CoreBundle\Model\BuilderModelTrait;
@@ -121,6 +122,11 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     protected $sendModel;
 
     /**
+     * @var LicenseInfoHelper
+     */
+    protected $licenseInfoHelper;
+
+    /**
      * EmailModel constructor.
      *
      * @param IpLookupHelper     $ipLookupHelper
@@ -133,6 +139,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      * @param UserModel          $userModel
      * @param MessageQueueModel  $messageQueueModel
      * @param SendEmailToContact $sendModel
+     * @param LicenseInfoHelper  $licenseInfoHelper
      */
     public function __construct(
         IpLookupHelper $ipLookupHelper,
@@ -144,7 +151,8 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         TrackableModel $pageTrackableModel,
         UserModel $userModel,
         MessageQueueModel $messageQueueModel,
-        SendEmailToContact $sendModel
+        SendEmailToContact $sendModel,
+        LicenseInfoHelper  $licenseInfoHelper
     ) {
         $this->ipLookupHelper     = $ipLookupHelper;
         $this->themeHelper        = $themeHelper;
@@ -156,6 +164,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         $this->userModel          = $userModel;
         $this->messageQueueModel  = $messageQueueModel;
         $this->sendModel          = $sendModel;
+        $this->licenseInfoHelper  =  $licenseInfoHelper;
     }
 
     /**
@@ -190,6 +199,22 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     public function getStatDeviceRepository()
     {
         return $this->em->getRepository('MauticEmailBundle:StatDevice');
+    }
+
+    /**
+     * @return \Mautic\EmailBundle\Entity\AwsConfig
+     */
+    public function getAwsConfigRepository()
+    {
+        return $this->em->getRepository('MauticEmailBundle:AwsConfig');
+    }
+
+    /**
+     * @return \Mautic\EmailBundle\Entity\AwsVerifiedEmails
+     */
+    public function getAwsVerifiedEmailsRepository()
+    {
+        return $this->em->getRepository('MauticEmailBundle:AwsVerifiedEmails');
     }
 
     /**
@@ -520,6 +545,9 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $this->em->flush($email);
         }
 
+        $this->em->persist($stat);
+        $this->em->flush();
+
         if (isset($emailOpenDevice) and is_object($emailOpenDevice)) {
             $emailOpenStat = new StatDevice();
             $emailOpenStat->setIpAddress($ipAddress);
@@ -530,9 +558,6 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $this->em->persist($emailOpenStat);
             $this->em->flush($emailOpenStat);
         }
-
-        $this->em->persist($stat);
-        $this->em->flush();
     }
 
     /**
@@ -817,6 +842,18 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
     }
 
     /**
+     * Get an array of tracked links.
+     *
+     * @param $emailId
+     *
+     * @return array
+     */
+    public function getEmailClickCount($emailId)
+    {
+        return $this->pageTrackableModel->getTrackableCount('email', $emailId);
+    }
+
+    /**
      * Get the number of leads this email will be sent to.
      *
      * @param Email $email
@@ -824,13 +861,33 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      * @param bool  $countOnly       If true, return count otherwise array of leads
      * @param int   $limit           Max number of leads to retrieve
      * @param bool  $includeVariants If false, emails sent to a variant will not be included
+     * @param int   $minContactId    Filter by min contact ID
+     * @param int   $maxContactId    Filter by max contact ID
+     * @param bool  $countWithMaxMin Add min_id and max_id info to the count result
      *
      * @return int|array
      */
-    public function getPendingLeads(Email $email, $listId = null, $countOnly = false, $limit = null, $includeVariants = true)
-    {
+    public function getPendingLeads(
+        Email $email,
+        $listId = null,
+        $countOnly = false,
+        $limit = null,
+        $includeVariants = true,
+        $minContactId = null,
+        $maxContactId = null,
+        $countWithMaxMin = false
+    ) {
         $variantIds = ($includeVariants) ? $email->getRelatedEntityIds() : null;
-        $total      = $this->getRepository()->getEmailPendingLeads($email->getId(), $variantIds, $listId, $countOnly, $limit);
+        $total      = $this->getRepository()->getEmailPendingLeads(
+            $email->getId(),
+            $variantIds,
+            $listId,
+            $countOnly,
+            $limit,
+            $minContactId,
+            $maxContactId,
+            $countWithMaxMin
+        );
 
         return $total;
     }
@@ -1146,6 +1203,10 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         $dncAsError          = (isset($options['dnc_as_error'])) ? $options['dnc_as_error'] : false;
         $errors              = [];
 
+        $isValidEmailCount     =$this->licenseInfoHelper->isValidEmailCount();
+        $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
+        $accountStatus         = $this->licenseInfoHelper->getAccountStatus();
+
         if (empty($channel)) {
             $channel = (isset($options['source'])) ? $options['source'] : [];
         }
@@ -1280,14 +1341,23 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
                 foreach ($contacts as $contact) {
                     try {
-                        $this->sendModel->setContact($contact, $tokens)
-                            ->send();
+                        if (!$accountStatus) {
+                            if ($isValidEmailCount && $isHavingEmailValidity) {
+                                $this->sendModel->setContact($contact, $tokens)
+                                    ->send();
+                                // Update $emailSetting so campaign a/b tests are handled correctly
+                                ++$emailSettings[$parentId]['sentCount'];
 
-                        // Update $emailSetting so campaign a/b tests are handled correctly
-                        ++$emailSettings[$parentId]['sentCount'];
-
-                        if (!empty($emailSettings[$parentId]['isVariant'])) {
-                            ++$emailSettings[$parentId]['variantCount'];
+                                if (!empty($emailSettings[$parentId]['isVariant'])) {
+                                    ++$emailSettings[$parentId]['variantCount'];
+                                }
+                            } else {
+                                $this->sendModel->reset();
+                                throw new FailedToSendToContactException();
+                            }
+                        } else {
+                            $this->sendModel->reset();
+                            throw new FailedToSendToContactException();
                         }
                     } catch (FailedToSendToContactException $exception) {
                         // move along to the next contact
@@ -1305,7 +1375,20 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         // Get sent counts to update email stats
         $sentCounts = $this->sendModel->getSentCounts();
-
+        // Get failure counts to update email stats
+        $failureCounts = $this->sendModel->getFailureCounts();
+        foreach ($failureCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $this->getRepository()->upFailureCount($emailId, 'failure', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
         // Reset the model for the next send
         $this->sendModel->reset();
 
@@ -1315,6 +1398,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             $strikes = 3;
             while ($strikes >= 0) {
                 try {
+                    $this->licenseInfoHelper->intEmailCount($count);
                     $this->getRepository()->upCount($emailId, 'sent', $count, $emailSettings[$emailId]['isVariant']);
                     break;
                 } catch (\Exception $exception) {
@@ -1357,7 +1441,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         array $lead = null,
         array $tokens = [],
         array $assetAttachments = [],
-        $saveStat = true,
+        $saveStat = false,
         array $to = [],
         array $cc = [],
         array $bcc = []
@@ -1508,9 +1592,32 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
         if ($lead instanceof Lead) {
             $email   = $stat->getEmail();
-            $channel = ($email) ? ['email' => $email->getId()] : 'email';
+            if ($email instanceof Email) {
+                $channel = ($email) ? ['email' => $email->getId()] : 'email';
+                if ($reason == DoNotContact::IS_CONTACTABLE) {
+                    $this->sendModel->upEmailFailureCount($email->getId());
+                    $this->updateFailureCount($stat);
+                } else {
+                    if ($reason == DoNotContact::UNSUBSCRIBED) {
+                        $this->sendModel->upEmailUnsubscriberCount($email->getId());
+                        $this->updateUnsubscribeCount($stat);
+                    } elseif ($reason == DoNotContact::BOUNCED) {
+                        $this->sendModel->upEmailBounceCount($email->getId());
+                        $this->updateBounceCount($stat);
+                    } elseif ($reason == DoNotContact::SPAM) {
+                        $this->sendModel->upEmailSpamCount($email->getId());
+                        $this->updateSpamCount($stat);
+                    }
 
-            return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
+            } else {
+                if ($reason == DoNotContact::UNSUBSCRIBED || $reason == DoNotContact::BOUNCED || $reason == DoNotContact::SPAM) {
+                    $channel = 'email';
+
+                    return $this->leadModel->addDncForLead($lead, $channel, $comments, $reason, $flush);
+                }
+            }
         }
 
         return false;
@@ -1521,8 +1628,14 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
      *
      * @param string $email
      */
-    public function removeDoNotContact($email)
+    public function removeDoNotContact(Stat $stat)
     {
+        $email             = $stat->getEmailAddress();
+        $emailAdress       = $stat->getEmail();
+        if ($emailAdress instanceof Email) {
+            $this->getRepository()->downUnsubscribeCount($emailAdress->getId(), 'unsubscribe', 1);
+        }
+
         /** @var \Mautic\LeadBundle\Entity\LeadRepository $leadRepo */
         $leadRepo = $this->em->getRepository('MauticLeadBundle:Lead');
         $leadId   = (array) $leadRepo->getLeadByEmail($email, true);
@@ -1575,6 +1688,8 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
 
     /**
      * Processes the callback response from a mailer for bounces and unsubscribes.
+     *
+     * @deprecated 2.13.0 to be removed in 3.0; use TransportWebhook::processCallback() instead
      *
      * @param array $response
      *
@@ -1735,24 +1850,23 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         }
 
         if ($flag == 'all' || $flag == 'clicked') {
-            $q = $query->prepareTimeDataQuery('page_hits', 'date_hit', [])
-                ->join('t', MAUTIC_TABLE_PREFIX.'channel_url_trackables', 'cut', 't.redirect_id = cut.redirect_id')
-                ->andWhere('cut.channel = :channel')
-                ->setParameter('channel', 'email');
+            $q = $query->prepareTimeDataQuery('page_hits', 'date_hit', []);
+            $q->andWhere('t.source = :source');
+            $q->setParameter('source', 'email');
 
             if (isset($filter['email_id'])) {
                 if (is_array($filter['email_id'])) {
-                    $q->andWhere($q->expr()->in('cut.channel_id', $filter['email_id']));
+                    $q->andWhere('t.source_id IN (:email_ids)');
+                    $q->setParameter('email_ids', $filter['email_id'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
                 } else {
-                    $q->andWhere('cut.channel_id = :channel_id');
-                    $q->setParameter('channel_id', $filter['email_id']);
+                    $q->andWhere('t.source_id = :email_id');
+                    $q->setParameter('email_id', $filter['email_id']);
                 }
             }
 
             if (!$canViewOthers) {
                 $this->limitQueryToCreator($q);
             }
-
             $data = $query->loadAndBuildTimeData($q);
 
             $chart->setDataset($this->translator->trans('mautic.email.clicked'), $data);
@@ -1895,7 +2009,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             ->groupBy('e.id')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('e.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }
@@ -1934,7 +2048,7 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
             ->from(MAUTIC_TABLE_PREFIX.'emails', 't')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('t.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }
@@ -2134,5 +2248,168 @@ class EmailModel extends FormModel implements AjaxLookupModelInterface
         unset($mailer);
 
         return $errors;
+    }
+
+    /**
+     *@Param Stat $stat
+     *
+     * @return array
+     */
+    public function updateFailureCount(Stat $stat)
+    {
+        $failureCounts = $this->sendModel->getFailureCounts();
+        foreach ($failureCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsFailed(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->getRepository()->upFailureCount($emailId, 'failure', $count);
+                    $this->getRepository()->upDownSentCount($emailId, 'sent', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    /**
+     *@Param Stat $stat
+     *
+     * @return array
+     */
+    public function updateUnsubscribeCount(Stat $stat)
+    {
+        $unsubscribeCounts = $this->sendModel->getUnsubscribeCounts();
+        // Get Unsubscribe counts to update email stats
+        foreach ($unsubscribeCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsUnsubscribe(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->getRepository()->upUnsubscribeCount($emailId, 'unsubscribe', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    public function updateBounceCount(Stat $stat)
+    {
+        // Get Bounce counts to update email stats
+        $bounceCounts = $this->sendModel->getBounceCounts();
+        foreach ($bounceCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsBounce(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->licenseInfoHelper->intBounceCount($count);
+                    $this->getRepository()->upBounceCount($emailId, 'bounce', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    public function updateSpamCount(Stat $stat)
+    {
+        // Get Bounce counts to update email stats
+        $spamCounts = $this->sendModel->getSpamCounts();
+        foreach ($spamCounts as $emailId => $count) {
+            $strikes = 3;
+            while ($strikes >= 0) {
+                try {
+                    $stat->setIsSpam(1);
+                    $this->getStatRepository()->saveEntity($stat);
+                    $this->licenseInfoHelper->intSpamCount($count);
+                    $this->getRepository()->upSpamCount($emailId, 'spam', $count);
+                    break;
+                } catch (\Exception $exception) {
+                    error_log($exception);
+                }
+                --$strikes;
+            }
+        }
+    }
+
+    public function getVerifiedEmailAddress()
+    {
+        $emailids=[];
+        $q       = $this->em->createQueryBuilder();
+        $q->select('a.verifiedemails')
+             ->from('MauticEmailBundle:AwsVerifiedEmails', 'a')
+            ->where(
+           $q->expr()->andX(
+               $q->expr()->eq('a.verificationstatus', ':verificationstatus')
+             )
+             )->setParameter('verificationstatus', 'Verified');
+
+        $value = $q->getQuery()->getArrayResult();
+
+        for ($i=0; $i < sizeof($value); ++$i) {
+            $emailids[]= $value[$i]['verifiedemails'];
+        }
+
+        return $emailids;
+    }
+
+    public function getAllEmailAddress()
+    {
+        $emailids=[];
+        $q       = $this->em->createQueryBuilder();
+        $q->select('a.verifiedemails')
+            ->from('MauticEmailBundle:AwsVerifiedEmails', 'a');
+
+        $value = $q->getQuery()->getArrayResult();
+
+        for ($i=0; $i < sizeof($value); ++$i) {
+            $emailids[]= $value[$i]['verifiedemails'];
+        }
+
+        return $emailids;
+    }
+
+    public function upAwsEmailVerificationStatus($emails)
+    {
+        $q = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        foreach ($emails as $key => $email) {
+            $q->update(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+            ->set('verification_status', ':status')
+            ->setParameter('status', 'Verified')
+            ->where('verified_emails = '.'"'.$email.'"');
+
+            $q->execute();
+        }
+    }
+
+    public function upAwsDeletedEmailVerificationStatus($email)
+    {
+        $q = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->update(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+                ->set('verification_status', ':status')
+                ->setParameter('status', 'Pending')
+                ->where('verified_emails = '.'"'.$email.'"');
+
+        $q->execute();
+    }
+
+    public function deleteAwsVerifiedEmails($email)
+    {
+        $emailId = trim(preg_replace('/\s\s+/', ' ', $email));
+        $q       = $this->factory->getEntityManager()->getConnection()->createQueryBuilder();
+        $q->delete(MAUTIC_TABLE_PREFIX.'awsverifiedemails')
+           ->where('verified_emails = :emails')
+           ->setParameter('emails', $emailId)
+           ->execute();
     }
 }

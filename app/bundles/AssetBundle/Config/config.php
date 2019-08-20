@@ -51,7 +51,7 @@ return [
                     'route'    => 'mautic_asset_index',
                     'access'   => ['asset:assets:viewown', 'asset:assets:viewother'],
                     'parent'   => 'mautic.core.components',
-                    'priority' => 300,
+                    'priority' => 150,
                 ],
             ],
         ],
@@ -191,13 +191,16 @@ return [
         ],
         'models' => [
             'mautic.asset.model.asset' => [
-                'class'     => 'Mautic\AssetBundle\Model\AssetModel',
+                'class'     => \Mautic\AssetBundle\Model\AssetModel::class,
                 'arguments' => [
                     'mautic.lead.model.lead',
                     'mautic.category.model.category',
                     'request_stack',
                     'mautic.helper.ip_lookup',
                     'mautic.helper.core_parameters',
+                    'mautic.lead.service.device_creator_service',
+                    'mautic.lead.factory.device_detector_factory',
+                    'mautic.lead.service.device_tracking_service',
                 ],
             ],
         ],

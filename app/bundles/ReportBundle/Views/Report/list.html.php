@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticReportBundle:Report:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 <?php if (count($items)): ?>
     <div class="table-responsive panel-collapse pull out page-list">
@@ -41,7 +42,7 @@ if ($tmpl == 'index') {
                         'default'    => true,
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -51,6 +52,7 @@ if ($tmpl == 'index') {
                         'class'      => 'col-report-id visible-md visible-lg',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -98,7 +100,9 @@ if ($tmpl == 'index') {
                             </div>
                         <?php endif; ?>
                     </td>
+                    <?php if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

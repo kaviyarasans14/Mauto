@@ -22,9 +22,11 @@ use Mautic\EmailBundle\Entity\Email;
 use Mautic\EmailBundle\Event\EmailOpenEvent;
 use Mautic\EmailBundle\Event\EmailReplyEvent;
 use Mautic\EmailBundle\Exception\EmailCouldNotBeSentException;
+use Mautic\EmailBundle\Helper\UrlMatcher;
 use Mautic\EmailBundle\Model\EmailModel;
 use Mautic\EmailBundle\Model\SendEmailToUser;
 use Mautic\LeadBundle\Model\LeadModel;
+use Mautic\PageBundle\Entity\Hit;
 
 /**
  * Class CampaignSubscriber.
@@ -99,6 +101,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
+        $isAdmin =$this->factory->getUser()->isAdmin();
         $event->addDecision(
             'email.open',
             [
@@ -112,6 +115,7 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                 ],
+                'order'                  => 1,
             ]
         );
 
@@ -129,6 +133,7 @@ class CampaignSubscriber extends CommonSubscriber
                         ],
                     ],
                 ],
+                'order'                   => 2,
             ]
         );
 
@@ -143,10 +148,11 @@ class CampaignSubscriber extends CommonSubscriber
                 'formTheme'       => 'MauticEmailBundle:FormTheme\EmailSendList',
                 'channel'         => 'email',
                 'channelIdField'  => 'email',
+                'order'           => 1,
             ]
         );
-
-        $event->addDecision(
+        if ($isAdmin) {
+            $event->addDecision(
                 'email.reply',
                 [
                     'label'                  => 'mautic.email.campaign.event.reply',
@@ -159,9 +165,10 @@ class CampaignSubscriber extends CommonSubscriber
                             ],
                         ],
                     ],
+                    'order'                   => 9,
                 ]
             );
-
+        }
         $event->addAction(
             'email.send.to.user',
             [
@@ -173,6 +180,7 @@ class CampaignSubscriber extends CommonSubscriber
                 'formTheme'       => 'MauticEmailBundle:FormTheme\EmailSendList',
                 'channel'         => 'email',
                 'channelIdField'  => 'email',
+                'order'           => 3,
             ]
         );
     }
@@ -222,14 +230,13 @@ class CampaignSubscriber extends CommonSubscriber
         if (!empty($eventParent) && $eventParent['type'] === 'email.send') {
             // click decision
             if ($event->checkContext('email.click')) {
+                /** @var Hit $hit */
                 $hit = $eventDetails;
                 if ($eventDetails->getEmail()->getId() == (int) $eventParent['properties']['email']) {
                     if (!empty($eventConfig['urls']['list'])) {
-                        $limitToUrl = $eventConfig['urls']['list'];
-                        foreach ($limitToUrl as $url) {
-                            if (preg_match('/'.$url.'/i', $hit->getUrl())) {
-                                return $event->setResult(true);
-                            }
+                        $limitToUrls = (array) $eventConfig['urls']['list'];
+                        if (UrlMatcher::hasMatch($limitToUrls, $hit->getUrl())) {
+                            return $event->setResult(true);
                         }
                     } else {
                         return $event->setResult(true);

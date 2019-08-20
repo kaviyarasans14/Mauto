@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Model;
 
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\EmailBundle\Exception\EmailCouldNotBeSentException;
 use Mautic\EmailBundle\OptionsAccessor\EmailToUserAccessor;
 use Mautic\LeadBundle\Entity\Lead;
@@ -21,14 +22,21 @@ class SendEmailToUser
     /** @var EmailModel */
     private $emailModel;
 
-    public function __construct(EmailModel $emailModel)
+    /**
+     * @var LicenseInfoHelper
+     */
+    private $licenseInfoHelper;
+
+    public function __construct(EmailModel $emailModel, LicenseInfoHelper $licenseInfoHelper)
     {
-        $this->emailModel = $emailModel;
+        $this->emailModel        = $emailModel;
+        $this->licenseInfoHelper = $licenseInfoHelper;
     }
 
     /**
-     * @param array $config
-     * @param Lead  $lead
+     * @param array             $config
+     * @param Lead              $lead
+     * @param LicenseInfoHelper $licenseInfoHelper
      *
      * @throws EmailCouldNotBeSentException
      */
@@ -36,7 +44,10 @@ class SendEmailToUser
     {
         $emailToUserAccessor = new EmailToUserAccessor($config);
 
-        $email = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
+        $isValidEmailCount     = $this->licenseInfoHelper->isValidEmailCount();
+        $isHavingEmailValidity = $this->licenseInfoHelper->isHavingEmailValidity();
+        $accountStatus         = $this->licenseInfoHelper->getAccountStatus();
+        $email                 = $this->emailModel->getEntity($emailToUserAccessor->getEmailID());
 
         if (!$email || !$email->isPublished()) {
             throw new EmailCouldNotBeSentException('Email not found or published');
@@ -52,11 +63,20 @@ class SendEmailToUser
         $users = $emailToUserAccessor->getUserIdsToSend($owner);
 
         $idHash = UserHash::getFakeUserHash();
-        $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
-        $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
+        if (!$accountStatus) {
+            if ($isValidEmailCount && $isHavingEmailValidity) {
+                $tokens = $this->emailModel->dispatchEmailSendEvent($email, $leadCredentials, $idHash)->getTokens();
+                $errors = $this->emailModel->sendEmailToUser($email, $users, $leadCredentials, $tokens, [], false, $to, $cc, $bcc);
+                $this->licenseInfoHelper->intEmailCount('1');
 
-        if ($errors) {
-            throw new EmailCouldNotBeSentException(implode(', ', $errors));
+                if ($errors) {
+                    throw new EmailCouldNotBeSentException(implode(', ', $errors));
+                }
+            } else {
+                throw new EmailCouldNotBeSentException('InSufficient Email Count Please Contact Support');
+            }
+        } else {
+            throw new EmailCouldNotBeSentException('Your Account Has Been Kept on REVIEW and You Can\'t Send Emails for Now. Please Contact Support Team.');
         }
     }
 }

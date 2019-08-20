@@ -13,7 +13,7 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.campaign.c
 if ($tmpl == 'index') {
     $view->extend('MauticCoreBundle:Standard:index.html.php');
 }
-
+$isAdmin=$view['security']->isAdmin();
 ?>
 <?php if (count($items)): ?>
     <div class="table-responsive">
@@ -53,7 +53,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-campaign-category',
                     ]
                 );
-
+                if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -63,6 +63,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-campaign-id',
                     ]
                 );
+                endif;
                 ?>
             </tr>
             </thead>
@@ -115,7 +116,9 @@ if ($tmpl == 'index') {
                         <?php $color    = ($category) ? '#'.$category->getColor() : 'inherit'; ?>
                         <span style="white-space: nowrap;"><span class="label label-default pa-4" style="border: 1px solid #d5d5d5; background: <?php echo $color; ?>;"> </span> <span><?php echo $catName; ?></span></span>
                     </td>
+                    <?php if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

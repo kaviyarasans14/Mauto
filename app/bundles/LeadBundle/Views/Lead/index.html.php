@@ -19,7 +19,7 @@ if ($permissions['lead:leads:create']) {
             'class'       => 'btn btn-default btn-nospin quickadd',
             'data-toggle' => 'ajaxmodal',
             'data-target' => '#MauticSharedModal',
-            'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'quickAdd']),
+            'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'new', 'qf' => 1]),
             'data-header' => $view['translator']->trans('mautic.lead.lead.menu.quickadd'),
         ],
         'iconClass' => 'fa fa-bolt',
@@ -30,7 +30,7 @@ if ($permissions['lead:leads:create']) {
     if ($permissions['lead:imports:create']) {
         $pageButtons[] = [
             'attr' => [
-                'href' => $view['router']->path('mautic_import_action', ['object' => 'contacts', 'objectAction' => 'new']),
+                'href' => $view['router']->path('mautic_import_action', ['object' => 'leads', 'objectAction' => 'new']),
             ],
             'iconClass' => 'fa fa-upload',
             'btnText'   => 'mautic.lead.lead.import',
@@ -40,7 +40,7 @@ if ($permissions['lead:leads:create']) {
     if ($permissions['lead:imports:view']) {
         $pageButtons[] = [
             'attr' => [
-                'href' => $view['router']->path('mautic_import_index', ['object' => 'contacts']),
+                'href' => $view['router']->path('mautic_import_index', ['object' => 'leads']),
             ],
             'iconClass' => 'fa fa-history',
             'btnText'   => 'mautic.lead.lead.import.index',
@@ -114,6 +114,7 @@ if ($indexMode == 'list') {
             'searchHelp'    => 'mautic.lead.lead.help.searchcommands',
             'action'        => $currentRoute,
             'customButtons' => $toolbarButtons,
+            'filters'       => $filters,
         ]
     ); ?>
     <div class="page-list">

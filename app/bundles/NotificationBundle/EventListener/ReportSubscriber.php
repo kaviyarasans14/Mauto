@@ -69,6 +69,9 @@ class ReportSubscriber extends CommonSubscriber
      */
     public function onReportBuilder(ReportBuilderEvent $event)
     {
+        if (!$this->security->isAdmin()) {
+            return;
+        }
         if (!$event->checkContext([self::MOBILE_NOTIFICATIONS, self::MOBILE_NOTIFICATIONS_STATS])) {
             return;
         }

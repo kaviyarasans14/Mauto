@@ -74,6 +74,7 @@ $view['slots']->set(
 );
 
 $showActions = count($activeFormActions);
+$isadmin     =$view['security']->isAdmin();
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -277,10 +278,12 @@ $showActions = count($activeFormActions);
                        data-target="#modal-automatic-copy"><?php echo $view['translator']->trans(
                             'mautic.form.form.header.automaticcopy'
                         ); ?></a>
-                    <a href="#" class="btn btn-info" data-toggle="modal"
-                       data-target="#modal-manual-copy"><?php echo $view['translator']->trans(
-                            'mautic.form.form.header.manualcopy'
-                        ); ?></a>
+                    <?php if ($isadmin): ?>
+                        <a href="#" class="btn btn-info" data-toggle="modal"
+                        data-target="#modal-manual-copy"><?php echo $view['translator']->trans(
+                                'mautic.form.form.header.manualcopy'
+                            ); ?></a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -313,20 +316,31 @@ $showActions = count($activeFormActions);
                 <div class="modal-body">
                     <p><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy'); ?></p>
                     <h3><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.js'); ?></h3>
-                    <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;script type="text/javascript" src="<?php echo $view['router']->url(
+                    <textarea id="javascipt_textarea" class="form-control" readonly>&lt;script type="text/javascript" src="<?php echo $view['router']->url(
                             'mautic_form_generateform',
-                            ['id' => $activeForm->getId()],
-                            true
+                            ['id' => $activeForm->getId()]
                         ); ?>"&gt;&lt;/script&gt;</textarea>
+                    <a id="javascipt_textarea_atag" onclick="Mautic.copytoClipboardforms('javascipt_textarea');">
+                        <i aria-hidden="true" class="fa fa-clipboard"></i>
+                        <?php echo $view['translator']->trans(
+                            'leadsengage.subs.clicktocopy'
+                        ); ?>
+                    </a>
                     <h3 class="pt-lg"><?php echo $view['translator']->trans(
                             'mautic.form.form.help.automaticcopy.iframe'
                         ); ?></h3>
-                    <textarea class="form-control" readonly onclick="this.setSelectionRange(0, this.value.length);">&lt;iframe src="<?php echo $view['router']->url(
+                    <textarea id="iframe_textarea" class="form-control" readonly onclick="Mautic.copytoClipboardforms(this);">&lt;iframe src="<?php echo $view['router']->url(
                             'mautic_form_preview',
-                            ['id' => $activeForm->getId()],
-                            true
+                            ['id' => $activeForm->getId()]
                         ); ?>" width="300" height="300"&gt;&lt;p&gt;Your browser does not support iframes.&lt;/p&gt;&lt;/iframe&gt;</textarea>
+                    <a id="iframe_textarea_atag" onclick="Mautic.copytoClipboardforms('iframe_textarea');"><i aria-hidden="true" class="fa fa-clipboard"></i>
+                        <?php echo $view['translator']->trans(
+                            'leadsengage.subs.clicktocopy'
+                        ); ?></a>
+                    <br>
+                    <br>
                     <i><?php echo $view['translator']->trans('mautic.form.form.help.automaticcopy.iframe.note'); ?></i>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $view['translator']->trans(
@@ -374,4 +388,4 @@ $showActions = count($activeFormActions);
 </div>
 <!--/ end: box layout -->
 
-<input type="hidden" name="entityId" id="entityId" value="<?php echo $activeForm->getId(); ?>"/>
+<input type="hidden" name="entityId" id="entityId" value="<?php echo $view->escape($activeForm->getId()); ?>"/>

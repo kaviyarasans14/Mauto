@@ -14,6 +14,7 @@ namespace Mautic\CoreBundle\Controller;
 use Mautic\CoreBundle\Entity\FormEntity;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 use Mautic\CoreBundle\Model\FormModel;
+use MauticPlugin\MauticFocusBundle\Entity\Focus;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -422,6 +423,20 @@ abstract class AbstractStandardFormController extends AbstractFormController
             if (!$cancelled = $this->isFormCancelled($form)) {
                 if ($valid = $this->isFormValid($form)) {
                     if ($valid = $this->beforeEntitySave($entity, $form, 'edit', $objectId, $isClone)) {
+                        if ($form->getName() == 'focus') {
+                            $currentutmtags=$entity->getUtmTags();
+                            $currentname   =$entity->getName();
+                            if (empty($currentutmtags['utmSource'])) {
+                                $currentutmtags['utmSource']='leadsengage';
+                            }
+                            if (empty($currentutmtags['utmMedium'])) {
+                                $currentutmtags['utmMedium']='focus';
+                            }
+                            if (empty($currentutmtags['utmCampaign'])) {
+                                $currentutmtags['utmCampaign']=$currentname;
+                            }
+                            $entity->setUtmTags($currentutmtags);
+                        }
                         $model->saveEntity($entity, $form->get('buttons')->get('save')->isClicked());
 
                         $this->afterEntitySave($entity, $form, 'edit', $valid);
@@ -497,6 +512,7 @@ abstract class AbstractStandardFormController extends AbstractFormController
                 'modelName'       => $this->getModelName(),
                 'translationBase' => $this->getTranslationBase(),
                 'tmpl'            => $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index',
+                'items'           => '',
                 'entity'          => $entity,
                 'form'            => $this->getFormView($form, 'edit'),
             ],
@@ -686,6 +702,16 @@ abstract class AbstractStandardFormController extends AbstractFormController
     protected function getDefaultOrderColumn()
     {
         return 'name';
+    }
+
+    /**
+     * Provide the name of the column which is used for default ordering.
+     *
+     * @return string
+     */
+    protected function getDefaultCampaignOrderColumn()
+    {
+        return 'campaignOrder';
     }
 
     /**
@@ -969,18 +995,24 @@ abstract class AbstractStandardFormController extends AbstractFormController
     }
 
     /**
+     * @param $objectId
+     *
      * @return array|\Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      *
      * @throws \Exception
      */
-    protected function newStandard()
+    protected function newStandard($objectId = null)
     {
         $entity = $this->getFormEntity('new');
 
         if (!$this->checkActionPermission('new')) {
             return $this->accessDenied();
         }
-
+        if ($this->getModelName() == 'focus') {
+            if ($objectId != null && $objectId != 'blank' && $objectId instanceof Focus) {
+                $entity = $objectId;
+            }
+        }
         $model = $this->getModel($this->getModelName());
         if (!$model instanceof FormModel) {
             throw new \Exception(get_class($model).' must extend '.FormModel::class);
@@ -998,10 +1030,25 @@ abstract class AbstractStandardFormController extends AbstractFormController
         $this->beforeFormProcessed($entity, $form, 'new', $isPost);
 
         if ($isPost) {
-            $valid = false;
+            $objectId = 'blank';
+            $valid    = false;
             if (!$cancelled = $this->isFormCancelled($form)) {
                 if ($valid = $this->isFormValid($form)) {
                     if ($valid = $this->beforeEntitySave($entity, $form, 'new')) {
+                        if ($form->getName() == 'focus') {
+                            $currentutmtags=$entity->getUtmTags();
+                            $currentname   =$entity->getName();
+                            if (empty($currentutmtags['utmSource'])) {
+                                $currentutmtags['utmSource']='leadsengage';
+                            }
+                            if (empty($currentutmtags['utmMedium'])) {
+                                $currentutmtags['utmMedium']='focus';
+                            }
+                            if (empty($currentutmtags['utmCampaign'])) {
+                                $currentutmtags['utmCampaign']=$currentname;
+                            }
+                            $entity->setUtmTags($currentutmtags);
+                        }
                         $model->saveEntity($entity);
                         $this->afterEntitySave($entity, $form, 'new', $valid);
 
@@ -1058,6 +1105,41 @@ abstract class AbstractStandardFormController extends AbstractFormController
             }
         }
 
+        $session = $this->get('session');
+        if (empty($page)) {
+            $page = $session->get('mautic.'.$this->getSessionBase().'.page', 1);
+        }
+
+        //set limits
+        $limit = $session->get('mautic.'.$this->getSessionBase().'.limit', $this->coreParametersHelper->getParameter('default_pagelimit'));
+        $start = ($page === 1) ? 0 : (($page - 1) * $limit);
+        if ($start < 0) {
+            $start = 0;
+        }
+
+        $search = $this->request->get('search', $session->get('mautic.'.$this->getSessionBase().'.filter', ''));
+        $session->set('mautic.'.$this->getSessionBase().'.filter', $search);
+
+        $filter = ['string' => $search, 'force' => []];
+
+        /* $model = $this->getModel($this->getModelName());
+         $repo  = $model->getRepository();
+
+         $filter['force'][] = ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'eq', 'value' => 1];
+         $filter['force'][] = ['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 0];
+         if ($objectId == null) {
+             $campaignargs                        = [];
+             $campaignargs['isAdminRecordNeeded'] = true;
+             $orderBy                             = $session->get('mautic.'.$this->getSessionBase().'.orderby', $repo->getTableAlias().'.'.$this->getDefaultCampaignOrderColumn());
+             $orderByDir                          = $session->get('mautic.'.$this->getSessionBase().'.orderbydir', $this->getDefaultOrderDirection());
+             list($count, $items)                 = $this->getIndexItems($start, $limit, $filter, $orderBy, $orderByDir, $campaignargs);
+             if ($count == 0) {
+                 $items = '';
+             }
+         } else {
+             $items = '';
+         }*/
+        $items        = '';
         $delegateArgs = [
             'viewParameters' => [
                 'permissionBase'  => $this->getPermissionBase(),
@@ -1068,6 +1150,7 @@ abstract class AbstractStandardFormController extends AbstractFormController
                 'modelName'       => $this->getModelName(),
                 'translationBase' => $this->getTranslationBase(),
                 'tmpl'            => $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index',
+                'items'           => $items,
                 'entity'          => $entity,
                 'form'            => $this->getFormView($form, 'new'),
             ],
@@ -1086,6 +1169,16 @@ abstract class AbstractStandardFormController extends AbstractFormController
             'entity' => $entity,
             'form'   => $form,
         ];
+        if ($form->getName() == 'focus') {
+            $signuprepository = $this->get('le.core.repository.signup');
+            $focusitems       = $signuprepository->selectfocusItems();
+            //dump($focusitems);
+            if ($objectId != null && $objectId != 'blank') {
+                $delegateArgs['viewParameters']['entity'] = $objectId;
+                $delegateArgs['entity']                   = $objectId;
+            }
+            $delegateArgs['viewParameters']['focusTemplates'] = $focusitems;
+        }
 
         return $this->delegateView(
             $this->getViewArguments($delegateArgs, 'new')
@@ -1203,5 +1296,28 @@ abstract class AbstractStandardFormController extends AbstractFormController
     protected function getDataForExport(AbstractCommonModel $model, array $args, callable $resultsCallback = null, $start = 0)
     {
         return parent::getDataForExport($model, $args, $resultsCallback, $start); // TODO: Change the autogenerated stub
+    }
+
+    protected function clonePopupsFromTemplateAction($objectId)
+    {
+        $focusid          = $objectId;
+        $model            = $this->getModel('focus');
+        $signuprepository = $this->get('le.core.repository.signup');
+        $focusitems       = $signuprepository->selectPopupTemplatebyID($focusid);
+        $focusitem        = $focusitems;
+        $entity           = $model->getEntity();
+        $entity->setName($focusitem['name']);
+        $entity->setType($focusitem['focus_type']);
+        $entity->setStyle($focusitem['style']);
+        $properties = unserialize($focusitem['properties']);
+        $entity->setProperties($properties);
+        $entity->setHtmlMode($focusitem['html_mode']);
+        $entity->setEditor($focusitem['editor']);
+        $entity->setCache($focusitem['cache']);
+        $entity->setHtml($focusitem['html']);
+
+        $newEntity = clone $entity;
+
+        return $this->newStandard($newEntity);
     }
 }

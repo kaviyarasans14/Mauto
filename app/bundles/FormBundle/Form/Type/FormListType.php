@@ -50,7 +50,7 @@ class FormListType extends AbstractType
 
                 $choices = [];
 
-                $forms = $repo->getFormList('', 0, 0, $viewOther, $options['form_type']);
+                $forms = $repo->getFormList('', 0, 0, false, $viewOther, $options['form_type']);
                 foreach ($forms as $form) {
                     $choices[$form['id']] = $form['name'];
                 }

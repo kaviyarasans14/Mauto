@@ -31,7 +31,6 @@ trait ExpressionHelperTrait
         if (!is_array($parameter) && strpos($parameter, ':') !== 0) {
             $parameter = ":$parameter";
         }
-
         if (null === $includeIsNull) {
             // Auto determine based on negate operators
             $includeIsNull = (in_array($operator, ['neq', 'notLike', 'notIn']));

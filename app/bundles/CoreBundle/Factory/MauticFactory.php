@@ -276,6 +276,11 @@ class MauticFactory
         return new DateTimeHelper($string, $format, $tz);
     }
 
+    public function getDateHelper()
+    {
+        return $this->container->get('mautic.helper.template.date');
+    }
+
     /**
      * Get Router.
      *
@@ -364,6 +369,46 @@ class MauticFactory
     public function getInstalledThemes($specificFeature = 'all', $extended = false)
     {
         return $this->container->get('mautic.helper.theme')->getInstalledThemes($specificFeature, $extended);
+    }
+
+    /**
+     * Gets a list of installed bee templates.
+     *
+     * @return array
+     */
+    public function getInstalledBeeTemplates($specificFeature = 'all', $ignoreCache = false, $extended=true)
+    {
+        return $this->container->get('mautic.helper.theme')->getInstalledBeeTemplates($specificFeature, $ignoreCache, $extended);
+    }
+
+    /**
+     * Gets a list of available plans.
+     *
+     * @return array
+     */
+    public function getAvailablePlans($ignoreCache = false)
+    {
+        return $this->container->get('mautic.helper.theme')->getAvailablePlans($ignoreCache);
+    }
+
+    /**
+     * Gets template json based on its name.
+     *
+     * @return string
+     */
+    public function getBeeTemplateJSONByName($templatename)
+    {
+        return $this->container->get('mautic.helper.theme')->getBeeTemplateJSONByName($templatename);
+    }
+
+    /**
+     * Gets template json based on its name.
+     *
+     * @return string
+     */
+    public function getBeeTemplateHTMLByName($templatename)
+    {
+        return $this->container->get('mautic.helper.theme')->getBeeTemplateHTMLByName($templatename);
     }
 
     /**

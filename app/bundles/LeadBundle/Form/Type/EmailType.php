@@ -11,8 +11,9 @@
 
 namespace Mautic\LeadBundle\Form\Type;
 
+use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
-use Mautic\CoreBundle\Helper\UserHelper;
+use Mautic\EmailBundle\Form\Validator\Constraints\EmailVerify;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -24,16 +25,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class EmailType extends AbstractType
 {
     /**
-     * @var UserHelper
+     * @var MauticFactory
      */
-    private $userHelper;
+    private $factory;
 
-    /**
-     * @param UserHelper $userHelper
-     */
-    public function __construct(UserHelper $userHelper)
+    public function __construct(MauticFactory $factory)
     {
-        $this->userHelper = $userHelper;
+        $this->factory        = $factory;
     }
 
     /**
@@ -43,6 +41,20 @@ class EmailType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addEventSubscriber(new CleanFormSubscriber(['body' => 'html']));
+        $emailProvider = $this->factory->get('mautic.helper.licenseinfo')->getEmailProvider();
+        $currentUser   = $this->factory->get('mautic.helper.user')->getUser()->isAdmin();
+        /** @var \Mautic\CoreBundle\Configurator\Configurator $configurator */
+        $configurator  = $this->factory->get('mautic.configurator');
+        $params        = $configurator->getParameters();
+        $fromname      =  $params['mailer_from_name'];
+        $fromemail     = $params['mailer_from_email'];
+        $disabled      = false;
+
+        if (!$currentUser) {
+            if ($emailProvider == 'Sparkpost') {
+                $disabled = true;
+            }
+        }
 
         $builder->add(
             'subject',
@@ -55,29 +67,42 @@ class EmailType extends AbstractType
             ]
         );
 
-        $user = $this->userHelper->getUser();
+        $user = $this->factory->get('mautic.helper.user')->getUser();
+        if ($emailProvider == 'Sparkpost') {
+            $default = (empty($options['data']['fromname'])) ? $fromname : $options['data']['fromname'];
+        } else {
+            $default = (empty($options['data']['fromname'])) ? $user->getFirstName().' '.$user->getLastName() : $options['data']['fromname'];
+        }
 
-        $default = (empty($options['data']['fromname'])) ? $user->getFirstName().' '.$user->getLastName() : $options['data']['fromname'];
         $builder->add(
             'fromname',
             'text',
-             [
+            [
                 'label'      => 'mautic.lead.email.from_name',
                 'label_attr' => ['class' => 'control-label'],
-                'attr'       => ['class' => 'form-control'],
+                'attr'       => ['class'     => 'form-control',
+                'disabled'                   => false,
+                ],
                 'required'   => false,
                 'data'       => $default,
             ]
         );
 
-        $default = (empty($options['data']['from'])) ? $user->getEmail() : $options['data']['from'];
+        if ($emailProvider == 'Sparkpost') {
+            $default = (empty($options['data']['from'])) ? $fromemail : $options['data']['from'];
+        } else {
+            $default = (empty($options['data']['from'])) ? $user->getEmail() : $options['data']['from'];
+        }
+
         $builder->add(
             'from',
             'text',
             [
                 'label'       => 'mautic.lead.email.from_email',
                 'label_attr'  => ['class' => 'control-label'],
-                'attr'        => ['class' => 'form-control'],
+                'attr'        => ['class'   => 'form-control',
+                    'disabled'              => $disabled,
+                ],
                 'required'    => false,
                 'data'        => $default,
                 'constraints' => [
@@ -87,6 +112,11 @@ class EmailType extends AbstractType
                     new Email([
                         'message' => 'mautic.core.email.required',
                     ]),
+                    new EmailVerify(
+                        [
+                            'message' => 'le.email.verification.error',
+                        ]
+                    ),
                 ],
             ]
         );

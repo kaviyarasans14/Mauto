@@ -34,13 +34,14 @@ return [
                 ],
             ],
             'mautic_report_schedule_preview' => [
-                'path'       => '/reports/schedule/preview/{isScheduled}/{scheduleUnit}/{scheduleDay}/{scheduleMonthFrequency}',
+                'path'       => '/reports/schedule/preview/{isScheduled}/{scheduleUnit}/{scheduleDay}/{scheduleMonthFrequency}/{scheduleDate}',
                 'controller' => 'MauticReportBundle:Schedule:index',
                 'defaults'   => [
-                    'isScheduled'            => 0,
-                    'scheduleUnit'           => '',
-                    'scheduleDay'            => '',
-                    'scheduleMonthFrequency' => '',
+                    'isScheduled'             => 0,
+                    'scheduleUnit'            => '',
+                    'scheduleDay'             => '',
+                    'scheduleMonthFrequency'  => '',
+                    'scheduleDate'            => '',
                 ],
             ],
             'mautic_report_action' => [
@@ -185,6 +186,7 @@ return [
             'mautic.report.model.scheduler_builder' => [
                 'class'     => \Mautic\ReportBundle\Scheduler\Builder\SchedulerBuilder::class,
                 'arguments' => [
+                    'mautic.helper.user',
                     'mautic.report.model.scheduler_template_factory',
                 ],
             ],

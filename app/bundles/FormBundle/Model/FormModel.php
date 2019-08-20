@@ -418,10 +418,11 @@ class FormModel extends CommonFormModel
      * @param Form      $form
      * @param bool|true $withScript
      * @param bool|true $useCache
+     * @param bool|true $ishidepoweredby
      *
      * @return string
      */
-    public function getContent(Form $form, $withScript = true, $useCache = true)
+    public function getContent(Form $form, $withScript = true, $useCache = true, $ishidepoweredby = true)
     {
         if ($useCache && !$form->usesProgressiveProfiling()) {
             $cachedHtml = $form->getCachedHtml();
@@ -437,6 +438,13 @@ class FormModel extends CommonFormModel
 
         if ($withScript) {
             $cachedHtml = $this->getFormScript($form)."\n\n".$cachedHtml;
+        }
+        if (!$ishidepoweredby) {
+            $cachedHtml .= '<div style="text-align: center;padding-bottom:10px">
+            Powered By <a href="https://www.leadsengage.com" target="_blank">
+            Leadsengage
+                </a>
+            </div>';
         }
 
         return $cachedHtml;
@@ -613,8 +621,6 @@ class FormModel extends CommonFormModel
     public function deleteEntity($entity)
     {
         /* @var Form $entity */
-        parent::deleteEntity($entity);
-
         $this->deleteFormFiles($entity);
 
         if (!$entity->getId()) {
@@ -623,6 +629,7 @@ class FormModel extends CommonFormModel
             $schemaHelper->deleteTable('form_results_'.$entity->deletedId.'_'.$entity->getAlias());
             $schemaHelper->executeChanges();
         }
+        parent::deleteEntity($entity);
     }
 
     /**
@@ -719,13 +726,14 @@ class FormModel extends CommonFormModel
     /**
      * Get the document write javascript for the form.
      *
-     * @param Form $form
+     * @param Form      $form
+     * @param bool|true $ishidepoweredby
      *
      * @return string
      */
-    public function getAutomaticJavascript(Form $form)
+    public function getAutomaticJavascript(Form $form, $ishidepoweredby = true)
     {
-        $html = $this->getContent($form);
+        $html = $this->getContent($form, true, true, $ishidepoweredby);
 
         //replace line breaks with literal symbol and escape quotations
         $search  = ["\r\n", "\n", '"'];
@@ -881,7 +889,7 @@ class FormModel extends CommonFormModel
             ->from(MAUTIC_TABLE_PREFIX.'forms', 't')
             ->setMaxResults($limit);
 
-        if (!empty($options['canViewOthers'])) {
+        if (empty($options['canViewOthers']) || $options['canViewOthers'] == '') {
             $q->andWhere('t.created_by = :userId')
                 ->setParameter('userId', $this->userHelper->getUser()->getId());
         }

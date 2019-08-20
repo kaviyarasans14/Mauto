@@ -15,6 +15,7 @@ $header = ($entity->getId()) ?
         ['%name%' => $view['translator']->trans($entity->getName())]) :
     $view['translator']->trans('mautic.campaign.menu.new');
 $view['slots']->set('headerTitle', $header);
+$isAdmin=$view['security']->isAdmin();
 ?>
 
 <?php echo $view['form']->start($form); ?>
@@ -44,14 +45,36 @@ $view['slots']->set('headerTitle', $header);
             <?php
             echo $view['form']->row($form['category']);
             echo $view['form']->row($form['isPublished']);
-            echo $view['form']->row($form['publishUp']);
-            echo $view['form']->row($form['publishDown']);
             ?>
+            <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                <?php
+                echo $view['form']->row($form['publishUp']);
+                echo $view['form']->row($form['publishDown']);
+                ?>
+            </div>
         </div>
     </div>
 </div>
 
 <?php echo $view['form']->end($form); ?>
+
+<?php
+if ($items != null && !empty($items)):
+echo $view->render(
+    'MauticCoreBundle:Helper:workflow_selecttype.html.php',
+        [
+            'item'               => $entity,
+            'Campaigns'          => $items,
+            'actionRoute'        => $actionRoute,
+            'typePrefix'         => 'form',
+            'cancelUrl'          => 'mautic_campaign_index',
+            'header'             => 'mautic.campaign.type.choose.header',
+            'template'           => 'mautic.campaign.type.template.header',
+            'blanktemplate'      => 'mautic.campaign.type.blanktemplate.header',
+        ]
+    );
+endif;
+?>
 <?php echo $view->render('MauticCampaignBundle:Campaign:builder.html.php', [
     'campaignId'      => $form['sessionId']->vars['data'],
     'campaignEvents'  => $campaignEvents,

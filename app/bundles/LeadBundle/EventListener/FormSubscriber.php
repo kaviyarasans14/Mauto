@@ -110,16 +110,17 @@ class FormSubscriber extends CommonSubscriber
             'allowCampaignForm' => true,
         ];
         $event->addSubmitAction('lead.removeronotcontact', $action);
-
-        // score contact's companies
-        $action = [
-            'group'       => 'mautic.lead.lead.submitaction',
-            'label'       => 'mautic.lead.lead.events.changecompanyscore',
-            'description' => 'mautic.lead.lead.events.changecompanyscore_descr',
-            'formType'    => 'scorecontactscompanies_action',
-            'callback'    => '\Mautic\LeadBundle\Helper\FormEventHelper::scoreContactsCompanies',
-        ];
-        $event->addSubmitAction('lead.scorecontactscompanies', $action);
+        if ($this->security->isAdmin()) {
+            // score contact's companies
+            $action = [
+                'group'       => 'mautic.lead.lead.submitaction',
+                'label'       => 'mautic.lead.lead.events.changecompanyscore',
+                'description' => 'mautic.lead.lead.events.changecompanyscore_descr',
+                'formType'    => 'scorecontactscompanies_action',
+                'callback'    => '\Mautic\LeadBundle\Helper\FormEventHelper::scoreContactsCompanies',
+            ];
+            $event->addSubmitAction('lead.scorecontactscompanies', $action);
+        }
     }
 
     /**

@@ -54,7 +54,7 @@ class ChannelSubscriber extends CommonSubscriber
      */
     public function onAddChannel(ChannelEvent $event)
     {
-        $integration = $this->integrationHelper->getIntegrationObject('Twilio');
+        $integration = $this->integrationHelper->getIntegrationObject('SolutionInfinity');
 
         if ($integration && $integration->getIntegrationSettings()->getIsPublished()) {
             $event->addChannel(

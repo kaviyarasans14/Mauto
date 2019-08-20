@@ -109,7 +109,6 @@ Mautic.getTokens = function(method, callback) {
 
                 // store the tokens to the session storage
                 Mautic.builderTokens = response.tokens;
-
                 // return the callback with tokens
                 callback(response.tokens);
             }

@@ -11,6 +11,7 @@
 if ($tmpl == 'index') {
     $view->extend('MauticAssetBundle:Asset:index.html.php');
 }
+$isAdmin=$view['security']->isAdmin();
 ?>
 <?php if (count($items)): ?>
     <div class="table-responsive">
@@ -61,7 +62,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-asset-download-count',
                     ]
                 );
-
+            if ($isAdmin):
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
                     [
@@ -71,6 +72,7 @@ if ($tmpl == 'index') {
                         'class'      => 'visible-md visible-lg col-asset-id',
                     ]
                 );
+            endif;
                 ?>
             </tr>
             </thead>
@@ -148,7 +150,9 @@ if ($tmpl == 'index') {
                         <span style="white-space: nowrap;"><span class="label label-default pa-4" style="border: 1px solid #d5d5d5; background: <?php echo $color; ?>;"> </span> <span><?php echo $catName; ?></span></span>
                     </td>
                     <td class="visible-md visible-lg"><?php echo $item->getDownloadCount(); ?></td>
+                 <?php  if ($isAdmin): ?>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                 <?php  endif; ?>
                 </tr>
             <?php endforeach; ?>
             </tbody>

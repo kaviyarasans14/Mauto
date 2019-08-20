@@ -14,6 +14,7 @@ namespace Mautic\EmailBundle\Entity;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\CoreBundle\Helper\Chart\ChartQuery;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
+use Mautic\LeadBundle\Entity\DoNotContact as DNC;
 use Mautic\LeadBundle\Entity\TimelineTrait;
 
 /**
@@ -432,7 +433,6 @@ class StatRepository extends CommonRepository
         $query
             ->setMaxResults($limit)
             ->setFirstResult($offset);
-
         $results = $query->execute()->fetchAll();
 
         return $results;
@@ -500,8 +500,21 @@ class StatRepository extends CommonRepository
      */
     public function deleteStat($id)
     {
-        $this->_em->getConnection()->delete(MAUTIC_TABLE_PREFIX.'email_stats', ['id' => (int) $id]);
-        $this->_em->getConnection()->delete(MAUTIC_TABLE_PREFIX.'email_stats_devices', ['stat_id' => (int) $id]);
+        $this->getEntityManager()->getConnection()->delete(MAUTIC_TABLE_PREFIX.'email_stats', ['id' => (int) $id]);
+    }
+
+    /**
+     * @param array $ids
+     */
+    public function deleteStats(array $ids)
+    {
+        $qb = $this->getEntityManager()->getConnection()->createQueryBuilder();
+
+        $qb->delete(MAUTIC_TABLE_PREFIX.'email_stats')
+            ->where(
+                $qb->expr()->in('id', $ids)
+            )
+            ->execute();
     }
 
     /**
@@ -546,5 +559,60 @@ class StatRepository extends CommonRepository
         $results = $query->execute()->fetch();
 
         return $results;
+    }
+
+    /**
+     * @param $emailId
+     * @param $dncReason
+     *
+     * @return mixed
+     */
+    public function updateBouneorUnsubscribecount($emailId, $dncReason)
+    {
+        $query = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $type  = '';
+        if (DNC::BOUNCED === $dncReason) {
+            $type = 'bounce';
+        } elseif (DNC::UNSUBSCRIBED === $dncReason) {
+            $type = 'unsubscribe';
+        } elseif (DNC::SPAM === $dncReason) {
+            $type = 'spam';
+        }
+        $query->update(MAUTIC_TABLE_PREFIX.'emails')
+            ->set($type.'_count', $type.'_count + '.(int) 1)
+            ->where('id = '.(int) $emailId);
+        $query->execute();
+    }
+
+    /**
+     * Get sent counts based on date.
+     *
+     * @param array $emailIds
+     *
+     * @return array
+     */
+    public function getSentCountsByDate($fromdate)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+        $q->select('count(e.id) as sentcount')
+            ->from(MAUTIC_TABLE_PREFIX.'email_stats', 'e')
+            ->where(
+                $q->expr()->andX(
+                    $q->expr()->eq('e.is_failed', ':false')
+                )
+            )->setParameter('false', false, 'boolean');
+
+        if ($fromdate !== null) {
+            $q->andWhere(
+                $q->expr()->gte('e.date_sent', $q->expr()->literal($fromdate))
+            );
+            $q->andWhere(
+                 $q->expr()->neq('e.is_read', 1)
+            );
+        }
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results[0]['sentcount'];
     }
 }

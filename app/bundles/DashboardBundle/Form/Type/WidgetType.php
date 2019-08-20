@@ -82,17 +82,26 @@ class WidgetType extends AbstractType
         $builder->add('height', 'choice', [
             'label'   => 'mautic.dashboard.widget.form.height',
             'choices' => [
-                '215' => '215px',
-                '330' => '330px',
-                '445' => '445px',
-                '560' => '560px',
-                '675' => '675px',
+                'auto' => 'auto',
+                '330'  => '330px',
+                '445'  => '445px',
+                '560'  => '560px',
+                '675'  => '675px',
             ],
-            'empty_data' => '330',
+            'empty_data' => '445',
             'label_attr' => ['class' => 'control-label'],
             'attr'       => ['class' => 'form-control'],
             'required'   => false,
         ]);
+
+        $builder->add('canViewOthers', 'yesno_button_group',
+            [
+                'label' => 'mautic.report.report.form.issystem',
+                'data'  => (bool) $options['data']->getCanViewOthers(),
+                'attr'  => [
+                    'tooltip' => 'mautic.report.report.form.issystem.tooltip',
+                ],
+            ]);
 
         $ff = $builder->getFormFactory();
 

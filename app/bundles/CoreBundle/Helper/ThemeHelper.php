@@ -64,7 +64,38 @@ class ThemeHelper
      *
      * @var array
      */
-    protected $defaultThemes = ['sunday', 'skyline', 'oxygen', 'goldstar', 'neopolitan', 'blank', 'system'];
+    protected $defaultThemes = [
+        'aurora',
+        'blank',
+        'cards',
+        'fresh-center',
+        'fresh-fixed',
+        'fresh-left',
+        'fresh-wide',
+        'goldstar',
+        'neopolitan',
+        'oxygen',
+        'skyline',
+        'sparse',
+        'sunday',
+        'system',
+        'vibrant',
+    ];
+
+    /**
+     * @var array
+     */
+    private $beeTemplateInfo = [];
+
+    /**
+     * @var array|mixed
+     */
+    private $beeTemplates = [];
+
+    /**
+     * @var array|mixed
+     */
+    private $planinfo = [];
 
     /**
      * ThemeHelper constructor.
@@ -329,6 +360,98 @@ class ThemeHelper
         } else {
             return $this->themes[$specificFeature];
         }
+    }
+
+    public function getInstalledBeeTemplates($specificFeature = 'all', $ignoreCache = false, $extended=true)
+    {
+        if (sizeof($this->beeTemplateInfo) == 0 || $ignoreCache === true) {
+            $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+            $finder   = new Finder();
+            $finder->directories()->depth('0')->ignoreDotFiles(true)->in($dir);
+
+            $this->beeTemplateInfo = [];
+            foreach ($finder as $template) {
+                $addTheme = false;
+                if (file_exists($template->getRealPath().'/config.json')) {
+                    $config = json_decode(file_get_contents($template->getRealPath().'/config.json'), true);
+                } else {
+                    continue;
+                }
+                if ($specificFeature != 'all') {
+                    if (isset($config['features']) && in_array($specificFeature, $config['features'])) {
+                        $addTheme = true;
+                    }
+                } else {
+                    $addTheme = true;
+                }
+                if ($addTheme) {
+                    $this->beeTemplates[$template->getBasename()]                      = $config['name'];
+                    $this->beeTemplateInfo[$template->getBasename()]                   = [];
+                    $this->beeTemplateInfo[$template->getBasename()]['name']           = $config['name'];
+                    $this->beeTemplateInfo[$template->getBasename()]['key']            = $template->getBasename();
+                    $this->beeTemplateInfo[$template->getBasename()]['config']         = $config;
+                    $this->beeTemplateInfo[$template->getBasename()]['dir']            = $template->getRealPath();
+                    $this->beeTemplateInfo[$template->getBasename()]['themesLocalDir'] = $this->pathsHelper->getSystemPath('beetemplates', false);
+                }
+            }
+        }
+
+        if ($extended) {
+            return  $this->beeTemplateInfo;
+        } else {
+            return  $this->beeTemplates;
+        }
+    }
+
+    public function getAvailablePlans($ignoreCache = false)
+    {
+        if (sizeof($this->planinfo) == 0 || $ignoreCache === true) {
+            $dir      = $this->pathsHelper->getSystemPath('plans', true);
+            $finder   = new Finder();
+            $finder->directories()->depth('0')->ignoreDotFiles(true)->in($dir);
+
+            $this->planinfo = [];
+            foreach ($finder as $plan) {
+                if (file_exists($plan->getRealPath().'/config.json')) {
+                    $config = json_decode(file_get_contents($plan->getRealPath().'/config.json'), true);
+                } else {
+                    continue;
+                }
+
+                $this->planinfo[$plan->getBasename()]                        =[];
+                $this->planinfo[$plan->getBasename()]['name']                = $config['name'];
+                $this->planinfo[$plan->getBasename()]['key']                 = $plan->getBasename();
+                $this->planinfo[$plan->getBasename()]['details']             = $config['details'];
+                $this->planinfo[$plan->getBasename()]['features']            = $config['features'];
+                $this->planinfo[$plan->getBasename()]['price']               = $config['price'];
+            }
+        }
+
+        return $this->planinfo;
+    }
+
+    /**
+     * @param string $templatename
+     *
+     * @return jsonstring
+     */
+    public function getBeeTemplateJSONByName($templatename)
+    {
+        $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+
+        return file_get_contents($dir.'/'.$templatename.'/template.json');
+    }
+
+    /**
+     * @param string $templatename
+     *
+     * @return string
+     */
+    public function getBeeTemplateHTMLByName($templatename)
+    {
+        $dir      = $this->pathsHelper->getSystemPath('beetemplates', true);
+
+        return file_get_contents($dir.'/'.$templatename.'/template.html');
     }
 
     /**

@@ -13,14 +13,17 @@ return [
     'menu' => [
         'admin' => [
             'mautic.user.users' => [
-                'access'    => 'user:users:view',
-                'route'     => 'mautic_user_index',
-                'iconClass' => 'fa-users',
+                'access'          => 'user:users:view',
+                'route'           => 'mautic_user_index',
+                'iconClass'       => 'fa-users',
+                'priority'        => 550,
             ],
             'mautic.user.roles' => [
-                'access'    => 'user:roles:view',
+                //    'access'    => 'user:roles:view',
+                'access'    => 'admin',
                 'route'     => 'mautic_role_index',
                 'iconClass' => 'fa-lock',
+                'priority'  => 250,
             ],
         ],
     ],
@@ -246,6 +249,7 @@ return [
                     'session',
                     'event_dispatcher',
                     'security.encoder_factory',
+                    'mautic.helper.licenseinfo',
                 ],
             ],
             'mautic.security.authentication_listener' => [
@@ -302,6 +306,23 @@ return [
                 'class'     => 'Mautic\UserBundle\Model\UserModel',
                 'arguments' => [
                     'mautic.helper.mailer',
+                    'mautic.user.model.user_token_service',
+                ],
+            ],
+            'mautic.user.model.user_token_service' => [
+                'class'     => \Mautic\UserBundle\Model\UserToken\UserTokenService::class,
+                'arguments' => [
+                    'mautic.helper.random',
+                    'mautic.user.repository.user_token',
+                ],
+            ],
+        ],
+        'repositories' => [
+            'mautic.user.repository.user_token' => [
+                'class'     => \Doctrine\ORM\EntityRepository::class,
+                'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
+                'arguments' => [
+                    \Mautic\UserBundle\Entity\UserToken::class,
                 ],
             ],
         ],

@@ -9,27 +9,24 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-use Mautic\CoreBundle\Helper\InputHelper;
-
-if (!$app->getRequest()->isXmlHttpRequest()):
+//if (!$app->getRequest()->isXmlHttpRequest()):
     //load base template
     $view->extend('MauticUserBundle:Security:base.html.php');
     $view['slots']->set('header', $view['translator']->trans('mautic.user.auth.header'));
-else:
-    $view->extend('MauticUserBundle:Security:ajax.html.php');
-endif;
-
-// clean tags and quotes
-$last_username = InputHelper::clean($last_username);
+//else:
+  //  $view->extend('MauticUserBundle:Security:ajax.html.php');
+//endif;
 ?>
-
+<?php if (!empty($msg)): ?>
+<span class="login-notifiation" ><?php echo $view['translator']->trans($msg); ?> </span>
+<?php endif; ?>
 <form class="form-group login-form" name="login" data-toggle="ajax" role="form" action="<?php echo $view['router']->path('mautic_user_logincheck') ?>" method="post">
     <div class="input-group mb-md">
 
         <span class="input-group-addon"><i class="fa fa-user"></i></span>
         <label for="username" class="sr-only"><?php echo $view['translator']->trans('mautic.user.auth.form.loginusername'); ?></label>
         <input type="text" id="username" name="_username"
-               class="form-control input-lg" value="<?php echo $last_username ?>" required autofocus
+               class="form-control input-lg" value="<?php echo $view->escape($last_username) ?>" required autofocus
                placeholder="<?php echo $view['translator']->trans('mautic.user.auth.form.loginusername'); ?>" />
     </div>
     <div class="input-group mb-md">
@@ -48,7 +45,7 @@ $last_username = InputHelper::clean($last_username);
         </label>
     </div>
 
-    <input type="hidden" name="_csrf_token" value="<?php echo $view['form']->csrfToken('authenticate') ?>" />
+    <input type="hidden" name="_csrf_token" value="<?php echo $view->escape($view['form']->csrfToken('authenticate')) ?>" />
     <button class="btn btn-lg btn-primary btn-block" type="submit"><?php echo $view['translator']->trans('mautic.user.auth.form.loginbtn'); ?></button>
 
     <div class="mt-sm text-right">

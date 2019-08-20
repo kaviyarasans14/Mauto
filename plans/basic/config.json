@@ -1,0 +1,22 @@
+{
+"name":"Basic",
+"author":"LeadsEngage team",
+"authorUrl":"https://leadsengage.com",
+"details":
+[
+"Per month billed annually",
+"₹1080 month-to-month",
+"plus tax, as applicable"
+],
+"features":
+[
+"Up to 5K Contacts",
+"Unlimited Email Sends",
+"Paid Annually"
+],
+"price":
+{
+"INR":"999",
+"USD":"19"
+}
+}

@@ -1,4 +1,4 @@
-Mautic Introduction
+Mauto Introduction
 ===========
 ![Mautic](https://www.mautic.org/media/images/github_readme.png "Mautic Open Source Marketing Automation")
 
@@ -38,7 +38,7 @@ This is a simple 3 step installation process. You'll want to make sure you alrea
 **Get stuck?** *No problem. Check out [general troubleshooting](https://mautic.org/docs/en/tips/troubleshooting.html) and if it won't solve your issue join us at the <a href="https://www.mautic.org/community">Mautic community</a> for help and answers.*
 
 ## Disclaimer
-Installing from source is only recommended if you are comfortable using the command line. You'll be required to use various CLI commands to get Mautic working and to keep it working. If the source and/or database schema gets out of sync with Mautic's releases, the release updater may not work and will require manual updates. For production the pre-packaged Mautic available at [mautic.com/download](https://www.mautic.org/download) is recommended.
+Installing from source is only recommended if you are comfortable using the command line. You'll be required to use various CLI commands to get Mautic working and to keep it working. If the source and/or database schema gets out of sync with Mautic's releases, the release updater may not work and will require manual updates. For production the pre-packaged Mautic available at [mautic.org/download](https://www.mautic.org/download) is recommended.
 
 *Also note that the source outside <a href="https://github.com/mautic/mautic/releases">a tagged release</a> should be considered "alpha" and may contain bugs, cause unexpected results, data corruption or loss, and is not recommended for use in a production environment. Use at your own risk.*
 
@@ -78,6 +78,12 @@ Each time you update Mautic's source after the initial setup/installation via a 
 
     $ cd /your/mautic/directory
     $ php app/console cache:clear
+    $ php app/console mautic:campaigns:rebuild --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
+    $ php app/console mautic:campaigns:trigger --domain=<your_domain_name> --batch-limit=<batch_limit> (default=100)
+    $ php app/console mautic:emails:send --domain=<your_domain_name> --message-limit=<message_limit>
+    $ php app/console mautic:import --domain=<your_domain_name> --limit=<Maximum no of record to import for this execution>
+    $ php app/console mautic:segments:update --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
+    $ php app/console mautic:segments:rebuild --domain=<your_domain_name> --batch-limit=<batch_limit> --max-contacts=<max_contact_limit>(default=300)
 
 (Note that if you are accessing Mautic through the dev environment (via index_dev.php), you would need to add the <code>--env=dev</code> from the command).
 
@@ -91,17 +97,17 @@ Before running these commands, please make a backup of your database.
 
 If updating from <a href="https://github.com/mautic/mautic/releases">a tagged release</a> to <a href="https://github.com/mautic/mautic/releases">a tagged release</a>, schema changes will be included in a migrations file. To apply the changes, run
 
-    $ php app/console doctrine:migrations:migrate
+    $ php app/console doctrine:migrations:migrate --domain=<your_domain_name>
 
 If you are updating to the latest source (remember this is alpha), first run
 
-    $ php app/console doctrine:schema:update --dump-sql
+    $ php app/console doctrine:schema:update --dump-sql --domain=<your_domain_name>
 
 This will list out the queries Doctrine wants to execute in order to get the schema up-to-date (no queries are actually executed). Review the queries to ensure there is nothing detrimental to your data. If you have doubts about a query, submit an issue here and we'll verify it.
 
 If you're satisfied with the queries, execute them with
 
-    $ php app/console doctrine:schema:update --force
+    $ php app/console doctrine:schema:update --force --domain=<your_domain_name>
 
 Your schema should now be up-to-date with the source.
 

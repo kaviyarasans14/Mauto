@@ -11,6 +11,8 @@
 
 namespace Mautic\LeadBundle\Command;
 
+use Mautic\LeadBundle\Exception\ImportDelayedException;
+use Mautic\LeadBundle\Exception\ImportFailedException;
 use Mautic\LeadBundle\Helper\Progress;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,6 +33,7 @@ class ImportCommand extends ContainerAwareCommand
             ->setDescription('Imports data to Mautic')
             ->addOption('--id', '-i', InputOption::VALUE_OPTIONAL, 'Specific ID to import. Defaults to next in the queue.', false)
             ->addOption('--limit', '-l', InputOption::VALUE_OPTIONAL, 'Maximum number of records to import for this script execution.', 0)
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(
                 <<<'EOT'
 The <info>%command.name%</info> command starts to import CSV files when some are created.
@@ -45,80 +48,84 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $start = microtime(true);
+        try {
+            $start = microtime(true);
 
-        /** @var \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator */
-        $translator = $this->getContainer()->get('translator');
+            /** @var \Symfony\Bundle\FrameworkBundle\Translation\Translator $translator */
+            $translator = $this->getContainer()->get('translator');
 
-        /** @var \Mautic\LeadBundle\Model\ImportModel $model */
-        $model = $this->getContainer()->get('mautic.lead.model.import');
+            /** @var \Mautic\LeadBundle\Model\ImportModel $model */
+            $model = $this->getContainer()->get('mautic.lead.model.import');
 
-        $progress = new Progress($output);
-        $id       = (int) $input->getOption('id');
-        $limit    = (int) $input->getOption('limit');
+            $progress = new Progress($output);
+            $id       = (int) $input->getOption('id');
+            $limit    = (int) $input->getOption('limit');
 
-        if ($id) {
-            $import = $model->getEntity($id);
+            if ($id) {
+                $import = $model->getEntity($id);
 
-            // This specific import was not found
-            if (!$import) {
-                $output->writeln('<error>'.$translator->trans('mautic.core.error.notfound', [], 'flashes').'</error>');
+                // This specific import was not found
+                if (!$import) {
+                    $output->writeln('<error>'.$translator->trans('mautic.core.error.notfound', [], 'flashes').'</error>');
 
-                return 1;
+                    return 1;
+                }
+            } else {
+                $import = $model->getImportToProcess();
+
+                // No import waiting in the queue. Finish silently.
+                if ($import === null) {
+                    return 0;
+                }
             }
-        } else {
-            $import = $model->getImportToProcess();
 
-            // No import waiting in the queue. Finish silently.
-            if ($import === null) {
-                return 0;
-            }
-        }
-
-        $output->writeln('<info>'.$translator->trans(
-            'mautic.lead.import.is.starting',
-            [
-                '%id%'    => $import->getId(),
-                '%lines%' => $import->getLineCount(),
-            ]
-        ).'</info>');
-
-        $success = $model->startImport($import, $progress, $limit);
-
-        // Import was delayed
-        if ($import->getStatus() === $import::DELAYED) {
             $output->writeln('<info>'.$translator->trans(
-                'mautic.lead.import.delayed',
+                'mautic.lead.import.is.starting',
                 [
-                    '%reason%' => $import->getStatusInfo(),
+                    '%id%'    => $import->getId(),
+                    '%lines%' => $import->getLineCount(),
                 ]
             ).'</info>');
-        }
 
-        // Import failed
-        if (!$success) {
-            $output->writeln('<error>'.$translator->trans(
+            try {
+                $model->beginImport($import, $progress, $limit);
+            } catch (ImportFailedException $e) {
+                $output->writeln('<error>'.$translator->trans(
                 'mautic.lead.import.failed',
                 [
                     '%reason%' => $import->getStatusInfo(),
                 ]
             ).'</error>');
 
-            return 1;
+                return 1;
+            } catch (ImportDelayedException $e) {
+                $output->writeln('<info>'.$translator->trans(
+                'mautic.lead.import.delayed',
+                [
+                    '%reason%' => $import->getStatusInfo(),
+                ]
+            ).'</info>');
+
+                return 0;
+            }
+
+            // Success
+            $output->writeln('<info>'.$translator->trans(
+                'mautic.lead.import.result',
+                [
+                    '%lines%'   => $import->getProcessedRows(),
+                    '%created%' => $import->getInsertedCount(),
+                    '%updated%' => $import->getUpdatedCount(),
+                    '%ignored%' => $import->getIgnoredCount(),
+                    '%time%'    => round(microtime(true) - $start, 2),
+                ]
+            ).'</info>');
+
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
         }
-
-        // Success
-        $output->writeln('<info>'.$translator->trans(
-            'mautic.lead.import.result',
-            [
-                '%lines%'   => $import->getProcessedRows(),
-                '%created%' => $import->getInsertedCount(),
-                '%updated%' => $import->getUpdatedCount(),
-                '%ignored%' => $import->getIgnoredCount(),
-                '%time%'    => round(microtime(true) - $start, 2),
-            ]
-        ).'</info>');
-
-        return 0;
     }
 }

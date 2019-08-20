@@ -537,7 +537,7 @@
      */
     function insert (rows, cols) {
       // Create table HTML.
-      var table = '<table style="width: 100%;"><tbody>';
+      var table = '<table border="1" style="width: 100%;border-collapse: collapse;"><tbody>';
       var cell_width = 100 / cols;
       var i;
       var j;

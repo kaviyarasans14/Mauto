@@ -32,6 +32,9 @@ $defaultBoolTemplate     = $view['form']->widget($form['default_template_boolean
 $defaultCountryTemplate  = $view['form']->widget($form['default_template_country']);
 $defaultRegionTemplate   = $view['form']->widget($form['default_template_region']);
 $defaultTimezoneTemplate = $view['form']->widget($form['default_template_timezone']);
+
+$isadmin    =$view['security']->isAdmin();
+$hidepanel  = ($isadmin) ? '' : "style='display: none;'";
 ?>
 
 <?php echo $view['form']->start($form); ?>
@@ -48,10 +51,10 @@ $defaultTimezoneTemplate = $view['form']->widget($form['default_template_timezon
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6" <?php echo $hidepanel?>>
                     <?php echo $view['form']->row($form['object']); ?>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" <?php echo $hidepanel?>>
                     <?php echo $view['form']->row($form['group']); ?>
                 </div>
             </div>
@@ -126,17 +129,17 @@ $defaultTimezoneTemplate = $view['form']->widget($form['default_template_timezon
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <?php echo $view['form']->row($form['isVisible']); ?>
+                    <?php echo $view['form']->row($form['isListable']); ?>
                 </div>
                 <div class="col-md-6">
                     <?php echo $view['form']->row($form['isShortVisible']); ?>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6">
-                    <?php echo $view['form']->row($form['isListable']); ?>
+                <div class="col-md-6" <?php echo $hidepanel; ?>>
+                    <?php echo $view['form']->row($form['isVisible']); ?>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" <?php echo $hidepanel; ?>>
                     <?php echo $view['form']->row($form['isPubliclyUpdatable']); ?>
                 </div>
             </div>

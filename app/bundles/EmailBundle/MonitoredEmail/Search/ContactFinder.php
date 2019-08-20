@@ -107,4 +107,21 @@ class ContactFinder
 
         return $result;
     }
+
+    /**
+     * @param $address
+     *
+     * @return Result
+     */
+    public function findByAddressandId($address)
+    {
+        $result = new Result();
+        /** @var Stat $stat */
+        $stat = $this->statRepository->findOneBy(['emailAddress' => $address], ['id' => 'DESC']);
+        if ($stat && $stat->getLead()) {
+            $result->setStat($stat);
+        }
+
+        return $result;
+    }
 }

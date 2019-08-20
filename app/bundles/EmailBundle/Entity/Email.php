@@ -131,6 +131,26 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     /**
      * @var int
      */
+    private $failureCount = 0;
+
+    /**
+     * @var int
+     */
+    private $unsubscribeCount = 0;
+
+    /**
+     * @var int
+     */
+    private $bounceCount = 0;
+
+    /**
+     * @var int
+     */
+    private $spamCount = 0;
+
+    /**
+     * @var int
+     */
     private $sentCount = 0;
 
     /**
@@ -164,6 +184,21 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     private $variantReadCount = 0;
 
     /**
+     * @var int
+     */
+    private $variantFailureCount = 0;
+
+    /**
+     * @var int
+     */
+    private $variantUnsubscribeCount = 0;
+
+    /**
+     * @var int
+     */
+    private $variantBounceCount = 0;
+
+    /**
      * @var \Mautic\FormBundle\Entity\Form
      */
     private $unsubscribeForm;
@@ -185,17 +220,28 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
      */
     private $sessionId;
 
+    /**
+     * @var string
+     */
+    private $beeJSON;
+
     public function __clone()
     {
-        $this->id               = null;
-        $this->stats            = new ArrayCollection();
-        $this->sentCount        = 0;
-        $this->readCount        = 0;
-        $this->revision         = 0;
-        $this->variantSentCount = 0;
-        $this->variantStartDate = null;
-        $this->emailType        = null;
-        $this->sessionId        = 'new_'.hash('sha1', uniqid(mt_rand()));
+        $this->id                      = null;
+        $this->stats                   = new ArrayCollection();
+        $this->sentCount               = 0;
+        $this->readCount               = 0;
+        $this->revision                = 0;
+        $this->failureCount            = 0;
+        $this->unsubscribeCount        = 0;
+        $this->bounceCount             = 0;
+        $this->spamCount               = 0;
+        $this->variantSentCount        = 0;
+        $this->variantUnsubscribeCount = 0;
+        $this->variantBounceCount      = 0;
+        $this->variantStartDate        = null;
+        $this->emailType               = null;
+        $this->sessionId               = 'new_'.hash('sha1', uniqid(mt_rand()));
         $this->clearTranslations();
         $this->clearVariants();
 
@@ -292,6 +338,22 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
             ->columnName('read_count')
             ->build();
 
+        $builder->createField('failureCount', 'integer')
+            ->columnName('failure_count')
+            ->build();
+
+        $builder->createField('unsubscribeCount', 'integer')
+            ->columnName('unsubscribe_count')
+            ->build();
+
+        $builder->createField('bounceCount', 'integer')
+        ->columnName('bounce_count')
+        ->build();
+
+        $builder->createField('spamCount', 'integer')
+            ->columnName('spam_count')
+            ->build();
+
         $builder->createField('sentCount', 'integer')
             ->columnName('sent_count')
             ->build();
@@ -326,6 +388,15 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
         $builder->createField('variantReadCount', 'integer')
             ->columnName('variant_read_count')
             ->build();
+        $builder->createField('variantFailureCount', 'integer')
+            ->columnName('variant_failure_count')
+            ->build();
+        $builder->createField('variantUnsubscribeCount', 'integer')
+            ->columnName('variant_unsubscribe_count')
+            ->build();
+        $builder->createField('variantBounceCount', 'integer')
+            ->columnName('variant_bounce_count')
+            ->build();
 
         $builder->createManyToOne('unsubscribeForm', 'Mautic\FormBundle\Entity\Form')
             ->addJoinColumn('unsubscribeform_id', 'id', true, false, 'SET NULL')
@@ -341,6 +412,11 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
             ->addJoinColumn('email_id', 'id', false, false, 'CASCADE')
             ->fetchExtraLazy()
             ->build();
+
+        $builder->createField('beeJSON', 'text')
+            ->columnName('bee_json')
+            ->nullable()
+            ->build();
     }
 
     /**
@@ -353,6 +429,15 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
             new NotBlank(
                 [
                     'message' => 'mautic.core.name.required',
+                ]
+            )
+        );
+
+        $metadata->addPropertyConstraint(
+            'subject',
+            new NotBlank(
+                [
+                    'message' => 'mautic.core.subject.required',
                 ]
             )
         );
@@ -463,12 +548,18 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
                     'publishUp',
                     'publishDown',
                     'readCount',
+                    'failureCount',
+                    'unsubscribeCount',
+                    'bounceCount',
                     'sentCount',
                     'revision',
                     'assetAttachments',
                     'variantStartDate',
                     'variantSentCount',
                     'variantReadCount',
+                    'variantFailureCount',
+                    'variantUnsubscribeCount',
+                    'variantBounceCount',
                     'variantParent',
                     'variantChildren',
                     'translationParent',
@@ -476,6 +567,7 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
                     'unsubscribeForm',
                     'dynamicContent',
                     'lists',
+                    'beeJSON',
                 ]
             )
             ->build();
@@ -631,6 +723,86 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     public function setReadCount($readCount)
     {
         $this->readCount = $readCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFailureCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getFailureCount') : $this->failureCount;
+    }
+
+    /**
+     * @param $failureCount
+     *
+     * @return $this
+     */
+    public function setFailureCount($failureCount)
+    {
+        $this->failureCount = $failureCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUnsubscribeCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getUnsubscribeCount') : $this->unsubscribeCount;
+    }
+
+    /**
+     * @param $unsubscribeCount
+     *
+     * @return $this
+     */
+    public function setUnsubscribeCount($unsubscribeCount)
+    {
+        $this->unsubscribeCount = $unsubscribeCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBounceCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getBounceCount') : $this->bounceCount;
+    }
+
+    /**
+     * @param $bounceCount
+     *
+     * @return $this
+     */
+    public function setBounceCount($bounceCount)
+    {
+        $this->bounceCount = $bounceCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpamCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getSpamCount') : $this->spamCount;
+    }
+
+    /**
+     * @param $spamCount
+     *
+     * @return $this
+     */
+    public function setSpamCount($spamCount)
+    {
+        $this->spamCount = $spamCount;
 
         return $this;
     }
@@ -882,6 +1054,46 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     }
 
     /**
+     * @return mixed
+     */
+    public function getVariantUnsubscribeCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getVariantUnsubscribeCount') : $this->variantSentCount;
+    }
+
+    /**
+     * @param $variantUnsubscribeCount
+     *
+     * @return $this
+     */
+    public function setVariantUnsubscribeCount($variantUnsubscribeCount)
+    {
+        $this->variantUnsubscribeCount = $variantUnsubscribeCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVariantBounceCount($includeVariants = false)
+    {
+        return ($includeVariants) ? $this->getAccumulativeVariantCount('getVariantBounceCount') : $this->variantSentCount;
+    }
+
+    /**
+     * @param $variantBounceCount
+     *
+     * @return $this
+     */
+    public function setVariantBounceCount($variantBounceCount)
+    {
+        $this->variantBounceCount = $variantBounceCount;
+
+        return $this;
+    }
+
+    /**
      * @return PersistentCollection
      */
     public function getLists()
@@ -968,6 +1180,26 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     /**
      * @return mixed
      */
+    public function getvariantFailureCount()
+    {
+        return $this->variantFailureCount;
+    }
+
+    /**
+     * @param $variantFailureCount
+     *
+     * @return $this
+     */
+    public function setvariantFailureCount($variantFailureCount)
+    {
+        $this->variantFailureCount = $variantFailureCount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getStats()
     {
         return $this->stats;
@@ -989,6 +1221,26 @@ class Email extends FormEntity implements VariantEntityInterface, TranslationEnt
     public function setCustomHtml($customHtml)
     {
         $this->customHtml = $customHtml;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBeeJSON()
+    {
+        return $this->beeJSON;
+    }
+
+    /**
+     * @param $beeJSON
+     *
+     * @return $this
+     */
+    public function setBeeJSON($beeJSON)
+    {
+        $this->beeJSON = $beeJSON;
 
         return $this;
     }

@@ -254,6 +254,7 @@ trait LeadDetailsTrait
         $auditlogModel = $this->getModel('core.auditLog');
         /** @var AuditLogRepository $repo */
         $repo     = $auditlogModel->getRepository();
+        $repo->setCurrentUser($auditlogModel->getCurrentUser());
         $logCount = $repo->getAuditLogsCount($lead, $filters);
         $logs     = $repo->getAuditLogs($lead, $filters, $orderBy, $page, $limit);
 
@@ -268,13 +269,18 @@ trait LeadDetailsTrait
         }, $logs);
 
         $types = [
-            'delete'     => $this->translator->trans('mautic.lead.event.delete'),
-            'create'     => $this->translator->trans('mautic.lead.event.create'),
-            'identified' => $this->translator->trans('mautic.lead.event.identified'),
-            'ipadded'    => $this->translator->trans('mautic.lead.event.ipadded'),
-            'merge'      => $this->translator->trans('mautic.lead.event.merge'),
-            'update'     => $this->translator->trans('mautic.lead.event.update'),
-        ];
+                'create'     => $this->translator->trans('mautic.lead.event.create'),
+                'identified' => $this->translator->trans('mautic.lead.event.identified'),
+                'ipadded'    => $this->translator->trans('mautic.lead.event.ipadded'),
+                'merge'      => $this->translator->trans('mautic.lead.event.merge'),
+                'update'     => $this->translator->trans('mautic.lead.event.update'),
+            ];
+
+        $deltype = ['delete'=> $this->translator->trans('mautic.lead.event.delete')];
+
+        if ($auditlogModel->getCurrentUser()->isAdmin()) {
+            $types = array_merge($types, $deltype);
+        }
 
         return [
             'events'   => $logEvents,

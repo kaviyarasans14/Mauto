@@ -19,8 +19,9 @@ Mautic.pageOnLoad = function (container, response) {
         }
 
         // Preload tokens for code mode builder
-        Mautic.getTokens(Mautic.getBuilderTokensMethod(), function(){});
-        Mautic.initSelectTheme(mQuery('#page_template'));
+      //  Mautic.getTokens(Mautic.getBuilderTokensMethod(), function(){});
+       // Mautic.initSelectTheme(mQuery('#page_template'));
+        Mautic.initSelectBeeTemplate(mQuery('#page_template'),'page');
     }
 
     // Open the builder directly when saved from the builder

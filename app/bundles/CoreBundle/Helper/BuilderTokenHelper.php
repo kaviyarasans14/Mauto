@@ -28,6 +28,8 @@ class BuilderTokenHelper
 
     /**
      * @var MauticFactory
+     *
+     * @deprecated 2.12 To be removed in 3.0 Inject dependencies in your constructor instead
      */
     private $factory;
 
@@ -40,9 +42,10 @@ class BuilderTokenHelper
      */
     public function __construct(MauticFactory $factory, $modelName, $viewPermissionBase = null, $bundleName = null, $langVar = null)
     {
+        $permissionname=strtolower($modelName);
         $this->factory            = $factory;
         $this->modelName          = $modelName;
-        $this->viewPermissionBase = (!empty($viewPermissionBase)) ? $viewPermissionBase : "$modelName:{$modelName}s";
+        $this->viewPermissionBase = (!empty($viewPermissionBase)) ? $viewPermissionBase : "$permissionname:{$permissionname}s";
         $this->bundleName         = (!empty($bundleName)) ? $bundleName : 'Mautic'.ucfirst($modelName).'Bundle';
         $this->langVar            = (!empty($langVar)) ? $langVar : $modelName;
 
@@ -95,7 +98,12 @@ class BuilderTokenHelper
                 $exprBuilder->eq($prefix.'created_by', $this->factory->getUser()->getId())
             );
         }
-
+        //file_put_contents('/var/www/mauto/app/logs/track.txt',"Model:".$this->modelName."\n",FILE_APPEND);
+        if ( $this->factory->getUser()->getId() != 1 && ($this->modelName == 'asset' || $this->modelName == 'form')) {
+            $expr->add(
+                $exprBuilder->neq($prefix.'created_by', '1')
+            );
+        }
         if (!empty($filter)) {
             $expr->add(
                 $exprBuilder->like('LOWER('.$labelColumn.')', ':label')

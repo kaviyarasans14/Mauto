@@ -86,7 +86,7 @@ class FieldType extends AbstractType
             ]
         );
 
-        $new         = (!empty($options['data']) && $options['data']->getAlias()) ? false : true;
+        $new         = (!empty($options['data']) && $options['data']->getId()) ? false : true;
         $type        = $options['data']->getType();
         $default     = (empty($type)) ? 'text' : $type;
         $fieldHelper = new FormFieldHelper();
@@ -421,7 +421,10 @@ class FieldType extends AbstractType
                     'attr'          => ['class' => 'form-control'],
                     'query_builder' => function (EntityRepository $er) {
                         return $er->createQueryBuilder('f')
-                            ->orderBy('f.order', 'ASC');
+                            ->orWhere('f.createdBy != :nullcreatedby OR f.isPublished = :isPublished')
+                            ->orderBy('f.order', 'ASC')
+                            ->setParameter('isPublished', 1)
+                            ->setParameter('nullcreatedby', 'isNotNull');
                     },
                     'required' => false,
                 ]
@@ -448,8 +451,8 @@ class FieldType extends AbstractType
             'isPublished',
             'yesno_button_group',
             [
-                'disabled' => ($options['data']->getAlias() == 'email'),
-                'data'     => ($options['data']->getAlias() == 'email') ? true : $options['data']->getIsPublished(),
+                'disabled' => ($options['data']->getIsFixed() == 1),
+                'data'     => ($options['data']->getIsFixed() == 1) ? true : $options['data']->getIsPublished(),
             ]
         );
 
@@ -498,7 +501,8 @@ class FieldType extends AbstractType
                     'tooltip'  => 'mautic.lead.field.form.isuniqueidentifer.tooltip',
                     'onchange' => 'Mautic.displayUniqueIdentifierWarning(this)',
                 ],
-                'data' => (!empty($data)),
+                'disabled' => ($options['data']->getAlias() == 'email'),
+                'data'     => (!empty($data)),
             ]
         );
 

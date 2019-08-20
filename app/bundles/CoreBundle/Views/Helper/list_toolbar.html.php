@@ -15,7 +15,7 @@ $wrap = true;
 $view['buttons']->reset($app->getRequest(), ButtonHelper::LOCATION_TOOLBAR_ACTIONS, ButtonHelper::TYPE_GROUP);
 include 'action_button_helper.php';
 ?>
-<div class="panel-body">
+<div class="panel-body" style="background-color: white;">
     <div class="box-layout">
         <div class="col-xs-6 col-lg-8 va-m form-inline">
             <?php if (isset($searchValue)): ?>
@@ -26,6 +26,7 @@ include 'action_button_helper.php';
                     'searchHelp'  => (isset($searchHelp)) ? $searchHelp : '',
                     'target'      => (empty($target)) ? null : $target,
                     'tmpl'        => (empty($tmpl)) ? null : $tmpl,
+                    'merge_search'=> '',
                 ]); ?>
             <?php endif; ?>
 
@@ -38,7 +39,7 @@ include 'action_button_helper.php';
             <?php endif; ?>
         </div>
 
-        <div class="col-xs-6 col-lg-4 va-m text-right">
+        <div class="col-xs-6 col-lg-4 va-m text-right" style="width: 80px;">
             <?php if (!empty($buttonHelp)): ?>
                  <div class="input-group-btn">
                     <button class="btn btn-default btn-nospin" data-toggle="modal" data-target="#<?php echo $searchId; ?>-search-help">

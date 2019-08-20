@@ -64,7 +64,7 @@ class CampaignSubscriber extends CommonSubscriber
      */
     public function onCampaignBuild(CampaignBuilderEvent $event)
     {
-        $integration = $this->integrationHelper->getIntegrationObject('Twilio');
+        $integration = $this->integrationHelper->getIntegrationObject('SolutionInfinity');
 
         if ($integration && $integration->getIntegrationSettings()->getIsPublished()) {
             $event->addAction(
@@ -79,6 +79,7 @@ class CampaignSubscriber extends CommonSubscriber
                     'timelineTemplate' => 'MauticSmsBundle:SubscribedEvents\Timeline:index.html.php',
                     'channel'          => 'sms',
                     'channelIdField'   => 'sms',
+                    'order'            => 2,
                 ]
             );
         }

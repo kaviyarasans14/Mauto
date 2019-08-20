@@ -26,6 +26,21 @@ class SlotType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add(
+            'width',
+            'number',
+            [
+                'label'      => 'Width',
+                'label_attr' => ['class' => 'control-label'],
+                'required'   => false,
+                'attr'       => [
+                    'class'           => 'form-control',
+                    'data-slot-param' => 'width',
+                    'postaddon_text'  => 'px',
+                ],
+            ]
+        );
+
+        $builder->add(
             'padding-top',
             'number',
             [
@@ -50,6 +65,36 @@ class SlotType extends AbstractType
                 'attr'       => [
                     'class'           => 'form-control',
                     'data-slot-param' => 'padding-bottom',
+                    'postaddon_text'  => 'px',
+                ],
+            ]
+        );
+
+        $builder->add(
+            'padding-left',
+            'number',
+            [
+                'label'      => 'mautic.core.padding.left',
+                'label_attr' => ['class' => 'control-label'],
+                'required'   => false,
+                'attr'       => [
+                    'class'           => 'form-control',
+                    'data-slot-param' => 'padding-left',
+                    'postaddon_text'  => 'px',
+                ],
+            ]
+        );
+
+        $builder->add(
+            'padding-right',
+            'number',
+            [
+                'label'      => 'mautic.core.padding.right',
+                'label_attr' => ['class' => 'control-label'],
+                'required'   => false,
+                'attr'       => [
+                    'class'           => 'form-control',
+                    'data-slot-param' => 'padding-right',
                     'postaddon_text'  => 'px',
                 ],
             ]

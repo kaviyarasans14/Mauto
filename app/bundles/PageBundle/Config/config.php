@@ -77,7 +77,7 @@ return [
                     'route'    => 'mautic_page_index',
                     'access'   => ['page:pages:viewown', 'page:pages:viewother'],
                     'parent'   => 'mautic.core.components',
-                    'priority' => 100,
+                    'priority' => 250,
                 ],
             ],
         ],
@@ -113,6 +113,7 @@ return [
                 'class'     => 'Mautic\PageBundle\EventListener\PointSubscriber',
                 'arguments' => [
                     'mautic.point.model.point',
+                    'mautic.security',
                 ],
             ],
             'mautic.page.reportbundle.subscriber' => [
@@ -264,7 +265,7 @@ return [
         ],
         'models' => [
             'mautic.page.model.page' => [
-                'class'     => 'Mautic\PageBundle\Model\PageModel',
+                'class'     => \Mautic\PageBundle\Model\PageModel::class,
                 'arguments' => [
                     'mautic.helper.cookie',
                     'mautic.helper.ip_lookup',
@@ -273,13 +274,12 @@ return [
                     'mautic.page.model.redirect',
                     'mautic.page.model.trackable',
                     'mautic.queue.service',
+                    'mautic.lead.model.company',
+                    'mautic.tracker.device',
                 ],
                 'methodCalls' => [
                     'setCatInUrl' => [
                         '%mautic.cat_in_page_url%',
-                    ],
-                    'setTrackByFingerprint' => [
-                        '%mautic.track_by_fingerprint%',
                     ],
                 ],
             ],
@@ -325,7 +325,7 @@ return [
         'google_analytics'      => false,
         'track_contact_by_ip'   => false,
         'track_by_fingerprint'  => false,
-        'track_by_tracking_url' => true,
+        'track_by_tracking_url' => false,
         'redirect_list_types'   => [
             '301' => 'mautic.page.form.redirecttype.permanent',
             '302' => 'mautic.page.form.redirecttype.temporary',

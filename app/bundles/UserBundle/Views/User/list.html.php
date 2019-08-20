@@ -13,6 +13,7 @@
 if ($tmpl == 'index'):
     $view->extend('MauticUserBundle:User:index.html.php');
 endif;
+$isAdmin=$view['security']->isAdmin();
 ?>
 <div class="table-responsive">
     <table class="table table-hover table-striped table-bordered user-list" id="userTable">
@@ -64,7 +65,15 @@ endif;
                     'class'      => 'visible-md visible-lg col-user-email',
                 ]
             );
-
+            echo $view->render(
+                'MauticCoreBundle:Helper:tableheader.html.php',
+                [
+                    'sessionVar' => 'user',
+                    'orderBy'    => 'u.mobile',
+                    'text'       => 'mautic.core.type.mobile',
+                    'class'      => 'visible-md visible-lg col-user-mobile',
+                ]
+            );
             echo $view->render(
                 'MauticCoreBundle:Helper:tableheader.html.php',
                 [
@@ -74,7 +83,7 @@ endif;
                     'class'      => 'visible-md visible-lg col-user-role',
                 ]
             );
-
+            if ($isAdmin):
             echo $view->render(
                 'MauticCoreBundle:Helper:tableheader.html.php',
                 [
@@ -84,6 +93,7 @@ endif;
                     'class'      => 'visible-md visible-lg col-user-id',
                 ]
             );
+            endif;
             ?>
         </tr>
         </thead>
@@ -129,8 +139,11 @@ endif;
                 <td class="visible-md visible-lg">
                     <a href="mailto: <?php echo $item->getEmail(); ?>"><?php echo $item->getEmail(); ?></a>
                 </td>
+                <td class="visible-md visible-lg"><?php echo $item->getMobile(); ?></td>
                 <td class="visible-md visible-lg"><?php echo $item->getRole()->getName(); ?></td>
+                <?php if ($isAdmin) : ?>
                 <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
+                <?php endif; ?>
             </tr>
         <?php endforeach; ?>
         </tbody>

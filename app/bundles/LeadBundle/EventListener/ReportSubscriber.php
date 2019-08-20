@@ -142,7 +142,7 @@ class ReportSubscriber extends CommonSubscriber
         }
 
         if ($event->checkContext($this->leadContexts)) {
-            $companyColumns = $this->companyReportData->getCompanyData();
+            $companyColumns=$this->companyReportData->getCompanyData();
 
             $columns = array_merge(
                 $this->fieldsBuilder->getLeadFieldsColumns('l.'),
@@ -162,18 +162,20 @@ class ReportSubscriber extends CommonSubscriber
 
             $event->addTable(self::CONTEXT_LEADS, $data, self::GROUP_CONTACTS);
 
-            $attributionTypes = [
-                self::CONTEXT_CONTACT_ATTRIBUTION_MULTI,
-                self::CONTEXT_CONTACT_ATTRIBUTION_FIRST,
-                self::CONTEXT_CONTACT_ATTRIBUTION_LAST,
-            ];
+            if ($this->security->isAdmin()) {
+                $attributionTypes = [
+                    self::CONTEXT_CONTACT_ATTRIBUTION_MULTI,
+                    self::CONTEXT_CONTACT_ATTRIBUTION_FIRST,
+                    self::CONTEXT_CONTACT_ATTRIBUTION_LAST,
+                ];
 
-            if ($event->checkContext($attributionTypes)) {
-                $context = $event->getContext();
-                foreach ($attributionTypes as $attributionType) {
-                    if (empty($context) || $event->checkContext($attributionType)) {
-                        $type = str_replace('contact.attribution.', '', $attributionType);
-                        $this->injectAttributionReportData($event, $columns, $filters, $type);
+                if ($event->checkContext($attributionTypes)) {
+                    $context = $event->getContext();
+                    foreach ($attributionTypes as $attributionType) {
+                        if (empty($context) || $event->checkContext($attributionType)) {
+                            $type = str_replace('contact.attribution.', '', $attributionType);
+                            $this->injectAttributionReportData($event, $columns, $filters, $type);
+                        }
                     }
                 }
             }
@@ -188,12 +190,12 @@ class ReportSubscriber extends CommonSubscriber
                 }
             }
 
-            if ($event->checkContext([self::CONTEXT_CONTACT_FREQUENCYRULES])) {
+            if ($event->checkContext([self::CONTEXT_CONTACT_FREQUENCYRULES]) && $this->security->isAdmin()) {
                 $this->injectFrequencyReportData($event, $columns, $filters);
             }
         }
 
-        if ($event->checkContext($this->companyContexts)) {
+        if ($event->checkContext($this->companyContexts) && $this->security->isAdmin()) {
             $companyColumns = $this->fieldsBuilder->getCompanyFieldsColumns('comp.');
 
             $companyFilters = $companyColumns;
@@ -505,69 +507,139 @@ class ReportSubscriber extends CommonSubscriber
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.most.points' => [
+                                'value' => $item['points'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-asterisk';
-                    $graphData['link']      = 'mautic_contact_action';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.countries':
-                    $queryBuilder->select('l.country as title, count(l.country) as quantity')
+                    $queryBuilder->select('l.id as id,l.country as title, count(l.country) as quantity')
                         ->groupBy('l.country')
                         ->orderBy('quantity', 'DESC');
                     $limit  = 10;
                     $offset = 0;
 
                     $items                  = $pointLogRepo->getMostLeads($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.countries' => [
+                                'value' => $item['quantity'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-globe';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.cities':
-                    $queryBuilder->select('l.city as title, count(l.city) as quantity')
+                    $queryBuilder->select('l.id as id,l.city as title, count(l.city) as quantity')
                         ->groupBy('l.city')
                         ->orderBy('quantity', 'DESC');
                     $limit  = 10;
                     $offset = 0;
 
                     $items                  = $pointLogRepo->getMostLeads($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.cities' => [
+                                'value' => $item['quantity'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-university';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.events':
-                    $queryBuilder->select('lp.event_name as title, count(lp.event_name) as events')
+                    $queryBuilder->select('lp.id as id,lp.event_name as title, count(lp.event_name) as events')
                         ->groupBy('lp.event_name')
                         ->orderBy('events', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            [
+                                'value' => $item['events'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-calendar';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.lead.table.top.actions':
-                    $queryBuilder->select('lp.action_name as title, count(lp.action_name) as actions')
+                    $queryBuilder->select('lp.id as id,lp.action_name as title, count(lp.action_name) as actions')
                         ->groupBy('lp.action_name')
                         ->orderBy('actions', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $pointLogRepo->getMostPoints($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.lead.table.top.actions' => [
+                                'value' => $item['actions'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-bolt';
+                    $graphData['data']      = $items;
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
@@ -678,7 +750,7 @@ class ReportSubscriber extends CommonSubscriber
         $data = [
             'display_name' => 'mautic.lead.report.points.table',
             'columns'      => array_merge($columns, $pointColumns, $event->getIpColumn()),
-            'filters'      => $filters,
+            'filters'      => array_merge($filters, $pointColumns),
         ];
         $event->addTable(self::CONTEXT_LEAD_POINT_LOG, $data, self::GROUP_CONTACTS);
 
@@ -733,7 +805,7 @@ class ReportSubscriber extends CommonSubscriber
         $data = [
             'display_name' => 'mautic.lead.report.frequency.messages',
             'columns'      => array_merge($columns, $frequencyColumns),
-            'filters'      => $filters,
+            'filters'      => array_merge($filters, $frequencyColumns),
         ];
         $event->addTable(self::CONTEXT_CONTACT_FREQUENCYRULES, $data, self::GROUP_CONTACTS);
     }

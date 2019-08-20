@@ -64,7 +64,7 @@ class LogoutHandler implements LogoutHandlerInterface
         $this->userModel->setOnlineStatus('offline');
 
         if ($this->dispatcher->hasListeners(UserEvents::USER_LOGOUT)) {
-            $event = new LogoutEvent($this->user, $request);
+            $event = new LogoutEvent($this->userModel->getCurrentUserEntity(), $request);
             $this->dispatcher->dispatch(UserEvents::USER_LOGOUT, $event);
         }
 
@@ -78,6 +78,7 @@ class LogoutHandler implements LogoutHandlerInterface
                 $session->set($key, $value);
             }
         }
+        $session->set('isalert_needed', false);
         // Note that a logout occurred
         $session->set('post_logout', true);
     }

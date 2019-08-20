@@ -48,8 +48,10 @@ class ConfigSubscriber extends CommonSubscriber
     public function onConfigSave(ConfigEvent $event)
     {
         // Symfony craps out with integer for firewall settings
-        $data                          = $event->getConfig('apiconfig');
-        $data['api_enable_basic_auth'] = (bool) $data['api_enable_basic_auth'];
+        $data= $event->getConfig('apiconfig');
+        if (isset($data['api_enable_basic_auth'])) {
+            $data['api_enable_basic_auth'] =$data['api_enable_basic_auth'] ? true : false;
+        }
         $event->setConfig($data, 'apiconfig');
     }
 }

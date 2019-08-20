@@ -69,22 +69,22 @@ return [
 
     'menu' => [
         'main' => [
-            'mautic.points.menu.root' => [
-                'id'        => 'mautic_points_root',
-                'iconClass' => 'fa-calculator',
-                'access'    => ['point:points:view', 'point:triggers:view'],
-                'priority'  => 30,
-                'children'  => [
-                    'mautic.point.menu.index' => [
-                        'route'  => 'mautic_point_index',
-                        'access' => 'point:points:view',
-                    ],
-                    'mautic.point.trigger.menu.index' => [
-                        'route'  => 'mautic_pointtrigger_index',
-                        'access' => 'point:triggers:view',
-                    ],
-                ],
-            ],
+            /*  'mautic.points.menu.root' => [
+                  'id'        => 'mautic_points_root',
+                  'iconClass' => 'fa-calculator',
+                  'access'    => ['point:points:view', 'point:triggers:view'],
+                  'priority'  => 30,
+                  'children'  => [
+                      'mautic.point.menu.index' => [
+                          'route'  => 'mautic_point_index',
+                          'access' => 'point:points:view',
+                      ],
+                      'mautic.point.trigger.menu.index' => [
+                          'route'  => 'mautic_pointtrigger_index',
+                          'access' => 'point:triggers:view',
+                      ],
+                  ],
+              ],*/
         ],
     ],
 

@@ -46,7 +46,7 @@
         }
 
         function _init() {
-            var method = location.href.match(/(email|dwc)/i)? 'email:getBuilderTokens' : 'page:getBuilderTokens';
+            var method = location.href.match(/(email|dwc|config|contacts|broadcast)/i)? 'email:getBuilderTokens' : 'page:getBuilderTokens';
             Mautic.getTokens(method, function(tokens) {
                 mQuery.each(tokens, function(k,v){
                     if (k.match(/assetlink=/i) && v.match(/a:/)){
@@ -90,7 +90,7 @@
                                                             (val.match(/dwc=/i))?
                                                                 str.replace(/_BADGE_/,'dwc') : '';
                     var title = tokens[val];
-                    if (title.length>24) title = title.substr(0, 24) + '...';
+                    if (title.length>18) title = title.substr(0, 18) + '...';
                     var newOption = '<li role="presentation"><a class="fr-command" tabIndex="-1" role="option" data-cmd="token" data-param1="' + val + '" title="' + title + '">' + title + badge + '</a></li>';
                     options.push(newOption);
                 }
@@ -116,7 +116,7 @@
             return editor.opts.tokenDefaultSelection;
         },
         displaySelectionWidth: 120,
-        title: 'Insert token',
+        title: 'Insert Token',
         callback: function (cmd, val) {
             this.token.apply(val);
         },

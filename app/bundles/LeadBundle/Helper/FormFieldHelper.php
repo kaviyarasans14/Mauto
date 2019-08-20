@@ -183,6 +183,22 @@ class FormFieldHelper extends AbstractFormFieldHelper
     }
 
     /**
+     * @return array
+     */
+    public static function getFeedbackChoices()
+    {
+        $feedbackJson = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/feedback.json');
+        $feedbacks    = json_decode($feedbackJson);
+
+        $choices = [];
+        foreach ($feedbacks as $property => &$propertyValue) {
+            $choices[$property] = array_combine($propertyValue, $propertyValue);
+        }
+
+        return $choices;
+    }
+
+    /**
      * Symfony deprecated and changed Symfony\Component\Form\Extension\Core\Type\TimezoneType::getTimezones to private
      * in 3.0 - so duplicated code here.
      *
@@ -214,6 +230,24 @@ class FormFieldHelper extends AbstractFormFieldHelper
         }
 
         return $timezones;
+    }
+
+    /**
+     * Symfony deprecated and changed Symfony\Component\Form\Extension\Core\Type\TimezoneType::getTimezones to private
+     * in 3.0 - so duplicated code here.
+     *
+     * @return array
+     */
+    public static function getCustomTimezones()
+    {
+        $timezonesJson     = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/timezone.json');
+        $timezones         = json_decode($timezonesJson);
+        $timezonesnameJson = file_get_contents(__DIR__.'/../../CoreBundle/Assets/json/timezonename.json');
+        $timezonesname     = json_decode($timezonesnameJson);
+
+        $choices = array_combine($timezonesname, $timezones);
+
+        return $choices;
     }
 
     /**

@@ -16,6 +16,7 @@ use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\FormBundle\Event\SubmissionEvent;
 use Mautic\FormBundle\Model\FormModel;
 use Mautic\LeadBundle\Helper\TokenHelper;
+use Mautic\SubscriptionBundle\Entity\Account;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +50,6 @@ class PublicController extends CommonFormController
             //try to get it from the HTTP_REFERER
             $return = (isset($server['HTTP_REFERER'])) ? $server['HTTP_REFERER'] : false;
         }
-
         if (!empty($return)) {
             //remove mauticError and mauticMessage from the referer so it doesn't get sent back
             $return = InputHelper::url($return, null, null, null, ['mauticError', 'mauticMessage'], true);
@@ -63,7 +63,6 @@ class PublicController extends CommonFormController
         } elseif (isset($post['formId']) && !isset($post['formid'])) {
             $post['formid'] = $post['formId'];
         }
-
         //check to ensure there is a formId
         if (!isset($post['formId'])) {
             $error = $translator->trans('mautic.form.submit.error.unavailable', [], 'flashes');
@@ -78,7 +77,6 @@ class PublicController extends CommonFormController
                 //get what to do immediately after successful post
                 $postAction         = $form->getPostAction();
                 $postActionProperty = $form->getPostActionProperty();
-
                 //check to ensure the form is published
                 $status             = $form->getPublishStatus();
                 $dateTemplateHelper = $this->get('mautic.helper.template.date');
@@ -102,6 +100,7 @@ class PublicController extends CommonFormController
                     $error = $translator->trans('mautic.form.submit.error.unavailable', [], 'flashes');
                 } else {
                     $result = $this->getModel('form.submission')->saveSubmission($post, $server, $form, $this->request, true);
+
                     if (!empty($result['errors'])) {
                         if ($messengerMode || $isAjax) {
                             $error = $result['errors'];
@@ -131,7 +130,6 @@ class PublicController extends CommonFormController
                         foreach ($callbacksRequested as $key => $callbackRequested) {
                             $callbackRequested['messengerMode'] = $messengerMode;
                             $callbackRequested['ajaxMode']      = $isAjax;
-
                             if (isset($callbackRequested['eventName'])) {
                                 $submissionEvent->setPostSubmitCallback($key, $callbackRequested);
 
@@ -242,8 +240,7 @@ class PublicController extends CommonFormController
             }
 
             if ($isAjax) {
-                // Post via ajax so return a json response
-
+                // Post via ajax so return a json responses
                 return new JsonResponse($data);
             } else {
                 $response = json_encode($data);
@@ -336,11 +333,20 @@ class PublicController extends CommonFormController
         $form              = $model->getEntity($objectId);
         $customStylesheets = (!empty($css)) ? explode(',', $css) : [];
         $template          = null;
-
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('subscription.accountinfo');
+        $accrepo         = $accmodel->getRepository();
+        $accountentity   = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
+        $ishidepoweredby = $account->getNeedpoweredby();
         if ($form === null || !$form->isPublished()) {
             return $this->notFound();
         } else {
-            $html = $model->getContent($form);
+            $html = $model->getContent($form, true, true, $ishidepoweredby);
 
             $model->populateValuesWithGetParameters($form, $html);
 
@@ -396,16 +402,29 @@ class PublicController extends CommonFormController
      */
     public function generateAction()
     {
+        // Don't store a visitor with this request
+        defined('MAUTIC_NON_TRACKABLE_REQUEST') || define('MAUTIC_NON_TRACKABLE_REQUEST', 1);
+
         $formId = InputHelper::int($this->request->get('id'));
 
         $model = $this->getModel('form.form');
         $form  = $model->getEntity($formId);
         $js    = '';
+        /** @var \Mautic\SubscriptionBundle\Model\AccountInfoModel $accmodel */
+        $accmodel        = $this->getModel('subscription.accountinfo');
+        $accrepo         = $accmodel->getRepository();
+        $accountentity   = $accrepo->findAll();
+        if (sizeof($accountentity) > 0) {
+            $account = $accountentity[0];
+        } else {
+            $account = new Account();
+        }
+        $ishidepoweredby = $account->getNeedpoweredby();
 
         if ($form !== null) {
             $status = $form->getPublishStatus();
             if ($status == 'published') {
-                $js = $model->getAutomaticJavascript($form);
+                $js = $model->getAutomaticJavascript($form, $ishidepoweredby);
             }
         }
 

@@ -25,7 +25,7 @@ class BatchSendType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $default = (empty($options['data']['batchlimit'])) ? 100 : (int) $options['data']['batchlimit'];
+        $default = (empty($options['data']['batchlimit'])) ? 300 : (int) $options['data']['batchlimit'];
         $builder->add(
             'batchlimit',
             'text',

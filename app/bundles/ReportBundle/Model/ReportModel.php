@@ -149,16 +149,20 @@ class ReportModel extends FormModel
             throw new MethodNotAllowedHttpException(['Report']);
         }
 
-        $params              = (!empty($action)) ? ['action' => $action] : [];
-        $params['read_only'] = false;
+        if (!empty($action)) {
+            $options['action'] = $action;
+        }
+
+        $options = array_merge($options, [
+            'read_only'  => false,
+            'table_list' => $this->getTableData(),
+        ]);
 
         // Fire the REPORT_ON_BUILD event off to get the table/column data
 
-        $params['table_list'] = $this->getTableData();
-
         $reportGenerator = new ReportGenerator($this->dispatcher, $this->em->getConnection(), $entity, $this->channelListHelper, $formFactory);
 
-        return $reportGenerator->getForm($entity, $params);
+        return $reportGenerator->getForm($entity, $options);
     }
 
     /**
@@ -588,7 +592,7 @@ class ReportModel extends FormModel
         }
 
         if (empty($options['ignoreTableData']) && !empty($selectedColumns)) {
-            if ($paginate && !$entity->getGroupBy()) {
+            if ($paginate) {
                 // Build the options array to pass into the query
                 $limit = $this->session->get('mautic.report.'.$entity->getId().'.limit', $this->defaultPageLimit);
                 if (!empty($options['limit'])) {
@@ -600,25 +604,11 @@ class ReportModel extends FormModel
                     $start = 0;
                 }
 
-                // Must make two queries here, one to get count and one to select data
-                $select = $parts['select'];
-
-                // Get the count
-                $query->select('COUNT(*) as count');
-                $countQuery = clone $query;
-                $countQuery->resetQueryPart('groupBy');
-
-                $result       = $countQuery->execute()->fetchAll();
-                $totalResults = (!empty($result[0]['count'])) ? $result[0]['count'] : 0;
-                unset($countQuery);
-
-                // Set the limit and get the results
+                $totalResults = $query->execute()->rowCount();
                 if ($limit > 0) {
                     $query->setFirstResult($start)
                         ->setMaxResults($limit);
                 }
-
-                $query->select($select);
             }
 
             $query->add('orderBy', $order);
@@ -634,7 +624,7 @@ class ReportModel extends FormModel
                 $queryTime .= 'ms';
             }
 
-            if (!$paginate || $entity->getGroupBy()) {
+            if (!$paginate) {
                 $totalResults = count($data);
             }
 

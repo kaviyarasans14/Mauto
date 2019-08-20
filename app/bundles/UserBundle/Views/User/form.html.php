@@ -18,6 +18,8 @@ if (!empty($userId)) {
     $header = $view['translator']->trans('mautic.user.user.header.new');
 }
 $view['slots']->set('headerTitle', $header);
+$isAdmin       =$view['security']->isAdmin();
+$isLogginedUser=$view['security']->isLoginUserID($userId);
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -43,23 +45,29 @@ $view['slots']->set('headerTitle', $header);
 
 			<div class="form-group mb-0">
 			    <div class="row">
+                    <div class="col-sm-6<?php echo (count($form['mobile']->vars['errors'])) ? ' has-error' : ''; ?>">
+                        <label class="control-label mb-xs"><?php echo $view['form']->label($form['mobile']); ?></label>
+                        <?php echo $view['form']->widget($form['mobile'], ['attr' => ['placeholder' => $form['mobile']->vars['label']]]); ?>
+                        <?php echo $view['form']->errors($form['mobile']); ?>
+                    </div>
 			        <div class="col-sm-6<?php echo (count($form['role']->vars['errors'])) ? ' has-error' : ''; ?>">
 			        	<label class="control-label mb-xs"><?php echo $view['form']->label($form['role']); ?></label>
 			            <?php echo $view['form']->widget($form['role'], ['attr' => ['placeholder' => $form['role']->vars['label']]]); ?>
                         <?php echo $view['form']->errors($form['role']); ?>
 			        </div>
-			        <div class="col-sm-6<?php echo (count($form['position']->vars['errors'])) ? ' has-error' : ''; ?>">
-				    	<label class="control-label mb-xs"><?php echo $view['form']->label($form['position']); ?></label>
-			            <?php echo $view['form']->widget($form['position'], ['attr' => ['placeholder' => $form['position']->vars['label']]]); ?>
-                        <?php echo $view['form']->errors($form['position']); ?>
-			        </div>
+
 			    </div>
 			</div>
 			<hr class="mnr-md mnl-md">
 
             <div class="form-group mb-0">
                 <div class="row">
-                    <div class="col-sm-6<?php echo (count($form['signature']->vars['errors'])) ? ' has-error' : ''; ?>">
+                    <div class="col-sm-6<?php echo (count($form['position']->vars['errors'])) ? ' has-error' : ''; ?>">
+                        <label class="control-label mb-xs"><?php echo $view['form']->label($form['position']); ?></label>
+                        <?php echo $view['form']->widget($form['position'], ['attr' => ['placeholder' => $form['position']->vars['label']]]); ?>
+                        <?php echo $view['form']->errors($form['position']); ?>
+                    </div>
+                    <div class="col-sm-6<?php echo (count($form['signature']->vars['errors'])) ? ' has-error' : ''; ?><?php echo $isAdmin ? '' : ' hide'?>">
                         <label class="control-label mb-xs"><?php echo $view['form']->label($form['signature']); ?></label>
                         <?php echo $view['form']->widget($form['signature'], ['attr' => ['placeholder' => $form['signature']->vars['label']]]); ?>
                         <?php echo $view['form']->errors($form['signature']); ?>
@@ -89,12 +97,29 @@ $view['slots']->set('headerTitle', $header);
 				    </div>
 				</div>
 			</div>
-			<hr class="mnr-md mnl-md">
-
+            <hr class="mnr-md mnl-md">
+             <?php if (!$isAdmin): ?>
+                <div class="hidden">
+                <?php echo $view['form']->row($form['locale']); ?>
+                </div>
+            <?php endif; ?>
 		</div>
 	</div>
  	<div class="col-md-3 bg-white height-auto">
 		<div class="pr-lg pl-lg pt-md pb-md">
+            <div class="row">
+                <div class="form-group col-xs-12<?php echo (count($form['timezone']->vars['errors'])) ? ' has-error' : ''; ?>">
+                    <label class="control-label mb-xs"><?php echo $view['form']->label($form['timezone']); ?></label>
+                    <?php echo $view['form']->widget($form['timezone']); ?>
+                    <?php echo $view['form']->errors($form['timezone']); ?>
+                </div>
+            </div>
+            <div class="row">
+                <div <?php echo $isLogginedUser ? "style='pointer-events: none'" : '' ?> class="form-group col-xs-12">
+                    <label class="control-label mb-xs"><?php echo $view['form']->label($form['isPublished']); ?></label>
+                    <?php echo $view['form']->widget($form['isPublished']); ?>
+                </div>
+            </div>
             <?php echo $view['form']->rest($form); ?>
 		</div>
 	</div>

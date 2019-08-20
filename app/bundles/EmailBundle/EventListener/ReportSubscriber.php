@@ -12,9 +12,12 @@
 namespace Mautic\EmailBundle\EventListener;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
+use Mautic\CoreBundle\Helper\Chart\ChartQuery;
 use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\Chart\PieChart;
+use Mautic\EmailBundle\Entity\Stat;
 use Mautic\LeadBundle\Entity\DoNotContact;
 use Mautic\LeadBundle\Model\CompanyReportData;
 use Mautic\ReportBundle\Event\ReportBuilderEvent;
@@ -39,6 +42,11 @@ class ReportSubscriber extends CommonSubscriber
      * @var CompanyReportData
      */
     private $companyReportData;
+
+    /**
+     * @var bool Property is used to avoid Joining DNC table more times
+     */
+    private $dncWasAddedToQb = false;
 
     /**
      * ReportSubscriber constructor.
@@ -177,18 +185,14 @@ class ReportSubscriber extends CommonSubscriber
             ],
         ];
 
-        $companyColumns = $this->companyReportData->getCompanyData();
-
         $columns = array_merge(
             $columns,
             $event->getStandardColumns($prefix, [], 'mautic_email_action'),
-            $event->getCategoryColumns(),
-            $companyColumns
+            $event->getCategoryColumns()
         );
         $data = [
             'display_name' => 'mautic.email.emails',
             'columns'      => $columns,
-            'filters'      => $companyColumns,
         ];
         $event->addTable(self::CONTEXT_EMAILS, $data);
         $context = self::CONTEXT_EMAILS;
@@ -266,6 +270,8 @@ class ReportSubscriber extends CommonSubscriber
                 ],
             ];
 
+            $companyColumns = $this->companyReportData->getCompanyData();
+
             $data = [
                 'display_name' => 'mautic.email.stats.report.table',
                 'columns'      => array_merge(
@@ -273,7 +279,8 @@ class ReportSubscriber extends CommonSubscriber
                     $statColumns,
                     $event->getCampaignByChannelColumns(),
                     $event->getLeadColumns(),
-                    $event->getIpColumn()
+                    $event->getIpColumn(),
+                    $companyColumns
                 ),
             ];
             $event->addTable(self::CONTEXT_EMAIL_STATS, $data, self::CONTEXT_EMAILS);
@@ -305,7 +312,7 @@ class ReportSubscriber extends CommonSubscriber
         // channel_url_trackables subquery
         $qbcut        = $this->db->createQueryBuilder();
         $clickColumns = ['hits', 'unique_hits', 'hits_ratio', 'unique_ratio', 'is_hit'];
-        $dncColumns   = ['unsubscribed', 'unsubscribed_ratio'];
+        $dncColumns   = ['unsubscribed', 'unsubscribed_ratio', 'bounced', 'bounced_ratio'];
 
         switch ($context) {
             case self::CONTEXT_EMAILS:
@@ -329,15 +336,14 @@ class ReportSubscriber extends CommonSubscriber
                         ->groupBy('cut2.channel_id');
                     $qb->leftJoin('e', sprintf('(%s)', $qbcut->getSQL()), 'cut', 'e.id = cut.channel_id');
                 }
-
-                if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
-                    $qb->leftJoin(
+               if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
+                   $qb->leftJoin(
                         'e',
                         MAUTIC_TABLE_PREFIX.'lead_donotcontact',
                         'dnc',
                         'e.id = dnc.channel_id AND dnc.channel=\'email\''
                     );
-                }
+               }
 
                 break;
             case self::CONTEXT_EMAIL_STATS:
@@ -374,14 +380,9 @@ class ReportSubscriber extends CommonSubscriber
                     );
                 }
 
-                if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
-                    $qb->leftJoin(
-                        'e',
-                        MAUTIC_TABLE_PREFIX.'lead_donotcontact',
-                        'dnc',
-                        'e.id = dnc.channel_id AND dnc.channel=\'email\' AND es.lead_id = dnc.lead_id'
-                    );
-                }
+               if ($event->hasColumn($dncColumns) || $event->hasFilter($dncColumns)) {
+                   $this->addDNCTable($qb);
+               }
 
                 $event->addCampaignByChannelJoin($qb, 'e', 'email');
 
@@ -402,17 +403,22 @@ class ReportSubscriber extends CommonSubscriber
      */
     public function onReportGraphGenerate(ReportGraphEvent $event)
     {
-        $graphs = $event->getRequestedGraphs();
+        $dncColumns   = ['unsubscribed', 'unsubscribed_ratio', 'bounced', 'bounced_ratio'];
+        $graphs       = $event->getRequestedGraphs();
 
         if (!$event->checkContext(self::CONTEXT_EMAIL_STATS) || ($event->checkContext(self::CONTEXT_EMAILS) && !in_array('mautic.email.graph.pie.read.ingored.unsubscribed.bounced', $graphs))) {
             return;
         }
 
         $qb       = $event->getQueryBuilder();
-        $statRepo = $this->em->getRepository('MauticEmailBundle:Stat');
+        if (!$event->hasColumn($dncColumns) && !$event->hasFilter($dncColumns)) {
+            $this->addDNCTable($qb);
+        }
+        $statRepo = $this->em->getRepository(Stat::class);
         foreach ($graphs as $g) {
             $options      = $event->getOptions($g);
             $queryBuilder = clone $qb;
+            /** @var ChartQuery $chartQuery */
             $chartQuery   = clone $options['chartQuery'];
             $origQuery    = clone $queryBuilder;
             // just limit date for contacts emails
@@ -454,14 +460,14 @@ class ReportSubscriber extends CommonSubscriber
                         $options['translator']->trans('mautic.email.ignored.emails'),
                         $counts['ignored']
                     );
-                    $event->setGraph(
-                        $g,
-                        [
-                            'data'      => $chart->render(),
-                            'name'      => $g,
-                            'iconClass' => 'fa-flag-checkered',
-                        ]
-                    );
+
+                    $data =$chart->render();
+
+                    $data['name']     =$g;
+                    $data['iconClass']='fa-flag-checkered';
+
+                    $event->setGraph($g, $data);
+
                     break;
 
                 case 'mautic.email.graph.pie.read.ingored.unsubscribed.bounced':
@@ -493,38 +499,67 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.sent':
-                    $queryBuilder->select('e.id, e.subject as title, SUM(DISTINCT e. sent_count) as sent')
+                    $queryBuilder->select('e.id as id,e.subject as title, SUM(DISTINCT e. sent_count) as sent')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('sent', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-paper-plane-o';
-                    $graphData['link']      = 'mautic_email_action';
+                    $email                  = [];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.sent' => [
+                                'value' => $item['sent'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $email;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.email.table.most.emails.read':
-                    $queryBuilder->select('e.id, e.subject as title, SUM(DISTINCT e. read_count) as opens')
+                    $queryBuilder->select('e.id as id,e.subject as title, SUM(DISTINCT e. read_count) as opens')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('opens', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-eye';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.read' => [
+                                'value' => $item['opens'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.email.table.most.emails.failed':
                     $queryBuilder->select(
-                        'e.id, e.subject as title, count(CASE WHEN es.is_failed THEN 1 ELSE null END) as failed'
+                        'e.id as id,e.subject as title, count(CASE WHEN es.is_failed THEN 1 ELSE null END) as failed'
                     )
                         ->having('count(CASE WHEN es.is_failed THEN 1 ELSE null END) > 0')
                         ->groupBy('e.id, e.subject')
@@ -533,14 +568,29 @@ class ReportSubscriber extends CommonSubscriber
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-exclamation-triangle';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.failed'=> [
+                                'value' => $item['failed'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
 
                 case 'mautic.email.table.most.emails.unsubscribed':
+                   // $this->addDNCTable($queryBuilder);
                     $queryBuilder->select(
                         'e.id, e.subject as title, count(CASE WHEN dnc.id  and dnc.reason = '.DoNotContact::UNSUBSCRIBED.' THEN 1 ELSE null END) as unsubscribed'
                     )
@@ -549,6 +599,7 @@ class ReportSubscriber extends CommonSubscriber
                         )
                         ->groupBy('e.id, e.subject')
                         ->orderBy('unsubscribed', 'DESC');
+
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
@@ -561,6 +612,7 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.bounced':
+                  //  $this->addDNCTable($queryBuilder);
                     $queryBuilder->select(
                         'e.id, e.subject as title, count(CASE WHEN dnc.id  and dnc.reason = '.DoNotContact::BOUNCED.' THEN 1 ELSE null END) as bounced'
                     )
@@ -581,21 +633,56 @@ class ReportSubscriber extends CommonSubscriber
                     break;
 
                 case 'mautic.email.table.most.emails.read.percent':
-                    $queryBuilder->select('e.id, e.subject as title, round(e.read_count / e.sent_count * 100) as ratio')
+                    $queryBuilder->select('e.id as id,e.subject as title, round(e.read_count / e.sent_count * 100) as ratio')
                         ->groupBy('e.id, e.subject')
                         ->orderBy('ratio', 'DESC');
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $statRepo->getMostEmails($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-tachometer';
-                    $graphData['link']      = 'mautic_email_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_email_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.email.table.most.emails.read.percent' => [
+                                'value' => $item['ratio'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
             }
             unset($queryBuilder);
         }
+    }
+
+    /**
+     * Add the Do Not Contact table to the query builder.
+     *
+     * @param QueryBuilder $qb
+     */
+    private function addDNCTable(QueryBuilder $qb)
+    {
+        if ($this->dncWasAddedToQb) {
+            return;
+        }
+
+        $qb->leftJoin(
+            'e',
+            MAUTIC_TABLE_PREFIX.'lead_donotcontact',
+            'dnc',
+            'e.id = dnc.channel_id AND dnc.channel=\'email\' AND es.lead_id = dnc.lead_id'
+        );
+
+        $this->dncWasAddedToQb = true;
     }
 }

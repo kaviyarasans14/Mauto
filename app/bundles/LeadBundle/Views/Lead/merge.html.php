@@ -19,6 +19,7 @@
         'searchHelp'  => false,
         'target'      => '.lead-merge-options',
         'tmpl'        => 'update',
+        'merge_search'=> 'merge_search',
     ]); ?>
     <div class="lead-merge-options mt-sm">
 <?php endif; ?>

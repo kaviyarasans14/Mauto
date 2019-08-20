@@ -166,6 +166,10 @@ class ImportController extends FormController
         if (!$this->get('mautic.security')->isGranted('lead:imports:create')) {
             return $this->accessDenied();
         }
+        $paymentrepository  =$this->get('le.subscription.repository.payment');
+        $lastpayment        = $paymentrepository->getLastPayment();
+        $totalRecordCount   = $this->get('mautic.helper.licenseinfo')->getTotalRecordCount();
+        $actualRecordCount  = $this->get('mautic.helper.licenseinfo')->getActualRecordCount();
 
         // Move the file to cache and rename it
         $forceStop = $this->request->get('cancel', false);
@@ -316,8 +320,10 @@ class ImportController extends FormController
                                             $importFields = [];
 
                                             foreach ($headers as $header) {
-                                                $fieldName                = strtolower(InputHelper::alphanum($header, false, '_'));
-                                                $importFields[$fieldName] = $header;
+                                                if (!empty($header)) {
+                                                    $fieldName                = strtolower(InputHelper::alphanum($header, false, '_'));
+                                                    $importFields[$fieldName] = $header;
+                                                }
                                             }
 
                                             $session->set('mautic.'.$object.'.import.step', self::STEP_MATCH_FIELDS);
@@ -387,8 +393,15 @@ class ImportController extends FormController
                                 $matchedFields[$k] = trim($matchedFields[$k]);
                             }
                         }
-
-                        if (empty($matchedFields)) {
+                        if (empty($list)) {
+                            $form->addError(
+                                new FormError(
+                                    $this->get('translator')->trans('mautic.lead.import.matchfields.list', [], 'validators')
+                                )
+                            );
+                            break;
+                        }
+                        if (empty($matchedFields) && !empty($list)) {
                             $form->addError(
                                 new FormError(
                                     $this->get('translator')->trans('mautic.lead.import.matchfields', [], 'validators')
@@ -418,8 +431,17 @@ class ImportController extends FormController
 
                                 $session->set('mautic.'.$object.'.import.step', self::STEP_PROGRESS_BAR);
                             }
+                            $lineCount         = $import->getLineCount() - 1;
+                            $toBeinsertedCount = $actualRecordCount + $lineCount;
 
-                            $importModel->saveEntity($import);
+                            if ($totalRecordCount >= $toBeinsertedCount || $totalRecordCount == 'UL' || $lastpayment != null) {
+                                $importModel->saveEntity($import);
+                            } else {
+                                $this->addFlash('mautic.record.count.exceeds');
+                                $this->resetImport($fullPath);
+
+                                return $this->indexAction();
+                            }
 
                             $session->set('mautic.'.$object.'.import.id', $import->getId());
 
@@ -479,7 +501,7 @@ class ImportController extends FormController
                         'route'         => $this->generateUrl(
                             'mautic_import_action',
                             [
-                                'object'       => $object === 'lead' ? 'contacts' : 'companies',
+                                'object'       => $object === 'lead' ? 'leads' : 'companies',
                                 'objectAction' => 'new',
                             ]
                         ),
@@ -670,7 +692,7 @@ class ImportController extends FormController
     public function generateUrl($route, $parameters = [], $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH)
     {
         if (!isset($parameters['object'])) {
-            $parameters['object'] = $this->request->get('object', 'contacts');
+            $parameters['object'] = $this->request->get('object', 'leads');
         }
 
         return parent::generateUrl($route, $parameters, $referenceType);
@@ -683,7 +705,7 @@ class ImportController extends FormController
         switch ($objectInRequest) {
             case 'companies':
                 return 'company';
-            case 'contacts':
+            case 'leads':
             default:
                 return 'lead';
         }

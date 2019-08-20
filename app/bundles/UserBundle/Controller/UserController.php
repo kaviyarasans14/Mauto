@@ -49,11 +49,21 @@ class UserController extends FormController
 
         $search = $this->request->get('search', $this->get('session')->get('mautic.user.filter', ''));
         $this->get('session')->set('mautic.user.filter', $search);
-
+        $issadmin     =$this->get('mautic.helper.user')->getUser()->isAdmin();
+        $useremail    =$this->get('mautic.helper.user')->getUser()->getEmail();
+        $defaultfilter='';
+        if ($useremail != 'sadmin@leadsengage.com') {
+            if (empty($search)) {
+                $defaultfilter='email:!sadmin@leadsengage.com';
+            } else {
+                $defaultfilter=$search.' and email:!sadmin@leadsengage.com';
+            }
+        }
         //do some default filtering
-        $filter = ['string' => $search, 'force' => ''];
+        $filter = ['string' => $defaultfilter, 'force' => ''];
+        $tmpl   = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
 
-        $tmpl  = $this->request->isXmlHttpRequest() ? $this->request->get('tmpl', 'index') : 'index';
+        // dump($useremail);
         $users = $this->getModel('user.user')->getEntities(
             [
                 'start'      => $start,
@@ -126,7 +136,8 @@ class UserController extends FormController
         }
 
         /** @var \Mautic\UserBundle\Model\UserModel $model */
-        $model = $this->getModel('user.user');
+        $model           = $this->getModel('user.user');
+        $isValidUserCount= $this->get('mautic.helper.licenseinfo')->isValidUserCount();
 
         //retrieve the user entity
         $user = $model->getEntity();
@@ -153,8 +164,18 @@ class UserController extends FormController
                 if ($valid = $this->isFormValid($form)) {
                     //form is valid so process the data
                     $user->setPassword($password);
-                    $model->saveEntity($user);
-
+                    if ($user->getTimezone() == '') {//replace default time zone
+                        $user->setTimezone('Asia/Calcutta');
+                    }
+                    if ($user->getLocale() == '') {//replace default locale
+                        $user->setLocale('en_US');
+                    }
+                    if ($isValidUserCount) {
+                        $model->saveEntity($user);
+                        $this->get('mautic.helper.licenseinfo')->intUserCount('1', true);
+                    } else {
+                        $this->addFlash('mautic.user.count.exceeds');
+                    }
                     //check if the user's locale has been downloaded already, fetch it if not
                     $installedLanguages = $this->coreParametersHelper->getParameter('supported_languages');
 
@@ -193,8 +214,23 @@ class UserController extends FormController
                     ]);
                 }
             }
-
-            if ($cancelled || ($valid && $form->get('buttons')->get('save')->isClicked())) {
+            if (($valid && $form->get('buttons')->get('save')->isClicked())) {
+                if ($isValidUserCount) {
+                    return $this->postActionRedirect([
+                        'returnUrl'       => $returnUrl,
+                        'viewParameters'  => ['page' => $page],
+                        'contentTemplate' => 'MauticUserBundle:User:index',
+                        'passthroughVars' => [
+                            'activeLink'    => '#mautic_user_index',
+                            'mauticContent' => 'user',
+                        ],
+                    ]);
+                }
+            } elseif ($valid && !$cancelled) {
+                if ($isValidUserCount) {
+                    return $this->editAction($user->getId(), true);
+                }
+            } elseif ($cancelled) {
                 return $this->postActionRedirect([
                     'returnUrl'       => $returnUrl,
                     'viewParameters'  => ['page' => $page],
@@ -204,8 +240,6 @@ class UserController extends FormController
                         'mauticContent' => 'user',
                     ],
                 ]);
-            } elseif ($valid && !$cancelled) {
-                return $this->editAction($user->getId(), true);
             }
         }
 
@@ -392,6 +426,7 @@ class UserController extends FormController
                 } elseif ($model->isLocked($entity)) {
                     return $this->isLocked($postActionVars, $entity, 'user.user');
                 } else {
+                    $this->get('mautic.helper.licenseinfo')->intUserCount('1', false);
                     $model->deleteEntity($entity);
                     $name      = $entity->getName();
                     $flashes[] = [
@@ -588,9 +623,10 @@ class UserController extends FormController
 
             // Delete everything we are able to
             if (!empty($deleteIds)) {
-                $entities = $model->deleteEntities($deleteIds);
-
-                $flashes[] = [
+                $totalCount = count($deleteIds);
+                $this->get('mautic.helper.licenseinfo')->intUserCount($totalCount, false);
+                $entities   = $model->deleteEntities($deleteIds);
+                $flashes[]  = [
                     'type'    => 'notice',
                     'msg'     => 'mautic.user.user.notice.batch_deleted',
                     'msgVars' => [

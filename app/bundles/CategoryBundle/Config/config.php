@@ -39,11 +39,15 @@ return [
 
     'menu' => [
         'admin' => [
-            'mautic.category.menu.index' => [
-                'route'     => 'mautic_category_index',
-                'access'    => 'category:categories:view',
-                'iconClass' => 'fa-folder',
-                'id'        => 'mautic_category_index',
+            'priority' => 100,
+            'items'    => [
+                'mautic.category.menu.index' => [
+                    'route'      => 'mautic_category_index',
+                    'access'     => 'category:categories:view',
+                    'id'         => 'mautic_category_index',
+                    'iconClass'  => 'fa fa-folder',
+                    'priority'   => 450,
+                ],
             ],
         ],
     ],

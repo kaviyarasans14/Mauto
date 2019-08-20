@@ -38,12 +38,11 @@ class DateBuilder
      *
      * @return array
      */
-    public function getPreviewDays($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency)
+    public function getPreviewDays($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency, $scheduleDate)
     {
-        $entity = new SchedulerEntity($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency);
-
+        $entity = new SchedulerEntity($isScheduled, $scheduleUnit, $scheduleDay, $scheduleMonthFrequency, $scheduleDate);
         try {
-            $recurrences = $this->schedulerBuilder->getNextEvents($entity, 10);
+            $recurrences = $this->schedulerBuilder->getPreviewEvents($entity, 10);
         } catch (InvalidSchedulerException $e) {
             return [];
         } catch (NotSupportedScheduleTypeException $e) {

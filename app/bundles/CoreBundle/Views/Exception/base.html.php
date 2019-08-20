@@ -47,10 +47,10 @@ $src = $view['mautibot']->getImage($img);
         <div class="mautibot-content col-xs-8 col-md-9">
             <blockquote class="np break-word">
                 <h2><i class="fa fa-quote-left"></i> <strong><?php echo $status_code; ?></strong> <?php echo $status_text; ?><?php echo $exceptionMessage; ?> <i class="fa fa-quote-right"></i></h2>
-                <footer class="text-right">Mautibot</footer>
+                <footer class="text-right">LeadsEngageBot</footer>
             </blockquote>
             <div class="pull-right">
-                <a class="text-muted" href="http://mau.tc/report-issue" target="_new"><?php echo $view['translator']->trans('mautic.core.report_issue'); ?></a>
+                <a class="text-muted" href="https://leadsengage.freshdesk.com/support/login" target="_new"><?php echo $view['translator']->trans('mautic.core.report_issue'); ?></a>
             </div>
         </div>
         <?php endif; ?>

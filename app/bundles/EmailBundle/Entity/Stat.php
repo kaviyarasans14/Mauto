@@ -71,6 +71,21 @@ class Stat
     /**
      * @var bool
      */
+    private $isUnsubscribe = false;
+
+    /**
+     * @var bool
+     */
+    private $isBounce = false;
+
+    /**
+     * @var bool
+     */
+    private $isSpam = false;
+
+    /**
+     * @var bool
+     */
     private $viewedInBrowser = false;
 
     /**
@@ -182,6 +197,17 @@ class Stat
             ->columnName('is_failed')
             ->build();
 
+        $builder->createField('isUnsubscribe', 'boolean')
+            ->columnName('is_unsubscribe')
+            ->build();
+
+        $builder->createField('isBounce', 'boolean')
+            ->columnName('is_bounce')
+            ->build();
+        $builder->createField('isSpam', 'boolean')
+            ->columnName('is_spam')
+            ->build();
+
         $builder->createField('viewedInBrowser', 'boolean')
             ->columnName('viewed_in_browser')
             ->build();
@@ -247,6 +273,8 @@ class Stat
                     'dateSent',
                     'isRead',
                     'isFailed',
+                    'isUnsubscribe',
+                    'isBounce',
                     'dateRead',
                     'retryCount',
                     'source',
@@ -444,6 +472,54 @@ class Stat
     public function setIsFailed($isFailed)
     {
         $this->isFailed = $isFailed;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsUnsubscribe()
+    {
+        return $this->isFailed;
+    }
+
+    /**
+     * @param mixed $isUnsubscribe
+     */
+    public function setIsUnsubscribe($isUnsubscribe)
+    {
+        $this->isUnsubscribe = $isUnsubscribe;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsBounce()
+    {
+        return $this->isBounce;
+    }
+
+    /**
+     * @param mixed $isBounce
+     */
+    public function setIsBounce($isBounce)
+    {
+        $this->isBounce = $isBounce;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsSpam()
+    {
+        return $this->isSpam;
+    }
+
+    /**
+     * @param mixed $isSpam
+     */
+    public function setIsSpam($isSpam)
+    {
+        $this->isSpam = $isSpam;
     }
 
     /**

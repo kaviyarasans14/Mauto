@@ -61,6 +61,7 @@ class ProcessFetchEmailCommand extends Command
             )
             ->setDescription('Fetch and process monitored email.')
             ->addOption('--message-limit', '-m', InputOption::VALUE_OPTIONAL, 'Limit number of messages to process at a time.')
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(
                 <<<'EOT'
                 The <info>%command.name%</info> command is used to fetch and process messages such as bounces and unsubscribe requests. Configure the Monitored Email settings in Mautic's Configuration.
@@ -78,18 +79,24 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $limit     = $input->getOption('message-limit');
-        $mailboxes = $this->parametersHelper->getParameter('monitored_email');
-        unset($mailboxes['general']);
-        $mailboxes = array_keys($mailboxes);
+        try {
+            $limit     = $input->getOption('message-limit');
+            $mailboxes = $this->parametersHelper->getParameter('monitored_email');
+            unset($mailboxes['general']);
+            $mailboxes = array_keys($mailboxes);
 
-        $this->fetcher->setMailboxes($mailboxes)
+            $this->fetcher->setMailboxes($mailboxes)
             ->fetch($limit);
 
-        foreach ($this->fetcher->getLog() as $log) {
-            $output->writeln($log);
-        }
+            foreach ($this->fetcher->getLog() as $log) {
+                $output->writeln($log);
+            }
 
-        return 0;
+            return 0;
+        } catch (\Exception $e) {
+            echo 'exception->'.$e->getMessage()."\n";
+
+            return 0;
+        }
     }
 }

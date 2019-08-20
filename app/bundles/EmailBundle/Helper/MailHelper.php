@@ -11,6 +11,7 @@
 
 namespace Mautic\EmailBundle\Helper;
 
+use Doctrine\ORM\ORMException;
 use Mautic\AssetBundle\Entity\Asset;
 use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\CoreBundle\Helper\EmojiHelper;
@@ -367,6 +368,12 @@ class MailHelper
                 $this->addUnsubscribeHeader();
 
                 // Search/replace tokens if this is not a queue flush
+                if ($dispatchSendEvent && !empty($this->body['content'])) {
+                    if (strpos($this->body['content'], '{footer_text}') == 0) {
+                        $bodycontent           = $this->alterEmailBodyContent($this->body['content']);
+                        $this->body['content'] = $bodycontent;
+                    }
+                }
 
                 // Generate tokens from listeners
                 if ($dispatchSendEvent) {
@@ -484,6 +491,38 @@ class MailHelper
     }
 
     /**
+     * Alter Elastic Email Body Content to hide their own subscription url and account address.
+     *
+     * @param \Swift_Message $bodyContent
+     */
+    public function alterEmailBodyContent($bodyContent)
+    {
+        $doc                      = new \DOMDocument();
+        $doc->strictErrorChecking = false;
+        libxml_use_internal_errors(true);
+        $doc->loadHTML('<?xml encoding="UTF-8">'.$bodyContent);
+        // Get body tag.
+        $body = $doc->getElementsByTagName('body');
+        if ($body and $body->length > 0) {
+            $body = $body->item(0);
+            //create the div element to append to body element
+            $divelement = $doc->createElement('div');
+            $divelement->setAttribute('style', 'margin-top:30px;background-color:#ffffff;border-top:1px solid #d0d0d0;font-family: "GT-Walsheim-Regular", "Poppins-Regular", Helvetica, Arial, sans-serif;
+            font-weight: normal;');
+            $ptag1      = $doc->createElement('span', '{footer_text}');
+            $ptag1->setAttribute('style', 'display:block;padding-top:20px;');
+            $divelement->appendChild($ptag1);
+
+            //actually append the element
+            $body->appendChild($divelement);
+            $bodyContent = $doc->saveHTML();
+        }
+        libxml_clear_errors();
+
+        return $bodyContent;
+    }
+
+    /**
      * If batching is supported and enabled, the message will be queued and will on be sent upon flushQueue().
      * Otherwise, the message will be sent to the transport immediately.
      *
@@ -496,7 +535,7 @@ class MailHelper
      *                                  NOTHING_IF_FAILED  leaves the current errors array MauticMessage instance intact if it fails, otherwise reset_to
      *                                  RETURN_ERROR       return an array of [success, $errors]; only one applicable if message is queued
      *
-     * @return bool
+     * @return bool|array
      */
     public function queue($dispatchSendEvent = false, $returnMode = self::QUEUE_RESET_TO)
     {
@@ -778,28 +817,6 @@ class MailHelper
     }
 
     /**
-     * Extract plain text from message.
-     *
-     * @param \Swift_Message $message
-     *
-     * @return string
-     */
-    public static function getPlainTextFromMessage(\Swift_Message $message)
-    {
-        $children = (array) $message->getChildren();
-
-        /** @var \Swift_Mime_MimeEntity $child */
-        foreach ($children as $child) {
-            $childType = $child->getContentType();
-            if ($childType == 'text/plain' && $child instanceof \Swift_MimePart) {
-                return $child->getBody();
-            }
-        }
-
-        return '';
-    }
-
-    /**
      * @return string
      */
     public static function getBlankPixel()
@@ -1011,7 +1028,6 @@ class MailHelper
                 $content .= $trackingImg;
             }
         }
-
         // Update the identifier for the content
         $this->contentHash = md5($content.$this->plainText);
 
@@ -1274,6 +1290,14 @@ class MailHelper
         } catch (\Exception $e) {
             $this->logError($e, 'from');
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFrom()
+    {
+        return $this->from;
     }
 
     /**
@@ -1717,7 +1741,7 @@ class MailHelper
         }
 
         // Create a download entry if there is an Asset attachment
-        if (!empty($this->assetStats)) {
+        if (!empty($this->assetStats) && false) {
             /** @var \Mautic\AssetBundle\Model\AssetModel $assetModel */
             $assetModel = $this->factory->getModel('asset');
             foreach ($this->assets as $asset) {
@@ -1816,12 +1840,13 @@ class MailHelper
      * @param bool|true   $persist
      * @param string|null $emailAddress
      * @param null        $listId
+     * @param int         $is_failed
+     *@param int         $is_unsubscribe
+     * @param int $is_bounce
      *
-     * @return Stat|void
-     *
-     * @throws \Doctrine\ORM\ORMException
+     * @return Stat
      */
-    public function createEmailStat($persist = true, $emailAddress = null, $listId = null)
+    public function createEmailStat($persist = true, $emailAddress = null, $listId = null, $is_failed = 0, $is_unsubscribe=0, $is_bounce=0)
     {
         //create a stat
         $stat = new Stat();
@@ -1830,7 +1855,11 @@ class MailHelper
 
         // Note if a lead
         if (null !== $this->lead) {
-            $stat->setLead($this->factory->getEntityManager()->getReference('MauticLeadBundle:Lead', $this->lead['id']));
+            try {
+                $stat->setLead($this->factory->getEntityManager()->getReference('MauticLeadBundle:Lead', $this->lead['id']));
+            } catch (ORMException $exception) {
+                // keep IDE happy
+            }
             $emailAddress = $this->lead['email'];
         }
 
@@ -1848,7 +1877,11 @@ class MailHelper
 
         // Note if sent from a lead list
         if (null !== $listId) {
-            $stat->setList($this->factory->getEntityManager()->getReference('MauticLeadBundle:LeadList', $listId));
+            try {
+                $stat->setList($this->factory->getEntityManager()->getReference('MauticLeadBundle:LeadList', $listId));
+            } catch (ORMException $exception) {
+                // keep IDE happy
+            }
         }
 
         $stat->setTrackingHash($this->idHash);
@@ -1858,6 +1891,10 @@ class MailHelper
         }
 
         $stat->setTokens($this->getTokens());
+
+        $stat->setIsFailed($is_failed);
+        $stat->setIsUnsubscribe($is_unsubscribe);
+        $stat->setIsBounce($is_bounce);
 
         /** @var \Mautic\EmailBundle\Model\EmailModel $emailModel */
         $emailModel = $this->factory->getModel('email');
@@ -1884,7 +1921,11 @@ class MailHelper
         }
 
         if (isset($this->copies[$id])) {
-            $stat->setStoredCopy($this->factory->getEntityManager()->getReference('MauticEmailBundle:Copy', $this->copies[$id]));
+            try {
+                $stat->setStoredCopy($this->factory->getEntityManager()->getReference('MauticEmailBundle:Copy', $this->copies[$id]));
+            } catch (ORMException $exception) {
+                // keep IDE happy
+            }
         }
 
         if ($persist) {

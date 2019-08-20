@@ -77,9 +77,29 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
      */
     public function saveEntity($entity, $unlock = true)
     {
+        // Update leads primary company name
         $this->setEntityDefaultValues($entity, 'company');
+        $this->getCompanyLeadRepository()->updateLeadsPrimaryCompanyName($entity);
 
         parent::saveEntity($entity, $unlock);
+    }
+
+    /**
+     * Save an array of entities.
+     *
+     * @param array $entities
+     * @param bool  $unlock
+     *
+     * @return array
+     */
+    public function saveEntities($entities, $unlock = true)
+    {
+        // Update leads primary company name
+        foreach ($entities as $k => $entity) {
+            $this->setEntityDefaultValues($entity, 'company');
+            $this->getCompanyLeadRepository()->updateLeadsPrimaryCompanyName($entity);
+        }
+        parent::saveEntities($entities, $unlock);
     }
 
     /**
@@ -236,6 +256,7 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             }
             $fieldValues = $fields;
         }
+
         //update existing values
         foreach ($fieldValues as $group => &$groupFields) {
             foreach ($groupFields as $alias => &$field) {
@@ -366,9 +387,6 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             $this->getCompanyLeadRepository()->saveEntities($persistCompany);
         }
 
-        // Clear CompanyLead entities from Doctrine memory
-        $this->em->clear(CompanyLead::class);
-
         if (!empty($companyName)) {
             $currentCompanyName = $lead->getCompany();
             if ($currentCompanyName !== $companyName) {
@@ -387,7 +405,8 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             }
         }
 
-        //unset($lead, $persistCompany, $companies);
+        // Clear CompanyLead entities from Doctrine memory
+        $this->em->clear(CompanyLead::class);
 
         return $contactAdded;
     }
@@ -726,7 +745,7 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
      *
      * @throws \Exception
      */
-    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null)
+    public function import($fields, $data, $owner = null, $list = null, $tags = null, $persist = true, LeadEventLog $eventLog = null, $importcreatedby=null, $importcreatedbyuser=null)
     {
         $fields = array_flip($fields);
 
@@ -769,6 +788,9 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             if ($createdByUser !== null) {
                 $company->setCreatedBy($createdByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setCreatedBy($importcreatedby);
+            $lead->setCreatedByUser($importcreatedbyuser);
         }
         unset($fields['createdByUser']);
 
@@ -778,6 +800,9 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
             if ($modifiedByUser !== null) {
                 $company->setModifiedBy($modifiedByUser);
             }
+        } elseif ($importcreatedby != null && $importcreatedbyuser != null) {
+            $lead->setModifiedBy($importcreatedby);
+            $lead->setModifiedByUser($importcreatedbyuser);
         }
         unset($fields['modifiedByUser']);
 
@@ -798,7 +823,7 @@ class CompanyModel extends CommonFormModel implements AjaxLookupModelInterface
 
         foreach ($this->fetchCompanyFields() as $entityField) {
             if (isset($fieldData[$entityField['alias']])) {
-                $fieldData[$entityField['alias']] = InputHelper::clean($fieldData[$entityField['alias']]);
+                $fieldData[$entityField['alias']] = InputHelper::_($fieldData[$entityField['alias']], 'string');
 
                 if ('NULL' === $fieldData[$entityField['alias']]) {
                     $fieldData[$entityField['alias']] = null;

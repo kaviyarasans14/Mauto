@@ -93,6 +93,7 @@ class CampaignSubscriber extends CommonSubscriber
                     ],
                 ],
             ],
+            'order'                  => 18,
         ];
         $event->addAction('focus.show', $action);
     }

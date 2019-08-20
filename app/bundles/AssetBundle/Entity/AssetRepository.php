@@ -60,7 +60,10 @@ class AssetRepository extends CommonRepository
             $q->andWhere($q->expr()->eq('a.createdBy', ':id'))
                 ->setParameter('id', $this->currentUser->getId());
         }
-
+        if ($this->currentUser->getId() != 1) {
+            $q->andWhere($q->expr()->neq('a.createdBy', ':id'))
+                ->setParameter('id', '1');
+        }
         $q->orderBy('a.title');
 
         if (!empty($limit)) {
@@ -84,6 +87,8 @@ class AssetRepository extends CommonRepository
         return $this->addStandardCatchAllWhereClause($q, $filter, [
             'a.title',
             'a.alias',
+            'c.title',
+            'a.downloadCount',
         ]);
     }
 
@@ -184,9 +189,8 @@ class AssetRepository extends CommonRepository
         $q = $this->_em->getConnection()->createQueryBuilder();
         $q->select('sum(a.size) as total_size')
             ->from(MAUTIC_TABLE_PREFIX.'assets', 'a')
-            ->where(
-                $q->expr()->in('a.id', $assets)
-            );
+            ->where('a.id IN (:assetIds)')
+            ->setParameter('assetIds', $assets, \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
 
         $result = $q->execute()->fetchAll();
 

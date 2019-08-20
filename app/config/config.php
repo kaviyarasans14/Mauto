@@ -188,9 +188,10 @@ $container->loadFromExtension('framework', [
     'trusted_hosts'   => '%mautic.trusted_hosts%',
     'trusted_proxies' => '%mautic.trusted_proxies%',
     'session'         => [ //handler_id set to null will use default session handler from php.ini
-        'handler_id'    => null,
+        'handler_id'    => 'session.handler.native_file',
         'name'          => $sessionName,
         'cookie_secure' => $secureCookie,
+        'save_path'     => '%kernel.root_dir%/sessions',
     ],
     'fragments'            => null,
     'http_method_override' => true,
@@ -204,25 +205,82 @@ $container->setParameter('mautic.famework.csrf_protection', true);
 
 //Doctrine Configuration
 $dbalSettings = [
-    'driver'   => '%mautic.db_driver%',
-    'host'     => '%mautic.db_host%',
-    'port'     => '%mautic.db_port%',
-    'dbname'   => '%mautic.db_name%',
-    'user'     => '%mautic.db_user%',
-    'password' => '%mautic.db_password%',
-    'charset'  => 'UTF8',
+    'default_connection' => 'default',
+    'connections'        => [
+        'default' => [
+            'driver'   => '%mautic.db_driver%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
+            'dbname'   => '%mautic.db_name%',
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
+            'charset'  => 'UTF8',
+            // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
+            'mapping_types' => [
+                'enum'  => 'string',
+                'point' => 'string',
+                'bit'   => 'string',
+            ],
+            'server_version' => '%mautic.db_server_version%',
+        ],
+        'commondb' => [
+            'driver'   => '%mautic.db_driver%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
+            'dbname'   => 'leadsengage_apps', // Cpanel Database name
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
+            'charset'  => 'UTF8',
+            // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
+            'mapping_types' => [
+                'enum'  => 'string',
+                'point' => 'string',
+                'bit'   => 'string',
+            ],
+            'server_version' => '%mautic.db_server_version%',
+        ],
+        'signupdb' => [
+            'driver'   => '%mautic.db_driver%',
+            'host'     => '%mautic.le_db_host%',
+            'port'     => '%mautic.le_db_port%',
+            'dbname'   => 'leadsengage_signup', // KYC & Customer details updating schema
+            'user'     => '%mautic.le_db_user%',
+            'password' => '%mautic.le_db_password%',
+            'charset'  => 'UTF8',
+            // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
+            'mapping_types' => [
+                'enum'  => 'string',
+                'point' => 'string',
+                'bit'   => 'string',
+            ],
+            'server_version' => '%mautic.db_server_version%',
+        ],
+    ],
     'types'    => [
         'array'    => 'Mautic\CoreBundle\Doctrine\Type\ArrayType',
         'datetime' => 'Mautic\CoreBundle\Doctrine\Type\UTCDateTimeType',
     ],
-    // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
-    'mapping_types' => [
-        'enum'  => 'string',
-        'point' => 'string',
-        'bit'   => 'string',
-    ],
-    'server_version' => '%mautic.db_server_version%',
 ];
+//$dbalSettings = [
+//    'driver'   => '%mautic.db_driver%',
+//    'host'     => '%mautic.db_host%',
+//    'port'     => '%mautic.db_port%',
+//    'dbname'   => '%mautic.db_name%',
+//    'user'     => '%mautic.db_user%',
+//    'password' => '%mautic.db_password%',
+//    'charset'  => 'UTF8',
+//    'types'    => [
+//        'array'    => 'Mautic\CoreBundle\Doctrine\Type\ArrayType',
+//        'datetime' => 'Mautic\CoreBundle\Doctrine\Type\UTCDateTimeType',
+//    ],
+//    // Prevent Doctrine from crapping out with "unsupported type" errors due to it examining all tables in the database and not just Mautic's
+//    'mapping_types' => [
+//        'enum'  => 'string',
+//        'point' => 'string',
+//        'bit'   => 'string',
+//    ],
+//    'server_version' => '%mautic.db_server_version%',
+//];
 
 // If using pdo_sqlite as the database driver, add the path to config file
 $dbDriver = $container->getParameter('mautic.db_driver');
@@ -233,10 +291,30 @@ if ($dbDriver == 'pdo_sqlite') {
 $container->loadFromExtension('doctrine', [
     'dbal' => $dbalSettings,
     'orm'  => [
+        'default_entity_manager' => 'default',
+        'entity_managers'        => [
+            'default' => [
+                'connection'                  => 'default',
+                'mappings'                    => $ormMappings,
+                'auto_mapping'                => true,
+            ],
+            'commondb' => [
+                'connection' => 'commondb',
+                'mappings'   => [],
+            ],
+            'signupdb' => [
+                'connection' => 'signupdb',
+                'mappings'   => [],
+            ],
+        ],
         'auto_generate_proxy_classes' => '%kernel.debug%',
-        'auto_mapping'                => true,
-        'mappings'                    => $ormMappings,
     ],
+//    ,
+//    'orm'  => [
+//        'auto_generate_proxy_classes' => '%kernel.debug%',
+//        'auto_mapping'                => true,
+//        'mappings'                    => $ormMappings,
+//    ],
 ]);
 
 //MigrationsBundle Configuration

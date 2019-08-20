@@ -63,6 +63,7 @@ class CampaignSubscriber extends CommonSubscriber
             'formType'       => 'campaignevent_assetdownload',
             'channel'        => 'asset',
             'channelIdField' => 'assets',
+            'order'          => 3,
         ];
 
         $event->addDecision('asset.download', $trigger);

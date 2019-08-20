@@ -72,6 +72,9 @@ class PluginController extends FormController
         foreach ($integrationObjects as $name => $object) {
             $settings = $object->getIntegrationSettings();
             $plugin   = $settings->getPlugin();
+            if ($name == 'Twilio') {
+                continue;
+            }
             $pluginId = $plugin ? $plugin->getId() : $name;
             if (isset($plugins[$pluginId]) || $pluginId === $name) {
                 $integrations[$name] = [
@@ -388,6 +391,8 @@ class PluginController extends FormController
 
         /** @var \Mautic\PluginBundle\Helper\IntegrationHelper $integrationHelper */
         $integrationHelper = $this->factory->getHelper('integration');
+
+        $bundle->splitDescriptions();
 
         return $this->delegateView(
             [

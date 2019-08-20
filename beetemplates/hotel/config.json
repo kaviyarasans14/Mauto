@@ -1,0 +1,9 @@
+{
+  "name": "Hotel",
+  "author": "LeadsEngage team",
+  "authorUrl": "https://leadsengage.com",
+  "features": [
+       "email",
+"page"   
+  ]
+}

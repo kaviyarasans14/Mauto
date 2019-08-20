@@ -366,6 +366,18 @@ class ReportType extends AbstractType
                     ],
                 ]
             );
+            $builder->add('scheduleDate', 'time', [
+                'required'       => false,
+                'label'          => 'mautic.report.schedule.hour',
+                'label_attr'     => ['class' => 'control-label'],
+                'widget'         => 'single_text',
+                'attr'           => ['data-toggle' => 'time', 'class' => 'form-control'],
+                'input'          => 'string',
+                'html5'          => false,
+                'constraints'    => [],
+                'model_timezone' => 'UTC',
+                'with_seconds'   => 'true',
+            ]);
 
             $builder->add(
                 'scheduleDay',

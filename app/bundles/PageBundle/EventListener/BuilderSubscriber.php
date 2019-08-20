@@ -119,7 +119,7 @@ class BuilderSubscriber extends CommonSubscriber
             $event->addTokensFromHelper($tokenHelper, $this->pageTokenRegex, 'title', 'id', false, true);
 
             // add only filter based dwc tokens
-            $dwcTokenHelper = new BuilderTokenHelper($this->factory, 'dynamicContent');
+            $dwcTokenHelper = new BuilderTokenHelper($this->factory, 'dynamicContent', 'dynamiccontent:dynamiccontents');
             $expr           = $this->factory->getDatabase()->getExpressionBuilder()->andX('e.is_campaign_based <> 1 and e.slot_name is not null');
             $tokens         = $dwcTokenHelper->getTokens(
                 $this->dwcTokenRegex,
@@ -133,16 +133,16 @@ class BuilderSubscriber extends CommonSubscriber
             $event->addTokens(
                 $event->filterTokens(
                     [
-                        $this->langBarRegex      => $this->translator->trans('mautic.page.token.lang'),
-                        $this->shareButtonsRegex => $this->translator->trans('mautic.page.token.share'),
-                        $this->titleRegex        => $this->translator->trans('mautic.core.title'),
-                        $this->descriptionRegex  => $this->translator->trans('mautic.page.form.metadescription'),
-                        self::segmentListRegex   => $this->translator->trans('mautic.page.form.segmentlist'),
-                        self::categoryListRegex  => $this->translator->trans('mautic.page.form.categorylist'),
-                        self::preferredchannel   => $this->translator->trans('mautic.page.form.preferredchannel'),
-                        self::channelfrequency   => $this->translator->trans('mautic.page.form.channelfrequency'),
-                        self::saveprefsRegex     => $this->translator->trans('mautic.page.form.saveprefs'),
-                        self::identifierToken    => $this->translator->trans('mautic.page.form.leadidentifier'),
+                        //$this->langBarRegex      => $this->translator->trans('mautic.page.token.lang'),
+                        //$this->shareButtonsRegex => $this->translator->trans('mautic.page.token.share'),
+                        //$this->titleRegex        => $this->translator->trans('mautic.core.title'),
+                        //$this->descriptionRegex  => $this->translator->trans('mautic.page.form.metadescription'),
+                        //self::segmentListRegex   => $this->translator->trans('mautic.page.form.segmentlist'),
+                        //self::categoryListRegex  => $this->translator->trans('mautic.page.form.categorylist'),
+                        //self::preferredchannel   => $this->translator->trans('mautic.page.form.preferredchannel'),
+                        //self::channelfrequency   => $this->translator->trans('mautic.page.form.channelfrequency'),
+                        //self::saveprefsRegex     => $this->translator->trans('mautic.page.form.saveprefs'),
+                        //self::identifierToken    => $this->translator->trans('mautic.page.form.leadidentifier'),
                     ]
                 )
             );

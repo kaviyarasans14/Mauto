@@ -523,9 +523,9 @@ class AssetsHelper
             $plugins.'table.js?v'.$this->version,
             $plugins.'url.js?v'.$this->version,
             //$plugins . 'video.js?v' . $this->version,
-            $plugins.'gatedvideo.js?v'.$this->version,
+            //$plugins.'gatedvideo.js?v'.$this->version,
             $plugins.'token.js?v'.$this->version,
-            $plugins.'dynamic_content.js?v'.$this->version,
+            //$plugins.'dynamic_content.js?v'.$this->version, //hided by prabhu
         ];
     }
 
@@ -671,6 +671,32 @@ class AssetsHelper
     }
 
     /**
+     * @param           $country
+     * @param bool|true $urlOnly
+     * @param string    $class
+     *
+     * @return string
+     */
+    public function getLeadScoreIcon($score, $urlOnly = true, $class = '')
+    {
+        $flagPath = $this->pathsHelper->getSystemPath('assets', true).'/images/';
+        $relpath  = $this->pathsHelper->getSystemPath('assets').'/images/';
+        $country  = ucwords(str_replace(' ', '-', $score));
+        $flagImg  = '';
+        if (file_exists($flagPath.$country.'.png')) {
+            if (file_exists($flagPath.$country.'.png')) {
+                $flagImg = $this->getUrl($relpath.$country.'.png');
+            }
+        }
+
+        if ($urlOnly) {
+            return $flagImg;
+        } else {
+            return '<img src="'.$flagImg.'" class="'.$class.'" />';
+        }
+    }
+
+    /**
      * Clear all the assets.
      */
     public function clear()
@@ -738,5 +764,31 @@ class AssetsHelper
     private function escape($string)
     {
         return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+    }
+
+    /**
+     * Output bee editor scripts.
+     */
+    public function outputBeeEditorScripts()
+    {
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/Blob.js').'"></script>'."\n";
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/fileSaver.js').'"></script>'."\n";
+        echo '<script src="https://app-rsrc.getbee.io/plugin/BeePlugin.js"></script>'."\n";
+        echo '<script src="'.$this->getUrl('media/js/beeeditor/beeeditor.js').'"></script>'."\n";
+    }
+
+    public function getAppid()
+    {
+        return $this->pathsHelper->getAppid();
+    }
+
+    public function getImportSampleFilePath()
+    {
+        return $this->getUrl('media/sample/Sample_Contact.csv');
+    }
+
+    public function getHelpDeskIconPath()
+    {
+        return $this->getUrl('media/images/helpdesk-icon.png');
     }
 }

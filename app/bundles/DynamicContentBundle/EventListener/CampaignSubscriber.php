@@ -92,26 +92,31 @@ class CampaignSubscriber extends CommonSubscriber
                 ],
                 'channel'        => 'dynamicContent',
                 'channelIdField' => 'dwc_slot_name',
+                'order'          => 14,
             ]
         );
-
-        $event->addDecision(
-            'dwc.decision',
-            [
-                'label'           => 'mautic.dynamicContent.campaign.decision_dwc',
-                'description'     => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
-                'eventName'       => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
-                'formType'        => 'dwcdecision_list',
-                'formTypeOptions' => ['update_select' => 'campaignevent_properties_dynamicContent'],
-                'formTheme'       => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
-                'channel'         => 'dynamicContent',
-                'channelIdField'  => 'dynamicContent',
-            ]
-        );
+        if ($this->security->isGranted(['dynamiccontent:dynamiccontents:viewown', 'dynamiccontent:dynamiccontents:viewother'], 'MATCH_ONE')) {
+            $event->addDecision(
+                'dwc.decision',
+                [
+                    'label'           => 'mautic.dynamicContent.campaign.decision_dwc',
+                    'description'     => 'mautic.dynamicContent.campaign.decision_dwc.tooltip',
+                    'eventName'       => DynamicContentEvents::ON_CAMPAIGN_TRIGGER_DECISION,
+                    'formType'        => 'dwcdecision_list',
+                    'formTypeOptions' => ['update_select' => 'campaignevent_properties_dynamicContent'],
+                    'formTheme'       => 'MauticDynamicContentBundle:FormTheme\DynamicContentDecisionList',
+                    'channel'         => 'dynamicContent',
+                    'channelIdField'  => 'dynamicContent',
+                    'order'           => 8,
+                ]
+            );
+        }
     }
 
     /**
      * @param CampaignExecutionEvent $event
+     *
+     * @return bool|CampaignExecutionEvent
      */
     public function onCampaignTriggerDecision(CampaignExecutionEvent $event)
     {
@@ -119,20 +124,25 @@ class CampaignSubscriber extends CommonSubscriber
         $eventDetails = $event->getEventDetails();
         $lead         = $event->getLead();
 
-        if ($eventConfig['dwc_slot_name'] === $eventDetails) {
-            $defaultDwc = $this->dynamicContentModel->getRepository()->getEntity($eventConfig['dynamicContent']);
+        // stop
+        if ($eventConfig['dwc_slot_name'] !== $eventDetails) {
+            $event->setResult(false);
 
-            if ($defaultDwc instanceof DynamicContent) {
-                // Set the default content in case none of the actions return data
-                $this->dynamicContentModel->setSlotContentForLead($defaultDwc, $lead, $eventDetails);
-            }
-
-            $this->session->set('dwc.slot_name.lead.'.$lead->getId(), $eventDetails);
-
-            $event->stopPropagation();
-
-            return $event->setResult(true);
+            return false;
         }
+
+        $defaultDwc = $this->dynamicContentModel->getRepository()->getEntity($eventConfig['dynamicContent']);
+
+        if ($defaultDwc instanceof DynamicContent) {
+            // Set the default content in case none of the actions return data
+            $this->dynamicContentModel->setSlotContentForLead($defaultDwc, $lead, $eventDetails);
+        }
+
+        $this->session->set('dwc.slot_name.lead.'.$lead->getId(), $eventDetails);
+
+        $event->stopPropagation();
+
+        return $event->setResult(true);
     }
 
     /**

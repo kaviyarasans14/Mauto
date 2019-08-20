@@ -14,6 +14,7 @@ namespace Mautic\AssetBundle\EventListener;
 use Mautic\AssetBundle\Entity\Download;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\CoreBundle\Helper\Chart\LineChart;
+use Mautic\CoreBundle\Helper\Chart\PieChart;
 use Mautic\LeadBundle\Model\CompanyReportData;
 use Mautic\ReportBundle\Event\ReportBuilderEvent;
 use Mautic\ReportBundle\Event\ReportGeneratorEvent;
@@ -126,9 +127,7 @@ class ReportSubscriber extends CommonSubscriber
                     'type'  => 'int',
                 ],
             ];
-
-            $companyColumns = $this->companyReportData->getCompanyData();
-
+            $companyColumns=$this->companyReportData->getCompanyData();
             $event->addTable(
                 self::CONTEXT_ASSET_DOWNLOAD,
                 [
@@ -141,7 +140,6 @@ class ReportSubscriber extends CommonSubscriber
                         $event->getIpColumn(),
                         $companyColumns
                     ),
-                    'filters' => $companyColumns,
                 ],
                 self::CONTEXT_ASSET
             );
@@ -226,11 +224,25 @@ class ReportSubscriber extends CommonSubscriber
                     $limit                  = 10;
                     $offset                 = 0;
                     $items                  = $downloadRepo->getMostDownloaded($queryBuilder, $limit, $offset);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-download';
-                    $graphData['link']      = 'mautic_asset_action';
+                    $graphData              =[];
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_asset_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['title'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.asset.table.most.downloaded' => [
+                                'value' => $item['downloads'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
                 case 'mautic.asset.table.top.referrers':
@@ -238,18 +250,40 @@ class ReportSubscriber extends CommonSubscriber
                     $offset                 = 0;
                     $items                  = $downloadRepo->getTopReferrers($queryBuilder, $limit, $offset);
                     $graphData              = [];
-                    $graphData['data']      = $items;
-                    $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-download';
-                    $graphData['link']      = 'mautic_asset_action';
+                    foreach ($items as $item) {
+                        $formUrl = $this->router->generate('mautic_asset_action', ['objectAction' => 'view', 'objectId' => $item['id']]);
+                        $row     = [
+                            'mautic.dashboard.label.title' => [
+                                'value' => $item['referer'],
+                                'type'  => 'link',
+                                'link'  => $formUrl,
+                            ],
+                            'mautic.asset.table.top.referrers' => [
+                                'value' => $item['downloads'],
+                            ],
+                        ];
+                        $graphData[]      = $row;
+                    }
+                    $graphData['name']       = $g;
+                    $graphData['data']       = $items;
+                    $graphData['value']      = $g;
+                    $graphData['iconClass']  = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
                 case 'mautic.asset.graph.pie.statuses':
-                    $items                  = $downloadRepo->getHttpStatuses($queryBuilder);
-                    $graphData              = [];
-                    $graphData['data']      = $items;
+                    $queryBuilder->select(
+                        'ad.code as status, count(ad.code) as count'
+                    );
+                    $queryBuilder->resetQueryPart('groupBy');
+                    $counts = $queryBuilder->execute()->fetchAll();
+                    $chart  = new PieChart();
+                    foreach ($counts as $count) {
+                        $chart->setDataset($options['translator']->trans('mautic.asset.graph.pie.statuses'), $count['status']);
+                        $chart->setDataset($options['translator']->trans('mautic.asset.graph.pie.statuses.count'), $count['count']);
+                    }
+                    $graphData              = $chart->render();
                     $graphData['name']      = $g;
-                    $graphData['iconClass'] = 'fa-globe';
+                    $graphData['iconClass'] = 'fa-paper-plane-o';
                     $event->setGraph($g, $graphData);
                     break;
             }

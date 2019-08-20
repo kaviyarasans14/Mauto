@@ -70,12 +70,12 @@ class CampaignSubscriber extends CommonSubscriber
             $data   = array_flip(AbstractFormFieldHelper::parseList($data));
             // replace contacts tokens
             foreach ($data as $key => $value) {
-                $data[$key] = urlencode(TokenHelper::findLeadTokens($value, $lead->getProfileFields(), true));
+                $data[$key] = urldecode(TokenHelper::findLeadTokens($value, $lead->getProfileFields(), true));
             }
             $headers = !empty($config['headers']['list']) ? $config['headers']['list'] : '';
             $headers = array_flip(AbstractFormFieldHelper::parseList($headers));
             foreach ($headers as $key => $value) {
-                $headers[$key] = urlencode(TokenHelper::findLeadTokens($value, $lead->getProfileFields(), true));
+                $headers[$key] = urldecode(TokenHelper::findLeadTokens($value, $lead->getProfileFields(), true));
             }
             $timeout = $config['timeout'];
 
@@ -133,7 +133,10 @@ class CampaignSubscriber extends CommonSubscriber
             'description' => 'mautic.webhook.event.sendwebhook_desc',
             'formType'    => 'campaignevent_sendwebhook',
             'eventName'   => WebhookEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+            'order'       => 20,
         ];
-        $event->addAction('campaign.sendwebhook', $sendWebhookAction);
+        if ($this->security->isAdmin()) {
+            $event->addAction('campaign.sendwebhook', $sendWebhookAction);
+        }
     }
 }

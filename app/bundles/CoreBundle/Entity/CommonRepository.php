@@ -70,8 +70,8 @@ class CommonRepository extends EntityRepository
     public function checkUniqueAlias($alias, $entity = null)
     {
         $q = $this->createQueryBuilder('e')
-                  ->select('count(e.id) as aliascount')
-                  ->where('e.alias = :alias');
+            ->select('count(e.id) as aliascount')
+            ->where('e.alias = :alias');
         $q->setParameter('alias', $alias);
 
         if (!empty($entity) && $entity->getId()) {
@@ -214,7 +214,7 @@ class CommonRepository extends EntityRepository
     {
         try {
             $q = $this->createQueryBuilder($this->getTableAlias())
-                      ->setParameter(':alias', $alias);
+                ->setParameter(':alias', $alias);
 
             $expr = $q->expr()->andX(
                 $q->expr()->eq($this->getTableAlias().'.alias', ':alias')
@@ -225,7 +225,7 @@ class CommonRepository extends EntityRepository
             if (null !== $catAlias) {
                 if (isset($metadata->associationMappings['category'])) {
                     $q->leftJoin($this->getTableAlias().'.category', 'category')
-                      ->setParameter('catAlias', $catAlias);
+                        ->setParameter('catAlias', $catAlias);
 
                     $expr->add(
                         $q->expr()->eq('category.alias', ':catAlias')
@@ -329,7 +329,6 @@ class CommonRepository extends EntityRepository
 
         $this->buildClauses($q, $args);
         $query = $q->getQuery();
-
         if (isset($args['hydration_mode'])) {
             $hydrationMode = constant('\\Doctrine\\ORM\\Query::'.strtoupper($args['hydration_mode']));
             $query->setHydrationMode($hydrationMode);
@@ -580,9 +579,9 @@ class CommonRepository extends EntityRepository
         }
 
         $q->resetQueryPart('select')
-          ->select($selectString)
-          ->setFirstResult($start)
-          ->setMaxResults($limit);
+            ->select($selectString)
+            ->setFirstResult($start)
+            ->setMaxResults($limit);
 
         $this->buildOrderByClauseFromArray($q, $order);
 
@@ -665,8 +664,8 @@ class CommonRepository extends EntityRepository
         }
 
         $q->select($prefix.$valueColumn.' as value, '.$prefix.$labelColumn.' as label'.($extraColumns ? ", $extraColumns" : ''))
-          ->from($tableName, $alias)
-          ->orderBy($prefix.$labelColumn);
+            ->from($tableName, $alias)
+            ->orderBy($prefix.$labelColumn);
 
         if ($expr !== null && $expr->count()) {
             $q->where($expr);
@@ -681,7 +680,7 @@ class CommonRepository extends EntityRepository
             $q->andWhere(
                 $q->expr()->eq($prefix.'is_published', ':true')
             )
-              ->setParameter('true', true, 'boolean');
+                ->setParameter('true', true, 'boolean');
         }
 
         if ($limit) {
@@ -1040,7 +1039,7 @@ class CommonRepository extends EntityRepository
 
         if (!$filter->strict) {
             if (strpos($string, '%') === false) {
-                $string = "$string%";
+                $string = "%$string%"; //done by prabhu
             }
         }
 
@@ -1112,7 +1111,7 @@ class CommonRepository extends EntityRepository
                 break;
             case $this->translator->trans('mautic.core.searchcommand.ismine'):
             case $this->translator->trans('mautic.core.searchcommand.ismine', [], null, 'en_US'):
-                $expr            = $q->expr()->eq("IDENTITY($prefix.createdBy)", $this->currentUser->getId());
+                $expr            = $q->expr()->eq("$prefix.createdBy", $this->currentUser->getId());
                 $returnParameter = false;
                 break;
             case $this->translator->trans('mautic.core.searchcommand.category'):
@@ -1303,7 +1302,7 @@ class CommonRepository extends EntityRepository
 
         if (!empty($limit)) {
             $q->setFirstResult($start)
-              ->setMaxResults($limit);
+                ->setMaxResults($limit);
         }
     }
 
@@ -1436,6 +1435,7 @@ class CommonRepository extends EntityRepository
     protected function buildWhereClause(&$q, array $args)
     {
         $filter                    = array_key_exists('filter', $args) ? $args['filter'] : '';
+        $isAdminRecordNeeded       = array_key_exists('isAdminRecordNeeded', $args) ? $args['isAdminRecordNeeded'] : '';
         $filterHelper              = new SearchStringHelper();
         $advancedFilters           = new \stdClass();
         $advancedFilters->root     = [];
@@ -1508,14 +1508,13 @@ class CommonRepository extends EntityRepository
 
             if (!empty($advancedFilterStrings)) {
                 foreach ($advancedFilterStrings as $parseString) {
-                    $parsed = $filterHelper->parseString($parseString);
-
+                    $parsed                = $filterHelper->parseString($parseString);
                     $advancedFilters->root = array_merge($advancedFilters->root, $parsed->root);
                     $filterHelper->mergeCommands($advancedFilters, $parsed->commands);
                 }
                 $this->advancedFilterCommands = $advancedFilters->commands;
+                list($expr, $parameters)      = $this->addAdvancedSearchWhereClause($q, $advancedFilters);
 
-                list($expr, $parameters) = $this->addAdvancedSearchWhereClause($q, $advancedFilters);
                 $this->appendExpression($queryExpression, $expr);
 
                 if (is_array($parameters)) {
@@ -1536,6 +1535,22 @@ class CommonRepository extends EntityRepository
                 $q->setParameter($k, $v, 'boolean');
             } else {
                 $q->setParameter($k, $v);
+            }
+        }
+
+        if (isset($this->currentUser) && empty($isAdminRecordNeeded)) {
+            $alias     = $this->getTableAlias();
+            $entityname=$this->getEntityName();
+            $isAdmin   =$this->currentUser->isAdmin();
+            if (!$isAdmin) {
+                $createdbycol=$this->_class->getFieldName('created_by');
+                if ($createdbycol == 'createdBy' && $entityname != 'Mautic\UserBundle\Entity\User') {
+                    if ($q instanceof QueryBuilder) {
+                        $q->andWhere($alias.'.'.$createdbycol.' != 1 or '.$alias.'.'.$createdbycol.' is NULL');
+                    } else {
+                        $q->andWhere($alias.'.created_by != 1 or '.$alias.'.created_by is NULL');
+                    }
+                }
             }
         }
     }
@@ -1735,6 +1750,7 @@ class CommonRepository extends EntityRepository
                         list($expr, $params) = $this->addSearchCommandWhereClause($qb, $f);
                     } else {
                         //treat the command:string as if its a single word
+
                         $f->string           = $f->command.':'.$f->string;
                         $f->not              = false;
                         $f->strict           = true;

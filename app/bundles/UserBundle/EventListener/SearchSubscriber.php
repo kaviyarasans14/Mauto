@@ -63,16 +63,24 @@ class SearchSubscriber extends CommonSubscriber
         }
 
         if ($this->security->isGranted('user:users:view')) {
+            file_put_contents('/var/www/mauto/app/logs/track.txt',"Filter:". $str."\n",FILE_APPEND);
             $users = $this->userModel->getEntities(
                 [
                     'limit'  => 5,
                     'filter' => $str,
                 ]);
-
-            if (count($users) > 0) {
+            $totalusers=count($users);
+            if ($totalusers > 0) {
                 $userResults = [];
                 $canEdit     = $this->security->isGranted('user:users:edit');
                 foreach ($users as $user) {
+                    if($user->isAdmin()){
+                        $totalusers--;
+                        if($totalusers == 0){
+break;
+                        }
+                        continue;
+                    }
                     $userResults[] = $this->templating->renderResponse(
                         'MauticUserBundle:SubscribedEvents\Search:global_user.html.php',
                         [
@@ -81,18 +89,21 @@ class SearchSubscriber extends CommonSubscriber
                         ]
                     )->getContent();
                 }
-                if (count($users) > 5) {
+                if ($totalusers > 5) {
                     $userResults[] = $this->templating->renderResponse(
                         'MauticUserBundle:SubscribedEvents\Search:global_user.html.php',
                         [
                             'showMore'     => true,
                             'searchString' => $str,
-                            'remaining'    => (count($users) - 5),
+                            'remaining'    => ($totalusers - 5),
                         ]
                     )->getContent();
                 }
-                $userResults['count'] = count($users);
-                $event->addResults('mautic.user.users', $userResults);
+                if($totalusers > 0){
+                    $userResults['count'] = $totalusers;
+                    $event->addResults('mautic.user.users', $userResults);
+                }
+
             }
         }
 

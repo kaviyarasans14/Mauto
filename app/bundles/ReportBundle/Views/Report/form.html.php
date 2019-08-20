@@ -21,6 +21,11 @@ $header = ($report->getId()) ?
 
 $view['slots']->set('headerTitle', $header);
 $showGraphTab = count($form['graphs']->vars['choices']);
+
+$scheduleTabErrorClass = ($view['form']->containsErrors($form['toAddress'])) ? 'class="text-danger"' : '';
+if ($scheduleTabErrorClass == '') {
+    $scheduleTabErrorClass = ($view['form']->containsErrors($form['scheduleDate'])) ? 'class="text-danger"' : '';
+}
 ?>
 
 <?php echo $view['form']->start($form); ?>
@@ -46,7 +51,7 @@ $showGraphTab = count($form['graphs']->vars['choices']);
                                 ); ?></a>
                         </li>
                         <li>
-                            <a href="#schedule-container" role="tab"
+                            <a href="#schedule-container" role="tab" <?php echo $scheduleTabErrorClass; ?>
                                data-toggle="tab"><?php echo $view['translator']->trans('mautic.report.tab.schedule'); ?></a>
                         </li>
                     </ul>
@@ -159,6 +164,9 @@ $showGraphTab = count($form['graphs']->vars['choices']);
                                         <div id='scheduleDay'>
                                             <?php echo $view['form']->row($form['scheduleDay']); ?>
                                         </div>
+                                         <div id='scheduleDate'>
+                                        <?php echo $view['form']->row($form['scheduleDate']); ?>
+                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6">

@@ -17,6 +17,7 @@ use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\CampaignBundle\Entity\Event;
 use Mautic\CampaignBundle\Entity\Lead as CampaignLead;
 use Mautic\CampaignBundle\Event as Events;
+use Mautic\CategoryBundle\Model\CategoryModel;
 use Mautic\CoreBundle\Helper\Chart\ChartQuery;
 use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
@@ -64,9 +65,19 @@ class CampaignModel extends CommonFormModel
     protected $formModel;
 
     /**
+     * @var CategoryModel
+     */
+    protected $categoryModel;
+
+    /**
      * @var
      */
     protected static $events;
+
+    /**
+     * @var array
+     */
+    private $removedLeads = [];
 
     /**
      * CampaignModel constructor.
@@ -75,14 +86,16 @@ class CampaignModel extends CommonFormModel
      * @param LeadModel            $leadModel
      * @param ListModel            $leadListModel
      * @param FormModel            $formModel
+     * @param CategoryModel        $categoryModel
      */
-    public function __construct(CoreParametersHelper $coreParametersHelper, LeadModel $leadModel, ListModel $leadListModel, FormModel $formModel)
+    public function __construct(CoreParametersHelper $coreParametersHelper, LeadModel $leadModel, ListModel $leadListModel, FormModel $formModel, CategoryModel $categoryModel)
     {
         $this->leadModel              = $leadModel;
         $this->leadListModel          = $leadListModel;
         $this->formModel              = $formModel;
         $this->batchSleepTime         = $coreParametersHelper->getParameter('mautic.batch_sleep_time');
         $this->batchCampaignSleepTime = $coreParametersHelper->getParameter('mautic.batch_campaign_sleep_time');
+        $this->categoryModel          = $categoryModel;
     }
 
     /**
@@ -667,11 +680,24 @@ class CampaignModel extends CommonFormModel
                 $repo             = $this->formModel->getRepository();
                 $repo->setCurrentUser($this->userHelper->getUser());
 
-                $forms = $repo->getFormList('', 0, 0, $viewOther, 'campaign');
+                $forms = $repo->getFormList('', 0, 0, false, $viewOther, 'campaign');
 
                 if ($forms) {
                     foreach ($forms as $form) {
                         $choices['forms'][$form['id']] = $form['name'];
+                    }
+                }
+
+            case 'category':
+            case null:
+               $choices['category'] = [];
+               $repo                = $this->categoryModel->getRepository();
+               $repo->setCurrentUser($this->userHelper->getUser());
+               $categories = $this->categoryModel->getLookupResults('campaign');
+
+                if ($categories) {
+                    foreach ($categories as $cat) {
+                        $choices['category'][$cat['id']] = $cat['title'];
                     }
                 }
         }
@@ -733,6 +759,7 @@ class CampaignModel extends CommonFormModel
         static $campaigns = [];
 
         if (empty($campaigns)) {
+            $this->getRepository()->setCurrentUser($this->userHelper->getUser());
             $campaigns = $this->getRepository()->getPublishedCampaigns(null, null, $forList);
         }
 
@@ -882,7 +909,6 @@ class CampaignModel extends CommonFormModel
     {
         foreach ($leads as $lead) {
             $dispatchEvent = false;
-
             if ($lead instanceof Lead) {
                 $leadId = $lead->getId();
             } else {
@@ -890,7 +916,8 @@ class CampaignModel extends CommonFormModel
                 $lead   = $this->em->getReference('MauticLeadBundle:Lead', $leadId);
             }
 
-            $campaignLead = (!$skipFindOne) ?
+            $this->removedLeads[$campaign->getId()][$leadId] = $leadId;
+            $campaignLead                                    = (!$skipFindOne) ?
                 $this->getCampaignLeadRepository()->findOneBy([
                     'lead'     => $lead,
                     'campaign' => $campaign,
@@ -944,6 +971,14 @@ class CampaignModel extends CommonFormModel
 
             unset($campaignLead, $lead);
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getRemovedLeads()
+    {
+        return  $this->removedLeads;
     }
 
     /**
@@ -1350,5 +1385,10 @@ class CampaignModel extends CommonFormModel
                 }
             }
         }
+    }
+
+    public function getCurrentUserEntity()
+    {
+        return $this->userHelper->getUser();
     }
 }

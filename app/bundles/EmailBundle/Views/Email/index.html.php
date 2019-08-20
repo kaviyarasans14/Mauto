@@ -10,7 +10,7 @@
  */
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'email');
-$view['slots']->set('headerTitle', $view['translator']->trans('mautic.email.emails'));
+$view['slots']->set('headerTitle', $view['translator']->trans($headerTitle));
 
 $view['slots']->set(
     'actions',
@@ -20,7 +20,7 @@ $view['slots']->set(
             'templateButtons' => [
                 'new' => $permissions['email:emails:create'],
             ],
-            'routeBase' => 'email',
+            'actionRoute' => $actionRoute,
         ]
     )
 );

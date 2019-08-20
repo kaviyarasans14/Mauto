@@ -104,13 +104,13 @@ $formId = $form->getId();
                 <td>
                     <?php if (!empty($item['lead']['id'])): ?>
                     <a href="<?php echo $view['router']->path('mautic_contact_action', ['objectAction' => 'view', 'objectId' => $item['lead']['id']]); ?>" data-toggle="ajax">
-                        <?php echo $view['date']->toFull($item['dateSubmitted']); ?>
+                        <?php echo $view['date']->convertUTCtoIST($item['dateSubmitted']); ?>
                     </a>
                     <?php else: ?>
-                    <?php echo $view['date']->toFull($item['dateSubmitted']); ?>
+                    <?php echo $view['date']->convertUTCtoIST($item['dateSubmitted']); ?>
                     <?php endif; ?>
                 </td>
-                <td><?php echo $item['ipAddress']['ipAddress']; ?></td>
+                <td><?php echo $item['ipAddress']; ?></td>
                 <?php foreach ($item['results'] as $key => $r): ?>
                     <?php $isTextarea = $r['type'] === 'textarea'; ?>
                     <td <?php echo $isTextarea ? 'class="long-text"' : ''; ?>>

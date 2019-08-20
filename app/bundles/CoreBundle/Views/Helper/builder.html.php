@@ -8,6 +8,7 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
+$isAdmin    =$view['security']->isAdmin();
 ?>
 <div class="hide builder <?php echo $type; ?>-builder <?php echo $isCodeMode ? 'code-mode' : ''; ?>">
     <script type="text/html" data-builder-assets>
@@ -21,7 +22,7 @@
             <?php echo $view->render('MauticCoreBundle:Helper:builder_buttons.html.php', ['onclick' => "Mautic.closeBuilder('$type');"]); ?>
 
             <div class="code-mode-toolbar <?php echo $isCodeMode ? '' : 'hide'; ?>">
-                <button class="btn btn-default btn-nospin" onclick="Mautic.openMediaManager()" data-toggle="tooltip" data-placement="bottom" title="<?php echo $view['translator']->trans('mautic.core.media.manager.desc'); ?>">
+                <button class="btn btn-default btn-nospin <?php echo $isAdmin ? '' : 'hide'; ?>" onclick="Mautic.openMediaManager()" data-toggle="tooltip" data-placement="bottom" title="<?php echo $view['translator']->trans('mautic.core.media.manager.desc'); ?>">
                     <i class="fa fa-photo"></i>
                     <?php echo $view['translator']->trans('mautic.core.media.manager'); ?>
                 </button>

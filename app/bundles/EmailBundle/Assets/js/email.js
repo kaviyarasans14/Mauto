@@ -5,7 +5,9 @@ Mautic.emailOnLoad = function (container, response) {
         var plaintext = mQuery('#emailform_plainText');
 
         Mautic.initAtWho(plaintext, plaintext.attr('data-token-callback'));
-        Mautic.initSelectTheme(mQuery('#emailform_template'));
+        //builder disabled due to bee editor
+      //  Mautic.initSelectTheme(mQuery('#emailform_template'));
+        Mautic.initSelectBeeTemplate(mQuery('#emailform_template'),'email');
         Mautic.initEmailDynamicContent();
 
         Mautic.prepareVersioning(
@@ -49,6 +51,10 @@ Mautic.emailOnLoad = function (container, response) {
                         mQuery('#sent-count-' + id + ' > a').html(response.sentCount);
                         mQuery('#read-count-' + id + ' > a').html(response.readCount);
                         mQuery('#read-percent-' + id + ' > a').html(response.readPercent);
+                        mQuery('#failure-count-' + id + ' > a').html(response.failureCount);
+                        mQuery('#unsubscribe-count-' + id + ' > a').html(response.unsubscribeCount);
+                        mQuery('#bounce-count-' + id + ' > a').html(response.bounceCount);
+                        mQuery('#spam-count-' + id + ' > a').html(response.spamCount);
                     }
                 },
                 false,
@@ -57,6 +63,66 @@ Mautic.emailOnLoad = function (container, response) {
 
         });
     }
+
+    Mautic.getTokens('email:getBuilderTokens', function(tokens) {
+        mQuery.each(tokens, function(k,v){
+            if (k.match(/assetlink=/i) && v.match(/a:/)){
+                delete tokens[k];
+            } else if (k.match(/pagelink=/i) && v.match(/a:/)){
+                delete tokens[k];
+            }
+            if(tokens[k]=='Title' || tokens[k]=='First Name' || tokens[k]=='Last Name' || tokens[k]=='Company'){
+
+            } else {
+                delete tokens[k];
+            }
+        });
+        var k, keys = [];
+        for (k in tokens) {
+            if (tokens.hasOwnProperty(k)) {
+                keys.push(k);
+            }
+        }
+        keys.sort();
+        //var tborder= "<table border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
+        var tborder= "<div border='1' class='email-subject-table' ><tbody style='background-color:whitesmoke;'><tr>";
+        for (var i = 0; i < keys.length; i++) {
+            var val = keys[i];
+            var title = tokens[val];
+                if(i % 3 == 0 && i  !=0 ){
+                    tborder+= "</tr><tr>";
+                }
+                var value= '<li class="email-subject-table-border"><a class="email-subject-token" id="insert-value" data-cmd="inserttoken" data-email-token="' + val + '" title="' + title + '">' + title +'</a></li>';
+                tborder+= value;
+            }
+        tborder+= "</div>";
+
+
+        mQuery('.insert-tokens').html(tborder);
+        mQuery('[data-email-token]').click(function(e) {
+            e.preventDefault();
+            var currentLink = mQuery(this);
+            var value = currentLink.attr('data-email-token');
+            var subValue= mQuery('#emailform_subject').val();
+           if(subValue == ''){
+               mQuery("#emailform_subject").val(value);
+           } else {
+               if(subValue.includes(value)){
+
+               } else {
+                   subValue+=value;
+                   mQuery("#emailform_subject").val(subValue);
+               }
+
+           }
+        });
+    });
+    mQuery('[data-verified-emails]').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var value = currentLink.attr('data-verified-emails');
+        mQuery("#emailform_fromAddress").val(value);
+    });
 };
 
 Mautic.emailOnUnload = function(id) {
@@ -212,6 +278,49 @@ Mautic.selectEmailType = function(emailType) {
     mQuery('.email-type-modal-backdrop').remove();
 };
 
+Mautic.selectEmailEditor = function(editorType) {
+    var basic= mQuery('#email-editor-basic');
+    var advance= mQuery('#email-editor-advance');
+    var other= mQuery('#email-other-container');
+    var builderbtn= mQuery('.btn-beeditor');
+    var activateTab='';
+    if (editorType == 'basic' || editorType == 'code') {
+        advance.addClass('hide');
+        builderbtn.addClass('hide');
+        var textarea = mQuery('textarea.bee-editor-json');
+        textarea.val("");
+        activateTab='basic';
+    } else {
+        var templateJSON = mQuery('textarea.bee-editor-json');
+        // Populate default content
+        if (!templateJSON.length || !templateJSON.val().length) {
+            Mautic.setBeeTemplateJSON(Mautic.beeTemplate);
+        }
+        basic.addClass('hide');
+        activateTab='advance';
+
+    }
+
+    var fromAddress=mQuery('[for=emailform_fromAddress]');
+    var fromAddressParent=fromAddress.parent();
+    if (fromAddressParent.hasClass('has-error')) {
+        activateTab='other';
+    }
+    if(activateTab == 'basic'){
+       basic.trigger('click');
+       if(editorType == 'code'){
+          var editor = mQuery('.builder-html').data('froala.editor');
+          editor.commands.exec('html');
+       }
+    } else if(activateTab == 'advance'){
+        advance.trigger('click');
+    } else{
+        other.trigger('click');
+    }
+    mQuery('.email-type-modal').remove();
+    mQuery('.email-type-modal-backdrop').remove();
+};
+
 Mautic.getTotalAttachmentSize = function() {
     var assets = mQuery('#emailform_assetAttachments').val();
     if (assets) {
@@ -229,8 +338,8 @@ Mautic.getTotalAttachmentSize = function() {
 Mautic.standardEmailUrl = function(options) {
     if (options && options.windowUrl && options.origin) {
         var url = options.windowUrl;
-        var editEmailKey = '/emails/edit/emailId';
-        var previewEmailKey = '/email/preview/emailId';
+        var editEmailKey = '/emailtemplates/edit/emailId';
+        var previewEmailKey = '/emailtemplate/preview/emailId';
         if (url.indexOf(editEmailKey) > -1 ||
             url.indexOf(previewEmailKey) > -1) {
             options.windowUrl = url.replace('emailId', mQuery(options.origin).val());
@@ -639,7 +748,7 @@ Mautic.addDynamicContentFilter = function (selectedFilter, jQueryVariant) {
         var fieldCallback = selectedOption.data("field-callback");
         if (fieldCallback && typeof Mautic[fieldCallback] == 'function') {
             fieldOptions = selectedOption.data("field-list");
-            Mautic[fieldCallback](filterIdBase + '_display', selectedFilter, fieldOptions);
+            Mautic[fieldCallback](filterIdBase + '_display', selectedFilter, fieldOptions, mQuery);
         }
     } else {
         mQuery(filter).attr('type', fieldType);

@@ -91,7 +91,7 @@ function SetUrl(url, width, height, alt) {
     throw new Error('File manager plugin requires image plugin.');
   }
 
-  $.FE.DEFAULTS.imageInsertButtons.push('fileManager');
+ // $.FE.DEFAULTS.imageInsertButtons.push('fileManager'); //disabled by prabhu
 
   $.FE.RegisterCommand('fileManager', {
     title: 'Browse',

@@ -37,23 +37,27 @@ Mautic.reportOnLoad = function (container) {
     var $unitTypeId = mQuery('[data-report-schedule="scheduleUnit"]');
     var $scheduleDay = mQuery('[data-report-schedule="scheduleDay"]');
     var $scheduleMonthFrequency = mQuery('[data-report-schedule="scheduleMonthFrequency"]');
+    var $scheduleDate = mQuery('[data-toggle="time"]');
 
     mQuery($isScheduled).change(function () {
-        Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+        Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
     });
     mQuery($unitTypeId).change(function () {
-        Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+        Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
     });
     mQuery($scheduleDay).change(function () {
-        Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+        Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
     });
     mQuery($scheduleMonthFrequency).change(function () {
-        Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+        Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
     });
-    Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+    mQuery($scheduleDate).change(function () {
+        Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
+    });
+    Mautic.scheduleDisplay($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency,$scheduleDate);
 };
 
-Mautic.scheduleDisplay = function ($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency) {
+Mautic.scheduleDisplay = function ($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency, $scheduleDate) {
     Mautic.checkIsScheduled($isScheduled);
 
     var unitVal = mQuery($unitTypeId).val();
@@ -67,10 +71,10 @@ Mautic.scheduleDisplay = function ($isScheduled, $unitTypeId, $scheduleDay, $sch
     } else {
         mQuery('#scheduleDay label').show();
     }
-    Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency);
+    Mautic.schedulePreview($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency, $scheduleDate);
 };
 
-Mautic.schedulePreview = function ($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency) {
+Mautic.schedulePreview = function ($isScheduled, $unitTypeId, $scheduleDay, $scheduleMonthFrequency, $scheduleDate) {
     var previewUrl = mQuery('#schedule_preview_url').data('url');
     var $schedulePreviewData = mQuery('#schedule_preview_data');
 
@@ -87,9 +91,10 @@ Mautic.schedulePreview = function ($isScheduled, $unitTypeId, $scheduleDay, $sch
     var unitVal = mQuery($unitTypeId).val();
     var scheduleDayVal = mQuery($scheduleDay).val();
     var scheduleMonthFrequencyVal = mQuery($scheduleMonthFrequency).val();
+    var scheduleDateVal = mQuery($scheduleDate).val();
 
     mQuery.get(
-        previewUrl + '/' + isScheduledVal + '/' + unitVal + '/' + scheduleDayVal + '/' + scheduleMonthFrequencyVal,
+        previewUrl + '/' + isScheduledVal + '/' + unitVal + '/' + scheduleDayVal + '/' + scheduleMonthFrequencyVal + '/' +scheduleDateVal,
         function( data ) {
             if (!data.html) {
                 return;

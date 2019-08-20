@@ -260,4 +260,18 @@ class DateHelper extends Helper
     {
         return 'date';
     }
+
+    /**
+     * Returns date/time like 2018-06-14 11:00:22.
+     *
+     * @param   $utcDate
+     *
+     * @return string
+     */
+    public function convertUTCtoIST($utcDate)
+    {
+        $convertedDate = (new DateTimeHelper($utcDate, 'Y-m-d H:i:s'))->toLocalString();
+
+        return $convertedDate;
+    }
 }

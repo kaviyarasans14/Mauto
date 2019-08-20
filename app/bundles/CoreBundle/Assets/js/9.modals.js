@@ -200,9 +200,6 @@ Mautic.processModalContent = function (response, target) {
         //assume the content is to refresh main app
         Mautic.processPageContent(response);
     } else {
-        if (response.flashes) {
-            Mautic.setFlashes(response.flashes);
-        }
 
         if (response.notifications) {
             Mautic.setNotifications(response.notifications);
@@ -344,6 +341,17 @@ Mautic.closeModalAndRedirect = function(el, url) {
     Mautic.loadContent(url);
 
     mQuery('body').removeClass('noscroll');
+};
+
+/**
+ * Close the given modal and redirect to a URL
+ *
+ * @param url
+ */
+Mautic.RedirectToGivenURL = function(url) {
+
+    window.location.href = url;
+
 };
 
 /**

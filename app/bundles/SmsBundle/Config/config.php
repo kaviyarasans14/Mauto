@@ -46,6 +46,9 @@ return [
                     'doctrine.orm.entity_manager',
                 ],
             ],
+            'mautic.sms.configbundle.subscriber' => [
+                'class' => Mautic\SmsBundle\EventListener\ConfigSubscriber::class,
+            ],
         ],
         'forms' => [
             'mautic.form.type.sms' => [
@@ -66,6 +69,11 @@ return [
                 'class' => 'Mautic\SmsBundle\Form\Type\SmsListType',
                 'alias' => 'sms_list',
             ],
+            'mautic.form.type.sms.config.form' => [
+                'class'     => \Mautic\SmsBundle\Form\Type\ConfigType::class,
+                'alias'     => 'smsconfig',
+                'arguments' => ['mautic.sms.transport_chain', 'translator'],
+            ],
         ],
         'helpers' => [
             'mautic.helper.sms' => [
@@ -82,7 +90,7 @@ return [
         ],
         'other' => [
             'mautic.sms.api' => [
-                'class'     => 'Mautic\SmsBundle\Api\TwilioApi',
+                'class'     => 'Mautic\SmsBundle\Api\SolutionInfinityApi',
                 'arguments' => [
                     'mautic.page.model.trackable',
                     'mautic.helper.phone_number',
@@ -90,6 +98,27 @@ return [
                     'monolog.logger.mautic',
                 ],
                 'alias' => 'sms_api',
+            ],
+            'mautic.sms.transport_chain' => [
+                'class'     => \Mautic\SmsBundle\Sms\TransportChain::class,
+                'arguments' => [
+                    '%mautic.sms_transport%',
+                    'mautic.helper.integration',
+                    'monolog.logger.mautic',
+                ],
+            ],
+            'mautic.sms.transport.twilio' => [
+                'class'        => \Mautic\SmsBundle\Api\TwilioApi::class,
+                'arguments'    => [
+                    'mautic.page.model.trackable',
+                    'mautic.helper.phone_number',
+                    'mautic.helper.integration',
+                    'monolog.logger.mautic',
+                ],
+                'tag'          => 'mautic.sms_transport',
+                'tagArguments' => [
+                    'integrationAlias' => 'Twilio',
+                ],
             ],
         ],
         'models' => [
@@ -99,13 +128,16 @@ return [
                     'mautic.page.model.trackable',
                     'mautic.lead.model.lead',
                     'mautic.channel.model.queue',
-                    'mautic.sms.api',
+                    'mautic.sms.transport_chain',
                 ],
             ],
         ],
         'integrations' => [
             'mautic.integration.twilio' => [
                 'class' => \Mautic\SmsBundle\Integration\TwilioIntegration::class,
+            ],
+            'mautic.integration.solutioninfinity' => [
+                'class' => \Mautic\SmsBundle\Integration\SolutionInfinityIntegration::class,
             ],
         ],
     ],
@@ -137,6 +169,10 @@ return [
                 'path'            => '/smses',
                 'controller'      => 'MauticSmsBundle:Api\SmsApi',
             ],
+            'mautic_api_smses_send' => [
+                'path'       => '/smses/{id}/contact/{contactId}/send',
+                'controller' => 'MauticSmsBundle:Api\SmsApi:send',
+            ],
         ],
     ],
     'menu' => [
@@ -151,9 +187,12 @@ return [
                             'Twilio' => [
                                 'enabled' => true,
                             ],
+                            'SolutionInfinity' => [
+                                'enabled' => true,
+                            ],
                         ],
                     ],
-                    'priority' => 70,
+                    'priority' => 50,
                 ],
             ],
         ],
@@ -165,5 +204,6 @@ return [
         'sms_sending_phone_number' => null,
         'sms_frequency_number'     => null,
         'sms_frequency_time'       => null,
+        'sms_transport'            => 'mautic.sms.transport.twilio',
     ],
 ];

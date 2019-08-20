@@ -54,6 +54,10 @@ class LeadNoteRepository extends CommonRepository
             ->where($q->expr()->eq('IDENTITY(n.lead)', ':lead'))
             ->setParameter('lead', $leadId);
 
+        if ($this->currentUser != null && !$this->currentUser->isAdmin()) {
+            $q->andWhere('n.createdBy != 1');
+        }
+
         if ($filter != null) {
             $q->andWhere(
                 $q->expr()->like('n.text', ':filter')

@@ -48,6 +48,36 @@ class TrackableRepository extends CommonRepository
     }
 
     /**
+     * Find count of clicked url.
+     *
+     * @param $channel
+     * @param $channelId
+     *
+     * @return mixed
+     */
+    public function findCountByChannel($channel, $channelId)
+    {
+        $q          = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $tableAlias = $this->getTableAlias();
+
+        $q->select("SUM($tableAlias.unique_hits)")
+            ->from(MAUTIC_TABLE_PREFIX.'page_redirects', 'r')
+            ->innerJoin('r', MAUTIC_TABLE_PREFIX.'channel_url_trackables', $tableAlias,
+                $q->expr()->andX(
+                    $q->expr()->eq('r.id', 't.redirect_id'),
+                    $q->expr()->eq('t.channel', ':channel'),
+                    $q->expr()->eq('t.channel_id', (int) $channelId)
+                )
+            )
+            ->setParameter('channel', $channel)
+            ->orderBy('r.url');
+
+        $results = $q->execute()->fetchAll();
+
+        return (isset($results[0])) ? $results[0]['SUM(t.unique_hits)'] : 0;
+    }
+
+    /**
      * Get a Trackable by Redirect URL.
      *
      * @param $url

@@ -74,7 +74,7 @@ class SearchSubscriber extends CommonSubscriber
         if ($permissions['report:reports:viewown'] || $permissions['report:reports:viewother']) {
             if (!$permissions['report:reports:viewother']) {
                 $filter['force'][] = [
-                    'column' => 'IDENTITY(r.createdBy)',
+                    'column' => 'r.createdBy', //'IDENTITY(r.createdBy)',
                     'expr'   => 'eq',
                     'value'  => $this->userHelper->getUser()->getId(),
                 ];

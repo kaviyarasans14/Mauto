@@ -42,8 +42,8 @@ return [
             'mautic.channel.messages' => [
                 'route'    => 'mautic_message_index',
                 'access'   => ['channel:messages:viewown', 'channel:messages:viewother'],
-                'parent'   => 'mautic.core.channels',
-                'priority' => 110,
+                'parent'   => 'mautic.core.components',
+                'priority' => 10,
             ],
         ],
         'admin' => [

@@ -114,7 +114,7 @@ class SmsController extends FormController
         }
         $session->set('mautic.sms.page', $page);
 
-        $integration = $this->get('mautic.helper.integration')->getIntegrationObject('Twilio');
+        $integration = $this->get('mautic.helper.integration')->getIntegrationObject('SolutionInfinity');
 
         return $this->delegateView([
             'viewParameters' => [

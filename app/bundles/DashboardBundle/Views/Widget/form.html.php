@@ -39,6 +39,10 @@ if (!empty($userId)) {
         <?php echo $view['form']->label($form['height']); ?>
         <?php echo $view['form']->widget($form['height']); ?>
     </div>
+    <div class="col-xs-6">
+        <?php echo $view['form']->label($form['canViewOthers']); ?>
+        <?php echo $view['form']->widget($form['canViewOthers']); ?>
+    </div>
 </div>
 
 <?php echo $view['form']->row($form['buttons']); ?>

@@ -124,4 +124,68 @@ class ReportGraphEvent extends AbstractReportEvent
     {
         return $this->queryBuilder;
     }
+
+    /**
+     * Check if the report has a specific column.
+     *
+     * @param $column
+     *
+     * @return bool
+     */
+    public function hasColumn($column)
+    {
+        static $sorted;
+
+        if (null === $sorted) {
+            $columns = $this->getReport()->getColumns();
+
+            foreach ($columns as $field) {
+                $sorted[$field] = true;
+            }
+        }
+
+        if (is_array($column)) {
+            foreach ($column as $checkMe) {
+                if (isset($sorted[$checkMe])) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return isset($sorted[$column]);
+    }
+
+    /**
+     * Check if the report has a specific filter.
+     *
+     * @param $column
+     *
+     * @return bool
+     */
+    public function hasFilter($column)
+    {
+        static $sorted;
+
+        if (null == $sorted) {
+            $filters = $this->getReport()->getFilters();
+
+            foreach ($filters as $field) {
+                $sorted[$field['column']] = true;
+            }
+        }
+
+        if (is_array($column)) {
+            foreach ($column as $checkMe) {
+                if (isset($sorted[$checkMe])) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return isset($sorted[$column]);
+    }
 }

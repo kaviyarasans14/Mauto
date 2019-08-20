@@ -120,11 +120,20 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
     private $isPreferenceCenter;
 
     /**
+     * @var bool
+     */
+    private $noIndex;
+
+    /**
      * Used to identify the page for the builder.
      *
      * @var
      */
     private $sessionId;
+    /**
+     * @var string
+     */
+    private $beeJSON;
 
     public function __clone()
     {
@@ -200,7 +209,7 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
         $builder->createField('redirectUrl', 'string')
             ->columnName('redirect_url')
             ->nullable()
-            ->length(100)
+            ->length(2048)
             ->build();
 
         $builder->addCategory();
@@ -210,6 +219,14 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
             ->nullable()
             ->build();
 
+        $builder->createField('noIndex', 'boolean')
+            ->columnName('no_index')
+            ->nullable()
+            ->build();
+        $builder->createField('beeJSON', 'text')
+            ->columnName('bee_json')
+            ->nullable()
+            ->build();
         self::addTranslationMetadata($builder, self::class);
         self::addVariantMetadata($builder, self::class);
     }
@@ -294,6 +311,7 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
                     'redirectType',
                     'redirectUrl',
                     'isPreferenceCenter',
+                    'noIndex',
                     'variantSettings',
                     'variantStartDate',
                     'variantParent',
@@ -302,6 +320,7 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
                     'translationChildren',
                     'template',
                     'customHtml',
+                    'beeJSON',
                 ]
             )
             ->setMaxDepth(1, 'variantParent')
@@ -622,6 +641,27 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
     }
 
     /**
+     * Set noIndex.
+     *
+     * @param bool $noIndex
+     */
+    public function setNoIndex($noIndex)
+    {
+        $this->isChanged('noIndex', $noIndex);
+        $this->noIndex = $noIndex;
+    }
+
+    /**
+     * Get noIndex.
+     *
+     * @return bool
+     */
+    public function getNoIndex()
+    {
+        return $this->noIndex;
+    }
+
+    /**
      * Set sessionId.
      *
      * @param string $id
@@ -746,5 +786,25 @@ class Page extends FormEntity implements TranslationEntityInterface, VariantEnti
     public function setCustomHtml($customHtml)
     {
         $this->customHtml = $customHtml;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBeeJSON()
+    {
+        return $this->beeJSON;
+    }
+
+    /**
+     * @param $beeJSON
+     *
+     * @return $this
+     */
+    public function setBeeJSON($beeJSON)
+    {
+        $this->beeJSON = $beeJSON;
+
+        return $this;
     }
 }

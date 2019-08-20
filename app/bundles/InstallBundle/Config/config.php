@@ -16,6 +16,10 @@ return [
                 'path'       => '/installer',
                 'controller' => 'MauticInstallBundle:Install:step',
             ],
+            'mautic_installer_validater' => [
+                'path'       => '/validate',
+                'controller' => 'MauticInstallBundle:Install:validate',
+            ],
             'mautic_installer_remove_slash' => [
                 'path'       => '/installer/',
                 'controller' => 'MauticCoreBundle:Common:removeTrailingSlash',
@@ -46,6 +50,7 @@ return [
                     'mautic.configurator',
                     '%kernel.root_dir%',
                     'request_stack',
+                    'mautic.cipher.openssl',
                 ],
                 'tag'          => 'mautic.configurator.step',
                 'tagArguments' => [

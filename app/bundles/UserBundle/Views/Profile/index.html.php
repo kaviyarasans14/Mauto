@@ -13,6 +13,7 @@
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'user');
 $view['slots']->set('headerTitle', $view['translator']->trans('mautic.user.account.settings'));
+$isAdmin    =$view['security']->isAdmin();
 ?>
 <!-- start: box layout -->
 <div class="box-layout">
@@ -61,22 +62,23 @@ $view['slots']->set('headerTitle', $view['translator']->trans('mautic.user.accou
                 <div class="pa-md">
                     <div class="col-md-6">
                         <?php
-                        echo ($permissions['editUsername']) ? $view['form']->row($userForm['username']) : $view['form']->row($userForm['username_unbound']);
                         echo ($permissions['editName']) ? $view['form']->row($userForm['firstName']) : $view['form']->row($userForm['firstName_unbound']);
-                        echo ($permissions['editName']) ? $view['form']->row($userForm['lastName']) : $view['form']->row($userForm['lastName_unbound']);
-                        echo ($permissions['editPosition']) ? $view['form']->row($userForm['position']) : $view['form']->row($userForm['position_unbound']);
-                        echo ($permissions['editEmail']) ? $view['form']->row($userForm['email']) : $view['form']->row($userForm['email_unbound']);
+                        echo ($permissions['editUsername']) ? $view['form']->row($userForm['username']) : $view['form']->row($userForm['username_unbound']);
+                        echo $view['form']->row($userForm['mobile']);
+                        echo $view['form']->row($userForm['timezone']);
+                        echo $view['form']->row($userForm['plainPassword']['password']);
+                        echo $view['form']->rowIfExists($userForm, 'signature');
                         ?>
                     </div>
                     <div class="col-md-6">
                         <?php
-                        echo $view['form']->row($userForm['timezone']);
-                        echo $view['form']->row($userForm['locale']);
-                        echo $view['form']->row($userForm['plainPassword']['password']);
+                        echo ($permissions['editName']) ? $view['form']->row($userForm['lastName']) : $view['form']->row($userForm['lastName_unbound']);
+                        echo ($permissions['editEmail']) ? $view['form']->row($userForm['email']) : $view['form']->row($userForm['email_unbound']);
+                        echo ($permissions['editPosition']) ? $view['form']->row($userForm['position']) : $view['form']->row($userForm['position_unbound']);
                         echo $view['form']->row($userForm['plainPassword']['confirm']);
-                        echo $view['form']->row($userForm['signature']);
                         ?>
-                    </div>
+                        <div <?php echo ($isAdmin) ? '' : 'class="hide"' ?>> <?php echo $view['form']->row($userForm['locale']); ?></div>
+                </div>
                 </div>
                 <?php echo $view['form']->end($userForm); ?>
             </div>

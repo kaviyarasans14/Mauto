@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\CompanyModel;
+use Mautic\LeadBundle\Model\ListModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -32,15 +33,17 @@ class LeadType extends AbstractType
     private $translator;
     private $factory;
     private $companyModel;
+    private $leadListModel;
 
     /**
      * @param MauticFactory $factory
      */
-    public function __construct(MauticFactory $factory, CompanyModel $companyModel)
+    public function __construct(MauticFactory $factory, CompanyModel $companyModel, ListModel $leadListModel)
     {
-        $this->translator   = $factory->getTranslator();
-        $this->factory      = $factory;
-        $this->companyModel = $companyModel;
+        $this->translator    = $factory->getTranslator();
+        $this->factory       = $factory;
+        $this->companyModel  = $companyModel;
+        $this->leadListModel = $leadListModel;
     }
 
     /**
@@ -121,24 +124,43 @@ class LeadType extends AbstractType
                 ],
             ]
         );
+        if ($this->factory->getSecurity()->isGranted('stage:stages:view')) {
+            $companyLeadRepo = $this->companyModel->getCompanyLeadRepository();
+            $companies       = $companyLeadRepo->getCompaniesByLeadId($options['data']->getId());
+            $leadCompanies   = [];
+            foreach ($companies as $company) {
+                $leadCompanies[(string) $company['company_id']] = (string) $company['company_id'];
+            }
 
-        $companyLeadRepo = $this->companyModel->getCompanyLeadRepository();
-        $companies       = $companyLeadRepo->getCompaniesByLeadId($options['data']->getId());
-        $leadCompanies   = [];
-        foreach ($companies as $company) {
-            $leadCompanies[(string) $company['company_id']] = (string) $company['company_id'];
+            $builder->add(
+                'companies',
+                'company_list',
+                [
+                    'label'      => 'mautic.company.selectcompany',
+                    'label_attr' => ['class' => 'control-label'],
+                    'multiple'   => true,
+                    'required'   => false,
+                    'mapped'     => false,
+                    'data'       => $leadCompanies,
+                ]
+            );
         }
 
+        $segments       = $this->leadListModel->getListLeadRepository()->getSegmentIDbyLeads($options['data']->getId());
+        $leadSegments   = [];
+        foreach ($segments as $segment) {
+            $leadSegments[(string) $segment['leadlist_id']] = (string) $segment['leadlist_id'];
+        }
         $builder->add(
-        'companies',
-            'company_list',
+            'lead_lists',
+            'leadlist_choices',
             [
-                'label'      => 'mautic.company.selectcompany',
-                'label_attr' => ['class' => 'control-label'],
-                'multiple'   => true,
-                'required'   => false,
-                'mapped'     => false,
-                'data'       => $leadCompanies,
+                'by_reference' => false,
+                'label'        => 'mautic.lead.form.list',
+                'label_attr'   => ['class' => 'control-label'],
+                'multiple'     => true,
+                'required'     => false,
+                'data'         => $leadSegments,
             ]
         );
 
@@ -161,31 +183,31 @@ class LeadType extends AbstractType
                     'multiple' => false,
                 ]
             )
-            ->addModelTransformer($transformer)
-        );
-
-        $transformer = new IdToEntityModelTransformer(
-            $this->factory->getEntityManager(),
-            'MauticStageBundle:Stage'
-        );
-
-        $builder->add(
-            $builder->create(
-                'stage',
-                'stage_list',
-                [
-                    'label'      => 'mautic.lead.lead.field.stage',
-                    'label_attr' => ['class' => 'control-label'],
-                    'attr'       => [
-                        'class' => 'form-control',
-                    ],
-                    'required' => false,
-                    'multiple' => false,
-                ]
-            )
                 ->addModelTransformer($transformer)
         );
+        if ($this->factory->getSecurity()->isGranted('stage:stages:view')) {
+            $transformer = new IdToEntityModelTransformer(
+                $this->factory->getEntityManager(),
+                'MauticStageBundle:Stage'
+            );
 
+            $builder->add(
+                $builder->create(
+                    'stage',
+                    'stage_list',
+                    [
+                        'label'      => 'mautic.lead.lead.field.stage',
+                        'label_attr' => ['class' => 'control-label'],
+                        'attr'       => [
+                            'class' => 'form-control',
+                        ],
+                        'required' => false,
+                        'multiple' => false,
+                    ]
+                )
+                    ->addModelTransformer($transformer)
+            );
+        }
         if (!$options['isShortForm']) {
             $builder->add('buttons', 'form_buttons');
         } else {

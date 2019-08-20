@@ -59,8 +59,9 @@ return [
                 'mautic.plugin.plugins' => [
                     'id'        => 'mautic_plugin_root',
                     'iconClass' => 'fa-plus-circle',
-                    'access'    => 'plugin:plugins:manage',
+                    // 'access'    => 'plugin:plugins:manage',
                     'route'     => 'mautic_plugin_index',
+                    'access'    => 'admin',
                 ],
             ],
         ],

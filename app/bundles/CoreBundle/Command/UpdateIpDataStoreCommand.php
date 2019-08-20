@@ -13,6 +13,7 @@ namespace Mautic\CoreBundle\Command;
 
 use Mautic\CoreBundle\IpLookup\AbstractLocalDataLookup;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -28,6 +29,7 @@ class UpdateIpDataStoreCommand extends ContainerAwareCommand
     {
         $this->setName('mautic:iplookup:download')
             ->setDescription('Fetch remote datastores for IP lookup services that leverage local lookups')
+            ->addOption('--domain', '-d', InputOption::VALUE_REQUIRED, 'To load domain specific configuration', '')
             ->setHelp(
                 <<<'EOT'
                 The <info>%command.name%</info> command is used to update local IP lookup data if applicable.
@@ -55,16 +57,16 @@ EOT
 
                 if ($remoteUrl && $localPath) {
                     $output->writeln('<error>'.$translator->trans(
-                        'mautic.core.ip_lookup.remote_fetch_error',
-                        [
-                            '%remoteUrl%' => $remoteUrl,
-                            '%localPath%' => $localPath,
-                        ]
-                    ).'</error>');
+                            'mautic.core.ip_lookup.remote_fetch_error',
+                            [
+                                '%remoteUrl%' => $remoteUrl,
+                                '%localPath%' => $localPath,
+                            ]
+                        ).'</error>');
                 } else {
                     $output->writeln('<error>'.$translator->trans(
-                        'mautic.core.ip_lookup.remote_fetch_error_generic'
-                    ).'</error>');
+                            'mautic.core.ip_lookup.remote_fetch_error_generic'
+                        ).'</error>');
                 }
             }
         }

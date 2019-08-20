@@ -37,11 +37,11 @@ $img = $view['lead_avatar']->getAvatar($contact);
                         <a href="<?php echo $view['router']->path('mautic_contact_action',
                             ['objectAction' => 'view', 'objectId' => $contact->getId()]); ?>"
                            data-toggle="ajax">
-                            <span><?php echo $contact->getPrimaryIdentifier(); ?></span>
+                            <span><?php echo $view['translator']->trans($contact->getPrimaryIdentifier()); ?></span>
                         </a>
                     </h4>
                     <div class="text-muted mb-1 ellipsis">
-                        <i class="fa fa-fw fa-building mr-xs"></i><?php echo $fields['core']['company']['value']; ?>
+                        <i class="fa fa-fw fa-building mr-xs"></i><?php echo !empty($fields['core']['company']['value']) ? $fields['core']['company']['value'] : ''; ?>
                     </div>
                     <div class="text-muted mb-1 ellipsis">
                         <i class="fa fa-fw fa-map-marker mr-xs"></i><?php

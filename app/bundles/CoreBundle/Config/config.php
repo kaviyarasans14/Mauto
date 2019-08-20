@@ -117,20 +117,32 @@ return [
             'mautic.core.components' => [
                 'id'        => 'mautic_components_root',
                 'iconClass' => 'fa-puzzle-piece',
-                'priority'  => 60,
-            ],
-            'mautic.core.channels' => [
-                'id'        => 'mautic_channels_root',
-                'iconClass' => 'fa-rss',
                 'priority'  => 40,
             ],
+             'mautic.core.channels' => [
+                 'id'        => 'mautic_channels_root',
+                 'iconClass' => 'fa-rss',
+                 'priority'  => 55,
+             ],
+           /*'mautic.segments.root' => [
+                'id'        => 'mautic_segments_root',
+                'iconClass' => 'icon pull-left fa fa-user',
+                'priority'  => 35,
+            ],*/
+           /* 'mautic.campaigns.root' => [
+                'id'        => 'mautic_campaigns_root',
+                'iconClass' => 'fa-clock-o',
+                'priority'  => 70,
+            ],*/
         ],
         'admin' => [
             'mautic.theme.menu.index' => [
                 'route'     => 'mautic_themes_index',
                 'iconClass' => 'fa-newspaper-o',
+                'priority'  => 400,
                 'id'        => 'mautic_themes_index',
-                'access'    => 'core:themes:view',
+                //'access'    => 'core:themes:view',
+                'access'    => 'admin',
             ],
         ],
         'extra' => [
@@ -188,6 +200,12 @@ return [
                 'class'     => 'Mautic\CoreBundle\EventListener\MaintenanceSubscriber',
                 'arguments' => [
                     'doctrine.dbal.default_connection',
+                ],
+            ],
+            'mautic.core.request.subscriber' => [
+                'class'     => \Mautic\CoreBundle\EventListener\RequestSubscriber::class,
+                'arguments' => [
+                    'security.csrf.token_manager',
                 ],
             ],
             'mautic.core.stats.subscriber' => [
@@ -397,6 +415,11 @@ return [
             'mautic.helper.app_version' => [
                 'class' => \Mautic\CoreBundle\Helper\AppVersion::class,
             ],
+            'mautic.helper.licenseinfo' => [
+                'class'     => 'Mautic\CoreBundle\Helper\LicenseInfoHelper',
+                'arguments' => ['doctrine.orm.entity_manager',
+                                'mautic.email.repository.licenseinfo', ],
+            ],
             'mautic.helper.template.menu' => [
                 'class'     => 'Mautic\CoreBundle\Templating\Helper\MenuHelper',
                 'arguments' => ['knp_menu.helper'],
@@ -424,12 +447,10 @@ return [
                 'alias'     => 'gravatar',
             ],
             'mautic.helper.template.analytics' => [
-                'class'     => 'Mautic\CoreBundle\Templating\Helper\AnalyticsHelper',
+                'class'     => \Mautic\CoreBundle\Templating\Helper\AnalyticsHelper::class,
                 'alias'     => 'analytics',
                 'arguments' => [
                     'mautic.helper.core_parameters',
-                    'mautic.helper.cookie',
-                    'mautic.lead.model.lead',
                 ],
             ],
             'mautic.helper.template.mautibot' => [
@@ -477,11 +498,12 @@ return [
                 'alias' => 'version',
             ],
             'mautic.helper.template.security' => [
-                'class'     => 'Mautic\CoreBundle\Templating\Helper\SecurityHelper',
+                'class'     => \Mautic\CoreBundle\Templating\Helper\SecurityHelper::class,
                 'arguments' => [
                     'mautic.security',
                     'request_stack',
                     'event_dispatcher',
+                    'security.csrf.token_manager',
                 ],
                 'alias' => 'security',
             ],
@@ -571,7 +593,13 @@ return [
             'symfony.filesystem' => [
                 'class' => \Symfony\Component\Filesystem\Filesystem::class,
             ],
-
+            'mautic.email.repository.licenseinfo' => [
+                'class'     => Doctrine\ORM\EntityRepository::class,
+                'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
+                'arguments' => [
+                    \Mautic\CoreBundle\Entity\LicenseInfo::class,
+                ],
+            ],
             // Error handler
             'mautic.core.errorhandler.subscriber' => [
                 'class'     => 'Mautic\CoreBundle\EventListener\ErrorHandlingListener',
@@ -754,6 +782,12 @@ return [
                     '%mautic.parameters%',
                     'mautic.helper.integration',
                 ],
+            ],
+            'mautic.helper.hash' => [
+                'class' => \Mautic\CoreBundle\Helper\HashHelper\HashHelper::class,
+            ],
+            'mautic.helper.random' => [
+                'class' => \Mautic\CoreBundle\Helper\RandomHelper\RandomHelper::class,
             ],
             'mautic.menu_renderer' => [
                 'class'     => 'Mautic\CoreBundle\Menu\MenuRenderer',
@@ -1042,5 +1076,9 @@ return [
         'cors_valid_domains'        => [],
         'rss_notification_url'      => 'https://mautic.com/?feed=rss2&tag=notification',
         'max_entity_lock_time'      => 0,
+        'le_db_host'                => 'localhost',
+        'le_db_port'                => 3306,
+        'le_db_user'                => 'root',
+        'le_db_password'            => 'dacam',
     ],
 ];

@@ -62,7 +62,7 @@ class SmsHelper
         $this->phoneNumberHelper  = $phoneNumberHelper;
         $this->smsModel           = $smsModel;
         $this->integrationHelper  = $integrationHelper;
-        $integration              = $integrationHelper->getIntegrationObject('Twilio');
+        $integration              = $integrationHelper->getIntegrationObject('SolutionInfinity');
         $settings                 = $integration->getIntegrationSettings()->getFeatureSettings();
         $this->smsFrequencyNumber = $settings['frequency_number'];
     }

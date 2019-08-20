@@ -48,8 +48,9 @@ class LeadSubscriber extends CommonSubscriber
     {
         $eventTypeKey  = 'message.queue';
         $eventTypeName = $this->translator->trans('mautic.message.queue');
-
-        $event->addEventType($eventTypeKey, $eventTypeName);
+        if ($this->security->isAdmin()) {
+            $event->addEventType($eventTypeKey, $eventTypeName);
+        }
         $event->addSerializerGroup('messageQueueList');
 
         $label = $this->translator->trans('mautic.queued.channel');

@@ -28,7 +28,7 @@ $buttons = [
         'attr' => [
             'class'       => 'btn btn-default btn-nospin',
             'href'        => 'javascript:void()',
-            'onclick'     => "Mautic.exportDashboardLayout('{$view['translator']->trans('mautic.dashboard.confirmation_layout_name')}', '{$view['router']->path('mautic_dashboard_action', ['objectAction' => 'export'])}', true);",
+            'onclick'     => "Mautic.saveDashboardLayout('{$view['translator']->trans('mautic.dashboard.confirmation_layout_name')}');",
             'data-toggle' => '',
         ],
         'iconClass' => 'fa fa-save',
@@ -38,7 +38,7 @@ $buttons = [
         'attr' => [
             'class'       => 'btn btn-default btn-nospin',
             'href'        => 'javascript:void()',
-            'onclick'     => "Mautic.exportDashboardLayout('{$view['translator']->trans('mautic.dashboard.confirmation_layout_name')}', '{$view['router']->path('mautic_dashboard_action', ['objectAction' => 'export'])}', false);",
+            'onclick'     => "Mautic.exportDashboardLayout('{$view['translator']->trans('mautic.dashboard.confirmation_layout_name')}', '{$view['router']->path('mautic_dashboard_action', ['objectAction' => 'export'])}');",
             'data-toggle' => '',
         ],
         'iconClass' => 'fa fa-cloud-download',
@@ -60,6 +60,19 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
     'langVar'       => 'dashboard',
     'customButtons' => $buttons,
 ]));
+if ($showsetup) {
+    echo $view->render('MauticSubscriptionBundle:Subscription:kyc.html.php',
+        [
+            'typePrefix' => 'email',
+            'form'       => $accountform,
+            'billform'   => $billingform,
+            'userform'   => $userform,
+            'videoURL'   => $videoURL,
+            'showSetup'  => $showsetup,
+            'showVideo'  => $showvideo,
+            'isMobile'   => $isMobile,
+        ]);
+}
 ?>
 <div class="row pt-md pl-md">
     <div class="col-sm-6">
@@ -67,10 +80,11 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
     </div>
 </div>
 
+
 <?php if (count($widgets)): ?>
     <div id="dashboard-widgets" class="dashboard-widgets cards">
         <?php foreach ($widgets as $widget): ?>
-            <div class="card-flex widget" data-widget-id="<?php echo $widget->getId(); ?>" style="width: <?php echo $widget->getWidth() ? $widget->getWidth().'' : '100' ?>%; height: <?php echo $widget->getHeight() ? $widget->getHeight().'px' : '300px' ?>">
+            <div class="card-flex widget" data-widget-id="<?php echo $widget->getId(); ?>" style="width: <?php echo $widget->getWidth() ? $widget->getWidth().'' : '100' ?>%; height: <?php echo $widget->getHeight() ? $widget->getHeight().'px' : 'auto' ?>">
                 <?php echo $view->render('MauticDashboardBundle:Widget:detail.html.php', ['widget' => $widget]); ?>
             </div>
         <?php endforeach; ?>
@@ -92,3 +106,4 @@ $view['slots']->set('actions', $view->render('MauticCoreBundle:Helper:page_actio
         </div>
     </div>
 <?php endif; ?>
+

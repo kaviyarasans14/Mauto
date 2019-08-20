@@ -18,6 +18,7 @@ use Mautic\CoreBundle\Helper\Chart\LineChart;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\CoreBundle\Helper\IpLookupHelper;
+use Mautic\CoreBundle\Helper\LicenseInfoHelper;
 use Mautic\CoreBundle\Helper\TemplatingHelper;
 use Mautic\CoreBundle\Model\FormModel as CommonFormModel;
 use Mautic\FormBundle\Crate\UploadFileCrate;
@@ -34,6 +35,7 @@ use Mautic\FormBundle\FormEvents;
 use Mautic\FormBundle\Helper\FormFieldHelper;
 use Mautic\FormBundle\Helper\FormUploader;
 use Mautic\FormBundle\Validator\UploadFieldValidator;
+use Mautic\LeadBundle\DataObject\LeadManipulator;
 use Mautic\LeadBundle\Entity\Company;
 use Mautic\LeadBundle\Entity\CompanyChangeLog;
 use Mautic\LeadBundle\Entity\Lead;
@@ -41,6 +43,7 @@ use Mautic\LeadBundle\Helper\IdentifyCompanyHelper;
 use Mautic\LeadBundle\Model\CompanyModel;
 use Mautic\LeadBundle\Model\FieldModel as LeadFieldModel;
 use Mautic\LeadBundle\Model\LeadModel;
+use Mautic\LeadBundle\Tracker\Service\DeviceTrackingService\DeviceTrackingServiceInterface;
 use Mautic\PageBundle\Model\PageModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -113,18 +116,28 @@ class SubmissionModel extends CommonFormModel
      */
     private $formUploader;
 
+    /** @var DeviceTrackingServiceInterface */
+    private $deviceTrackingService;
+
     /**
-     * @param IpLookupHelper       $ipLookupHelper
-     * @param TemplatingHelper     $templatingHelper
-     * @param FormModel            $formModel
-     * @param PageModel            $pageModel
-     * @param LeadModel            $leadModel
-     * @param CampaignModel        $campaignModel
-     * @param LeadFieldModel       $leadFieldModel
-     * @param CompanyModel         $companyModel
-     * @param FormFieldHelper      $fieldHelper
-     * @param UploadFieldValidator $uploadFieldValidator
-     * @param FormUploader         $formUploader
+     * @var LicenseInfoHelper
+     */
+    private $licenseInfoHelper;
+
+    /**
+     * @param IpLookupHelper                 $ipLookupHelper
+     * @param TemplatingHelper               $templatingHelper
+     * @param FormModel                      $formModel
+     * @param PageModel                      $pageModel
+     * @param LeadModel                      $leadModel
+     * @param CampaignModel                  $campaignModel
+     * @param LeadFieldModel                 $leadFieldModel
+     * @param CompanyModel                   $companyModel
+     * @param FormFieldHelper                $fieldHelper
+     * @param UploadFieldValidator           $uploadFieldValidator
+     * @param FormUploader                   $formUploader
+     * @param LicenseInfoHelper              $licenseInfoHelper
+     * @param DeviceTrackingServiceInterface $deviceTrackingService
      */
     public function __construct(
         IpLookupHelper $ipLookupHelper,
@@ -137,19 +150,23 @@ class SubmissionModel extends CommonFormModel
         CompanyModel $companyModel,
         FormFieldHelper $fieldHelper,
         UploadFieldValidator $uploadFieldValidator,
-        FormUploader $formUploader
+        FormUploader $formUploader,
+        LicenseInfoHelper $licenseInfoHelper,
+        DeviceTrackingServiceInterface $deviceTrackingService
     ) {
-        $this->ipLookupHelper       = $ipLookupHelper;
-        $this->templatingHelper     = $templatingHelper;
-        $this->formModel            = $formModel;
-        $this->pageModel            = $pageModel;
-        $this->leadModel            = $leadModel;
-        $this->campaignModel        = $campaignModel;
-        $this->leadFieldModel       = $leadFieldModel;
-        $this->companyModel         = $companyModel;
-        $this->fieldHelper          = $fieldHelper;
-        $this->uploadFieldValidator = $uploadFieldValidator;
-        $this->formUploader         = $formUploader;
+        $this->ipLookupHelper         = $ipLookupHelper;
+        $this->templatingHelper       = $templatingHelper;
+        $this->formModel              = $formModel;
+        $this->pageModel              = $pageModel;
+        $this->leadModel              = $leadModel;
+        $this->campaignModel          = $campaignModel;
+        $this->leadFieldModel         = $leadFieldModel;
+        $this->companyModel           = $companyModel;
+        $this->fieldHelper            = $fieldHelper;
+        $this->uploadFieldValidator   = $uploadFieldValidator;
+        $this->formUploader           = $formUploader;
+        $this->deviceTrackingService  = $deviceTrackingService;
+        $this->licenseInfoHelper      = $licenseInfoHelper;
     }
 
     /**
@@ -174,6 +191,8 @@ class SubmissionModel extends CommonFormModel
     public function saveSubmission($post, $server, Form $form, Request $request = null, $returnEvent = false)
     {
         $leadFields = $this->leadFieldModel->getFieldListWithProperties(false);
+
+        $isValidRecordAdd = $this->licenseInfoHelper->isValidRecordAdd();
 
         //everything matches up so let's save the results
         $submission = new Submission();
@@ -356,13 +375,19 @@ class SubmissionModel extends CommonFormModel
         // Create/update lead
         $lead = null;
         if (!empty($leadFieldMatches)) {
-            $this->createLeadFromSubmit($form, $leadFieldMatches, $leadFields);
+            if ($isValidRecordAdd) {
+                $this->createLeadFromSubmit($form, $leadFieldMatches, $leadFields);
+                $this->licenseInfoHelper->intRecordCount('1', true);
+            } else {
+                return ['errors' => 'InSufficient Record Count Please Contact Support Team'];
+            }
         }
 
         // Get updated lead if applicable with tracking ID
         /** @var Lead $lead */
-        list($lead, $trackingId, $generated) = $this->leadModel->getCurrentLead(true);
-
+        $lead          = $this->leadModel->getCurrentLead();
+        $trackedDevice = $this->deviceTrackingService->getTrackedDevice();
+        $trackingId    = ($trackedDevice === null ? null : $trackedDevice->getTrackingId());
         //set tracking ID for stats purposes to determine unique hits
         $submission->setTrackingId($trackingId)
             ->setLead($lead);
@@ -475,6 +500,7 @@ class SubmissionModel extends CommonFormModel
     {
         $viewOnlyFields              = $this->formModel->getCustomComponents()['viewOnlyFields'];
         $queryArgs['viewOnlyFields'] = $viewOnlyFields;
+        $queryArgs['simpleResults']  = true;
         $results                     = $this->getEntities($queryArgs);
         $translator                  = $this->translator;
 
@@ -511,8 +537,8 @@ class SubmissionModel extends CommonFormModel
                         foreach ($results as $k => $s) {
                             $row = [
                                 $s['id'],
-                                $s['dateSubmitted']->format('Y-m-d H:i:s'),
-                                $s['ipAddress']['ipAddress'],
+                                $s['dateSubmitted'],
+                                $s['ipAddress'],
                                 $s['referer'],
                             ];
                             foreach ($s['results'] as $k2 => $r) {
@@ -588,8 +614,8 @@ class SubmissionModel extends CommonFormModel
                             foreach ($results as $k => $s) {
                                 $row = [
                                     $s['id'],
-                                    $s['dateSubmitted']->format('Y-m-d H:i:s'),
-                                    $s['ipAddress']['ipAddress'],
+                                    $s['dateSubmitted'],
+                                    $s['ipAddress'],
                                     $s['referer'],
                                 ];
                                 foreach ($s['results'] as $k2 => $r) {
@@ -1004,6 +1030,12 @@ class SubmissionModel extends CommonFormModel
         $lead->setLastActive(new \DateTime());
 
         //create a new lead
+        $lead->setManipulator(new LeadManipulator(
+            'form',
+            'submission',
+            $form->getId(),
+            $form->getName()
+        ));
         $this->leadModel->saveEntity($lead, false);
 
         if (!$inKioskMode) {
@@ -1027,6 +1059,9 @@ class SubmissionModel extends CommonFormModel
                 $this->leadModel->setPrimaryCompany($companyEntity->getId(), $lead->getId());
             }
             $this->em->clear(CompanyChangeLog::class);
+        }
+        if ($leadId = $lead->getId()) {
+            $this->leadModel->setLeadCookie($leadId);
         }
 
         return $lead;

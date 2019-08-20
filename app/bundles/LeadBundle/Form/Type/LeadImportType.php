@@ -38,7 +38,7 @@ class LeadImportType extends AbstractType
                 'constraints' => [
                     new File(
                         [
-                            'mimeTypes'        => ['text/csv', 'text/plain'],
+                            'mimeTypes'        => ['text/csv', 'text/plain', 'application/octet-stream'],
                             'mimeTypesMessage' => 'mautic.core.invalid_file_type',
                         ]
                     ),
@@ -95,7 +95,7 @@ class LeadImportType extends AbstractType
             ]
         );
 
-        $default = (empty($options['data']['batchlimit'])) ? 100 : (int) $options['data']['batchlimit'];
+        $default = (empty($options['data']['batchlimit'])) ? 300 : (int) $options['data']['batchlimit'];
         $builder->add(
             'batchlimit',
             'text',

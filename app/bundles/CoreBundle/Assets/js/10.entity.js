@@ -125,7 +125,14 @@ Mautic.filterList = function (e, elId, route, target, liveCacheVar, action, over
             if (searchName == 'undefined') {
                 searchName = 'search';
             }
-
+if(searchName == 'search' && value.includes(' ')){
+if(!value.startsWith('"')){
+    value='"'+value;
+}
+    if(!value.endsWith('"')){
+        value=value+'"';
+    }
+}
             if (typeof Mautic.liveSearchXhr !== 'undefined') {
                 //ensure current search request is aborted
                 Mautic['liveSearchXhr'].abort();
@@ -293,7 +300,15 @@ Mautic.togglePublishStatus = function (event, el, model, id, extra, backdrop) {
         data: "action=togglePublishStatus&model=" + model + '&id=' + id + extra,
         dataType: "json",
         success: function (response) {
-            if (response.reload) {
+            if(!response.success){
+                var addClass = (wasPublished) ? 'fa-toggle-on' : 'fa-toggle-off';
+                mQuery(el).removeClass('fa-spin fa-spinner').addClass(addClass);
+                var alertmsg="publish";
+                if(wasPublished){
+                    alertmsg="un publish";
+                }
+                alert("You don't have rights to "+alertmsg+" it");
+            }else if (response.reload) {
                 Mautic.redirectWithBackdrop(window.location);
             } else if (response.statusHtml) {
                 mQuery(el).replaceWith(response.statusHtml);

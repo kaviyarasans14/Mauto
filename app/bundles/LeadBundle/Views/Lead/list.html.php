@@ -11,73 +11,82 @@
 if ($tmpl == 'index') {
     $view->extend('MauticLeadBundle:Lead:index.html.php');
 }
-
+$stageaccess   =$security->isGranted('stage:stages:view');
+$isAdmin       =$view['security']->isAdmin();
 $customButtons = [];
+$changeStage   =[];
 if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) {
-    $customButtons = [
-        [
-            'attr' => [
-                'class'       => 'btn btn-default btn-sm btn-nospin',
-                'data-toggle' => 'ajaxmodal',
-                'data-target' => '#MauticSharedModal',
-                'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchLists']),
-                'data-header' => $view['translator']->trans('mautic.lead.batch.lists'),
+    $customButton = [
+            [
+                'attr' => [
+                    'class'       => 'btn btn-default btn-sm btn-nospin',
+                    'data-toggle' => 'ajaxmodal',
+                    'data-target' => '#MauticSharedModal',
+                    'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchLists']),
+                    'data-header' => $view['translator']->trans('mautic.lead.batch.lists'),
+                ],
+                'btnText'   => $view['translator']->trans('mautic.lead.batch.lists'),
+                'iconClass' => 'fa fa-pie-chart',
             ],
-            'btnText'   => $view['translator']->trans('mautic.lead.batch.lists'),
-            'iconClass' => 'fa fa-pie-chart',
-        ],
-        [
-            'attr' => [
-                'class'       => 'btn btn-default btn-sm btn-nospin',
-                'data-toggle' => 'ajaxmodal',
-                'data-target' => '#MauticSharedModal',
-                'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchStages']),
-                'data-header' => $view['translator']->trans('mautic.lead.batch.stages'),
+            [
+                'attr' => [
+                    'class'       => 'btn btn-default btn-sm btn-nospin',
+                    'data-toggle' => 'ajaxmodal',
+                    'data-target' => '#MauticSharedModal',
+                    'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchCampaigns']),
+                    'data-header' => $view['translator']->trans('mautic.lead.batch.campaigns'),
+                ],
+                'btnText'   => $view['translator']->trans('mautic.lead.batch.campaigns'),
+                'iconClass' => 'fa fa-clock-o',
             ],
-            'btnText'   => $view['translator']->trans('mautic.lead.batch.stages'),
-            'iconClass' => 'fa fa-tachometer',
-        ],
-        [
-            'attr' => [
-                'class'       => 'btn btn-default btn-sm btn-nospin',
-                'data-toggle' => 'ajaxmodal',
-                'data-target' => '#MauticSharedModal',
-                'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchCampaigns']),
-                'data-header' => $view['translator']->trans('mautic.lead.batch.campaigns'),
+            [
+                'attr' => [
+                    'class'       => 'btn btn-default btn-sm btn-nospin',
+                    'data-toggle' => 'ajaxmodal',
+                    'data-target' => '#MauticSharedModal',
+                    'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchOwners']),
+                    'data-header' => $view['translator']->trans('mautic.lead.batch.owner'),
+                ],
+                'btnText'   => $view['translator']->trans('mautic.lead.batch.owner'),
+                'iconClass' => 'fa fa-user',
             ],
-            'btnText'   => $view['translator']->trans('mautic.lead.batch.campaigns'),
-            'iconClass' => 'fa fa-clock-o',
-        ],
-        [
-            'attr' => [
-                'class'       => 'btn btn-default btn-sm btn-nospin',
-                'data-toggle' => 'ajaxmodal',
-                'data-target' => '#MauticSharedModal',
-                'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchOwners']),
-                'data-header' => $view['translator']->trans('mautic.lead.batch.owner'),
+            [
+                'attr' => [
+                    'class'       => 'hidden-xs btn btn-default btn-sm btn-nospin',
+                    'data-toggle' => 'ajaxmodal',
+                    'data-target' => '#MauticSharedModal',
+                    'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchDnc']),
+                    'data-header' => $view['translator']->trans('mautic.lead.batch.dnc'),
+                ],
+                'btnText'   => $view['translator']->trans('mautic.lead.batch.dnc'),
+                'iconClass' => 'fa fa-ban text-danger',
             ],
-            'btnText'   => $view['translator']->trans('mautic.lead.batch.owner'),
-            'iconClass' => 'fa fa-user',
-        ],
-        [
-            'attr' => [
-                'class'       => 'hidden-xs btn btn-default btn-sm btn-nospin',
-                'data-toggle' => 'ajaxmodal',
-                'data-target' => '#MauticSharedModal',
-                'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchDnc']),
-                'data-header' => $view['translator']->trans('mautic.lead.batch.dnc'),
-            ],
-            'btnText'   => $view['translator']->trans('mautic.lead.batch.dnc'),
-            'iconClass' => 'fa fa-ban text-danger',
-        ],
-    ];
+        ];
+    if ($stageaccess) {
+        $changeStage= [
+                [
+                'attr' => [
+                    'class'       => 'btn btn-default btn-sm btn-nospin',
+                    'data-toggle' => 'ajaxmodal',
+                    'data-target' => '#MauticSharedModal',
+                    'href'        => $view['router']->path('mautic_contact_action', ['objectAction' => 'batchStages']),
+                    'data-header' => $view['translator']->trans('mautic.lead.batch.stages'),
+                ],
+                'btnText'   => $view['translator']->trans('mautic.lead.batch.stages'),
+                'iconClass' => 'fa fa-tachometer',
+               ],
+            ];
+    }
+    $custom[]     = array_merge($changeStage, $customButton);
+    $customButtons=$custom[0];
 }
 ?>
 
 <?php if (count($items)): ?>
-<div class="table-responsive">
-    <table class="table table-hover table-striped table-bordered" id="leadTable">
-        <thead>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-bordered" id="leadTable">
+            <thead>
             <tr>
                 <?php
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
@@ -95,36 +104,54 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.lastname, l.firstname, l.company, l.email',
-                    'text'       => 'mautic.core.name',
+                    'text'       => 'mautic.core.type.lead',
                     'class'      => 'col-lead-name',
                 ]);
-
-                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                /*echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
+                    'orderBy'    => 'l.company_new',
+                    'text'       => 'mautic.core.company',
+                    'class'      => 'col-lead-company visible-md visible-lg',
+                ]);*/
+               /* echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.email',
-                    'text'       => 'mautic.core.type.email',
-                    'class'      => 'col-lead-email visible-md visible-lg',
+                    'text'       => 'mautic.core.type.contact',
+                    'class'      => 'col-lead-email',
+                ]);*/
+                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
+                    'text'       => 'mautic.core.type.tags',
+                    'class'      => 'col-lead-tags',
                 ]);
 
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
-                    'orderBy'    => 'l.city, l.state',
-                    'text'       => 'mautic.lead.lead.thead.location',
-                    'class'      => 'col-lead-location visible-md visible-lg',
+                    'orderBy'    => 'l.score',
+                    'text'       => 'mautic.core.type.score',
+                    'class'      => 'col-lead-score',
                 ]);
-                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
-                    'sessionVar' => 'lead',
-                    'orderBy'    => 'l.stage_id',
-                    'text'       => 'mautic.lead.stage.label',
-                    'class'      => 'col-lead-stage',
-                ]);
+
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.points',
                     'text'       => 'mautic.lead.points',
                     'class'      => 'visible-md visible-lg col-lead-points',
                 ]);
-
+               /* echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
+                    'orderBy'    => 'l.mobile',
+                    'text'       => 'mautic.core.type.mobile',
+                    'class'      => 'col-lead-email visible-md visible-lg',
+                ]);*/
+                if ($stageaccess) {
+                    echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                        'sessionVar' => 'lead',
+                        'orderBy'    => 'l.stage_id',
+                        'text'       => 'mautic.lead.stage.label',
+                        'class'      => 'col-lead-stage',
+                    ]);
+                }
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
                     'orderBy'    => 'l.last_active',
@@ -135,35 +162,43 @@ if ($permissions['lead:leads:editown'] || $permissions['lead:leads:editother']) 
 
                 echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
                     'sessionVar' => 'lead',
+                    'orderBy'    => 'l.city, l.state',
+                    'text'       => 'mautic.lead.lead.thead.location',
+                    'class'      => 'col-lead-location visible-md visible-lg',
+                ]);
+                if ($isAdmin):
+                echo $view->render('MauticCoreBundle:Helper:tableheader.html.php', [
+                    'sessionVar' => 'lead',
                     'orderBy'    => 'l.id',
                     'text'       => 'mautic.core.id',
                     'class'      => 'col-lead-id visible-md visible-lg',
                 ]);
+                endif;
                 ?>
             </tr>
-        </thead>
-        <tbody>
-        <?php echo $view->render('MauticLeadBundle:Lead:list_rows.html.php', [
-            'items'         => $items,
-            'security'      => $security,
-            'currentList'   => $currentList,
-            'permissions'   => $permissions,
-            'noContactList' => $noContactList,
+            </thead>
+            <tbody>
+            <?php echo $view->render('MauticLeadBundle:Lead:list_rows.html.php', [
+                'items'         => $items,
+                'security'      => $security,
+                'currentList'   => $currentList,
+                'permissions'   => $permissions,
+                'noContactList' => $noContactList,
+            ]); ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">
+        <?php echo $view->render('MauticCoreBundle:Helper:pagination.html.php', [
+            'totalItems' => $totalItems,
+            'page'       => $page,
+            'limit'      => $limit,
+            'menuLinkId' => 'mautic_contact_index',
+            'baseUrl'    => $view['router']->path('mautic_contact_index'),
+            'tmpl'       => $indexMode,
+            'sessionVar' => 'lead',
         ]); ?>
-        </tbody>
-    </table>
-</div>
-<div class="panel-footer">
-    <?php echo $view->render('MauticCoreBundle:Helper:pagination.html.php', [
-        'totalItems' => $totalItems,
-        'page'       => $page,
-        'limit'      => $limit,
-        'menuLinkId' => 'mautic_contact_index',
-        'baseUrl'    => $view['router']->path('mautic_contact_index'),
-        'tmpl'       => $indexMode,
-        'sessionVar' => 'lead',
-    ]); ?>
-</div>
+    </div>
 <?php else: ?>
-<?php echo $view->render('MauticCoreBundle:Helper:noresults.html.php'); ?>
+    <?php echo $view->render('MauticCoreBundle:Helper:noresults.html.php'); ?>
 <?php endif; ?>

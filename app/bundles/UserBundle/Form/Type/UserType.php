@@ -17,6 +17,7 @@ use Mautic\CoreBundle\Form\EventListener\CleanFormSubscriber;
 use Mautic\CoreBundle\Form\EventListener\FormExitSubscriber;
 use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\CoreBundle\Helper\LanguageHelper;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\UserBundle\Model\UserModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -197,16 +198,21 @@ class UserType extends AbstractType
             ]
         );
 
+        $timeZone = $this->model->getUserTimeZone();
+        $choices  = FormFieldHelper::getCustomTimezones();
+
         $builder->add(
             'timezone',
-            'timezone',
+            'choice',
             [
+                'choices'    => $choices,
                 'label'      => 'mautic.core.timezone',
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'class' => 'form-control',
                 ],
                 'multiple'    => false,
+                'data'        => $timeZone,
                 'empty_value' => 'mautic.user.user.form.defaulttimezone',
             ]
         );
@@ -234,19 +240,31 @@ class UserType extends AbstractType
         }
 
         $builder->add(
-            'signature',
-            'textarea',
+                'signature',
+                'textarea',
+                [
+                    'label'      => 'mautic.email.token.signature',
+                    'label_attr' => ['class' => 'control-label'],
+                    'required'   => false,
+                    'attr'       => [
+                        'class' => 'form-control',
+                    ],
+                    'data' => $defaultSignature,
+                ]
+            );
+
+        $builder->add(
+            'mobile',
+            'text',
             [
-                'label'      => 'mautic.email.token.signature',
+                'label'      => 'mautic.core.type.mobile',
                 'label_attr' => ['class' => 'control-label'],
-                'required'   => false,
                 'attr'       => [
-                    'class' => 'form-control',
+                    'class'    => 'form-control',
+                    'preaddon' => 'fa fa-mobile',
                 ],
-                'data' => $defaultSignature,
             ]
         );
-
         if (empty($options['in_profile'])) {
             $builder->add(
                 $builder->create(
@@ -261,8 +279,13 @@ class UserType extends AbstractType
                         'class'         => 'MauticUserBundle:Role',
                         'property'      => 'name',
                         'query_builder' => function (EntityRepository $er) {
+                            $rolefilter='r.isPublished = true and r.id != 1';
+                            if ($this->model->getCurrentUserEntity()->isAdmin()) {
+                                $rolefilter='r.isPublished = true';
+                            }
+
                             return $er->createQueryBuilder('r')
-                                ->where('r.isPublished = true')
+                                ->where($rolefilter)
                                 ->orderBy('r.name', 'ASC');
                         },
                     ]

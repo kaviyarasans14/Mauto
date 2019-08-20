@@ -11,7 +11,6 @@
 
 namespace Mautic\PageBundle\Controller;
 
-use Doctrine\ORM\Query\Expr;
 use Mautic\CoreBundle\Controller\BuilderControllerTrait;
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\CoreBundle\Controller\FormErrorMessagesTrait;
@@ -59,6 +58,15 @@ class PageController extends FormController
             $this->setListFilters();
         }
 
+        $listFilters = [
+            'filters' => [
+                'placeholder' => $this->get('translator')->trans('mautic.category.filter.placeholder'),
+                'multiple'    => true,
+            ],
+        ];
+        // Reset available groups
+        $listFilters['filters']['groups'] = [];
+
         //set limits
         $limit = $this->get('session')->get('mautic.page.limit', $this->coreParametersHelper->getParameter('default_pagelimit'));
         $start = ($page === 1) ? 0 : (($page - 1) * $limit);
@@ -70,6 +78,11 @@ class PageController extends FormController
         $this->get('session')->set('mautic.page.filter', $search);
 
         $filter = ['string' => $search, 'force' => []];
+
+        $listFilters['filters']['groups']['mautic.core.filter.category'] = [
+            'options' => $this->getModel('category.category')->getLookupResults('page'),
+            'prefix'  => 'category',
+        ];
 
         if (!$permissions['page:pages:viewother']) {
             $filter['force'][] = ['column' => 'p.createdBy', 'expr' => 'eq', 'value' => $this->user->getId()];
@@ -104,7 +117,53 @@ class PageController extends FormController
                     ],
                 ];
         }
+        $updatedFilters = $this->request->get('filters', false);
 
+        if ($updatedFilters) {
+            // Filters have been updated
+
+            // Parse the selected values
+            $newFilters     = [];
+            $updatedFilters = json_decode($updatedFilters, true);
+
+            if ($updatedFilters) {
+                foreach ($updatedFilters as $updatedFilter) {
+                    list($clmn, $fltr) = explode(':', $updatedFilter);
+
+                    $newFilters[$clmn][] = $fltr;
+                }
+
+                $currentFilters = $newFilters;
+            } else {
+                $currentFilters = [];
+            }
+        }
+        $this->get('session')->set('mautic.form.filter', []);
+
+        if (!empty($currentFilters)) {
+            $catIds = [];
+            foreach ($currentFilters as $type => $typeFilters) {
+                switch ($type) {
+                    case 'category':
+                        $key = 'categories';
+                        break;
+                }
+
+                $listFilters['filters']['groups']['mautic.core.filter.'.$key]['values'] = $typeFilters;
+
+                foreach ($typeFilters as $fltr) {
+                    switch ($type) {
+                        case 'category':
+                            $catIds[] = (int) $fltr;
+                            break;
+                    }
+                }
+            }
+
+            if (!empty($catIds)) {
+                $filter['force'][] = ['column' => 'c.id', 'expr' => 'in', 'value' => $catIds];
+            }
+        }
         $translator = $this->get('translator');
 
         //do not list variants in the main list
@@ -156,6 +215,7 @@ class PageController extends FormController
         return $this->delegateView([
             'viewParameters' => [
                 'searchValue' => $search,
+                'filters'     => $listFilters,
                 'items'       => $pages,
                 'categories'  => $categories,
                 'page'        => $page,
@@ -463,16 +523,17 @@ class PageController extends FormController
 
         return $this->delegateView([
             'viewParameters' => [
-                'form'          => $this->setFormTheme($form, 'MauticPageBundle:Page:form.html.php', 'MauticPageBundle:FormTheme\Page'),
-                'isVariant'     => $entity->isVariant(true),
-                'tokens'        => $model->getBuilderComponents($entity, 'tokens'),
-                'activePage'    => $entity,
-                'themes'        => $this->factory->getInstalledThemes('page', true),
-                'slots'         => $this->buildSlotForms($slotTypes),
-                'sections'      => $this->buildSlotForms($sections),
-                'builderAssets' => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
-                'sectionForm'   => $sectionForm->createView(),
-                'permissions'   => $permissions,
+                'form'               => $this->setFormTheme($form, 'MauticPageBundle:Page:form.html.php', 'MauticPageBundle:FormTheme\Page'),
+                'isVariant'          => $entity->isVariant(true),
+                'tokens'             => $model->getBuilderComponents($entity, 'tokens'),
+                'activePage'         => $entity,
+                'themes'             => $this->factory->getInstalledThemes('page', true),
+                'slots'              => $this->buildSlotForms($slotTypes),
+                'sections'           => $this->buildSlotForms($sections),
+                'builderAssets'      => trim(preg_replace('/\s+/', ' ', $this->getAssetsForBuilder())), // strip new lines
+                'sectionForm'        => $sectionForm->createView(),
+                'permissions'        => $permissions,
+                'beetemplates'       => $this->factory->getInstalledBeeTemplates('page'),
             ],
             'contentTemplate' => 'MauticPageBundle:Page:form.html.php',
             'passthroughVars' => [
@@ -629,7 +690,8 @@ class PageController extends FormController
                     ],
                     'RETURN_ARRAY'
                 ),
-                'security' => $security,
+                'security'           => $security,
+                'beetemplates'       => $this->factory->getInstalledBeeTemplates('page'),
             ],
             'contentTemplate' => 'MauticPageBundle:Page:form.html.php',
             'passthroughVars' => [
@@ -844,33 +906,45 @@ class PageController extends FormController
                 return $this->accessDenied();
             }
         }
+        $isBeeTemplate = $this->request->get('beetemplate', false);
+        if ($isBeeTemplate) {
+            $template = InputHelper::clean($this->request->query->get('beetemplate'));
 
-        $template = InputHelper::clean($this->request->query->get('template'));
-        $slots    = $this->factory->getTheme($template)->getSlots('page');
+            return new JsonResponse($this->factory->getBeeTemplateJSONByName($template));
+        } else {
+            $isBeeHTMLTemplate = $this->request->get('beehtmltemplate', false);
+            if ($isBeeHTMLTemplate) {
+                $template = InputHelper::clean($this->request->query->get('beehtmltemplate'));
 
-        //merge any existing changes
-        $newContent = $this->get('session')->get('mautic.pagebuilder.'.$objectId.'.content', []);
-        $content    = $entity->getContent();
+                return new JsonResponse($this->factory->getBeeTemplateHTMLByName($template));
+            }
+            $template = InputHelper::clean($this->request->query->get('template'));
+            $slots    = $this->factory->getTheme($template)->getSlots('page');
 
-        if (is_array($newContent)) {
-            $content = array_merge($content, $newContent);
-            // Update the content for processSlots
-            $entity->setContent($content);
+            //merge any existing changes
+            $newContent = $this->get('session')->get('mautic.pagebuilder.'.$objectId.'.content', []);
+            $content    = $entity->getContent();
+
+            if (is_array($newContent)) {
+                $content = array_merge($content, $newContent);
+                // Update the content for processSlots
+                $entity->setContent($content);
+            }
+
+            $this->processSlots($slots, $entity);
+
+            $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':page.html.php');
+
+            return $this->render($logicalName, [
+                'isNew'       => $isNew,
+                'slots'       => $slots,
+                'formFactory' => $this->get('form.factory'),
+                'content'     => $content,
+                'page'        => $entity,
+                'template'    => $template,
+                'basePath'    => $this->request->getBasePath(),
+            ]);
         }
-
-        $this->processSlots($slots, $entity);
-
-        $logicalName = $this->factory->getHelper('theme')->checkForTwigTemplate(':'.$template.':page.html.php');
-
-        return $this->render($logicalName, [
-            'isNew'       => $isNew,
-            'slots'       => $slots,
-            'formFactory' => $this->get('form.factory'),
-            'content'     => $content,
-            'page'        => $entity,
-            'template'    => $template,
-            'basePath'    => $this->request->getBasePath(),
-        ]);
     }
 
     /**
@@ -1092,7 +1166,6 @@ class PageController extends FormController
             }
         }
 
-        //add builder toolbar
         $slotsHelper->start('builder'); ?>
         <input type="hidden" id="builder_entity_id" value="<?php echo $entity->getSessionId(); ?>"/>
         <?php

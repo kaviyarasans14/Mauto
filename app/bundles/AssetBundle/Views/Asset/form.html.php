@@ -15,6 +15,7 @@ $header = ($activeAsset->getId()) ?
     $view['translator']->trans('mautic.asset.asset.menu.new');
 $view['slots']->set('headerTitle', $header);
 $view['slots']->set('mauticContent', 'asset');
+$isAdmin=$view['security']->isAdmin();
 ?>
 <script>
 	<?php echo 'mauticAssetUploadEndpoint = "'.$uploadEndpoint.'";'; ?>
@@ -37,7 +38,7 @@ $view['slots']->set('mauticContent', 'asset');
 			        <div class="col-md-5 text-left mt-lg<?php if ($startOnLocal) {
     echo ' hide';
 } ?>" id="remote-button">
-						<?php if ($integrations) : ?>
+						<?php if ($integrations && $isAdmin) : ?>
 							<a data-toggle="ajaxmodal" data-target="#RemoteFileModal" data-header="<?php echo $view['translator']->trans('mautic.asset.remote.file.browse'); ?>" href="<?php echo $view['router']->path('mautic_asset_remote'); ?>?tmpl=modal" class="btn btn-primary">
 								<?php echo $view['translator']->trans('mautic.asset.remote.file.browse'); ?>
 							</a>
@@ -94,14 +95,17 @@ $view['slots']->set('mauticContent', 'asset');
 	</div>
  	<div class="col-md-3 bg-white height-auto">
 		<div class="pr-lg pl-lg pt-md pb-md">
-			<?php
-                echo $view['form']->row($form['category']);
+            <?php
+            echo $view['form']->row($form['category']);
+            echo $view['form']->row($form['isPublished']);
+            ?>
+            <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                <?php
                 echo $view['form']->row($form['language']);
-                echo $view['form']->row($form['isPublished']);
                 echo $view['form']->row($form['publishUp']);
                 echo $view['form']->row($form['publishDown']);
-            ?>
-		</div>
+            echo $view['form']->row($form['disallow']); ?>
+		</div></div>
 	</div>
 </div>
 <?php echo $view['form']->end($form); ?>

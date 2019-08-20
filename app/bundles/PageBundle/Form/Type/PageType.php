@@ -75,7 +75,7 @@ class PageType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html', 'redirectUrl' => 'url']));
+        $builder->addEventSubscriber(new CleanFormSubscriber(['content' => 'html', 'customHtml' => 'html', 'redirectUrl' => 'url', 'beeJSON' => 'raw']));
         $builder->addEventSubscriber(new FormExitSubscriber('page.page', $options));
 
         $builder->add(
@@ -101,7 +101,18 @@ class PageType extends AbstractType
                 ],
             ]
         );
-
+        $builder->add(
+            'beeJSON',
+            'textarea',
+            [
+                'label'      => 'mautic.page.form.beejson',
+                'label_attr' => ['class' => 'control-label'],
+                'required'   => false,
+                'attr'       => [
+                    'class'                => 'form-control bee-editor-json',
+                ],
+            ]
+        );
         $template = $options['data']->getTemplate();
         if (empty($template)) {
             $template = $this->defaultTheme;
@@ -129,6 +140,15 @@ class PageType extends AbstractType
             [
                 'label' => 'mautic.page.config.preference_center',
                 'data'  => $options['data']->isPreferenceCenter() ? $options['data']->isPreferenceCenter() : false,
+            ]
+        );
+
+        $builder->add(
+            'noIndex',
+            'yesno_button_group',
+            [
+                'label' => 'mautic.page.config.no_index',
+                'data'  => $options['data']->getNoIndex() ? $options['data']->getNoIndex() : false,
             ]
         );
 
@@ -325,13 +345,22 @@ class PageType extends AbstractType
 
         $builder->add('buttons', 'form_buttons', [
             'pre_extra_buttons' => [
+//                [
+//                    'name'  => 'builder',
+//                    'label' => 'mautic.core.builder',
+//                    'attr'  => [
+//                        'class'   => 'btn btn-default btn-dnd btn-nospin btn-builder text-primary',
+//                        'icon'    => 'fa fa-cube',
+//                        'onclick' => "Mautic.launchBuilder('page');",
+//                    ],
+//                ],
                 [
-                    'name'  => 'builder',
-                    'label' => 'mautic.core.builder',
+                    'name'  => 'beeeditor',
+                    'label' => 'mautic.core.beeeditor',
                     'attr'  => [
-                        'class'   => 'btn btn-default btn-dnd btn-nospin btn-builder text-primary',
+                        'class'   => 'btn btn-default btn-dnd btn-nospin text-primary btn-beeditor',
                         'icon'    => 'fa fa-cube',
-                        'onclick' => "Mautic.launchBuilder('page');",
+                        'onclick' => "Mautic.launchBeeEditor('pageform', 'page');",
                     ],
                 ],
             ],

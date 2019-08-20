@@ -46,6 +46,12 @@ return [
                 'controller'      => 'MauticSocialBundle:Api\TweetApi',
             ],
         ],
+        'public' => [
+            'mautic_social_js_generate' => [
+                'path'       => '/social/generate/{formName}.js',
+                'controller' => 'MauticSocialBundle:Js:generate',
+            ],
+        ],
     ],
 
     'services' => [
@@ -83,7 +89,7 @@ return [
                     'mautic.helper.integration',
                     'mautic.form.model.form',
                     'mautic.helper.core_parameters',
-                    ],
+                ],
                 'alias' => 'sociallogin',
             ],
             'mautic.form.type.social.facebook' => [
@@ -238,14 +244,14 @@ return [
         'main' => [
             'mautic.social.monitoring' => [
                 'route'    => 'mautic_social_index',
-                'parent'   => 'mautic.core.channels',
+                'parent'   => 'mautic.core.components',
                 'access'   => 'plugin:mauticSocial:monitoring:view',
                 'priority' => 0,
             ],
             'mautic.social.tweets' => [
                 'route'    => 'mautic_tweet_index',
                 'access'   => ['plugin:mauticSocial:tweets:viewown', 'plugin:mauticSocial:tweets:viewother'],
-                'parent'   => 'mautic.core.channels',
+                'parent'   => 'mautic.core.components',
                 'priority' => 80,
                 'checks'   => [
                     'integration' => [

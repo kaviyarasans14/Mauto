@@ -11,8 +11,8 @@
 
 namespace Mautic\UserBundle\Event;
 
-use Mautic\CampaignBundle\Entity\Event;
 use Mautic\UserBundle\Entity\User;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class LoginEvent.

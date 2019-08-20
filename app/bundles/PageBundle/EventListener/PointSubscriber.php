@@ -12,6 +12,7 @@
 namespace Mautic\PageBundle\EventListener;
 
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
+use Mautic\CoreBundle\Security\Permissions\CorePermissions;
 use Mautic\PageBundle\Event as Events;
 use Mautic\PageBundle\PageEvents;
 use Mautic\PointBundle\Event\PointBuilderEvent;
@@ -29,13 +30,20 @@ class PointSubscriber extends CommonSubscriber
     protected $pointModel;
 
     /**
+     * @var \Mautic\CoreBundle\Security\Permissions\CorePermissions
+     */
+    protected $security;
+
+    /**
      * PointSubscriber constructor.
      *
-     * @param PointModel $pointModel
+     * @param PointModel      $pointModel
+     * @param CorePermissions $security
      */
-    public function __construct(PointModel $pointModel)
+    public function __construct(PointModel $pointModel, CorePermissions $security)
     {
         $this->pointModel = $pointModel;
+        $this->security   = $security;
     }
 
     /**

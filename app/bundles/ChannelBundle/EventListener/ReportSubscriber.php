@@ -54,6 +54,9 @@ class ReportSubscriber extends CommonSubscriber
      */
     public function onReportBuilder(ReportBuilderEvent $event)
     {
+        if (!$this->security->isAdmin()) {
+            return;
+        }
         if (!$event->checkContext([self::CONTEXT_MESSAGE_CHANNEL])) {
             return;
         }
@@ -120,7 +123,6 @@ class ReportSubscriber extends CommonSubscriber
             [
                 'display_name' => 'mautic.message.queue',
                 'columns'      => $columns,
-                'filters'      => $companyColumns,
             ]
         );
     }

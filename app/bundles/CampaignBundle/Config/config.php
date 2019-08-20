@@ -33,7 +33,7 @@ return [
                 'controller' => 'MauticCampaignBundle:Campaign:contacts',
             ],
             'mautic_campaign_preview' => [
-                'path'       => '/campaign/preview/{objectId}',
+                'path'       => '/automation/preview/{objectId}',
                 'controller' => 'MauticEmailBundle:Public:preview',
             ],
         ],
@@ -105,11 +105,12 @@ return [
 
     'menu' => [
         'main' => [
-            'mautic.campaign.menu.index' => [
-                'iconClass' => 'fa-clock-o',
-                'route'     => 'mautic_campaign_index',
-                'access'    => 'campaign:campaigns:view',
-                'priority'  => 50,
+            'priority' => 80,
+            'items'    => [
+                'mautic.campaign.menu.index' => [
+                    'route'     => 'mautic_campaign_index',
+                    'iconClass' => 'fas fa-sitemap',
+                ],
             ],
         ],
     ],
@@ -215,6 +216,7 @@ return [
                     'mautic.lead.model.lead',
                     'mautic.lead.model.list',
                     'mautic.form.model.form',
+                    'mautic.category.model.category',
                 ],
             ],
             'mautic.campaign.model.event' => [

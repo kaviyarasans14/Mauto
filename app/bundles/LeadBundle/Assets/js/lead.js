@@ -1,6 +1,6 @@
 //LeadBundle
 Mautic.leadOnLoad = function (container, response) {
-    Mautic.addKeyboardShortcut('a', 'Quick add a New Contact', function(e) {
+    Mautic.addKeyboardShortcut('a', 'Quick add a New Lead', function(e) {
         if(mQuery('a.quickadd').length) {
             mQuery('a.quickadd').click();
         } else if (mQuery('a.btn-leadnote-add').length) {
@@ -238,6 +238,12 @@ Mautic.getLeadId = function() {
 }
 
 Mautic.leadEmailOnLoad = function(container, response) {
+    mQuery('[data-verified-email]').click(function(e) {
+        e.preventDefault();
+        var currentLink = mQuery(this);
+        var value = currentLink.attr('data-verified-email');
+        mQuery("#lead_quickemail_from").val(value);
+    });
     // Some hacky editations made on every form submit because of Froala (more at: https://github.com/froala/wysiwyg-editor/issues/1372)
     mQuery('[name="lead_quickemail"]').on('submit.ajaxform', function() {
         var emailHtml = mQuery('.fr-iframe').contents();
@@ -486,7 +492,12 @@ Mautic.updateLookupListFilter = function(field, datum) {
     }
 };
 
-Mautic.activateSegmentFilterTypeahead = function(displayId, filterId, fieldOptions) {
+Mautic.activateSegmentFilterTypeahead = function(displayId, filterId, fieldOptions, mQueryObject) {
+
+    if(typeof mQueryObject == 'function'){
+        mQuery = mQueryObject;
+    }
+
     mQuery('#' + displayId).attr('data-lookup-callback', 'updateLookupListFilter');
 
     Mautic.activateFieldTypeahead(displayId, filterId, [], 'lead:fieldList')
@@ -1437,4 +1448,48 @@ Mautic.setAsPrimaryCompany = function (companyId,leadId){
 
         }
     });
+}
+
+Mautic.showOthersField = function (selectedval){
+    if(selectedval == "Other"){
+        mQuery('#kycinfo_others_label').addClass('required');
+        mQuery('#kycinfo_others_label').css("display", "block");
+        mQuery('#kycinfo_others').css("display", "block");
+        mQuery('#kycinfo_others').prop('required',true);
+    } else {
+        mQuery('#kycinfo_others_label').removeClass('required');
+        mQuery('#kycinfo_others_label').css("display", "none");
+        mQuery('#kycinfo_others').css("display", "none");
+        mQuery('#kycinfo_others').prop('required',false);
+    }
+}
+
+Mautic.showMarketingOthersField = function (selectedval){
+    if(selectedval == "Other"){
+        mQuery('#marketing_others_label').addClass('required');
+        mQuery('#marketing_others_label').css("display", "block");
+        mQuery('#kycinfo_emailcontent').css("display", "block");
+        mQuery('#kycinfo_emailcontent').prop('required',true);
+    } else {
+        mQuery('#marketing_others_label').removeClass('required');
+        mQuery('#marketing_others_label').css("display", "none");
+        mQuery('#kycinfo_emailcontent').css("display", "none");
+        mQuery('#kycinfo_emailcontent').prop('required',false);
+    }
+}
+
+Mautic.showGSTNumber = function (selectedval){
+    //if(selectedval == "India"){
+        //mQuery('.accountTimezone').val('Asia/Kolkata');
+        //mQuery('#gstnumber_info').addClass('required');
+       // mQuery('#gstnumber_info').css("display", "block");
+       // mQuery('#billinginfo_gstnumber').css("display", "block");
+        //mQuery('#billinginfo_gstnumber').prop('required',true);
+   // } else {
+        //mQuery('.accountTimezone').val('');
+        //mQuery('#gstnumber_info').removeClass('required');
+        mQuery('#gstnumber_info').css("display", "block");
+        mQuery('#billinginfo_gstnumber').css("display", "block");
+        //mQuery('#billinginfo_gstnumber').prop('required',false);
+    //}
 }

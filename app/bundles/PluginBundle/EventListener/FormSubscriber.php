@@ -40,15 +40,17 @@ class FormSubscriber extends CommonSubscriber
      */
     public function onFormBuild(FormBuilderEvent $event)
     {
-        $action = [
-            'group'       => 'mautic.plugin.actions',
-            'description' => 'mautic.plugin.actions.tooltip',
-            'label'       => 'mautic.plugin.actions.push_lead',
-            'formType'    => 'integration_list',
-            'formTheme'   => 'MauticPluginBundle:FormTheme\Integration',
-            'eventName'   => PluginEvents::ON_FORM_SUBMIT_ACTION_TRIGGERED,
-        ];
-        $event->addSubmitAction('plugin.leadpush', $action);
+        if ($this->security->isAdmin()) {
+            $action = [
+                'group'       => 'mautic.plugin.actions',
+                'description' => 'mautic.plugin.actions.tooltip',
+                'label'       => 'mautic.plugin.actions.push_lead',
+                'formType'    => 'integration_list',
+                'formTheme'   => 'MauticPluginBundle:FormTheme\Integration',
+                'eventName'   => PluginEvents::ON_FORM_SUBMIT_ACTION_TRIGGERED,
+            ];
+            $event->addSubmitAction('plugin.leadpush', $action);
+        }
     }
 
     /**

@@ -84,6 +84,11 @@ class Campaign extends FormEntity
     private $canvasSettings = [];
 
     /**
+     * @var int
+     */
+    private $campaignOrder;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -151,6 +156,11 @@ class Campaign extends FormEntity
 
         $builder->createField('canvasSettings', 'array')
             ->columnName('canvas_settings')
+            ->nullable()
+            ->build();
+
+        $builder->createField('campaignOrder', 'integer')
+            ->columnName('campaign_Order')
             ->nullable()
             ->build();
     }
@@ -524,6 +534,26 @@ class Campaign extends FormEntity
     public function setCanvasSettings(array $canvasSettings)
     {
         $this->canvasSettings = $canvasSettings;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCampaignOrder()
+    {
+        return $this->campaignOrder;
+    }
+
+    /**
+     * @param $campaignorder
+     *
+     * @return $this
+     */
+    public function setCampaignOrder($campaignorder)
+    {
+        $this->campaignOrder = $campaignorder;
+
+        return $this;
     }
 
     /**

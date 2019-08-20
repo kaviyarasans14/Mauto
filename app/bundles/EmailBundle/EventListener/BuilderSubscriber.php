@@ -111,10 +111,12 @@ class BuilderSubscriber extends CommonSubscriber
         }
 
         $tokens = [
-            '{unsubscribe_text}' => $this->translator->trans('mautic.email.token.unsubscribe_text'),
-            '{webview_text}'     => $this->translator->trans('mautic.email.token.webview_text'),
-            '{signature}'        => $this->translator->trans('mautic.email.token.signature'),
-            '{subject}'          => $this->translator->trans('mautic.email.subject'),
+            '{from_email}'            => $this->translator->trans('mautic.email.token.from_email'),
+            '{postal_address}'        => $this->translator->trans('mautic.email.token.postal_address'),
+            '{unsubscribe_link}'      => $this->translator->trans('mautic.email.token.unsubscribe_text'),
+            //'{webview_text}'     => $this->translator->trans('mautic.email.token.webview_text'),
+            //'{signature}'        => $this->translator->trans('mautic.email.token.signature'),
+            //'{subject}'          => $this->translator->trans('mautic.email.subject'),
         ];
 
         if ($event->tokensRequested(array_keys($tokens))) {
@@ -125,10 +127,10 @@ class BuilderSubscriber extends CommonSubscriber
         }
 
         // these should not allow visual tokens
-        $tokens = [
-            '{unsubscribe_url}' => $this->translator->trans('mautic.email.token.unsubscribe_url'),
-            '{webview_url}'     => $this->translator->trans('mautic.email.token.webview_url'),
-        ];
+        //$tokens = [
+        //    '{unsubscribe_url}' => $this->translator->trans('mautic.email.token.unsubscribe_url'),
+        //    '{webview_url}'     => $this->translator->trans('mautic.email.token.webview_url'),
+        //];
         if ($event->tokensRequested(array_keys($tokens))) {
             $event->addTokens(
                 $event->filterTokens($tokens)
@@ -247,20 +249,21 @@ class BuilderSubscriber extends CommonSubscriber
         $idHash = $event->getIdHash();
         $lead   = $event->getLead();
         $email  = $event->getEmail();
+        $helper = $event->getHelper();
 
         if ($idHash == null) {
             // Generate a bogus idHash to prevent errors for routes that may include it
             $idHash = uniqid();
         }
 
-        $unsubscribeText = $this->coreParametersHelper->getParameter('unsubscribe_text');
+        $unsubscribeText = $this->coreParametersHelper->getParameter('unsubscribe');
         if (!$unsubscribeText) {
             $unsubscribeText = $this->translator->trans('mautic.email.unsubscribe.text', ['%link%' => '|URL|']);
         }
-        $unsubscribeText = str_replace('|URL|', $this->emailModel->buildUrl('mautic_email_unsubscribe', ['idHash' => $idHash]), $unsubscribeText);
-        $event->addToken('{unsubscribe_text}', EmojiHelper::toHtml($unsubscribeText));
+        $unsubscribeText = str_replace('|URL|', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]), $unsubscribeText);
+        $event->addToken('{unsubscribe_link}', EmojiHelper::toHtml($unsubscribeText));
 
-        $event->addToken('{unsubscribe_url}', $this->emailModel->buildUrl('mautic_email_unsubscribe', ['idHash' => $idHash]));
+        $event->addToken('{unsubscribe_url}', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]));
 
         $webviewText = $this->coreParametersHelper->getParameter('webview_text');
         if (!$webviewText) {
@@ -282,6 +285,39 @@ class BuilderSubscriber extends CommonSubscriber
         $event->addToken('{signature}', EmojiHelper::toHtml($signatureText));
 
         $event->addToken('{subject}', EmojiHelper::toHtml($event->getSubject()));
+
+        $postal_address = $this->coreParametersHelper->getParameter('postal_address');
+        if ($postal_address != '') {
+            $event->addToken('{postal_address}', EmojiHelper::toHtml($postal_address));
+        }
+
+        if ($helper != null && !empty($helper->message->getFrom())) {
+            foreach ($helper->message->getFrom() as $fromemail => $fromname) {
+                $event->addToken('{from_email}', $fromemail);
+            }
+        }
+
+        $footerText = $this->coreParametersHelper->getParameter('footer_text');
+        if (!$footerText) {
+            $footerText = $this->translator->trans('leadsengage.email.default.footer');
+        }
+        if ($footerText != '') {
+            $footerText = str_replace('{unsubscribe_link}', "<a href='|URL|'>Unsubscribe</a>", $footerText);
+            $footerText = str_replace('|URL|', $this->emailModel->buildUrl('mautic_email_subscribe', ['idHash' => $idHash]), $footerText);
+            if ($helper != null && !empty($helper->message->getFrom())) {
+                foreach ($helper->message->getFrom() as $fromemail => $fromname) {
+                    $footerText = str_replace('{from_email}', $fromemail, $footerText);
+                }
+            } else {
+                $fromAddress = $this->coreParametersHelper->getParameter('mailer_from_email');
+                $footerText  = str_replace('{from_email}', $fromAddress, $footerText);
+            }
+            $postal_address = $this->coreParametersHelper->getParameter('postal_address');
+            if ($postal_address != '') {
+                $footerText = str_replace('{postal_address}', $postal_address, $footerText);
+            }
+            $event->addToken('{footer_text}', EmojiHelper::toHtml($footerText));
+        }
     }
 
     /**

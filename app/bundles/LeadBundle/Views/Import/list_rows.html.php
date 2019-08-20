@@ -40,10 +40,16 @@
         </td>
         <td class="visible-md visible-lg"><?php echo $item->getRunTime() ? $view['date']->formatRange($item->getRunTime()) : ''; ?></td>
         <td class="visible-md visible-lg"><?php echo $item->getProgressPercentage(); ?>%</td>
-        <td class="visible-md visible-lg"><?php echo $item->getLineCount(); ?></td>
+        <td class="visible-md visible-lg"><?php echo $item->getLineCount() - 1; ?></td>
         <td class="visible-md visible-lg"><?php echo $item->getInsertedCount(); ?></td>
         <td class="visible-md visible-lg"><?php echo $item->getUpdatedCount(); ?></td>
-        <td class="visible-md visible-lg"><?php echo $item->getIgnoredCount(); ?></td>
+        <td class="visible-md visible-lg"><?php
+            if ($item->getIgnoredCount() == 1) {
+                echo 'Success!';
+            } else {
+                echo $item->getIgnoredCount() - 1;
+            }
+             ?></td>
         <td class="visible-md visible-lg">
             <abbr title="<?php echo $view['date']->toFull($item->getDateAdded()); ?>">
                 <?php echo $view['date']->toText($item->getDateAdded()); ?>

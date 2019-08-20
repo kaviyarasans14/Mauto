@@ -54,6 +54,8 @@ class UserSubscriber extends CommonSubscriber
             UserEvents::USER_POST_DELETE => ['onUserDelete', 0],
             UserEvents::ROLE_POST_SAVE   => ['onRolePostSave', 0],
             UserEvents::ROLE_POST_DELETE => ['onRoleDelete', 0],
+            UserEvents::USER_LOGIN       => ['onUserLogin', 0],
+            UserEvents::USER_LOGOUT      => ['onUserLogout', 0],
         ];
     }
 
@@ -135,6 +137,51 @@ class UserSubscriber extends CommonSubscriber
             'details'   => ['name' => $role->getName()],
             'ipAddress' => $this->ipLookupHelper->getIpAddressFromRequest(),
         ];
+        $this->auditLogModel->writeToLog($log);
+    }
+
+    /**
+     * Add a user entry to the audit log when a user logged in.
+     *
+     * @param Events\LoginEvent $event
+     */
+    public function onUserLogin(Events\LoginEvent $event)
+    {
+        $user   =     $event->getUser();
+        $details= [$user->getName(),
+                    $user->getPosition(), ];
+        $log = [
+                'bundle'    => 'user',
+                'object'    => 'user',
+                'objectId'  => $user->getId(),
+                'action'    => 'logged_in',
+                'details'   => $details,
+                'ipAddress' => $this->ipLookupHelper->getIpAddressFromRequest(),
+            ];
+
+        $this->auditLogModel->writeToLog($log);
+    }
+
+    /**
+     * Add a user entry to the audit log when a user log out.
+     *
+     * @param Events\LogoutEvent $event
+     */
+    public function onUserLogout(Events\LogoutEvent $event)
+    {
+        $user   =    $event->getUser();
+        $details= [$user->getId(),
+                    $user->getName(), ];
+
+        $log = [
+            'bundle'    => 'user',
+            'object'    => 'user',
+            'objectId'  => $user->getId(),
+            'action'    => 'logged_out',
+            'details'   => $details,
+            'ipAddress' => $this->ipLookupHelper->getIpAddressFromRequest(),
+        ];
+
         $this->auditLogModel->writeToLog($log);
     }
 }

@@ -18,33 +18,33 @@ return [
     'routes' => [
         'main' => [
             'mautic_focus_index' => [
-                'path'       => '/focus/{page}',
+                'path'       => '/popups/{page}',
                 'controller' => 'MauticFocusBundle:Focus:index',
             ],
             'mautic_focus_action' => [
-                'path'       => '/focus/{objectAction}/{objectId}',
+                'path'       => '/popups/{objectAction}/{objectId}',
                 'controller' => 'MauticFocusBundle:Focus:execute',
             ],
         ],
         'public' => [
             'mautic_focus_generate' => [
-                'path'       => '/focus/{id}.js',
+                'path'       => '/popups/{id}.js',
                 'controller' => 'MauticFocusBundle:Public:generate',
             ],
             'mautic_focus_pixel' => [
-                'path'       => '/focus/{id}/viewpixel.gif',
+                'path'       => '/popups/{id}/viewpixel.gif',
                 'controller' => 'MauticFocusBundle:Public:viewPixel',
             ],
         ],
         'api' => [
             'mautic_api_focusstandard' => [
                 'standard_entity' => true,
-                'name'            => 'focus',
-                'path'            => '/focus',
+                'name'            => 'popups',
+                'path'            => '/popups',
                 'controller'      => 'MauticFocusBundle:Api\FocusApi',
             ],
             'mautic_api_focusjs' => [
-                'path'       => '/focus/{id}/js',
+                'path'       => '/popups/{id}/js',
                 'controller' => 'MauticFocusBundle:Api\FocusApi:generateJs',
                 'method'     => 'POST',
             ],
@@ -162,8 +162,9 @@ return [
             'mautic.focus' => [
                 'route'    => 'mautic_focus_index',
                 'access'   => 'plugin:focus:items:view',
-                'parent'   => 'mautic.core.channels',
-                'priority' => 10,
+                'parent'   => 'mautic.campaigns.root',
+                'priority' => 170,
+                'parent'   => 'mautic.core.components',
             ],
         ],
     ],

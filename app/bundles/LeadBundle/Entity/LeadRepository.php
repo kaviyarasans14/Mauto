@@ -628,7 +628,8 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                 'l.firstname',
                 'l.lastname',
                 'l.email',
-                'l.company',
+                'l.company_new',
+                'l.mobile',
                 'l.city',
                 'l.state',
                 'l.zipcode',
@@ -742,7 +743,9 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                         $q->expr()->$xExpr(
                             $q->expr()->$eqExpr('list_lead.manually_removed', 0)
                         )
-                    )
+                    ),
+                    null,
+                    $filter
                 );
                 $filter->strict  = true;
                 $returnParameter = true;
@@ -908,7 +911,7 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
             'mautic.lead.lead.searchcommand.isunowned',
             'mautic.lead.lead.searchcommand.list',
             'mautic.core.searchcommand.name',
-            'mautic.lead.lead.searchcommand.company',
+            'mautic.lead.lead.searchcommand.company_new',
             'mautic.core.searchcommand.email',
             'mautic.lead.lead.searchcommand.owner',
             'mautic.core.searchcommand.ip',
@@ -919,6 +922,10 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
             'mautic.lead.lead.searchcommand.email_read',
             'mautic.lead.lead.searchcommand.email_queued',
             'mautic.lead.lead.searchcommand.email_pending',
+            'mautic.lead.lead.searchcommand.email_failure',
+            'mautic.lead.lead.searchcommand.email_unsubscribe',
+            'mautic.lead.lead.searchcommand.email_bounce',
+            'mautic.lead.lead.searchcommand.email_spam',
             'mautic.lead.lead.searchcommand.sms_sent',
             'mautic.lead.lead.searchcommand.web_sent',
             'mautic.lead.lead.searchcommand.mobile_sent',
@@ -1074,12 +1081,12 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
      * @param bool         $innerJoinTables
      * @param null         $whereExpression
      * @param null         $having
+     * @param              $filter
      */
-    public function applySearchQueryRelationship(QueryBuilder $q, array $tables, $innerJoinTables, $whereExpression = null, $having = null)
+    public function applySearchQueryRelationship(QueryBuilder $q, array $tables, $innerJoinTables, $whereExpression = null, $having = null, $filter = null)
     {
         $primaryTable = $tables[0];
         unset($tables[0]);
-
         $joinType = ($innerJoinTables) ? 'join' : 'leftJoin';
 
         $this->useDistinctCount = true;
@@ -1103,6 +1110,12 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                 $q->andHaving($having);
             }
             $q->groupBy('l.id');
+        } elseif (array_key_exists($primaryTable['alias'], $joins) && $filter != null) {
+            if ($whereExpression && strtolower($filter->type) == 'or') {
+                $q->orWhere($whereExpression);
+            } elseif ($whereExpression) {
+                $q->andWhere($whereExpression);
+            }
         }
     }
 
@@ -1168,5 +1181,51 @@ class LeadRepository extends CommonRepository implements CustomFieldRepositoryIn
                 $entity->setChanges($changes);
             }
         }
+    }
+
+    public function getPageHitDetails($contactId)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+
+        $q->select('p.url', 'count(id) as pagehits')
+            ->from(MAUTIC_TABLE_PREFIX.'page_hits', 'p');
+
+        if ($contactId !== null) {
+            $q->andWhere(
+                $q->expr()->gte('p.lead_id', $contactId)
+            );
+            $q->groupBy('p.url');
+        }
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results;
+    }
+
+    public function updateContactScore($score, $id)
+    {
+        $now = new \DateTime();
+        $q   = $this->_em->getConnection()->createQueryBuilder();
+        $q->update(MAUTIC_TABLE_PREFIX.'leads')
+            ->set('score', ':score')
+            ->set('date_modified', ':datemodified')
+            ->where('id = '.$id)
+            ->setParameter('score', $score)
+            ->setParameter('datemodified', $now->format('Y-m-d H:i:s'))->execute();
+    }
+
+    public function getHotAndWarmLead($dateinterval)
+    {
+        $q = $this->_em->getConnection()->createQueryBuilder();
+
+        $q->select('l.score as leadscore', 'l.id as leadid')
+            ->from(MAUTIC_TABLE_PREFIX.'leads', 'l')
+            ->where('l.score in ("hot","warm")')
+            ->andWhere('l.last_active <= '."'".$dateinterval."'");
+
+        //get a total number of sent emails
+        $results = $q->execute()->fetchAll();
+
+        return $results;
     }
 }

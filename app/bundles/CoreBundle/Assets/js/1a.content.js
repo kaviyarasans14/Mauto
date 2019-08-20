@@ -115,10 +115,10 @@ Mautic.generatePageTitle = function(route){
         // Encoded entites are decoded by this process and can cause a XSS
         currentModuleItem = mQuery('<div>'+currentModuleItem+'</div>').text();
 
-        mQuery('title').html( currentModule[0].toUpperCase() + currentModule.slice(1) + ' | ' + currentModuleItem + ' | Mautic' );
+        mQuery('title').html( currentModule[0].toUpperCase() + currentModule.slice(1) + ' | ' + currentModuleItem + ' | LeadsEngage' );
     } else {
         //loading basic title
-        mQuery('title').html( mQuery('.page-header h3').html() + ' | Mautic' );
+        mQuery('title').html( mQuery('.page-header h3').html() + ' | LeadsEngage' );
     }
 };
 
@@ -151,10 +151,6 @@ Mautic.processPageContent = function (response) {
             }
         }
 
-        if (response.flashes) {
-            Mautic.setFlashes(response.flashes);
-        }
-
         if (response.notifications) {
             Mautic.setNotifications(response.notifications);
         }
@@ -166,7 +162,7 @@ Mautic.processPageContent = function (response) {
         if (response.route) {
             //update URL in address bar
             MauticVars.manualStateChange = false;
-            History.pushState(null, "Mautic", response.route);
+            History.pushState(null, "LeadsEngage", response.route);
 
             //update Title
             Mautic.generatePageTitle( response.route );
@@ -526,7 +522,7 @@ Mautic.onPageLoad = function (container, response, inModal) {
                 editor.popups.hideAll();
             });
 
-            var maxButtons = ['undo', 'redo', '|', 'bold', 'italic', 'underline', 'paragraphFormat', 'fontFamily', 'fontSize', 'color', 'align', 'formatOL', 'formatUL', 'quote', 'clearFormatting', 'token', 'insertLink', 'insertImage', 'insertGatedVideo', 'insertTable', 'html', 'fullscreen'];
+            var maxButtons = ['undo', 'redo', '|', 'bold', 'italic', 'underline', 'paragraphFormat', 'fontFamily', 'fontSize', 'color', 'align', 'formatOL', 'formatUL', 'quote', 'clearFormatting','insertLink', 'insertImage', 'insertGatedVideo', 'insertTable', 'fullscreen','html', 'token'];
             var minButtons = ['undo', 'redo', '|', 'bold', 'italic', 'underline'];
 
             if (textarea.hasClass('editor-email')) {
@@ -717,6 +713,9 @@ Mautic.onPageLoad = function (container, response, inModal) {
     if ((response && typeof response.stopPageLoading != 'undefined' && response.stopPageLoading) || container == '#app-content' || container == '.page-list') {
         Mautic.stopPageLoadingBar();
     }
+    if (contentSpecific != "invalidDomain") {
+        Mautic.loadLicenseUsageInfo();
+    }
 };
 
 /**
@@ -818,6 +817,7 @@ Mautic.onPageUnload = function (container, response) {
     }
 
     if (contentSpecific) {
+        //  alert(contentSpecific);
         if (typeof Mautic[contentSpecific + "OnUnload"] == 'function') {
             Mautic[contentSpecific + "OnUnload"](container, response);
         }

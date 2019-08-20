@@ -151,7 +151,7 @@ class ReportSubscriber extends CommonSubscriber
             ],
         ];
 
-        $companyColumns = $this->companyReportData->getCompanyData();
+        $companyColumns=$this->companyReportData->getCompanyData();
 
         $columns = array_merge(
             $columns,
@@ -166,7 +166,8 @@ class ReportSubscriber extends CommonSubscriber
         $data = [
             'display_name' => 'mautic.campaign.events',
             'columns'      => $columns,
-            'filters'      => $companyColumns,
+
+           /* 'filters'      => $columns,*/
         ];
         $event->addTable(self::CONTEXT_CAMPAIGN_LEAD_EVENT_LOG, $data);
 

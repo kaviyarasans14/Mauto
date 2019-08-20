@@ -32,6 +32,7 @@ $view['slots']->set(
         'searchValue' => $searchValue,
         'action'      => $currentRoute,
         'searchHelp'  => 'mautic.asset.asset.help.searchcommands',
+        'filters'     => $filters,
     ]); ?>
     <div class="page-list">
         <?php $view['slots']->output('_content'); ?>

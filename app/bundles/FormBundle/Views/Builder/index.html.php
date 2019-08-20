@@ -10,8 +10,9 @@
  */
 $view->extend('MauticCoreBundle:Default:content.html.php');
 $view['slots']->set('mauticContent', 'form');
-
-$header = ($activeForm->getId())
+$isadmin    =$view['security']->isAdmin();
+$hidepanel  =$view['security']->isAdmin() ? '' : 'display: none;';
+$header     = ($activeForm->getId())
     ?
     $view['translator']->trans(
         'mautic.form.form.header.edit',
@@ -26,13 +27,32 @@ $formId = $form['sessionId']->vars['data'];
 if (!isset($inBuilder)) {
     $inBuilder = false;
 }
+$hidetemplate  = '';
+$hideformpanel = '';
+if (($activeForm->getName() == '' || $activeForm->getName() == null) && $objectID == null) {
+    $hideformpanel = 'hide';
+    $hidetemplate  = '';
+} elseif ($objectID == 'scratch') {
+    $hideformpanel = '';
+    $hidetemplate  = 'hide';
+} else {
+    $hideformpanel = '';
+    $hidetemplate  = 'hide';
+}
 
 ?>
 <?php echo $view['form']->start($form); ?>
 <div class="box-layout">
-    <div class="col-md-9 height-auto bg-white">
+    <div class="col-md-9 height-auto bg-white bdr-r pa-md">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-12 <?php echo $hidetemplate; ?>">
+                <?php echo $view->render('MauticFormBundle:Builder:form_template_select.html.php', [
+                    'formTemplates' => $formItems,
+                    'entity'        => $activeForm,
+                    'newFormURL'    => $newFormURL,
+                ]); ?>
+            </div>
+            <div class="col-xs-12 <?php echo $hideformpanel?>">
                 <!-- tabs controls -->
                 <ul class="bg-auto nav nav-tabs pr-md pl-md">
                     <li class="active"><a href="#details-container" role="tab" data-toggle="tab"><?php echo $view['translator']->trans(
@@ -71,7 +91,7 @@ if (!isset($inBuilder)) {
                                     <select class="chosen form-builder-new-component" data-placeholder="<?php echo $view['translator']->trans('mautic.form.form.component.fields'); ?>">
                                         <option value=""></option>
                                         <?php foreach ($fields as $fieldType => $field): ?>
-
+                                            <?php if (!$isadmin && ($fieldType == 'captcha' || $fieldType == 'plugin.loginSocial')): continue; endif; ?>
                                             <option data-toggle="ajaxmodal"
                                                     data-target="#formComponentModal"
                                                     data-href="<?php echo $view['router']->path(
@@ -92,34 +112,34 @@ if (!isset($inBuilder)) {
                                 </div>
                             </div>
                             <div class="drop-here">
-                            <?php foreach ($formFields as $field): ?>
-                                <?php if (!in_array($field['id'], $deletedFields)) : ?>
-                                    <?php if (!empty($field['isCustom'])):
-                                        $params   = $field['customParameters'];
-                                        $template = $params['template'];
-                                    else:
-                                        $template = 'MauticFormBundle:Field:'.$field['type'].'.html.php';
-                                    endif; ?>
-                                    <?php echo $view->render(
-                                        'MauticFormBundle:Builder:fieldwrapper.html.php',
-                                        [
-                                            'template'      => $template,
-                                            'field'         => $field,
-                                            'inForm'        => true,
-                                            'id'            => $field['id'],
-                                            'formId'        => $formId,
-                                            'contactFields' => $contactFields,
-                                            'companyFields' => $companyFields,
-                                            'inBuilder'     => $inBuilder,
-                                        ]
-                                    ); ?>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                                <?php foreach ($formFields as $field): ?>
+                                    <?php if (!in_array($field['id'], $deletedFields)) : ?>
+                                        <?php if (!empty($field['isCustom'])):
+                                            $params   = $field['customParameters'];
+                                            $template = $params['template'];
+                                        else:
+                                            $template = 'MauticFormBundle:Field:'.$field['type'].'.html.php';
+                                        endif; ?>
+                                        <?php echo $view->render(
+                                            'MauticFormBundle:Builder:fieldwrapper.html.php',
+                                            [
+                                                'template'      => $template,
+                                                'field'         => $field,
+                                                'inForm'        => true,
+                                                'id'            => $field['id'],
+                                                'formId'        => $formId,
+                                                'contactFields' => $contactFields,
+                                                'companyFields' => $companyFields,
+                                                'inBuilder'     => $inBuilder,
+                                            ]
+                                        ); ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
                             <?php if (!count($formFields)): ?>
-                            <div class="alert alert-info" id="form-field-placeholder">
-                                <p><?php echo $view['translator']->trans('mautic.form.form.addfield'); ?></p>
-                            </div>
+                                <div class="alert alert-info" id="form-field-placeholder">
+                                    <p><?php echo $view['translator']->trans('mautic.form.form.addfield'); ?></p>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -131,10 +151,10 @@ if (!isset($inBuilder)) {
                                         <option value=""></option>
                                         <?php foreach ($actions as $group => $groupActions): ?>
                                             <?php
-                                                $campaignActionFound = false;
-                                                $actionOptions       = '';
-                                                foreach ($groupActions as $k => $e):
-                                                    $actionOptions .= $view->render(
+                                            $campaignActionFound = false;
+                                            $actionOptions       = '';
+                                            foreach ($groupActions as $k => $e):
+                                                $actionOptions .= $view->render(
                                                         'MauticFormBundle:Action:option.html.php',
                                                         [
                                                             'action'       => $e,
@@ -146,7 +166,7 @@ if (!isset($inBuilder)) {
                                                 if (!empty($e['allowCampaignForm'])) {
                                                     $campaignActionFound = true;
                                                 }
-                                                endforeach;
+                                            endforeach;
                                             $class = (empty($campaignActionFound)) ? ' action-standalone-only' : '';
                                             if (!$campaignActionFound && !$activeForm->isStandalone()) {
                                                 $class .= ' hide';
@@ -159,29 +179,29 @@ if (!isset($inBuilder)) {
                                 </div>
                             </div>
                             <div class="drop-here">
-                            <?php foreach ($formActions as $action): ?>
-                                <?php if (!in_array($action['id'], $deletedActions)) : ?>
-                                    <?php $template = (isset($actionSettings[$action['type']]['template']))
-                                        ? $actionSettings[$action['type']]['template']
-                                        :
-                                        'MauticFormBundle:Action:generic.html.php';
-                                    $action['settings'] = $actionSettings[$action['type']];
-                                    echo $view->render(
-                                        $template,
-                                        [
-                                            'action' => $action,
-                                            'inForm' => true,
-                                            'id'     => $action['id'],
-                                            'formId' => $formId,
-                                        ]
-                                    ); ?>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                                <?php foreach ($formActions as $action): ?>
+                                    <?php if (!in_array($action['id'], $deletedActions)) : ?>
+                                        <?php $template = (isset($actionSettings[$action['type']]['template']))
+                                            ? $actionSettings[$action['type']]['template']
+                                            :
+                                            'MauticFormBundle:Action:generic.html.php';
+                                        $action['settings'] = $actionSettings[$action['type']];
+                                        echo $view->render(
+                                            $template,
+                                            [
+                                                'action' => $action,
+                                                'inForm' => true,
+                                                'id'     => $action['id'],
+                                                'formId' => $formId,
+                                            ]
+                                        ); ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
                             <?php if (!count($formActions)): ?>
-                            <div class="alert alert-info" id="form-action-placeholder">
-                                <p><?php echo $view['translator']->trans('mautic.form.form.addaction'); ?></p>
-                            </div>
+                                <div class="alert alert-info" id="form-action-placeholder">
+                                    <p><?php echo $view['translator']->trans('mautic.form.form.addaction'); ?></p>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -198,8 +218,10 @@ if (!isset($inBuilder)) {
             echo $view['form']->row($form['publishDown']);
             echo $view['form']->row($form['inKioskMode']);
             echo $view['form']->row($form['renderStyle']);
-            echo $view['form']->row($form['template']);
             ?>
+        </div>
+        <div class="pr-lg pl-lg pt-md pb-m <?php echo $isadmin ? '' : 'hide' ?>">
+            <?php echo $view['form']->row($form['template']); ?>
         </div>
     </div>
 </div>
@@ -207,7 +229,7 @@ if (!isset($inBuilder)) {
 
 echo $view['form']->end($form);
 
-if ($activeForm->getFormType() === null || !empty($forceTypeSelection)):
+/*if (($activeForm->getFormType() === null || !empty($forceTypeSelection)) && ($activeForm->getName() == '' || $activeForm->getName() == null) && $objectID == null):
     echo $view->render(
         'MauticCoreBundle:Helper:form_selecttype.html.php',
         [
@@ -227,9 +249,10 @@ if ($activeForm->getFormType() === null || !empty($forceTypeSelection)):
             'typeTwoIconClass'   => 'fa-list',
             'typeTwoDescription' => 'mautic.form.type.standalone.description',
             'typeTwoOnClick'     => "Mautic.selectFormType('standalone');",
+            'typeThreeHeader'    => 'mautic.email.editor.codeeditor.header',
         ]
     );
-endif;
+endif;*/
 
 $view['slots']->append(
     'modal',

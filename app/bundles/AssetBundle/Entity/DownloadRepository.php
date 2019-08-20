@@ -94,7 +94,7 @@ class DownloadRepository extends CommonRepository
      */
     public function getMostDownloaded($query, $limit = 10, $offset = 0)
     {
-        $query->select('a.title, a.id, count(ad.id) as downloads')
+        $query->select('a.title as title, a.id as id, count(ad.id) as downloads')
             ->groupBy('a.id, a.title')
             ->orderBy('downloads', 'DESC')
             ->setMaxResults($limit)
@@ -119,7 +119,7 @@ class DownloadRepository extends CommonRepository
      */
     public function getTopReferrers($query, $limit = 10, $offset = 0)
     {
-        $query->select('ad.referer, count(ad.referer) as downloads')
+        $query->select('ad.referer as referer, count(ad.referer) as downloads')
             ->groupBy('ad.referer')
             ->orderBy('downloads', 'DESC')
             ->setMaxResults($limit)

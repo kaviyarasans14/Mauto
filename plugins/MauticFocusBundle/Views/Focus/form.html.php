@@ -23,7 +23,7 @@ $view['slots']->set('headerTitle', $header);
 
 echo $view['assets']->includeScript('plugins/MauticFocusBundle/Assets/js/focus.js');
 echo $view['assets']->includeStylesheet('plugins/MauticFocusBundle/Assets/css/focus.css');
-
+$isAdmin=$view['security']->isAdmin();
 echo $view['form']->start($form);
 ?>
     <!-- start: box layout -->
@@ -31,27 +31,49 @@ echo $view['form']->start($form);
         <!-- container -->
         <div class="col-md-9 bg-auto height-auto bdr-r pa-md">
             <div class="row">
-                <div class="col-md-6">
-                    <?php echo $view['form']->row($form['name']); ?>
-                </div>
-                <div class="col-md-6">
-                    <?php echo $view['form']->row($form['website']); ?>
-                </div>
-            </div>
-            <div class="row">
+                <?php if (!$entity->getId()) : ?>
                 <div class="col-md-12">
-                    <?php echo $view['form']->row($form['description']); ?>
+                    <?php echo $view->render('MauticFocusBundle:Focus:focus_template_select.html.php', [
+                        'focusTemplates' => $focusTemplates,
+                        'focusForm'      => $form,
+                        'entity'         => $entity,
+                    ]); ?>
                 </div>
+                <?php else : ?>
+                        <div class="col-md-6">
+                            <?php echo $view['form']->row($form['name']); ?>
+                        </div>
+                        <div class="col-md-6">
+                            <?php echo $view['form']->row($form['website']); ?>
+                        </div>
+                        <div class="col-md-12">
+                            <?php echo $view['form']->row($form['description']); ?>
+                        </div>
+                <?php endif; ?>
             </div>
         </div>
         <div class="col-md-3 bg-white height-auto">
             <div class="pr-lg pl-lg pt-md pb-md">
-                <?php
-                echo $view['form']->row($form['category']);
-                echo $view['form']->row($form['isPublished']);
-                echo $view['form']->row($form['publishUp']);
-                echo $view['form']->row($form['publishDown']);
-                ?>
+                <?php if (!$entity->getId()) : ?>
+                    <?php
+                    echo $view['form']->row($form['name']);
+                    echo $view['form']->row($form['website']);
+                    echo $view['form']->row($form['category']);
+                    echo $view['form']->row($form['isPublished']);
+                    ?>
+                <?php else : ?>
+                    <?php
+                    echo $view['form']->row($form['category']);
+                    echo $view['form']->row($form['isPublished']);
+                    ?>
+                <?php endif; ?>
+                <div <?php echo $isAdmin ? '' : 'class="hide"' ?>>
+                    <?php
+                    echo $view['form']->row($form['publishUp']);
+                    echo $view['form']->row($form['publishDown']);
+                    echo $view['form']->row($form['description']);
+                    ?>
+                </div>
                 <hr />
                 <h5><?php echo $view['translator']->trans('mautic.email.utm_tags'); ?></h5>
                 <br />

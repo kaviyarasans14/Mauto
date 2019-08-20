@@ -23,6 +23,13 @@ use Symfony\Component\HttpKernel\Kernel;
 class AppKernel extends Kernel
 {
     /**
+     * Domain Name.
+     *
+     * @const string
+     */
+    const DOMAIN_NAME = '';
+
+    /**
      * Major version number.
      *
      * @const integer
@@ -34,14 +41,14 @@ class AppKernel extends Kernel
      *
      * @const integer
      */
-    const MINOR_VERSION = 12;
+    const MINOR_VERSION = 13;
 
     /**
      * Patch version number.
      *
      * @const integer
      */
-    const PATCH_VERSION = 0;
+    const PATCH_VERSION = 1;
 
     /**
      * Extra version identifier.
@@ -66,14 +73,15 @@ class AppKernel extends Kernel
      *
      * @api
      */
-    public function __construct($environment, $debug)
+    public function __construct($environment, $debug, $domain = '')
     {
         defined('MAUTIC_ENV') or define('MAUTIC_ENV', $environment);
+        defined('LEADSENGAGE_DOMAIN') or define('LEADSENGAGE_DOMAIN', $domain);
         defined('MAUTIC_VERSION') or define(
             'MAUTIC_VERSION',
             self::MAJOR_VERSION.'.'.self::MINOR_VERSION.'.'.self::PATCH_VERSION.self::EXTRA_VERSION
         );
-
+        $this->DOMAIN_NAME=$domain;
         parent::__construct($environment, $debug);
     }
 
@@ -85,11 +93,13 @@ class AppKernel extends Kernel
         if (strpos($request->getRequestUri(), 'installer') !== false || !$this->isInstalled()) {
             define('MAUTIC_INSTALLER', 1);
         }
-
         if (defined('MAUTIC_INSTALLER')) {
             $uri = $request->getRequestUri();
-            if (strpos($uri, 'installer') === false) {
-                $base = $request->getBaseUrl();
+
+            if (strpos($uri, 'validate') === false) {//installer
+                $base   = $request->getBaseUrl();
+                $prefix = '';
+
                 //check to see if the .htaccess file exists or if not running under apache
                 if ((strpos(strtolower($_SERVER['SERVER_SOFTWARE']), 'apache') === false
                     || !file_exists(__DIR__.'../.htaccess')
@@ -98,10 +108,11 @@ class AppKernel extends Kernel
                         'index'
                     ) === false)
                 ) {
-                    $base .= '/index.php';
+                    $prefix .= '/index.php';
                 }
 
-                return new RedirectResponse($base.'/installer');
+                //return new RedirectResponse($request->getUriForPath($prefix.'/installer'));
+                return new RedirectResponse($request->getUriForPath($prefix.'/validate'));
             }
         }
 
@@ -183,6 +194,7 @@ class AppKernel extends Kernel
             new LightSaml\SymfonyBridgeBundle\LightSamlSymfonyBridgeBundle(),
             new LightSaml\SpBundle\LightSamlSpBundle(),
             new Ivory\OrderedFormBundle\IvoryOrderedFormBundle(),
+            new Mautic\SubscriptionBundle\MauticSubscriptionBundle(),
             // These two bundles do DI based on config, so they need to be loaded after config is declared in MauticQueueBundle
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
             new Leezy\PheanstalkBundle\LeezyPheanstalkBundle(),
@@ -253,7 +265,6 @@ class AppKernel extends Kernel
             $prefix      = isset($localParams['db_table_prefix']) ? $localParams['db_table_prefix'] : '';
             define('MAUTIC_TABLE_PREFIX', $prefix);
         }
-
         if ($this->loadClassCache) {
             $this->doLoadClassCache($this->loadClassCache[0], $this->loadClassCache[1]);
         }
@@ -409,7 +420,7 @@ class AppKernel extends Kernel
             /** @var $paths */
             $root = $this->getRootDir();
             include $root.'/config/paths.php';
-
+            //  file_put_contents("/var/www/mautic/app/cache/log.txt","Path111:".$paths['local_config']."\n",FILE_APPEND);
             if ($configFile = $this->getLocalConfigFile()) {
                 /** @var $parameters */
                 include $configFile;
@@ -447,7 +458,12 @@ class AppKernel extends Kernel
         /** @var $paths */
         $root = $this->getRootDir();
         include $root.'/config/paths.php';
-
+        if ($this->getDomainName() != '') {
+            if (isset($paths['local_config'])) {
+                $paths['local_config']='%kernel.root_dir%/config/'.$this->getDomainName().'/local.php';
+            }
+        }
+        //file_put_contents("/var/www/mautic/app/cache/log.txt","Path222:".$paths['local_config']."\n",FILE_APPEND);
         if (isset($paths['local_config'])) {
             $paths['local_config'] = str_replace('%kernel.root_dir%', $root, $paths['local_config']);
             if (!$checkExists || file_exists($paths['local_config'])) {
@@ -557,5 +573,10 @@ class AppKernel extends Kernel
         $container->addResource(new EnvParametersResource('MAUTIC__'));
 
         return $container;
+    }
+
+    protected function getDomainName()
+    {
+        return $this->DOMAIN_NAME;
     }
 }

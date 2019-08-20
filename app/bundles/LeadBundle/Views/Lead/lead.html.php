@@ -204,6 +204,10 @@ $view['slots']->set(
                                                     <?php else: ?>
                                                         <?php if (is_array($field['value']) && 'multiselect' === $field['type']): ?>
                                                             <?php echo implode(', ', $field['value']); ?>
+                                                        <?php elseif (is_string($field['value']) && 'url' === $field['type']): ?>
+                                                            <a href="<?php echo $field['value']; ?>" target="_blank">
+                                                                <?php echo $field['value']; ?>
+                                                            </a>
                                                         <?php else: ?>
                                                             <?php echo $field['value']; ?>
                                                         <?php endif; ?>
@@ -277,7 +281,7 @@ $view['slots']->set(
                         <?php echo $view['translator']->trans('mautic.lead.lead.tab.notes'); ?>
                     </a>
                 </li>
-                <?php if (!$isAnonymous): ?>
+                <?php if (!$isAnonymous && $security->isAdmin()): ?>
                     <li class="">
                         <a href="#social-container" role="tab" data-toggle="tab">
                         <span class="label label-primary mr-sm" id="SocialCount">
@@ -287,6 +291,7 @@ $view['slots']->set(
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php if ($view['security']->isAdmin()): ?>
                 <li class="">
                     <a href="#integration-container" role="tab" data-toggle="tab">
                     <span class="label label-primary mr-sm" id="IntegrationCount">
@@ -295,6 +300,7 @@ $view['slots']->set(
                         <?php echo $view['translator']->trans('mautic.lead.lead.tab.integration'); ?>
                     </a>
                 </li>
+                <?php endif; ?>
                 <li class="">
                     <a href="#auditlog-container" role="tab" data-toggle="tab">
                     <span class="label label-primary mr-sm" id="AuditLogCount">
@@ -354,7 +360,7 @@ $view['slots']->set(
                 </div>
             <?php endif; ?>
             <!--/ #social-container -->
-
+            <?php if ($view['security']->isAdmin()): ?>
             <!-- #integration-container -->
             <div class="tab-pane fade bdr-w-0" id="integration-container">
                 <?php echo $view->render(
@@ -366,7 +372,7 @@ $view['slots']->set(
                 ); ?>
             </div>
             <!--/ #integration-container -->
-
+            <?php endif; ?>
             <!-- #auditlog-container -->
             <div class="tab-pane fade bdr-w-0" id="auditlog-container">
                 <?php echo $view->render(
@@ -419,8 +425,12 @@ $view['slots']->set(
                 <?php
                 $color = $lead->getColor();
                 $style = !empty($color) ? ' style="font-color: '.$color.' !important;"' : '';
+                $score = (!empty($fields['core']['score']['value'])) ? $view['assets']->getCountryFlag($fields['core']['score']['value']) : '';
                 ?>
-                <h1 <?php echo $style; ?>>
+                <h1
+                    <?php echo $style; ?>>
+
+                    <img src="<?php echo $score; ?>" style="max-height: 25px;vertical-align: baseline;" />
                     <?php echo $view['translator']->transChoice(
                         'mautic.lead.points.count',
                         $lead->getPoints(),
@@ -461,6 +471,15 @@ $view['slots']->set(
                                     <i class="fa fa-times has-click-event" onclick="Mautic.removeBounceStatus(this, <?php echo $doNotContact['id']; ?>);"></i>
                                 </span>
                             </span>
+                            <?php elseif ($doNotContact['spam']): ?>
+                                <span class="label label-warning" data-toggle="tooltip" title="<?php echo $doNotContact['comments']; ?>">
+                                <?php echo $view['translator']->trans('mautic.lead.do.not.contact_spam'); ?>
+                                    <span data-toggle="tooltip" data-placement="bottom" title="<?php echo $view['translator']->trans(
+                                        'mautic.lead.remove_dnc_status'
+                                    ); ?>">
+                                    <i class="fa fa-times has-click-event" onclick="Mautic.removeBounceStatus(this, <?php echo $doNotContact['id']; ?>);"></i>
+                                </span>
+                            </span>
                             <?php endif; ?>
                         </h4>
                     </div>
@@ -469,10 +488,16 @@ $view['slots']->set(
             <?php endif; ?>
             <div class="panel-heading">
                 <div class="panel-title">
-                    <?php echo $view['translator']->trans('mautic.lead.field.header.contact'); ?>
+                    <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.lead.field.header.contact'); ?></h6>
+                    <p class="text-muted"><?php echo $fields['core']['title']['value']; ?> <?php echo $fields['core']['firstname']['value']; ?> <?php echo $fields['core']['lastname']['value']; ?></p>
                 </div>
             </div>
             <div class="panel-body pt-sm">
+                <?php if (isset($fields['core']['company_new'])): ?>
+                    <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.core.company'); ?></h6>
+                    <p class="text-muted"><?php echo $fields['core']['company_new']['value']; ?></p>
+                <?php endif; ?>
+
             <?php if ($lead->getOwner()) : ?>
                 <h6 class="fw-sb"><?php echo $view['translator']->trans('mautic.lead.lead.field.owner'); ?></h6>
                 <p class="text-muted"><?php echo $lead->getOwner()->getName(); ?></p>
@@ -557,10 +582,24 @@ $view['slots']->set(
             <?php endforeach; ?>
             <div class="clearfix"></div>
         </div>
-        <div class="pa-sm panel-companies">
+        <div class="pa-sm">
+            <?php if (!empty($pageHitDetails)): ?>
+                <span class="fw-sb"><?php echo $view['translator']->trans('leadsenage.lead.view.visited.pages'); ?></span>
+            <?php foreach ($pageHitDetails as $counter => $event): ?>
+            <?php
+               $linkType   = 'target="_new"';
+               $eventLabel = "<a class= 'page_hit_url' href=\"{$event['url']}\" $linkType>{$event['url']}</a>"; ?>
+               <h5 class="pull-left mt-xs mr-xs">
+                   <?php echo $event['pagehits'].' x '.$eventLabel.'<br>'?></h5>
+              <?php endforeach; ?>
+            <div class="clearfix"></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- <div class="pa-sm panel-companies">
             <div class="panel-title">  <?php echo $view['translator']->trans(
                     'mautic.lead.lead.companies'); ?></div>
-            <?php foreach ($companies as $key => $company): ?>
+           <?php foreach ($companies as $key => $company): ?>
                 <h5 class="pull-left mt-xs mr-xs"><span class="label label-success" >
                        <i id="company-<?php echo $company['id']; ?>" class="fa fa-check <?php if ($company['is_primary'] == 1): ?>primary<?php endif?>" onclick="Mautic.setAsPrimaryCompany(<?php echo $company['id']?>, <?php echo $lead->getId()?>);" title="<?php echo $view['translator']->trans('mautic.lead.company.set.primary'); ?>"></i> <a href="<?php echo $view['router']->path('mautic_company_action', ['objectAction' => 'edit', 'objectId' => $company['id']]); ?>" style="color: white;"><?php echo $company['companyname']; ?></a>
                     </span>
@@ -568,7 +607,7 @@ $view['slots']->set(
             <?php endforeach; ?>
             <div class="clearfix"></div>
         </div>
-    </div>
+    </div>-->
     <!--/ right section -->
 </div>
 <!--/ end: box layout -->

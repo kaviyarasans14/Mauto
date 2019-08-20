@@ -25,6 +25,9 @@ $getChannelOutput = function ($channel) use ($view, $event, $log, $extra, $event
             case \Mautic\LeadBundle\Entity\DoNotContact::UNSUBSCRIBED:
                 $msg = 'mautic.lead.event.donotcontact_unsubscribed';
                 break;
+            case \Mautic\LeadBundle\Entity\DoNotContact::SPAM:
+                $msg = 'mautic.lead.event.donotcontact_spam';
+                break;
             case \Mautic\LeadBundle\Entity\DoNotContact::MANUAL:
                 $msg = 'mautic.lead.event.donotcontact_manual';
                 break;

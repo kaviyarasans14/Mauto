@@ -60,10 +60,17 @@ class FieldController extends FormController
 
         $session->set('mautic.lead.emailtoken.filter', $search);
 
-        $fields = $this->getModel('lead.field')->getEntities([
+        $filter            = ['string' => $search, 'force' => []];
+        $model             = $this->getModel('lead.field');
+        $repo              = $model->getRepository();
+        $filter['where'][] = [
+            'expr' => 'orX',
+            'val'  => [['column' => $repo->getTableAlias().'.isPublished', 'expr' => 'eq', 'value' => 1], ['column' => $repo->getTableAlias().'.createdBy', 'expr' => 'isNotNull']],
+        ];
+        $fields = $model->getEntities([
             'start'      => $start,
             'limit'      => $limit,
-            'filter'     => ['string' => $search],
+            'filter'     => $filter,
             'orderBy'    => $orderBy,
             'orderByDir' => $orderByDir,
         ]);
