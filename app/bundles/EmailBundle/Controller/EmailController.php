@@ -65,8 +65,6 @@ class EmailController extends FormController
             $this->setListFilters();
         }
 
-
-
         $session = $this->get('session');
 
         $listFilters = [
